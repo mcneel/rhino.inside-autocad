@@ -1,0 +1,77 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rhino.Inside.AutoCAD.Core", "src\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj", "{F97C43C0-42A3-B3CF-A6FE-81AA9610239C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rhino.Inside.AutoCAD.Services", "src\Rhino.Inside.AutoCAD.Services\Rhino.Inside.AutoCAD.Services.csproj", "{DFECA24E-4B44-3261-31C1-7DE216D21FFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rhino.Inside.AutoCAD.UserTests", "src\Rhino.Inside.AutoCAD.UserTests\Rhino.Inside.AutoCAD.UserTests.csproj", "{EA91F4D6-845D-FE7E-8D44-62CE0B748C9B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{0D83A068-B3CA-40B4-9D3F-29C606187B29}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Addin", "Addin", "{F8CB093E-DF86-4EE7-BA3F-232FE117E29F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rhino.Inside.AutoCAD.Applications", "src\Rhino.Inside.AutoCAD.Applications\Rhino.Inside.AutoCAD.Applications.csproj", "{F59B04E7-BE45-BFAA-36E7-FA1CFEE56193}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Applications", "{FE3B9F59-8A11-4D60-94D7-C219AF741CDC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rhino.Inside.AutoCAD.RhinoLauncher", "src\Rhino.Inside.AutoCAD.RhinoLauncher\Rhino.Inside.AutoCAD.RhinoLauncher.csproj", "{838ACE4C-74BA-7970-400F-38191BDA1397}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rhino.Inside.AutoCAD.GrasshopperLauncher", "src\Rhino.Inside.AutoCAD.GrasshopperLauncher\Rhino.Inside.AutoCAD.GrasshopperLauncher.csproj", "{2C1F7914-FB21-7032-C77C-E8B44BDF762D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F97C43C0-42A3-B3CF-A6FE-81AA9610239C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F97C43C0-42A3-B3CF-A6FE-81AA9610239C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F97C43C0-42A3-B3CF-A6FE-81AA9610239C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F97C43C0-42A3-B3CF-A6FE-81AA9610239C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFECA24E-4B44-3261-31C1-7DE216D21FFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFECA24E-4B44-3261-31C1-7DE216D21FFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFECA24E-4B44-3261-31C1-7DE216D21FFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFECA24E-4B44-3261-31C1-7DE216D21FFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA91F4D6-845D-FE7E-8D44-62CE0B748C9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA91F4D6-845D-FE7E-8D44-62CE0B748C9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA91F4D6-845D-FE7E-8D44-62CE0B748C9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA91F4D6-845D-FE7E-8D44-62CE0B748C9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F59B04E7-BE45-BFAA-36E7-FA1CFEE56193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F59B04E7-BE45-BFAA-36E7-FA1CFEE56193}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F59B04E7-BE45-BFAA-36E7-FA1CFEE56193}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F59B04E7-BE45-BFAA-36E7-FA1CFEE56193}.Release|Any CPU.Build.0 = Release|Any CPU
+		{838ACE4C-74BA-7970-400F-38191BDA1397}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{838ACE4C-74BA-7970-400F-38191BDA1397}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{838ACE4C-74BA-7970-400F-38191BDA1397}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{838ACE4C-74BA-7970-400F-38191BDA1397}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C1F7914-FB21-7032-C77C-E8B44BDF762D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C1F7914-FB21-7032-C77C-E8B44BDF762D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C1F7914-FB21-7032-C77C-E8B44BDF762D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C1F7914-FB21-7032-C77C-E8B44BDF762D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F97C43C0-42A3-B3CF-A6FE-81AA9610239C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{DFECA24E-4B44-3261-31C1-7DE216D21FFE} = {0D83A068-B3CA-40B4-9D3F-29C606187B29}
+		{EA91F4D6-845D-FE7E-8D44-62CE0B748C9B} = {0D83A068-B3CA-40B4-9D3F-29C606187B29}
+		{F59B04E7-BE45-BFAA-36E7-FA1CFEE56193} = {F8CB093E-DF86-4EE7-BA3F-232FE117E29F}
+		{838ACE4C-74BA-7970-400F-38191BDA1397} = {FE3B9F59-8A11-4D60-94D7-C219AF741CDC}
+		{2C1F7914-FB21-7032-C77C-E8B44BDF762D} = {FE3B9F59-8A11-4D60-94D7-C219AF741CDC}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DBABC13D-A755-4924-BB40-C06E37A095A0}
+	EndGlobalSection
+EndGlobal

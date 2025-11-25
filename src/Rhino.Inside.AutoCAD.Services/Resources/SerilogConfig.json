@@ -1,0 +1,16 @@
+{
+    "Serilog": {
+        "MinimumLevel": "Information",
+        "WriteTo": [
+            {
+                "Name": "File",
+                "Args": {
+                    "path": "%AppData%\\Bimorph\\Logs\\%ProductName%_Log.json",
+                    "rollingInterval": "Day",
+                    "rollOnFileSizeLimit": true
+                }
+            },
+            { "Name": "BimorphLogPipeSink" }
+        ]
+    }
+}

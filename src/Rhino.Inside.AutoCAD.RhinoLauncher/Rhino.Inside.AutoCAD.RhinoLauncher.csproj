@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net48</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<OutputType>Library</OutputType>
+		<UseWPF>true</UseWPF>
+		<Nullable>enable</Nullable>
+		<LangVersion>preview</LangVersion>
+		<Configurations>Release;Debug;DebugBackwards</Configurations>
+		<Version>$(AssemblyVersion)</Version>
+		<Company>Bimorph Digital Engineering LTD</Company>
+		<Product>AWI Applications</Product>
+		<Copyright>Copyright © Bimorph LTD. 2024</Copyright>
+		<AppRootDir>$(LocalAppData)\MFEFormworkApps\app-$(Version)\</AppRootDir>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Models\**" />
+	  <EmbeddedResource Remove="Models\**" />
+	  <None Remove="Models\**" />
+	  <Page Remove="Models\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="AWI.SectionDetailsTool.csproj.DotSettings" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AutoCAD.NET">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		</PackageReference>
+		<PackageReference Include="AutoCAD.NET.Core">
+			<PrivateAssets>all</PrivateAssets>
+			<ExcludeAssets>runtime</ExcludeAssets>
+			<IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.Text.Json" />
+		<PackageReference Include="MaterialDesignThemes" />
+		<PackageReference Include="Autofac" />
+		<PackageReference Include="CommunityToolkit.Mvvm" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj" />
+		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Services\Rhino.Inside.AutoCAD.Services.csproj" />
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;" />
+	</Target>
+
+</Project>

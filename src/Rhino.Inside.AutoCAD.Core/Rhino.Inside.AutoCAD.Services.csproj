@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>$(Framework)</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<OutputType>Library</OutputType>
+		<Nullable>enable</Nullable>
+		<LangVersion>preview</LangVersion>
+		<Version>$(AssemblyVersion)</Version>
+		<Company>$(BimorphCompany)</Company>
+		<Product>$(BimorphProduct)</Product>
+		<Copyright>$(BimorphCopyright)</Copyright>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="Documents\Modules\DefaultDocumentModule.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Bimorph.Core.Services" />
+		<PackageReference Include="NaturalSort.Extension" />
+		<PackageReference Include="HtmlAgilityPack" />
+		<PackageReference Include="MaterialDesignThemes" />
+		<PackageReference Include="Microsoft.Identity.Client" />
+		<PackageReference Include="Microsoft.TeamFoundationServer.Client" />
+		<PackageReference Include="Microsoft.VisualStudio.Services.InteractiveClient" />
+		<PackageReference Include="PdfSharp" />
+		<PackageReference Include="PuppeteerSharp" />
+		<PackageReference Include="RazorLight" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Bimorph.Scope.Builder.Core\Bimorph.Scope.Builder.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="Resources\*.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\*.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Templates\*.cshtml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.json&quot; &quot;$(AppRootResources)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.md&quot; &quot;$(AppRootResources)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.png&quot; &quot;$(AppRootResources)&quot;&#xD;&#xA;xcopy /y /i /s &quot;$(ProjDir)Resources\Templates\*.cshtml&quot; &quot;$(AppRootResources)Templates\&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.json&quot; &quot;$(DeploymentPackage)Resources\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.md&quot; &quot;$(DeploymentPackage)Resources\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.png&quot; &quot;$(DeploymentPackage)Resources\&quot;&#xD;&#xA;xcopy /y /i /s &quot;$(ProjDir)Resources\Templates\*.cshtml&quot; &quot;$(DeploymentPackage)Resources\Templates\&quot;" />
+	</Target>
+
+</Project>

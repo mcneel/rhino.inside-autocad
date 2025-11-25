@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage AppVersion="1.0.0.0"
+					SchemaVersion="1.0"
+                    HelpFile=""
+                    OnlineDocumentation=""
+                    Name="Rhino.Inside.AutoCAD Applications"
+                    Description="Rhino Inside for AutoCAD Applications"
+                    Icon="./Icons/Rhino-logo-icon.ico"
+                    Author="Bimorph Digital Engineering"
+                    ProductCode="{bfd2ab20-da91-4c7a-a93f-65d10e9270b4}">
+  <CompanyDetails Name="Bimorph Consultancy LTD"
+	                Url="https://bimorph.com"
+	                Email="support@bimorph.com">
+  </CompanyDetails>
+
+  <Components>
+    <RuntimeRequirements SupportPath="./Icons;./Icons/32x32;./Icons/512x512;./Toolbar;" OS="Win32|Win64" Platform="AutoCAD*"/>
+
+    <ComponentEntry ModuleName="./1.0.0.0/Win64/Rhino.Inside.AutoCAD.Applications.dll"
+		                LoadOnAutoCADStartup="True"
+		                LoadOnCommandInvocation="True"
+                    AppName="Rhino.Inside.AutoCAD.Applications"/>
+	  <!--
+    <ComponentEntry ModuleName="./1.0.0.0/Win64/Rhino.Inside.AutoCAD.RhinoLauncher.dll"
+		                LoadOnAutoCADStartup="True"
+		                LoadOnCommandInvocation="True"
+		                AppName="Rhino.Inside.AutoCAD.Applications"/>
+
+    <ComponentEntry ModuleName="./1.0.0.0/Win64/Rhino.Inside.AutoCAD.GrasshopperLauncher.dll"
+		                LoadOnAutoCADStartup="True"
+		                LoadOnCommandInvocation="True"
+		                AppName="Rhino.Inside.AutoCAD.Applications"/>
+
+    <ComponentEntry ModuleName="./1.0.0.0/Win64/Rhino.Inside.AutoCAD.Interop.dll"
+		                LoadOnAutoCADStartup="True"
+		                LoadOnCommandInvocation="True"
+		                AppName="Rhino.Inside.AutoCAD.Applications"/>
+
+    <ComponentEntry ModuleName="./1.0.0.0/Win64/Rhino.Inside.AutoCAD.UI.Resources.dll"
+		                LoadOnAutoCADStartup="True"
+		                LoadOnCommandInvocation="True"
+		                AppName="Rhino.Inside.AutoCAD.Applications"/>
+
+    <ComponentEntry ModuleName="./1.0.0.0/Win64/Rhino.Inside.AutoCAD.CompatibilityCore.dll"
+		                AppType="Dependency"
+		                AppName="Rhino.Inside.AutoCAD.Applications"/>
+
+    <ComponentEntry ModuleName="./1.0.0.0/Win64/Rhino.Inside.AutoCAD.Core.dll"
+		                AppType="Dependency"
+		                AppName="Rhino.Inside.AutoCAD.Applications"/>
+
+    <ComponentEntry ModuleName="./1.0.0.0/Win64/Rhino.Inside.AutoCAD.CompatibilityBackwards.dll"
+		                AppType="Dependency"
+		                AppName="Rhino.Inside.AutoCAD.Applications"/>
+
+    <ComponentEntry ModuleName="./1.0.0.0/Win64/Rhino.Inside.AutoCAD.CompatibilityCurrent.dll"
+		                AppType="Dependency"
+		                AppName="Rhino.Inside.AutoCAD.Applications"/>
+-->
+    <ComponentEntry ModuleName="./1.0.0.0/Win64/Rhino.Inside.AutoCAD.Services.dll"
+		                AppType="Dependency"
+		                AppName="Rhino.Inside.AutoCAD.Applications"/>
+
+    <ComponentEntry ModuleName="./Toolbar/Rhino.Inside.AutoCAD_Toolbar.cuix"
+                    AppName="Rhino.Inside.AutoCAD.Applications"/>
+
+    <Commands GroupName="Rhino.Inside.AutoCAD_AUTOLOADER">
+      <Command Local="Rhino" Global="Rhino" />
+      <Command Local="Grasshopper" Global="Grasshopper" />
+    </Commands>
+  </Components>
+</ApplicationPackage>

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+	<PropertyGroup>
+		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<AppFolderName>Rhino.Inside.AutoCAD.bundle</AppFolderName>
+
+		<AppRootDir>$(APPDATA)\Bimorph\RhinoInsideAutoCAD\$(AppFolderName)\</AppRootDir>
+		<AppRootResources>$(AppRootDir)Resources\</AppRootResources>
+		<AppRootDirVersioned>$(AppRootDir)$(AssemblyVersion)\</AppRootDirVersioned>
+		<AppRootDirAssemblies>$(AppRootDirVersioned)Win64\</AppRootDirAssemblies>
+		
+		<AppRootUserTests>$(APPDATA)\Bimorph\Tests\</AppRootUserTests>
+		<AppRootUserSupportedApplication>$(APPDATA)\Bimorph\SupportedApplications\</AppRootUserSupportedApplication>
+
+		<DeploymentPackage>$(ProjDir)..\..\Deployment\OutputFiles\Rhino.Inside.AutoCAD.$(AssemblyVersion)\</DeploymentPackage>
+		<DeploymentPackageVersioned>$(DeploymentPackage)$(AssemblyVersion)\</DeploymentPackageVersioned>
+		<DeploymentPackage_Win64>$(DeploymentPackageVersioned)Win64\</DeploymentPackage_Win64>
+
+
+
+		<BimorphCompany>Bimorph Digital Engineering LTD</BimorphCompany>
+		<BimorphProduct>Rhino.Inside.AutoCAD</BimorphProduct>
+		<BimorphCopyright>Copyright © Bimorph LTD. 2025</BimorphCopyright>
+		<Framework>net48</Framework>
+	</PropertyGroup>
+</Project>
