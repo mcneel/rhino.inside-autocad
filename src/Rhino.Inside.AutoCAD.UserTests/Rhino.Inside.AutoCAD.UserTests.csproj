@@ -14,21 +14,7 @@
 		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Bimorph.Core.Services" />
-		<PackageReference Include="MaterialDesignThemes" />
-		<PackageReference Include="Microsoft.Identity.Client" />
-		<PackageReference Include="Microsoft.TeamFoundationServer.Client" />
-		<PackageReference Include="Microsoft.VisualStudio.Services.InteractiveClient" />
-
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Update="Resources\*.md">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
+	
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;&#xD;&#xA;powershell.exe -NoProfile -ExecutionPolicy Bypass -Command &quot;&amp; '$(ProjectDir)PostBuildEvents\RegisterSupportedApplication.ps1' -Name '$(BimorphProduct)' -InstallationPath '$(AppRootDir)' -Version '$(AssemblyVersion)' -OutputPath '$(AppRootUserSupportedApplication)$(BimorphProduct)_SupportedApplication.json'&quot;&#xD;&#xA;powershell.exe -NoProfile -ExecutionPolicy Bypass -Command &quot;&amp; '$(ProjectDir)PostBuildEvents\RegisterUserTests.ps1' -SupportedApplicationOutputPath '$(AppRootUserSupportedApplication)$(BimorphProduct)_SupportedApplication.json' -UserTestsPath '$(ProjectDir)/UserTests/UserTests.json' -OutputPath '$(AppRootUserTests)$(BimorphProduct)_UserTests.json'&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;powershell.exe -NoProfile -ExecutionPolicy Bypass -Command &quot;&amp; '$(ProjectDir)PostBuildEvents\RegisterSupportedApplication.ps1' -Name '$(BimorphProduct)' -InstallationPath '$(AppRootDir)' -Version '$(AssemblyVersion)' -OutputPath '$(DeploymentPackage)SupportedApplications/$(BimorphProduct)_SupportedApplication.json'&quot;&#xD;&#xA;powershell.exe -NoProfile -ExecutionPolicy Bypass -Command &quot;&amp; '$(ProjectDir)PostBuildEvents\RegisterUserTests.ps1' -SupportedApplicationOutputPath '$(DeploymentPackage)SupportedApplications/$(BimorphProduct)_SupportedApplication.json' -UserTestsPath '$(ProjectDir)/UserTests/UserTests.json' -OutputPath '$(DeploymentPackage)Tests/$(BimorphProduct)_UserTests.json'&quot;&#xD;&#xA;" />

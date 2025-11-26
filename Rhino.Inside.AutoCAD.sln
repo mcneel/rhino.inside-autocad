@@ -29,6 +29,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rhino.Inside.AutoCAD.RhinoL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rhino.Inside.AutoCAD.GrasshopperLauncher", "src\Rhino.Inside.AutoCAD.GrasshopperLauncher\Rhino.Inside.AutoCAD.GrasshopperLauncher.csproj", "{2C1F7914-FB21-7032-C77C-E8B44BDF762D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rhino.Inside.AutoCAD.Interop", "src\Rhino.Inside.AutoCAD.Interop\Rhino.Inside.AutoCAD.Interop.csproj", "{4607D934-F69D-53BC-2B21-414E423B867E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rhino.Inside.AutoCAD.UI.Resources", "src\Rhino.Inside.AutoCAD.UI.Resources\Rhino.Inside.AutoCAD.UI.Resources.csproj", "{84F93571-3EBD-0E02-E4A1-0388DC4F7538}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +63,14 @@ Global
 		{2C1F7914-FB21-7032-C77C-E8B44BDF762D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C1F7914-FB21-7032-C77C-E8B44BDF762D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C1F7914-FB21-7032-C77C-E8B44BDF762D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4607D934-F69D-53BC-2B21-414E423B867E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4607D934-F69D-53BC-2B21-414E423B867E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4607D934-F69D-53BC-2B21-414E423B867E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4607D934-F69D-53BC-2B21-414E423B867E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84F93571-3EBD-0E02-E4A1-0388DC4F7538}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84F93571-3EBD-0E02-E4A1-0388DC4F7538}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84F93571-3EBD-0E02-E4A1-0388DC4F7538}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84F93571-3EBD-0E02-E4A1-0388DC4F7538}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +82,8 @@ Global
 		{F59B04E7-BE45-BFAA-36E7-FA1CFEE56193} = {F8CB093E-DF86-4EE7-BA3F-232FE117E29F}
 		{838ACE4C-74BA-7970-400F-38191BDA1397} = {FE3B9F59-8A11-4D60-94D7-C219AF741CDC}
 		{2C1F7914-FB21-7032-C77C-E8B44BDF762D} = {FE3B9F59-8A11-4D60-94D7-C219AF741CDC}
+		{4607D934-F69D-53BC-2B21-414E423B867E} = {0D83A068-B3CA-40B4-9D3F-29C606187B29}
+		{84F93571-3EBD-0E02-E4A1-0388DC4F7538} = {0D83A068-B3CA-40B4-9D3F-29C606187B29}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DBABC13D-A755-4924-BB40-C06E37A095A0}

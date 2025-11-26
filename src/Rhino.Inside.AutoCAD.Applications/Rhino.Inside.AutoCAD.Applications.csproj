@@ -1,17 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <OutputType>Library</OutputType>
-    <Nullable>enable</Nullable>
-    <LangVersion>preview</LangVersion>
-    <Configurations>Release;Debug;DebugBackwards</Configurations>
-    <Version>$(AssemblyVersion)</Version>
-    <Company>Bimorph Digital Engineering LTD</Company>
-    <Product>AWI Applications</Product>
-    <Copyright>Copyright © Bimorph LTD. 2024</Copyright>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>$(Framework)</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<OutputType>Library</OutputType>
+		<Nullable>enable</Nullable>
+		<LangVersion>preview</LangVersion>
+		<Version>$(AssemblyVersion)</Version>
+		<Company>$(BimorphCompany)</Company>
+		<Product>$(BimorphProduct)</Product>
+		<Copyright>$(BimorphCopyright)</Copyright>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+	</PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Model\Infrastructure\**" />
@@ -26,11 +27,6 @@
     <Page Remove="Model\Infrastructure\**" />
     <Page Remove="Model\Ribbon Menu\**" />
     <Page Remove="Model\UI\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="AWI.Applications.csproj.DotSettings" />
-    <None Remove="PackageContents2.xml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,8 +47,15 @@
   <ItemGroup>
     <ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj" />
     <ProjectReference Include="..\Rhino.Inside.AutoCAD.GrasshopperLauncher\Rhino.Inside.AutoCAD.GrasshopperLauncher.csproj" />
+    <ProjectReference Include="..\Rhino.Inside.AutoCAD.Interop\Rhino.Inside.AutoCAD.Interop.csproj" />
     <ProjectReference Include="..\Rhino.Inside.AutoCAD.RhinoLauncher\Rhino.Inside.AutoCAD.RhinoLauncher.csproj" />
     <ProjectReference Include="..\Rhino.Inside.AutoCAD.Services\Rhino.Inside.AutoCAD.Services.csproj" />
+    <ProjectReference Include="..\Rhino.Inside.AutoCAD.UI.Resources\Rhino.Inside.AutoCAD.UI.Resources.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+    <Folder Include="Toolbar\" />
   </ItemGroup>
 
   <PropertyGroup Condition="$(Configuration) == 'Debug' AND $([MSBuild]::IsOSPlatform(Windows))">
@@ -61,12 +64,8 @@
     <StartAction>Program</StartAction>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Icons\" />
-  </ItemGroup>
-
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\*.*&quot; &quot;$(AppRootDir)Icons\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\32x32\*.*&quot; &quot;$(AppRootDir)Icons\32x32\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\512x512\*.*&quot; &quot;$(AppRootDir)Icons\512x512\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Toolbar\AWI_Toolbar.cuix&quot; &quot;$(AppRootDir)Toolbar\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)PackageContents.xml&quot; &quot;$(AppRootDir)&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\*.*&quot; &quot;$(DeploymentPackage)Icons\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\32x32\*.*&quot; &quot;$(DeploymentPackage)Icons\32x32\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\512x512\*.*&quot; &quot;$(DeploymentPackage)Icons\512x512\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Toolbar\AWI_Toolbar.cuix&quot; &quot;$(DeploymentPackage)Toolbar\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)PackageContents.xml&quot; &quot;$(DeploymentPackage)&quot;" />
+    <Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\*.*&quot; &quot;$(AppRootDir)Icons\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\Small32\*.*&quot; &quot;$(AppRootDir)Icons\Small32\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\Large512\*.*&quot; &quot;$(AppRootDir)Icons\Large512\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Toolbar\RhinoInsideAutocad_Toolbar.cuix&quot; &quot;$(AppRootDir)Toolbar\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)PackageContents.xml&quot; &quot;$(AppRootDir)&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\*.*&quot; &quot;$(DeploymentPackage)Icons\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\Small32\*.*&quot; &quot;$(DeploymentPackage)Icons\Small32\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\Large512\*.*&quot; &quot;$(DeploymentPackage)Icons\Large512\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Toolbar\RhinoInsideAutocad_Toolbar.cuix&quot; &quot;$(DeploymentPackage)Toolbar\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)PackageContents.xml&quot; &quot;$(DeploymentPackage)&quot;" />
   </Target>
 
 </Project>

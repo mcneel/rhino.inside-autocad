@@ -19,7 +19,7 @@ public class ApplicationConstants
     /// <summary>
     /// The name of the root installation folder the software is stored.
     /// </summary>
-    public const string RootInstallFolderName = "Bimorph\\RhinoInsideAutoCAD\\Rhino.Inside.AutoCAD.bundle";
+    public const string RootInstallFolderName = "Autodesk\\ApplicationPlugins\\Rhino.Inside.AutoCAD.bundle";
 
     /// <summary>
     /// The name of the client folder.

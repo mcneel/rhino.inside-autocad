@@ -1,36 +1,38 @@
-﻿using AWI.SectionDetailsTool;
+﻿using Autodesk.AutoCAD.Runtime;
 using Bimorph.Core.Services.Core;
 using Bimorph.Core.Services.Core.Interfaces;
 using Bimorph.Core.Services.Services;
-using Rhino;
-using Rhino.Inside.AutoCAD.Core.Enum.Application;
+using Rhino.Inside.AutoCAD.Applications;
+using Rhino.Inside.AutoCAD.Core;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.Services;
+using Rhino.Inside.AutoCAD.Core.Interfaces.Applications.Applications;
+using Rhino.Inside.AutoCAD.GrasshopperLauncher;
+using Rhino.Inside.AutoCAD.Interop;
+using Rhino.Inside.AutoCAD.RhinoLauncher;
+using Rhino.Inside.AutoCAD.UI.Resources.Models;
 using CADApplication = Autodesk.AutoCAD.ApplicationServices.Core.Application;
-using CommandClass = Autodesk.AutoCAD.Runtime.CommandClassAttribute;
-using CommandMethod = Autodesk.AutoCAD.Runtime.CommandMethodAttribute;
 using Exception = Autodesk.AutoCAD.Runtime.Exception;
 
-[assembly: CommandClass(typeof(AWI.Applications.RhinoInsideAutoCadCommands))]
+[assembly: CommandClass(typeof(RhinoInsideAutoCadCommands))]
 
-namespace AWI.Applications;
+namespace Rhino.Inside.AutoCAD.Applications;
 
 public class RhinoInsideAutoCadCommands
 {
-    private static readonly UnitSystem _internalUnitSystem = ApplicationConstants.InternalUnitSystem;
+    private static UnitSystem InternalUnitSystem => InteropConstants.InternalUnitSystem;
     private static bool _isRunning;
 
     /// <summary>
-    /// The command to launch a GUI AWI application.
+    /// The command to launch a GUI application with Rhino Inside.
     /// </summary>
-    private static void RunApplication(
-        Func<IRhinoInsideAutoCadApplication, IApplicationMain> mainlineType,
-        RhinoInsideApplicationId appId)
+    private static void RunApplicationWithRhino(
+        Func<IRhinoInsideAutoCadApplication, IInteropService, IApplicationMain> mainlineType,
+        ButtonApplicationId appId, RhinoInsideMode mode)
     {
         if (_isRunning)
             return;
 
-        var application = new RhinoInsideAutoCadApplication();
+        var application = RhinoInsideAutoCadExtension.Application;
 
         var splashScreenLauncher = new SplashScreenLauncher(application);
 
@@ -39,10 +41,6 @@ public class RhinoInsideAutoCadCommands
         var applicationServicesCore = application.ApplicationServicesCore;
 
         var fileResourceManager = application.FileResourceManager;
-
-        var bootstrapper = application.Bootstrapper;
-
-        var dispatcher = bootstrapper.Dispatcher;
 
         try
         {
@@ -59,11 +57,11 @@ public class RhinoInsideAutoCadCommands
                 return;
             }
 
-            rhinoInstance.Initialize(_internalUnitSystem, fileResourceManager.ApplicationDirectories);
+            rhinoInstance.Initialize(InternalUnitSystem, fileResourceManager.ApplicationDirectories, mode);
 
-            var interopService = new InteropService(dispatcher, fileResourceManager, appId);
+            var interopService = new InteropService(application, appId);
 
-            var mainline = mainlineType(application);
+            var mainline = mainlineType(application, interopService);
 
             mainline.ShutdownStarted += (_, _) => _isRunning = false;
 
@@ -92,17 +90,17 @@ public class RhinoInsideAutoCadCommands
         }
     }
 
-    [CommandMethod("Rhino")]
-    public static void RHINOINSIDEAUTOCAD_RHINO()
+    [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO", CommandFlags.Modal)]
+    public static void RHINO()
     {
-        RunApplication((application) =>
-            new RhinoLauncherMain(application), RhinoInsideApplicationId.Rhino);
+        RunApplicationWithRhino((application, interopService) =>
+            new RhinoLauncherMain(application, interopService), ButtonApplicationId.RHINO, RhinoInsideMode.Windowed);
     }
 
-    [CommandMethod("Grasshopper")]
-    public static void RHINOINSIDEAUTOCAD_GRASSHOPPER()
+    [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER", CommandFlags.Modal)]
+    public static void GRASSHOPPER()
     {
-        RunApplication((application) =>
-            new GrasshopperLauncherMain(application), RhinoInsideApplicationId.Grasshopper);
+        RunApplicationWithRhino((application, interopService) =>
+            new GrasshopperLauncherMain(application, interopService), ButtonApplicationId.GRASSHOPPER, RhinoInsideMode.Headless);
     }
 }

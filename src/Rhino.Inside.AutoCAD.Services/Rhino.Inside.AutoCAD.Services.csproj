@@ -32,20 +32,9 @@
 		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<None Update="Resources\*.md">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\*.png">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Templates\*.cshtml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.json&quot; &quot;$(AppRootResources)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.md&quot; &quot;$(AppRootResources)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.png&quot; &quot;$(AppRootResources)&quot;&#xD;&#xA;xcopy /y /i /s &quot;$(ProjDir)Resources\Templates\*.cshtml&quot; &quot;$(AppRootResources)Templates\&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.json&quot; &quot;$(DeploymentPackage)Resources\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.md&quot; &quot;$(DeploymentPackage)Resources\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.png&quot; &quot;$(DeploymentPackage)Resources\&quot;&#xD;&#xA;xcopy /y /i /s &quot;$(ProjDir)Resources\Templates\*.cshtml&quot; &quot;$(DeploymentPackage)Resources\Templates\&quot;" />
+		<Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.*&quot; &quot;$(AppRootResources)&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.*&quot; &quot;$(DeploymentPackage)Resources\&quot;" />
 	</Target>
 
 </Project>

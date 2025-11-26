@@ -1,18 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net48</TargetFramework>
+		<TargetFramework>$(Framework)</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<OutputType>Library</OutputType>
-		<UseWPF>true</UseWPF>
 		<Nullable>enable</Nullable>
 		<LangVersion>preview</LangVersion>
-		<Configurations>Release;Debug;DebugBackwards</Configurations>
 		<Version>$(AssemblyVersion)</Version>
-		<Company>Bimorph Digital Engineering LTD</Company>
-		<Product>AWI Applications</Product>
-		<Copyright>Copyright © Bimorph LTD. 2024</Copyright>
-		<AppRootDir>$(LocalAppData)\MFEFormworkApps\app-$(Version)\</AppRootDir>
+		<Company>$(BimorphCompany)</Company>
+		<Product>$(BimorphProduct)</Product>
+		<Copyright>$(BimorphCopyright)</Copyright>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -22,9 +21,6 @@
 	  <Page Remove="Models\**" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <None Remove="AWI.SectionDetailsTool.csproj.DotSettings" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AutoCAD.NET">
@@ -43,6 +39,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj" />
+		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Interop\Rhino.Inside.AutoCAD.Interop.csproj" />
 		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Services\Rhino.Inside.AutoCAD.Services.csproj" />
 	</ItemGroup>
 

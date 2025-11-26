@@ -2,8 +2,11 @@
 using Bimorph.Core.Services.Core.Interfaces;
 using Bimorph.Core.Services.Services;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Core.Interfaces.Applications.Applications;
+using Rhino.Inside.AutoCAD.Interop;
+using Rhino.Inside.AutoCAD.Services;
 
-namespace Rhino.Inside.AutoCAD.Services;
+namespace Rhino.Inside.AutoCAD.Applications;
 
 /// <inheritdoc cref="IRhinoInsideAutoCadApplication"/>
 public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
@@ -58,7 +61,21 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
         this.ApplicationConfig = applicationConfig;
 
         this.SupportedApplicationManager = bootstrapper.SupportedApplicationManager;
+    }
 
+    /// <inheritdoc />
+    public void Terminate()
+    {
+        try
+        {
+            this.Bootstrapper?.AssemblyManager.ShutDown();
 
+            RhinoInsideExtension.Instance.Shutdown();
+
+        }
+        catch (System.Exception e)
+        {
+            LoggerService.Instance?.LogError(e);
+        }
     }
 }

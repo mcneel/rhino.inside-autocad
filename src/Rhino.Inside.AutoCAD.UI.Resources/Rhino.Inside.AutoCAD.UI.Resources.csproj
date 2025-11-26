@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>$(Framework)</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<OutputType>Library</OutputType>
+		<Nullable>enable</Nullable>
+		<LangVersion>preview</LangVersion>
+		<Version>$(AssemblyVersion)</Version>
+		<Company>$(BimorphCompany)</Company>
+		<Product>$(BimorphProduct)</Product>
+		<Copyright>$(BimorphCopyright)</Copyright>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="Documents\**" />
+		<EmbeddedResource Remove="Documents\**" />
+		<None Remove="Documents\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Resources\RhinoInside.Revit.AddIn.Resources.RIR-logo.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Bimorph.Core.Services" />
+		<PackageReference Include="NaturalSort.Extension" />
+		<PackageReference Include="MaterialDesignThemes" />
+		<PackageReference Include="CommunityToolkit.Mvvm" />
+
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Include="Views\Splash Screens\SplashScreenWindow.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <ApplicationDefinition Include="Views\Styles\ColorStyles.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </ApplicationDefinition>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Resources\RhinoInside.Revit.AddIn.Resources.RIR-logo.ico" />
+	</ItemGroup>
+
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;" />
+	</Target>
+
+</Project>

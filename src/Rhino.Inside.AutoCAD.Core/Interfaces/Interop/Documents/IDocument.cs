@@ -1,0 +1,124 @@
+﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
+
+/// <summary>
+/// Represents a document object from AutoCAD.
+/// </summary>
+public interface IDocument
+{
+    /// <summary>
+    /// The unique Id of this document. 
+    /// </summary>
+    Guid Id { get; }
+
+    /// <summary>
+    /// Event handler triggered when a command within this document has successfully
+    /// completed.
+    /// </summary>
+    /// <remarks>
+    /// This event only triggers when a command concludes successfully. If a command
+    /// is cancelled, this event will not fire. For example, when a user is creating
+    /// a polyline by adding vertices, if they hit the "esc" key after the final vertex, 
+    /// the command is cancelled, and this event won't be triggered. However, if they
+    /// press "Enter", the command completes successfully and this event will be
+    /// triggered.
+    /// </remarks>
+    event EventHandler? DocumentChanged;
+
+    /// <summary>
+    /// The <see cref="IUnitSystemManager"/> of this <see cref="IDocument"/>.
+    /// </summary>
+    IUnitSystemManager UnitSystemManager { get; }
+
+    /// <summary>
+    /// The <see cref="IDatabase"/> of the
+    /// <see cref="IDocument"/>.
+    /// </summary>
+    IDatabase Database { get; }
+
+    /// <summary>
+    /// Provides file information about this <see cref="IDocument"/>.
+    /// </summary>
+    IDocumentFileInfo FileInfo { get; }
+
+    /* /// <summary>
+     /// The <see cref="ILinePatternCache"/> of this <see cref="IDocument"/>.
+     /// </summary>
+     ILinePatternCache LinePatternCache { get; }
+
+     /// <summary>
+     /// The <see cref="ILayerRepository"/> of this <see cref="IDocument"/>.
+     /// </summary>
+     ILayerRepository LayerRepository { get; }
+
+     /// <summary>
+     /// The <see cref="ILayoutRepository"/> of this <see cref="IDocument"/>.
+     /// </summary>
+     ILayoutRepository LayoutRepository { get; }
+
+     /// <summary>
+     /// The <see cref="IBlockTableRecordRepository"/> of this <see cref="IDocument"/>.
+     /// </summary>
+     IBlockTableRecordRepository BlockTableRecordRepository { get; }
+
+     /// <summary>
+     /// The <see cref="IPlotSettingsRepository"/> of this <see cref="IDocument"/>.
+     /// </summary>
+     IPlotSettingsRepository PlotSettingsRepository { get; }
+
+     /// <summary>
+     /// The <see cref="IDimensionStyleTableRecordRepository"/> of this <see
+     /// cref="IDocument"/>.
+     /// </summary>
+     IDimensionStyleTableRecordRepository DimensionStyleTableRecordRepository { get; }
+
+     /// <summary>
+     /// The <see cref="ILeaderStyleObjectRepository"/> of this <see cref=
+     /// "IDocument"/>.
+     /// </summary>
+     ILeaderStyleObjectRepository LeaderStyleObjectRepository { get; }
+
+     /// <summary>
+     /// The <see cref="ITextStyleTableRecordRepository"/> of this <see cref=
+     /// "IDocument"/>.
+     /// </summary>
+     ITextStyleTableRecordRepository TextStyleTableRecordRepository { get; }*/
+
+    /// <summary>
+    /// The <see cref="UnitSystem"/> of this <see cref="IDocument"/>.
+    /// </summary>
+    UnitSystem UnitSystem { get; }
+
+    /// <summary>
+    /// Returns true if this <see cref="IDocument"/>s <see cref="CloseActionType"/>
+    /// has been set to save, meaning the underlying AutoCAD document will be saved
+    /// when <see cref="Close"/> is called.
+    /// </summary>
+    bool IsSaveOnClose { get; }
+
+    /// <summary>
+    /// Opens a transaction to read or modify this <see cref="IDocument"/>
+    /// and returns the result <typeparamref name="T"/>. If <paramref name="abort"/>
+    /// is set to true aborts the transaction to roll back any changes - this is
+    /// useful when the transaction is being used to read data from the document
+    /// that requires a change to obtain it. By default, all transactions are committed.
+    /// Use the optional <paramref name="saveChanges"/> parameter to save any changes
+    /// back to the underlying AutoCAD document.
+    /// </summary>
+    public T Transaction<T>(Func<ITransactionManager, T> function, bool saveChanges = false, bool abort = false);
+
+    /// <summary>
+    /// Refreshes the screen.
+    /// </summary>
+    void UpdateScreen();
+
+    /// <summary>
+    /// Shuts down this <see cref="IDocument"/> instance. This method ensures that
+    /// the instance is unhooked from all subscribed database and document events.
+    /// </summary>
+    void Close();
+
+    /// <summary>
+    /// Regenerates the document.
+    /// </summary>
+    void Regenerate();
+}

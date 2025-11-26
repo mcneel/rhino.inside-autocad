@@ -18,10 +18,8 @@
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 	  <!-- Rhino and AutoCAD API nugets -->
 	  <PackageVersion Include="AutoCAD.NET.Model" Version="24.3.0" />
-	  <PackageVersion Include="AutoCAD.NET.Core" Version="24.3.0" Condition=" '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release' " />
-	  <PackageVersion Include="AutoCAD.NET.Core" Version="20.0.0" Condition="'$(Configuration)'=='DebugBackwards'" />
-	  <PackageVersion Include="AutoCAD.NET" Version="24.3.0" Condition=" '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release' " />
-	  <PackageVersion Include="AutoCAD.NET" Version="20.0.0" Condition="'$(Configuration)'=='DebugBackwards'" />
+	  <PackageVersion Include="AutoCAD.NET.Core" Version="24.3.0"/>
+	  <PackageVersion Include="AutoCAD.NET" Version="24.3.0" />
 	  <PackageVersion Include="RhinoCommon" Version="7.36.23346.16351" />
 	  <PackageVersion Include="Rhino.Inside" Version="7.0.0" />
 	  <PackageVersion Include="RhinoWindows" Version="7.36.23346.16351" />

@@ -4,7 +4,7 @@
 		<AssemblyVersion>1.0.0</AssemblyVersion>
 		<AppFolderName>Rhino.Inside.AutoCAD.bundle</AppFolderName>
 
-		<AppRootDir>$(APPDATA)\Bimorph\RhinoInsideAutoCAD\$(AppFolderName)\</AppRootDir>
+		<AppRootDir>$(APPDATA)\Autodesk\ApplicationPlugins\$(AppFolderName)\</AppRootDir>
 		<AppRootResources>$(AppRootDir)Resources\</AppRootResources>
 		<AppRootDirVersioned>$(AppRootDir)$(AssemblyVersion)\</AppRootDirVersioned>
 		<AppRootDirAssemblies>$(AppRootDirVersioned)Win64\</AppRootDirAssemblies>

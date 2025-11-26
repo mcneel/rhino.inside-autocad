@@ -23,6 +23,9 @@
 	<ItemGroup>
 	  <Reference Include="PresentationCore" />
 	  <Reference Include="WindowsBase" />
+	  <PackageReference Include="RhinoCommon">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+	  </PackageReference>
 	</ItemGroup>
 
 

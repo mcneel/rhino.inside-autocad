@@ -1,0 +1,25 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="PrimaryColor" A="255" R="125" G="91" B="63" />
+    <SolidColorBrush x:Key="PrimaryColorBrush"
+                     Color="{StaticResource PrimaryColor}"/>
+
+    <Color x:Key="SecondaryColor"
+           A="255"
+           R="125"
+           G="91"
+           B="63" />
+    <SolidColorBrush x:Key="SecondaryColorBrush"
+                     Color="{StaticResource SecondaryColor}" />
+
+
+
+    <Color x:Key="WarningRedColor" A="255" R="255" G="69" B="0"/>
+  <SolidColorBrush x:Key="WarningRedBrush" Color="{StaticResource WarningRedColor}"/>
+
+  <Color x:Key="WarningOrangeColor" A="255" R="255" G="165" B="0"/>
+  <SolidColorBrush x:Key="WarningOrangeBrush" Color="Orange"/>
+
+
+</ResourceDictionary>
