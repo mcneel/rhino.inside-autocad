@@ -18,6 +18,12 @@ public interface IRhinoInsideAutoCadApplication : IBimorphApplication
     IRhinoInsideAutoCadFileResourceManager FileResourceManager { get; }
 
     /// <summary>
+    /// The principal controller for Rhino.Inside functionality. This manager
+    /// provides access to both Rhino and autocad, and the AutoCAD-Rhino bridge.
+    /// </summary>
+    IRhinoInsideManager RhinoInsideManager { get; }
+
+    /// <summary>
     /// Terminate the <see cref="IRhinoInsideAutoCadApplication"/>
     /// </summary>
     void Terminate();

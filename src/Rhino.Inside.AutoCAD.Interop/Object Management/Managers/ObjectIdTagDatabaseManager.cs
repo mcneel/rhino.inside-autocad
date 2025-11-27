@@ -6,7 +6,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="IObjectIdTagDatabaseManager"/>
 public class ObjectIdTagDatabaseManager : IObjectIdTagDatabaseManager
 {
-    private readonly IDocument _document;
+    private readonly IAutoCadDocument _autoCadDocument;
 
     // A cache of ITagDatabase's for rapid access - lazily populated.
     private readonly Dictionary<string, IObjectIdTagDatabase> _tagDatabaseCache;
@@ -14,9 +14,9 @@ public class ObjectIdTagDatabaseManager : IObjectIdTagDatabaseManager
     /// <summary>
     /// Constructs a new <see cref="ObjectIdTagDatabaseManager"/>.
     /// </summary>
-    public ObjectIdTagDatabaseManager(IDocument document)
+    public ObjectIdTagDatabaseManager(IAutoCadDocument autoCadDocument)
     {
-        _document = document;
+        _autoCadDocument = autoCadDocument;
 
         _tagDatabaseCache = new Dictionary<string, IObjectIdTagDatabase>();
     }
@@ -118,11 +118,11 @@ public class ObjectIdTagDatabaseManager : IObjectIdTagDatabaseManager
         if (_tagDatabaseCache.TryGetValue(key, out var tagDatabase))
             return tagDatabase;
 
-        tagDatabase = _document.Transaction(transactionManagerWrapper =>
+        tagDatabase = _autoCadDocument.Transaction(transactionManagerWrapper =>
         {
             var transactionManager = transactionManagerWrapper.Unwrap();
 
-            using var namedObjectsDictionary = _document.Database.GetNamedObjectsDictionary();
+            using var namedObjectsDictionary = _autoCadDocument.Database.GetNamedObjectsDictionary();
 
             if (namedObjectsDictionary.TryGetValue(key, out var objectId) == false) 
                 return new ObjectIdTagDatabase(key);
@@ -144,9 +144,9 @@ public class ObjectIdTagDatabaseManager : IObjectIdTagDatabaseManager
     /// <inheritdoc/>
     public void CommitAll()
     {
-        _ = _document.Transaction(transactionManagerWrapper =>
+        _ = _autoCadDocument.Transaction(transactionManagerWrapper =>
         {
-            using var namedObjectsDictionary = _document.Database.GetNamedObjectsDictionary();
+            using var namedObjectsDictionary = _autoCadDocument.Database.GetNamedObjectsDictionary();
             namedObjectsDictionary.UpgradeOpen();
 
             foreach (var tagDatabase in _tagDatabaseCache.Values)

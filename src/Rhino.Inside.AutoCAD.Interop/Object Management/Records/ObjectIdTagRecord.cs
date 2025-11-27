@@ -83,7 +83,7 @@ public class ObjectIdTagRecord : IObjectIdTagRecord
     /// <inheritdoc/>
     public void Erase(IObjectEraser eraser)
     {
-        var document = eraser.Document;
+        var document = eraser.AutoCadDocument;
 
         var database = document.Database;
 

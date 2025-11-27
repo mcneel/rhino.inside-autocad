@@ -10,7 +10,7 @@ public class InteropConstants
     /// <summary>
     /// The internal unit system used by AWI applications.
     /// </summary>
-    public const UnitSystem InternalUnitSystem = UnitSystem.Millimeters;
+    public const UnitSystem FallbackUnitSystem = UnitSystem.Millimeters;
 
     /// <summary>
     /// The name of the AWI settings JSON file.

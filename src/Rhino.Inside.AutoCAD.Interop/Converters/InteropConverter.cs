@@ -17,12 +17,12 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public static class InteropConverter
 {
     /// <summary>
-    /// Unwraps the <see cref="IDocument"/> to the underlying AutoCAD
+    /// Unwraps the <see cref="IAutoCadDocument"/> to the underlying AutoCAD
     /// <see cref="Document"/> object.
     /// </summary>
-    public static Document Unwrap(this IDocument document)
+    public static Document Unwrap(this IAutoCadDocument autoCadDocument)
     {
-        var documentWrapper = (WrapperBase<Document>)document;
+        var documentWrapper = (WrapperBase<Document>)autoCadDocument;
 
         return documentWrapper.Internal;
     }

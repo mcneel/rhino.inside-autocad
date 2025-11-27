@@ -25,7 +25,7 @@ public class TagRecordKeys
     /// <summary>
     /// The key for the <see cref="IObjectIdTagRecord"/> containing <see cref=
     /// "IDataTag"/>s relating to <see cref="ISheetNameIdentity.InternalId"/>s 
-    /// of the created <see cref="ISheet"/>s in the active <see cref="IDocument"/>.
+    /// of the created <see cref="ISheet"/>s in the active <see cref="IAutoCadDocument"/>.
     /// </summary>
     public const string SheetInternalIds = "SHEET_INTERNAL_IDS";
 
@@ -39,35 +39,35 @@ public class TagRecordKeys
     /// <summary>
     /// The key for the <see cref="IObjectIdTagRecord"/> containing <see cref=
     /// "IDataTag"/>s relating to the <see cref="ISheetContent.InternalId"/>
-    /// in Project Wide Database of the active <see cref="IDocument"/>.
+    /// in Project Wide Database of the active <see cref="IAutoCadDocument"/>.
     /// </summary>
     public const string SheetContentInternalIds = "SHEET_CONTENT_INTERNAL_IDS";
 
     /// <summary>
     /// The key for the <see cref="IObjectIdTagRecord"/> containing <see cref=
     /// "IDataTag"/>s relating to the <see cref="IModelContent.InternalId"/>
-    /// in Project Wide Database of the active <see cref="IDocument"/>.
+    /// in Project Wide Database of the active <see cref="IAutoCadDocument"/>.
     /// </summary>
     public const string ModelContentInternalIds = "MODEL_CONTENT_INTERNAL_IDS";
 
     /// <summary>
     /// The key for the <see cref="IObjectIdTagRecord"/> containing <see cref=
     /// "IDataTag"/>s relating to the <see cref="ICommitIdentity.InternalId"/>
-    /// in Project Wide Database of the active <see cref="IDocument"/>.
+    /// in Project Wide Database of the active <see cref="IAutoCadDocument"/>.
     /// </summary>
     public const string CommitInternalIds = "COMMIT_INTERNAL_IDS";
 
     /// <summary>
     /// The key for the <see cref="IObjectIdTagRecord"/> containing <see cref=
     /// "IObjectIdTag"/>s relating to all created <see cref="ILayout"/>s in the
-    /// active <see cref="IDocument"/>.
+    /// active <see cref="IAutoCadDocument"/>.
     /// </summary>
     public const string Layouts = "LAYOUT_NAMES";
 
     /// <summary>
     /// The key for the <see cref="IDataTagRecord"/> containing <see cref=
     /// "ICeiling3dGroupIdentity.InternalId"/> <see cref="IDataTag"/>s in 
-    /// Project Wide Database of the active <see cref="IDocument"/>.
+    /// Project Wide Database of the active <see cref="IAutoCadDocument"/>.
     /// </summary>
     public const string Ceiling3dGroupIds = "CEILING_ASSEMBLY_IDS";
 
@@ -98,14 +98,14 @@ public class TagRecordKeys
     /// <summary>
     /// The key for the <see cref="IObjectIdTagRecord"/> which stores the <see cref="IObjectIdTag"/>
     /// for the <see cref="IPanelGrid"/> <see cref="IGridInstance"/> in the document. This is always
-    /// a single <see cref="IEntity"/> in the <see cref="IDocument"/>. 
+    /// a single <see cref="IEntity"/> in the <see cref="IAutoCadDocument"/>. 
     /// </summary>
     public const string PanelGridTagKey = "PanelTags";
 
     /// <summary>
     /// The key for the <see cref="IObjectIdTagRecord"/> which stores the <see cref="IObjectIdTag"/>
     /// for the <see cref="ISuspensionGrid"/> <see cref="IGridInstance"/> in the document. This is
-    /// always a single <see cref="IEntity"/> in the <see cref="IDocument"/>. 
+    /// always a single <see cref="IEntity"/> in the <see cref="IAutoCadDocument"/>. 
     /// </summary>
     public const string SuspensionGridTagKey = "SuspensionTags";
 

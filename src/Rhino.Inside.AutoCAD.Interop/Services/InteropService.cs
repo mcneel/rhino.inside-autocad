@@ -10,7 +10,7 @@ using System.Windows.Threading;
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <summary>
-/// The host <see cref="IDocument"/> <see cref="ISatelliteService"/>.
+/// The host <see cref="IAutoCadDocument"/> <see cref="ISatelliteService"/>.
 /// The application is attached to this object and persists for its lifetime.
 /// </summary>
 public class InteropService : SatelliteServiceBase, IInteropService
@@ -32,7 +32,7 @@ public class InteropService : SatelliteServiceBase, IInteropService
     public event EventHandler? DocumentClosingOrActivated;
 
     /// <inheritdoc/>
-    public IDocument? Document { get; private set; }
+    public IAutoCadDocument? Document { get; private set; }
 
     /// <inheritdoc/>
     public IObjectIdTagDatabaseManager? TagDatabaseManager { get; private set; }
@@ -64,7 +64,7 @@ public class InteropService : SatelliteServiceBase, IInteropService
 
         var documentCloseAction = new DocumentCloseAction(_activeDocument, _documentManager);
 
-        var document = new DocumentFile(_activeDocument, documentCloseAction, _dispatcher, _appId);
+        var document = new AutocadDocumentFile(_activeDocument, documentCloseAction, _dispatcher);
 
         _activeDocument.BeginDocumentClose += this.OnDocumentClosing;
         _documentManager.DocumentActivated += this.OnDocumentActivated;
@@ -108,11 +108,11 @@ public class InteropService : SatelliteServiceBase, IInteropService
     /// Validates this service by posting any known invalid states to the
     /// <see cref="ValidationLogger"/>.
     /// </summary>
-    private RunResult Validate(IDocument document)
+    private RunResult Validate(IAutoCadDocument autoCadDocument)
     {
         var validationLogger = this.ValidationLogger;
 
-        var cadDocument = document.Unwrap();
+        var cadDocument = autoCadDocument.Unwrap();
 
         // If the file is not saved, the document is not named.
         if (cadDocument.IsNamedDrawing == false)
@@ -125,7 +125,7 @@ public class InteropService : SatelliteServiceBase, IInteropService
             validationLogger.AddMessage(_readOnlyNotSupported);
         }
 
-        var unitSystem = document.UnitSystem;
+        var unitSystem = autoCadDocument.UnitSystem;
         if (unitSystem == UnitSystem.Unset)
         {
             validationLogger.AddMessage(string.Format(_fileUnitsNotSupported, unitSystem));
@@ -140,7 +140,7 @@ public class InteropService : SatelliteServiceBase, IInteropService
     /// </summary>
     protected virtual void OnDocumentClosingOrChanged(EventArgs e)
     {
-        //   DocumentClosingOrActivated?.Invoke(this, e);
+        DocumentClosingOrActivated?.Invoke(this, e);
     }
 
     /// <inheritdoc/>

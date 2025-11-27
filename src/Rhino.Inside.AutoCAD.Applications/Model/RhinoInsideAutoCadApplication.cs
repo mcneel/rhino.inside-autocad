@@ -3,14 +3,16 @@ using Bimorph.Core.Services.Core.Interfaces;
 using Bimorph.Core.Services.Services;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Core.Interfaces.Applications.Applications;
-using Rhino.Inside.AutoCAD.Interop;
 using Rhino.Inside.AutoCAD.Services;
+using System.Reflection;
 
 namespace Rhino.Inside.AutoCAD.Applications;
 
 /// <inheritdoc cref="IRhinoInsideAutoCadApplication"/>
 public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 {
+    private readonly IList<string> _materialDesignAssemblyNames = ApplicationConstants.MaterialDesignAssemblyNames;
+
     /// <inheritdoc/>
     public IRhinoInsideAutoCadSettingsManager SettingsManager { get; }
 
@@ -28,6 +30,9 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
     /// <inheritdoc/>
     public ISupportedApplicationManager SupportedApplicationManager { get; }
+
+    /// <inheritdoc/>
+    public IRhinoInsideManager RhinoInsideManager { get; }
 
     /// <summary>
     /// Constructs a new <see cref="IRhinoInsideAutoCadApplication"/>
@@ -50,6 +55,14 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
         var applicationServicesCore = new ApplicationServicesCore();
 
+        var rhinoInstance = new RhinoInstance(applicationDirectories);
+
+        var autocadInstance = new AutoCadInstance(bootstrapper.Dispatcher);
+
+        var objectRegister = new ObjectRegister();
+
+        var rhinoInsideManager = new RhinoInsideManager(rhinoInstance, autocadInstance, objectRegister);
+
         this.SettingsManager = settingManager;
 
         this.FileResourceManager = fileResourceManager;
@@ -61,6 +74,26 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
         this.ApplicationConfig = applicationConfig;
 
         this.SupportedApplicationManager = bootstrapper.SupportedApplicationManager;
+
+        this.RhinoInsideManager = rhinoInsideManager;
+
+        this.LoadMaterialDesign(applicationDirectories);
+    }
+
+    /// <summary>
+    /// The Material Design library has to be force loaded into Revit to avoid runtime
+    /// exceptions as it's not automatically loaded as the calls to the library are always
+    /// from XAML. This method guarantees its loaded.
+    /// </summary>
+    private void LoadMaterialDesign(IApplicationDirectories applicationDirectories)
+    {
+        foreach (var names in _materialDesignAssemblyNames)
+        {
+            var assemblyPath = Path.Combine(applicationDirectories.Assemblies, names);
+            var assemblyName = AssemblyName.GetAssemblyName(assemblyPath);
+
+            Assembly.Load(assemblyName);
+        }
     }
 
     /// <inheritdoc />
@@ -70,7 +103,7 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
         {
             this.Bootstrapper?.AssemblyManager.ShutDown();
 
-            RhinoInsideExtension.Instance.Shutdown();
+            RhinoCoreExtension.Instance.Shutdown();
 
         }
         catch (System.Exception e)

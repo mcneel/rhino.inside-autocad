@@ -10,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 /// A <see cref="IUnitLength"/> encapsulates a value and its <see cref="UnitSystem"/>.
 /// This is useful for binding to UI controls which need to display values in the
 /// which require a specific units system that differ form the
-/// <see cref="IDocument.UnitSystem"/>.
+/// <see cref="IAutoCadDocument.UnitSystem"/>.
 /// </remarks>
 public interface IUnitLength
 {
@@ -26,7 +26,7 @@ public interface IUnitLength
 
     /// <summary>
     /// The value of this <see cref="IUnitLength"/> in the
-    /// <see cref="IDocument.UnitSystem"/>.
+    /// <see cref="IAutoCadDocument.UnitSystem"/>.
     /// </summary>
     double Value { get; set; }
 

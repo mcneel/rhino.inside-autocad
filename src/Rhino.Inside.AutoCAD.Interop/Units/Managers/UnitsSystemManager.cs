@@ -13,71 +13,71 @@ public class UnitSystemManager : IUnitSystemManager
     private readonly double _pi = Math.PI;
 
     /// <inheritdoc/>
-    public UnitSystem InternalUnits { get; }
+    public UnitSystem RhinoUnits { get; }
 
     /// <inheritdoc/>
-    public UnitSystem DocumentUnits { get; }
+    public UnitSystem AutoCadUnits { get; }
 
     /// <summary>
     /// Constructs a new <see cref="UnitSystemManager"/>.
     /// </summary>
-    public UnitSystemManager(UnitSystem documentUnits, UnitSystem internalUnits)
+    public UnitSystemManager(UnitSystem autocadUnits, UnitSystem rhinoUnits)
     {
-        _conversionLengthFactor = UnitConstants.LengthConversionFactors[documentUnits][internalUnits];
+        _conversionLengthFactor = UnitConstants.LengthConversionFactors[autocadUnits][rhinoUnits];
 
-        _conversionAreaFactor = UnitConstants.AreaConversionFactors[documentUnits][internalUnits];
+        _conversionAreaFactor = UnitConstants.AreaConversionFactors[autocadUnits][rhinoUnits];
 
-        this.InternalUnits = internalUnits;
+        this.RhinoUnits = rhinoUnits;
 
-        this.DocumentUnits = documentUnits;
+        this.AutoCadUnits = autocadUnits;
     }
 
     /// <inheritdoc/>
-    public double ToInternalLength(double length)
+    public double ToRhinoLength(double length)
     {
         return length * _conversionLengthFactor;
     }
 
     /// <inheritdoc/>
-    public double ToInternalLength(IUnitLength length)
+    public double ToRhinoLength(IUnitLength length)
     {
-        var multiplier = UnitConstants.LengthConversionFactors[length.UnitSystem][this.InternalUnits];
+        var multiplier = UnitConstants.LengthConversionFactors[length.UnitSystem][this.RhinoUnits];
 
         return length.Value * multiplier;
     }
 
     /// <inheritdoc/>
-    public double ToInternalLength(IImperialLength imperialLength)
+    public double ToRhinoLength(IImperialLength imperialLength)
     {
-        var majorLength = this.ToInternalLength(imperialLength.Feet);
+        var majorLength = this.ToRhinoLength(imperialLength.Feet);
 
-        var minorLength = this.ToInternalLength(imperialLength.Inches);
+        var minorLength = this.ToRhinoLength(imperialLength.Inches);
 
         return majorLength + minorLength;
     }
 
     /// <inheritdoc/>
-    public double ToInternalArea(double area)
+    public double ToRhinoArea(double area)
     {
         return _conversionAreaFactor * area;
     }
 
     /// <inheritdoc/>
-    public double ToDocumentLength(double internalLength)
+    public double ToAutoCadLength(double internalLength)
     {
         return internalLength / _conversionLengthFactor;
     }
 
     /// <inheritdoc/>
-    public double ToDocumentLength(IUnitLength length)
+    public double ToAutoCadLength(IUnitLength length)
     {
-        var multiplier = UnitConstants.LengthConversionFactors[length.UnitSystem][this.DocumentUnits];
+        var multiplier = UnitConstants.LengthConversionFactors[length.UnitSystem][this.AutoCadUnits];
 
         return length.Value * multiplier;
     }
 
     /// <inheritdoc/>
-    public double ToDocumentArea(double internalArea)
+    public double ToAutoCadArea(double internalArea)
     {
         return internalArea / _conversionAreaFactor;
     }

@@ -4,7 +4,7 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <summary>
-/// Provides file directory and paths of a <see cref="IDocument"/> file.
+/// Provides file directory and paths of a <see cref="IAutoCadDocument"/> file.
 /// </summary>
 public class DocumentFileInfo : IDocumentFileInfo
 {
@@ -12,23 +12,23 @@ public class DocumentFileInfo : IDocumentFileInfo
 
     /// <summary>
     /// Returns a unique hashcode ID based on the <see cref="FilePath"/>. This ensures
-    /// the hash is always reliable regardless of whether the <see cref="IDocument"/> is
+    /// the hash is always reliable regardless of whether the <see cref="IAutoCadDocument"/> is
     /// closed and reopened since the <see cref="FilePath"/> is always unique.
     /// </summary>
     public Guid UniqueId { get; }
 
     /// <summary>
-    /// The file name of the <see cref="IDocument"/>.
+    /// The file name of the <see cref="IAutoCadDocument"/>.
     /// </summary>
     public string FileName { get; }
 
     /// <summary>
-    /// The file path of the <see cref="IDocument"/>.
+    /// The file path of the <see cref="IAutoCadDocument"/>.
     /// </summary>
     public string FilePath { get; }
 
     /// <summary>
-    /// The root directory where the <see cref="IDocument"/> is saved.
+    /// The root directory where the <see cref="IAutoCadDocument"/> is saved.
     /// </summary>
     public string RootDirectory { get; }
 

@@ -30,4 +30,14 @@ public class ApplicationConstants
     /// The name that is prefixed to the version number of the deployment.
     /// </summary>
     public const string PackagePrefixName = "RhinoInsideAutoCAD.Applications.";
+
+    /// <summary>
+    /// The name of the material design assembly.
+    /// </summary>
+    public static List<string> MaterialDesignAssemblyNames =
+    [
+        "MaterialDesignThemes.Wpf.dll",
+        "MaterialDesignColors.dll",
+        "Microsoft.Xaml.Behaviors.dll"
+    ];
 }

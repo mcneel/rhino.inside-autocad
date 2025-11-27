@@ -47,6 +47,11 @@
                     AppDescription="Services Dependency"
                     AppType="Managed"/>
 
+	  <ComponentEntry AppName="Rhino.Inside.AutoCAD"
+	                  ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.UI.Resources.dll"
+	                  AppDescription="UI Dependency"
+	                  AppType="Managed"/>
+
     <ComponentEntry AppName="Rhino.Inside.AutoCAD"
                     ModuleName="./Toolbar/RhinoInsideAutocad_Toolbar.cuix"
                     AppDescription="Toolbar"/>

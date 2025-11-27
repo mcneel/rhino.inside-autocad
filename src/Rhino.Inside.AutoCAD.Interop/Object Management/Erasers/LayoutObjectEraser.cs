@@ -5,23 +5,23 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <summary>
-/// Implements layout object erasing in the <see cref="IDocument"/>.
+/// Implements layout object erasing in the <see cref="IAutoCadDocument"/>.
 /// </summary>
 public class LayoutObjectEraser : IObjectEraser
 {
     private readonly RXClass _layoutRxClass;
 
     /// <inheritdoc/>
-    public IDocument Document { get; }
+    public IAutoCadDocument AutoCadDocument { get; }
 
     /// <summary>
     /// Constructs a new <see cref="GenericObjectEraser"/>.
     /// </summary>
-    public LayoutObjectEraser(IDocument document)
+    public LayoutObjectEraser(IAutoCadDocument autoCadDocument)
     {
         _layoutRxClass = RXObject.GetClass(typeof(Layout));
 
-        this.Document = document;
+        this.AutoCadDocument = autoCadDocument;
     }
 
     /// <inheritdoc/>

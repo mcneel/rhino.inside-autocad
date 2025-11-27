@@ -19,10 +19,10 @@
 		<PackageReference Include="Bimorph.Core.Services" />
 		<PackageReference Include="NaturalSort.Extension" />
 		<PackageReference Include="MaterialDesignThemes" />
-		<PackageReference Include="RhinoCommon" >
+		<PackageReference Include="RhinoCommon">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>
-		<PackageReference Include="RhinoWindows" >
+		<PackageReference Include="RhinoWindows">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>
 		<PackageReference Include="AutoCAD.NET">

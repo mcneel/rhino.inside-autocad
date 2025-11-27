@@ -2,7 +2,6 @@
 using Bimorph.Core.Services.Services;
 using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces.Applications.Applications;
-using Rhino.Inside.AutoCAD.Interop;
 
 [assembly: ExtensionApplication(typeof(RhinoInsideAutoCadExtension))]
 
@@ -23,10 +22,12 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
     {
         try
         {
+            // Force RhinoCoreExtension static constructor to run first
+            // This sets up the AssemblyResolve handler for RhinoCommon before
+            // any code tries to reference RhinoCommon types
+            _ = RhinoCoreExtension.Instance;
 
             Application = new RhinoInsideAutoCadApplication();
-
-            var rhinoInstance = RhinoInsideExtension.Instance;
 
             var editor = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument?.Editor;
             editor?.WriteMessage("\nRhino.Inside.AutoCAD loaded successfully.");

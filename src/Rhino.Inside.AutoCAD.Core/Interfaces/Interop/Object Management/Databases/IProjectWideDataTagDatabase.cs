@@ -19,7 +19,7 @@ public interface IProjectWideDataTagDatabase
 
     /// <summary>
     /// The <see cref="IDbObject"/> the <see cref="IDataTagDatabase"/> is attached to
-    /// in the <see cref="IDocument"/>, This is forwarded from the <see cref="Database"/>.
+    /// in the <see cref="IAutoCadDocument"/>, This is forwarded from the <see cref="Database"/>.
     /// </summary>
     IDbObject DbObjectOwner { get; }
 

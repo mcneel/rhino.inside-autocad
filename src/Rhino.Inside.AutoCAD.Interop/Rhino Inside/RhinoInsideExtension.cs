@@ -2,9 +2,11 @@
 using Bimorph.Core.Services.Core.Interfaces;
 using Bimorph.Core.Services.Services;
 using Rhino.ApplicationSettings;
+using Rhino.Commands;
 using Rhino.Inside.AutoCAD.Core;
 using Rhino.Runtime.InProcess;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -13,7 +15,11 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class RhinoInsideExtension
 {
+    private IntPtr _mainWindow;
     private static RhinoCore? _rhinoCore;
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr windowHandle, int windowShowStyle);
 
     /// <summary>
     /// True if Rhino is installed otherwise false.
@@ -84,20 +90,10 @@ public class RhinoInsideExtension
     }
 
     /// <summary>
-    /// Converts a <see cref="UnitSystem"/> to a <see cref="UnitSystem"/>.
-    /// </summary>
-    private UnitSystem GetRhinoUnitSystem(UnitSystem unitSystem)
-    {
-        var unitSystemResult = Enum.TryParse(unitSystem.ToString(), out UnitSystem rhinoUnitSystem);
-
-        return unitSystemResult ? rhinoUnitSystem : UnitSystem.None;
-    }
-
-    /// <summary>
     /// Initializes the Rhino Inside instance and returns true if it has successfully
     /// launched otherwise false indicating a failure.
     /// </summary>
-    public void Initialize(UnitSystem internalUnits, IApplicationDirectories applicationDirectories, RhinoInsideMode mode)
+    public void Initialize(IApplicationDirectories applicationDirectories, RhinoInsideMode mode)
     {
         if (_rhinoInstallDirectoryExists & _rhinoCore == null)
         {
@@ -125,10 +121,12 @@ public class RhinoInsideExtension
                     : RhinoDoc.ActiveDoc;
 
                 FileSettings.AutoSaveEnabled = false;
-
-                rhinoDoc.ModelUnitSystem = this.GetRhinoUnitSystem(internalUnits);
-
                 this.ActiveDoc = rhinoDoc;
+
+                _mainWindow = RhinoApp.MainWindowHandle();
+
+                RhinoApp.Closing += this.InterceptClosing;
+
             }
             catch
             {
@@ -137,6 +135,30 @@ public class RhinoInsideExtension
                 throw;
             }
         }
+    }
+
+    private void InterceptClosing(object sender, EventArgs e)
+    {
+        this.Shutdown();
+
+    }
+
+    public void HideWindow()
+    {
+        ShowWindow(_mainWindow, (int)WindowShowStyle.Hide);
+    }
+
+    public void ShowWindow()
+    {
+        ShowWindow(_mainWindow, (int)WindowShowStyle.Show);
+    }
+
+    public Result RunRhinoCommand(string commandName)
+    {
+        if (_rhinoCore is null)
+            return Result.Failure;
+
+        return RhinoApp.ExecuteCommand(this.ActiveDoc, commandName);
     }
 
     /// <summary>
@@ -149,4 +171,3 @@ public class RhinoInsideExtension
         _rhinoCore?.Dispose();
     }
 }
-

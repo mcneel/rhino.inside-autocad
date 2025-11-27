@@ -1,25 +1,223 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Color x:Key="PrimaryColor" A="255" R="125" G="91" B="63" />
-    <SolidColorBrush x:Key="PrimaryColorBrush"
-                     Color="{StaticResource PrimaryColor}"/>
-
-    <Color x:Key="SecondaryColor"
+    <!-- COLOR DEFINITIONS -->
+    <Color x:Key="BrandBlue"
            A="255"
-           R="125"
-           G="91"
-           B="63" />
+           R="0"
+           G="134"
+           B="247" />
+
+    <Color x:Key="BrandGrey"
+           A="255"
+           R="153"
+           G="153"
+           B="153" />
+
+
+    <Color x:Key="ParagraphWhite"
+           A="255"
+           R="206"
+           G="206"
+           B="206" />
+
+    <Color x:Key="SecondaryText"
+           A="255"
+           R="174"
+           G="174"
+           B="174" />
+
+    <Color x:Key="Background"
+           A="255"
+           R="15"
+           G="18"
+           B="22" />
+
+    <Color x:Key="BackgroundMid"
+           A="255"
+           R="20"
+           G="23"
+           B="27" />
+
+    <Color x:Key="BackgroundLight"
+           A="255"
+           R="25"
+           G="28"
+           B="32" />
+
+
+    <Color x:Key="BrandDarkBlue"
+           A="255"
+           R="11"
+           G="14"
+           B="18" />
+
+    <Color x:Key="BlackColor"
+           A="255"
+           R="3"
+           G="3"
+           B="3" />
+
+
+    <Color x:Key="ContrastDarkGrey"
+           A="255"
+           R="19"
+           G="23"
+           B="27" />
+
+    <Color x:Key="DarkRemovedColor"
+           A="255"
+           R="92"
+           G="32"
+           B="32" />
+
+    <Color x:Key="PrimaryGreenColor"
+           A="255"
+           R="63"
+           G="125"
+           B="91" />
+
+    <Color x:Key="WarningColor"
+           A="255"
+           R="247"
+           G="113"
+           B="0" />
+
+    <Color x:Key="BorderGreyColor"
+           A="255"
+           R="213"
+           G="213"
+           B="213" />
+
+    <Color x:Key="MenuGreyColor"
+           A="255"
+           R="101"
+           G="106"
+           B="107" />
+
+    <Color x:Key="VibrantGreenColor"
+           A="255"
+           R="135"
+           G="247"
+           B="0" />
+
+    <Color x:Key="VibrantPinkColor"
+           A="255"
+           R="247"
+           G="0"
+           B="134" />
+    <Color x:Key="PrimaryTurquoiseDarkColor"
+           A="255"
+           R="12"
+           G="83"
+           B="76" />
+
+    <Color x:Key="PrimaryDarkPurpleColor"
+           A="255"
+           R="57"
+           G="40"
+           B="77" />
+
+    <Color x:Key="PrimaryOrangeAccentColor"
+           A="255"
+           R="246"
+           G="147"
+           B="51" />
+
+    <Color x:Key="CardBorderColor"
+           A="255"
+           R="20"
+           G="52"
+           B="85" />
+
+    <Color x:Key="ButtonColor"
+           A="255"
+           R="14"
+           G="23"
+           B="32" />
+
+    <Color x:Key="TextHoverColor"
+           A="255"
+           R="128"
+           G="197"
+           B="255" />
+
+    <Color x:Key="ButtonHoverColor"
+           A="255"
+           R="24"
+           G="33"
+           B="42" />
+
+
+    <!-- SOLID COLOR BRUSHES -->
+
+    <SolidColorBrush x:Key="PrimaryColorBrush"
+                     Color="{StaticResource BrandBlue}" />
+
+    <SolidColorBrush x:Key="PrimaryColorHoverBrush"
+                     Color="{StaticResource TextHoverColor}" />
+
     <SolidColorBrush x:Key="SecondaryColorBrush"
-                     Color="{StaticResource SecondaryColor}" />
+                     Color="{StaticResource BrandGrey}" />
+
+    <SolidColorBrush x:Key="PrimaryTextBrush"
+                     Color="{StaticResource ParagraphWhite}" />
+
+    <SolidColorBrush x:Key="SecondaryTextBrush"
+                     Color="{StaticResource SecondaryText}" />
+
+    <SolidColorBrush x:Key="BackgroundBrush"
+                     Color="{StaticResource BrandDarkBlue}" />
+
+    <SolidColorBrush x:Key="BackgroundCardBrush"
+                     Color="{StaticResource Background}" />
+
+    <SolidColorBrush x:Key="BackgroundCardMidBrush"
+                     Color="{StaticResource BackgroundMid}" />
+
+    <SolidColorBrush x:Key="BackgroundCardLightBrush"
+                     Color="{StaticResource BackgroundLight}" />
+
+    <SolidColorBrush x:Key="BorderCardBrush"
+                     Color="{StaticResource CardBorderColor}" />
+
+    <SolidColorBrush x:Key="ButtonColorBrush"
+                     Color="{StaticResource ButtonColor}" />
+
+    <SolidColorBrush x:Key="ButtonHoverColorBrush"
+                     Color="{StaticResource ButtonHoverColor}" />
+
+    <SolidColorBrush x:Key="DarkRemovedColorBrush"
+                     Color="{StaticResource DarkRemovedColor}" />
+
+    <SolidColorBrush x:Key="PrimaryGreenColorBrush"
+                     Color="{StaticResource PrimaryGreenColor}" />
+
+    <SolidColorBrush x:Key="BlackColorBrush"
+                     Color="{StaticResource BlackColor}" />
+
+    <SolidColorBrush x:Key="WarningColorBrush"
+                     Color="{StaticResource WarningColor}" />
+
+    <SolidColorBrush x:Key="DarkBorderColorBrush"
+                     Color="{StaticResource ContrastDarkGrey}" />
+
+    <SolidColorBrush x:Key="BorderGreyColorBrush"
+                     Color="{StaticResource SecondaryText}" />
 
 
 
-    <Color x:Key="WarningRedColor" A="255" R="255" G="69" B="0"/>
-  <SolidColorBrush x:Key="WarningRedBrush" Color="{StaticResource WarningRedColor}"/>
+    <SolidColorBrush x:Key="VibrantGreenColorBrush"
+                     Color="{StaticResource VibrantGreenColor}" />
+    <SolidColorBrush x:Key="VibrantPinkColorBrush"
+                     Color="{StaticResource VibrantPinkColor}" />
+    <SolidColorBrush x:Key="PrimaryTurquoiseDarkColorBrush"
+                     Color="{StaticResource PrimaryTurquoiseDarkColor}" />
+    <SolidColorBrush x:Key="PrimaryDarkPurpleColorBrush"
+                     Color="{StaticResource PrimaryDarkPurpleColor}" />
+    <SolidColorBrush x:Key="PrimaryOrangeAccentColorBrush"
+                     Color="{StaticResource PrimaryOrangeAccentColor}" />
 
-  <Color x:Key="WarningOrangeColor" A="255" R="255" G="165" B="0"/>
-  <SolidColorBrush x:Key="WarningOrangeBrush" Color="Orange"/>
 
 
 </ResourceDictionary>

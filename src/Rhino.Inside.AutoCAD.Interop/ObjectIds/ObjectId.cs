@@ -18,7 +18,7 @@ public class ObjectId : WrapperBase<CadObjectId>, IObjectId
     /// <remarks>
     /// This value corresponds to the <see cref="Handle.Value"/> of the
     /// encapsulated <see cref="Autodesk.AutoCAD.DatabaseServices.ObjectId"/>.
-    /// This value is persistent even if the <see cref="IDocument"/> is closed.
+    /// This value is persistent even if the <see cref="IAutoCadDocument"/> is closed.
     /// </remarks>
     public long Value { get; }
 

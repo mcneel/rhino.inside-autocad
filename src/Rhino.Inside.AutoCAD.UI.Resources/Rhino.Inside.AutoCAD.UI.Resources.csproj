@@ -16,18 +16,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="Documents\**" />
-		<EmbeddedResource Remove="Documents\**" />
-		<None Remove="Documents\**" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="Resources\RhinoInside.Revit.AddIn.Resources.RIR-logo.ico" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Bimorph.Core.Services" />
-		<PackageReference Include="NaturalSort.Extension" />
 		<PackageReference Include="MaterialDesignThemes" />
 		<PackageReference Include="CommunityToolkit.Mvvm" />
 
@@ -42,16 +31,42 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
-	  <ApplicationDefinition Include="Views\Styles\ColorStyles.xaml">
+	  <Page Include="Views\Styles\ColorStyles.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
-	  </ApplicationDefinition>
+	  </Page>
+	</ItemGroup>
+
+
+
+	<ItemGroup>
+		<Reference Include="System.Windows.Forms">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="WindowsFormsIntegration">
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Update="PresentationFramework">
+			<Private>True</Private>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Resource Include="Resources\RhinoInside.Revit.AddIn.Resources.RIR-logo.ico" />
+		<Reference Update="PresentationCore">
+			<Private>True</Private>
+		</Reference>
 	</ItemGroup>
 
+	<ItemGroup>
+		<Reference Include="System.Windows.Forms">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="WindowsFormsIntegration">
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;" />

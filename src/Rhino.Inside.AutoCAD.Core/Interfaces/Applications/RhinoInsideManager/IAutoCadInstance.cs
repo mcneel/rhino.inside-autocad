@@ -6,8 +6,18 @@ namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 /// The host <see cref="IAutoCadDocument"/> <see cref="ISatelliteService"/>.
 /// The application is attached to this object and persists for its lifetime.
 /// </summary>
-public interface IInteropService : ISatelliteService
+public interface IAutoCadInstance
 {
+    /// <summary>
+    /// Event raised when the Autocad document changes, e.g. a new document is opened.
+    /// </summary>
+    event EventHandler? OnDocumentCreated;
+
+    /// <summary>
+    /// Event raised when the units of the Autocad document change.
+    /// </summary>
+    event EventHandler? OnUnitsChanged;
+
     /// <summary>
     /// Event raised when the <see cref="IAutoCadDocument"/> begins closing , or when the
     /// user changes the active document. If either event occurs, the application will
@@ -26,6 +36,11 @@ public interface IInteropService : ISatelliteService
     /// approach therefore simplifies interaction between AutoCAD and the AWI application.
     /// </remarks>
     event EventHandler? DocumentClosingOrActivated;
+
+    /// <summary>
+    /// The <see cref="IValidationLogger"/> for this <see cref="ISatelliteService"/>.
+    /// </summary>
+    IValidationLogger ValidationLogger { get; }
 
     /// <summary>
     /// The <see cref="IAutoCadDocument"/> instance.

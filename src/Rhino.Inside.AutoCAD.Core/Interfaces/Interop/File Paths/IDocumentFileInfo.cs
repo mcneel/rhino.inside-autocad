@@ -1,27 +1,27 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// Provides file directory and paths of a <see cref="IDocument"/> file.
+/// Provides file directory and paths of a <see cref="IAutoCadDocument"/> file.
 /// </summary>
 public interface IDocumentFileInfo
 {
     /// <summary>
-    /// Returns the <see cref="IDocument.Id"/>.
+    /// Returns the <see cref="IAutoCadDocument.Id"/>.
     /// </summary>
     Guid UniqueId { get; }
 
     /// <summary>
-    /// The file name of the <see cref="IDocument"/>.
+    /// The file name of the <see cref="IAutoCadDocument"/>.
     /// </summary>
     string FileName { get; }
 
     /// <summary>
-    /// The file path of the <see cref="IDocument"/>.
+    /// The file path of the <see cref="IAutoCadDocument"/>.
     /// </summary>
     string FilePath { get; }
 
     /// <summary>
-    /// The root directory where the <see cref="IDocument"/> is saved.
+    /// The root directory where the <see cref="IAutoCadDocument"/> is saved.
     /// </summary>
     string RootDirectory { get; }
 

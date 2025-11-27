@@ -10,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// A class which provides a wrapped version of the AutoCAD
 /// <see cref="Document"/>.
 /// </summary>
-public class DocumentFile : WrapperBase<Document>, IDocument
+public class AutocadDocumentFile : WrapperBase<Document>, IAutoCadDocument
 {
     private readonly string _applicationName = InteropConstants.ApplicationName;
 
@@ -22,15 +22,9 @@ public class DocumentFile : WrapperBase<Document>, IDocument
     private readonly IDocumentCloseAction _documentCloseAction;
     private readonly Dispatcher _dispatcher;
 
-    private const UnitSystem _internalUnitSystem = InteropConstants.InternalUnitSystem;
+    private const UnitSystem _internalUnitSystem = InteropConstants.FallbackUnitSystem;
     private const GroupCodeValue _applicationNameKey = DataTagKeys.ApplicationNameKey;
     private const GroupCodeValue _documentIdKey = DataTagKeys.DocumentIdKey;
-
-    /// <summary>
-    /// The string representation of the <see cref="ButtonApplicationId"/> that is
-    /// currently running in this <see cref="IDocument"/>.
-    /// </summary>
-    private readonly string _appId;
 
     /// <summary>
     /// Used as a flag for document changed events. Used to defer the invocation of the
@@ -42,13 +36,13 @@ public class DocumentFile : WrapperBase<Document>, IDocument
     private bool _documentChanged;
 
     /// <inheritdoc/>
+    public event EventHandler? OnUnitsChanged;
+
+    /// <inheritdoc/>
     public event EventHandler? DocumentChanged;
 
     /// <inheritdoc/>
     public Guid Id { get; }
-
-    /// <inheritdoc/>
-    public IUnitSystemManager UnitSystemManager { get; }
 
     /// <inheritdoc/>
     public IDatabase Database { get; }
@@ -81,18 +75,17 @@ public class DocumentFile : WrapperBase<Document>, IDocument
        public ITextStyleTableRecordRepository TextStyleTableRecordRepository { get; }*/
 
     /// <inheritdoc/>
-    public UnitSystem UnitSystem { get; }
+    public UnitSystem UnitSystem { get; private set; }
 
     /// <inheritdoc/>
     public bool IsSaveOnClose { get; private set; }
 
     /// <summary>
-    /// Constructs a new <see cref="DocumentFile"/>.
+    /// Constructs a new <see cref="AutocadDocumentFile"/>.
     /// </summary>
-    public DocumentFile(Document document,
+    public AutocadDocumentFile(Document document,
         IDocumentCloseAction documentCloseAction,
-        Dispatcher dispatcher,
-        ButtonApplicationId appId) : base(document)
+        Dispatcher dispatcher) : base(document)
     {
         _document = document;
 
@@ -103,30 +96,21 @@ public class DocumentFile : WrapperBase<Document>, IDocument
         _document.CommandEnded += this.OnDocumentCommandEnded;
         _document.CommandCancelled += this.OnDocumentCommandEnded;
 
-        _database.ObjectAppended += this.OnDatabaseObjectModifiedOrAppended;
-        _database.ObjectModified += this.OnDatabaseObjectModifiedOrAppended;
+        _database.ObjectAppended += this.OnDatabaseObjectAppended;
+        _database.ObjectModified += this.OnDatabaseObjectModified;
         _database.ObjectErased += this.OnDatabaseObjectErased;
 
         _documentCloseAction = documentCloseAction;
 
-        _appId = appId.ToString();
-
         var id = this.RegisterApplication(document);
 
         var documentUnits = _database.Insunits.ToUnitSystem();
-
-        var unitsSystemManager = new UnitSystemManager(documentUnits, _internalUnitSystem);
-
-        //  RhinoGeometryConverter.Initialize(unitsSystemManager);
-        //  InternalGeometryConverter.Initialize(unitsSystemManager);
 
         var database = new DatabaseWrapper(_database);
 
         //  var linePatternCache = new LinePatternCache(document, unitsSystemManager);
 
         this.Id = id;
-
-        this.UnitSystemManager = unitsSystemManager;
 
         this.Database = database;
 
@@ -264,7 +248,7 @@ public class DocumentFile : WrapperBase<Document>, IDocument
     private void OnDocumentCommandEnded(object sender, CommandEventArgs e)
     {
         // On startup the first ending command is the application which is ignored.
-        if (e.GlobalCommandName.Contains(_appId))
+        if (Enum.GetNames(typeof(ButtonApplicationId)).Any(appId => e.GlobalCommandName.Contains(appId)))
             return;
 
         if (_documentChanged)
@@ -275,11 +259,24 @@ public class DocumentFile : WrapperBase<Document>, IDocument
         }
     }
 
+    private void OnDatabaseObjectModified(object sender, ObjectEventArgs e)
+    {
+        _documentChanged = true;
+
+        var documentUnits = _database.Insunits.ToUnitSystem();
+
+        if (this.UnitSystem != documentUnits)
+        {
+            OnUnitsChanged?.Invoke(this, EventArgs.Empty);
+            this.UnitSystem = documentUnits;
+        }
+    }
+
     /// <summary>
     /// Event handler which fires when an object is appended or modified in the database.
     /// Sets the <see cref="_documentChanged"/> to true. 
     /// </summary>
-    private void OnDatabaseObjectModifiedOrAppended(object sender, ObjectEventArgs e)
+    private void OnDatabaseObjectAppended(object sender, ObjectEventArgs e)
     {
         _documentChanged = true;
     }
@@ -294,7 +291,7 @@ public class DocumentFile : WrapperBase<Document>, IDocument
     }
 
     /// <summary>
-    /// Sets the <see cref="CloseActionType"/> of this <see cref="IDocument"/>,
+    /// Sets the <see cref="CloseActionType"/> of this <see cref="IAutoCadDocument"/>,
     /// to <see cref="CloseActionType.Save"/> to ensure any changes made to the
     /// document are saved in the underlying AutoCAD document.
     /// </summary>
@@ -356,8 +353,8 @@ public class DocumentFile : WrapperBase<Document>, IDocument
     {
         _document.CommandEnded -= this.OnDocumentCommandEnded;
         _document.CommandCancelled -= this.OnDocumentCommandEnded;
-        _database.ObjectAppended -= this.OnDatabaseObjectModifiedOrAppended;
-        _database.ObjectModified -= this.OnDatabaseObjectModifiedOrAppended;
+        _database.ObjectAppended -= this.OnDatabaseObjectAppended;
+        _database.ObjectModified -= this.OnDatabaseObjectModified;
         _database.ObjectErased -= this.OnDatabaseObjectErased;
 
         _documentCloseAction.Invoke(this.FileInfo);

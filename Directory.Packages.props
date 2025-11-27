@@ -7,7 +7,7 @@
   <ItemGroup>
 
     <!-- Bimporph Nugets -->
-    <PackageVersion Include="Bimorph.Core.Services" Version="1.0.112" />
+    <PackageVersion Include="Bimorph.Core.Services" Version="1.0.118" />
 	  <!-- Assembly redirect nugets -->
 
 	  <PackageVersion Include="MaterialDesignColors" Version="3.0.0" />

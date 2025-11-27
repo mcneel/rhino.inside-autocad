@@ -9,7 +9,7 @@ public class DataTagDatabaseManager : IDataTagDatabaseManager
     // ObjectId key is the IDataTagDatabase DbObjectOwner.Id
     private readonly Dictionary<IObjectId, IDataTagDatabase> _dataTagDatabases;
 
-    private readonly IDocument _document;
+    private readonly IAutoCadDocument _autoCadDocument;
 
     /// <inheritdoc/>
     public IProjectWideDataTagDatabase ProjectWideDataTagDatabase { get; }
@@ -17,13 +17,13 @@ public class DataTagDatabaseManager : IDataTagDatabaseManager
     /// <summary>
     /// Constructs a new <see cref="DataTagDatabaseManager"/>.
     /// </summary>
-    public DataTagDatabaseManager(IDocument document)
+    public DataTagDatabaseManager(IAutoCadDocument autoCadDocument)
     {
-        _document = document;
+        _autoCadDocument = autoCadDocument;
 
         _dataTagDatabases = new Dictionary<IObjectId, IDataTagDatabase>(new ObjectIdEqualityComparer());
 
-        this.ProjectWideDataTagDatabase = this.GetProjectWideDatabase(document);
+        this.ProjectWideDataTagDatabase = this.GetProjectWideDatabase(autoCadDocument);
     }
 
     /// <inheritdoc/>
@@ -38,9 +38,9 @@ public class DataTagDatabaseManager : IDataTagDatabaseManager
     /// The project-wide <see cref="IDataTagDatabase"/> for storing <see cref="IDataTag"/>s
     /// that pertain to the project and have no corresponding <see cref="IDbObject"/>.
     /// </summary>
-    private IProjectWideDataTagDatabase GetProjectWideDatabase(IDocument document)
+    private IProjectWideDataTagDatabase GetProjectWideDatabase(IAutoCadDocument autoCadDocument)
     {
-        return document.Transaction<IProjectWideDataTagDatabase>(transactionManager =>
+        return autoCadDocument.Transaction<IProjectWideDataTagDatabase>(transactionManager =>
         {
             var modelSpace = transactionManager.GetModelSpaceBlockTableRecord();
 
@@ -66,7 +66,7 @@ public class DataTagDatabaseManager : IDataTagDatabaseManager
     /// <inheritdoc/>
     public void CommitAll()
     {
-        _ = _document.Transaction(transactionManagerWrapper =>
+        _ = _autoCadDocument.Transaction(transactionManagerWrapper =>
         {
             var transactionManager = transactionManagerWrapper.Unwrap();
 

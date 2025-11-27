@@ -4,7 +4,7 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <summary>
-/// A class which wraps a <see cref="BlockTableRecord"/> from an <see cref="IDocument"/>.
+/// A class which wraps a <see cref="BlockTableRecord"/> from an <see cref="IAutoCadDocument"/>.
 /// </summary>
 /// <remarks>
 /// Block table records are located in the <see cref="IBlockTableRecordRepository"/>

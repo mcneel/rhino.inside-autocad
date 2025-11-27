@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents a document object from AutoCAD.
 /// </summary>
-public interface IDocument
+public interface IAutoCadDocument
 {
     /// <summary>
     /// The unique Id of this document. 
@@ -25,18 +25,18 @@ public interface IDocument
     event EventHandler? DocumentChanged;
 
     /// <summary>
-    /// The <see cref="IUnitSystemManager"/> of this <see cref="IDocument"/>.
+    /// Event raised when the units of the Autocad document change.
     /// </summary>
-    IUnitSystemManager UnitSystemManager { get; }
+    event EventHandler? OnUnitsChanged;
 
     /// <summary>
     /// The <see cref="IDatabase"/> of the
-    /// <see cref="IDocument"/>.
+    /// <see cref="IAutoCadDocument"/>.
     /// </summary>
     IDatabase Database { get; }
 
     /// <summary>
-    /// Provides file information about this <see cref="IDocument"/>.
+    /// Provides file information about this <see cref="IAutoCadDocument"/>.
     /// </summary>
     IDocumentFileInfo FileInfo { get; }
 
@@ -84,19 +84,19 @@ public interface IDocument
      ITextStyleTableRecordRepository TextStyleTableRecordRepository { get; }*/
 
     /// <summary>
-    /// The <see cref="UnitSystem"/> of this <see cref="IDocument"/>.
+    /// The <see cref="UnitSystem"/> of this <see cref="IAutoCadDocument"/>.
     /// </summary>
     UnitSystem UnitSystem { get; }
 
     /// <summary>
-    /// Returns true if this <see cref="IDocument"/>s <see cref="CloseActionType"/>
+    /// Returns true if this <see cref="IAutoCadDocument"/>s <see cref="CloseActionType"/>
     /// has been set to save, meaning the underlying AutoCAD document will be saved
     /// when <see cref="Close"/> is called.
     /// </summary>
     bool IsSaveOnClose { get; }
 
     /// <summary>
-    /// Opens a transaction to read or modify this <see cref="IDocument"/>
+    /// Opens a transaction to read or modify this <see cref="IAutoCadDocument"/>
     /// and returns the result <typeparamref name="T"/>. If <paramref name="abort"/>
     /// is set to true aborts the transaction to roll back any changes - this is
     /// useful when the transaction is being used to read data from the document
@@ -112,7 +112,7 @@ public interface IDocument
     void UpdateScreen();
 
     /// <summary>
-    /// Shuts down this <see cref="IDocument"/> instance. This method ensures that
+    /// Shuts down this <see cref="IAutoCadDocument"/> instance. This method ensures that
     /// the instance is unhooked from all subscribed database and document events.
     /// </summary>
     void Close();

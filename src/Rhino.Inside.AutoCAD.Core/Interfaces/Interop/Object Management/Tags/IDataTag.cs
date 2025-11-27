@@ -3,7 +3,7 @@
 /// <summary>
 /// A <see cref="IDataTag"/> is a key-value pair object comprising a
 /// <see cref="GroupCodeValue"/> and object value. <see cref="IDataTag"/>s are
-/// attached to an <see cref="IDbObject"/> in the active <see cref="IDocument"/>
+/// attached to an <see cref="IDbObject"/> in the active <see cref="IAutoCadDocument"/>
 /// (via Extensible Storage) to provide persistent property-based information
 /// that corresponds to a property of an internal API type in this application.
 /// <see cref="IDataTag"/>s are somewhat limited in scope as the

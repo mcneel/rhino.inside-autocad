@@ -17,7 +17,7 @@ public interface ILayerMapper
 
     /// <summary>
     /// An <see cref="ILayer"/> of the <see cref="IInteropService"/>'s
-    /// <see cref="IDocument"/> that host <see cref="IEntity"/>s.
+    /// <see cref="IAutoCadDocument"/> that host <see cref="IEntity"/>s.
     /// </summary>
     /// <remarks>
     /// Typically this <see cref="ILayer"/> has derived from an external

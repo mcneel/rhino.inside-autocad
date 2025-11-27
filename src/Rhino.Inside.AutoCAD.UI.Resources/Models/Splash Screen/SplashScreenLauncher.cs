@@ -48,6 +48,7 @@ public class SplashScreenLauncher : ISplashScreenLauncher
     /// </summary>
     private void ThreadStartingPoint()
     {
+
         _dispatcher = Dispatcher.CurrentDispatcher;
 
         lock (_initLock)

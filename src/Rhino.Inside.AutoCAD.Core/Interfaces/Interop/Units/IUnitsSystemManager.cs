@@ -1,8 +1,8 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// An interface which defines units conversion between <see cref="IDocument.UnitSystem"/>
-/// and the <see cref="InternalUnits"/> <see cref="UnitSystem"/>.
+/// An interface which defines units conversion between <see cref="IAutoCadDocument.UnitSystem"/>
+/// and the <see cref="RhinoUnits"/> <see cref="UnitSystem"/>.
 /// </summary>
 public interface IUnitSystemManager
 {
@@ -10,57 +10,57 @@ public interface IUnitSystemManager
     /// The <see cref="UnitSystem"/> used internally for all applications.
     /// </summary>
     /// <remarks>
-    /// The <see cref="InternalUnits"/> units are what are used for Rhino Inside.
+    /// The <see cref="RhinoUnits"/> units are what are used for Rhino Inside.
     /// </remarks>
-    UnitSystem InternalUnits { get; }
+    UnitSystem RhinoUnits { get; }
 
     /// <summary>
-    /// The <see cref="UnitSystem"/> of the active <see cref="IDocument"/>.
+    /// The <see cref="UnitSystem"/> of the active <see cref="IAutoCadDocument"/>.
     /// </summary>
     /// <remarks>
-    /// The value returns the same value as <see cref="IDocument.UnitSystem"/>.
+    /// The value returns the same value as <see cref="IAutoCadDocument.UnitSystem"/>.
     /// </remarks>
-    UnitSystem DocumentUnits { get; }
+    UnitSystem AutoCadUnits { get; }
 
     /// <summary>
-    /// Converts the given <paramref name="length"/> from <see cref="IDocument.UnitSystem"/>
-    /// to the <see cref="InternalUnits"/> units.
+    /// Converts the given <paramref name="length"/> from <see cref="IAutoCadDocument.UnitSystem"/>
+    /// to the <see cref="RhinoUnits"/> units.
     /// </summary>
-    double ToInternalLength(double length);
+    double ToRhinoLength(double length);
 
     /// <summary>
     /// Converts the given <see cref="IUnitLength"/> to the <see cref=
-    /// "InternalUnits"/> units.
+    /// "RhinoUnits"/> units.
     /// </summary>
-    double ToInternalLength(IUnitLength length);
+    double ToRhinoLength(IUnitLength length);
 
     /// <summary>
     /// Converts the given <see cref="IImperialLength"/> to the <see cref=
-    /// "InternalUnits"/> units.
+    /// "RhinoUnits"/> units.
     /// </summary>
-    double ToInternalLength(IImperialLength imperialLength);
+    double ToRhinoLength(IImperialLength imperialLength);
 
     /// <summary>
     /// Converts the given <paramref name="area"/> from <see cref=
-    /// "IDocument.UnitSystem"/> to the <see cref="InternalUnits"/> units.
+    /// "IAutoCadDocument.UnitSystem"/> to the <see cref="RhinoUnits"/> units.
     /// </summary>
-    double ToInternalArea(double area);
+    double ToRhinoArea(double area);
 
     /// <summary>
-    /// Converts the given <paramref name="internalLength"/> from <see cref="IDocument.UnitSystem"/>.
+    /// Converts the given <paramref name="internalLength"/> from <see cref="IAutoCadDocument.UnitSystem"/>.
     /// </summary>
-    double ToDocumentLength(double internalLength);
+    double ToAutoCadLength(double internalLength);
 
     /// <summary>
-    /// Converts the given <paramref name="length"/> to the <see cref="DocumentUnits"/>
+    /// Converts the given <paramref name="length"/> to the <see cref="AutoCadUnits"/>
     /// units.
     /// </summary>
-    double ToDocumentLength(IUnitLength length);
+    double ToAutoCadLength(IUnitLength length);
 
     /// <summary>
-    /// Converts the given <paramref name="internalArea"/> to <see cref="IDocument.UnitSystem"/>.
+    /// Converts the given <paramref name="internalArea"/> to <see cref="IAutoCadDocument.UnitSystem"/>.
     /// </summary>
-    double ToDocumentArea(double internalArea);
+    double ToAutoCadArea(double internalArea);
 
     /// <summary>
     /// Converts the given <paramref name="radians"/> to degrees.

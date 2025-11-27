@@ -14,7 +14,7 @@ public interface IObjectIdTagDatabaseManager
 
     /// <summary>
     /// Commits all changes made to the <see cref="IObjectIdTagDatabase"/>s in this
-    /// <see cref="IObjectIdTagDatabaseManager"/> to the active <see cref="IDocument"/>.
+    /// <see cref="IObjectIdTagDatabaseManager"/> to the active <see cref="IAutoCadDocument"/>.
     /// </summary>
     void CommitAll();
 }

@@ -4,13 +4,13 @@
 /// A database for extracting, storing and reading
 /// <see cref="IDataTagRecord"/>s and their <see cref="IDataTag"/>s.
 /// <see cref="IDataTagDatabase"/> are attached to <see cref="IDbObject"/>s
-/// in the active <see cref="IDocument"/> using its extensible storage.
+/// in the active <see cref="IAutoCadDocument"/> using its extensible storage.
 /// </summary>
 public interface IDataTagDatabase : IEnumerable<IDataTagRecord>
 {
     /// <summary>
     /// The <see cref="IDbObject"/> this <see cref="IDataTagDatabase"/> is attached to
-    /// in the <see cref="IDocument"/>.
+    /// in the <see cref="IAutoCadDocument"/>.
     /// </summary>
     IDbObject DbObjectOwner { get; }
 

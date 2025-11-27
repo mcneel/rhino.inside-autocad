@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents any type of setting input(s) by either the user or set by the application
 /// that stores the values in <see cref="IDataTag"/>s so its state can be stored and
-/// retrieved from the active <see cref="IDocument"/>, enabling the application to
+/// retrieved from the active <see cref="IAutoCadDocument"/>, enabling the application to
 /// retain the state of the input across all sessions.
 /// </summary>
 public interface IDataTaggedSettings

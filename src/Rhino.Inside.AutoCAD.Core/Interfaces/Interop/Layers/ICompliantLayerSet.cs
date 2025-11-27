@@ -12,7 +12,7 @@ public interface ICompliantLayerSet : IEnumerable<ILayer>
     bool IsEmpty { get; }
 
     /// <summary>
-    /// Filters all layers in the <see cref="IDocument"/> and adds layers that
+    /// Filters all layers in the <see cref="IAutoCadDocument"/> and adds layers that
     /// are compliant with AWI CAD standards using the <see cref="ILayerFilter"/>.
     /// </summary>
     void FilterLayers();
