@@ -29,6 +29,11 @@ public interface IRhinoInstance
     event EventHandler<IRhinoObjectModifiedEventArgs>? OnObjectModifiedOrAppended;
 
     /// <summary>
+    /// Event raised when a Rhino object is removed.
+    /// </summary>
+    event EventHandler<IRhinoObjectModifiedEventArgs>? OnObjectRemoved;
+
+    /// <summary>
     /// The instance of the Rhino core extension.
     /// </summary>
     IRhinoCoreExtension RhinoCore { get; }
