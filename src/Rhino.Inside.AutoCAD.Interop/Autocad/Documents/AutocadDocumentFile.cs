@@ -48,7 +48,7 @@ public class AutocadDocumentFile : WrapperBase<Document>, IAutoCadDocument
     public IDatabase Database { get; }
 
     /// <inheritdoc/>
-    public IDocumentFileInfo FileInfo { get; }
+    public IAutocadDocumentFileInfo FileInfo { get; }
 
     /*   /// <inheritdoc/>
        public ILinePatternCache LinePatternCache { get; }
@@ -114,7 +114,7 @@ public class AutocadDocumentFile : WrapperBase<Document>, IAutoCadDocument
 
         this.Database = database;
 
-        this.FileInfo = new DocumentFileInfo(document, id);
+        this.FileInfo = new AutocadDocumentFileInfo(document, id);
 
         /*  this.LinePatternCache = linePatternCache;
 

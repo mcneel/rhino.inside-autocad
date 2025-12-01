@@ -1,10 +1,10 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
-using Autodesk.AutoCAD.Geometry;
-using Rhino.Geometry;
-using Arc = Autodesk.AutoCAD.DatabaseServices.Arc;
-using Curve = Autodesk.AutoCAD.DatabaseServices.Curve;
-using Ellipse = Autodesk.AutoCAD.DatabaseServices.Ellipse;
-using Line = Autodesk.AutoCAD.DatabaseServices.Line;
+using CadArc = Autodesk.AutoCAD.DatabaseServices.Arc;
+using CadCircle = Autodesk.AutoCAD.DatabaseServices.Circle;
+using CadCurve = Autodesk.AutoCAD.DatabaseServices.Curve;
+using CadEllipse = Autodesk.AutoCAD.DatabaseServices.Ellipse;
+using CadLine = Autodesk.AutoCAD.DatabaseServices.Line;
+using CadPolyline = Autodesk.AutoCAD.DatabaseServices.Polyline;
 using RhinoArc = Rhino.Geometry.Arc;
 using RhinoCircle = Rhino.Geometry.Circle;
 using RhinoCurve = Rhino.Geometry.Curve;
@@ -14,6 +14,7 @@ using RhinoNurbsCurve = Rhino.Geometry.NurbsCurve;
 using RhinoPlane = Rhino.Geometry.Plane;
 using RhinoPoint2d = Rhino.Geometry.Point2d;
 using RhinoPoint3d = Rhino.Geometry.Point3d;
+using RhinoPolyCurve = Rhino.Geometry.PolyCurve;
 using RhinoVector2d = Rhino.Geometry.Vector2d;
 using RhinoVector3d = Rhino.Geometry.Vector3d;
 
@@ -127,7 +128,7 @@ public partial class GeometryConverter
     /// Converts a <see cref="Autodesk.AutoCAD.DatabaseServices.Line"/> to a
     /// <see cref="RhinoLineCurve"/>.
     /// </summary>
-    public RhinoLineCurve ToRhinoType(Line line)
+    public RhinoLineCurve ToRhinoType(CadLine line)
     {
         var startPoint = this.ToRhinoType(line.StartPoint);
 
@@ -231,7 +232,7 @@ public partial class GeometryConverter
     /// <summary>
     /// Converts a <see cref="Autodesk.AutoCAD.DatabaseServices.Ellipse"/> to a <see cref="RhinoEllipse"/>.
     /// </summary>  
-    public RhinoEllipse ToRhinoType(Ellipse ellipse)
+    public RhinoEllipse ToRhinoType(CadEllipse ellipse)
     {
         var centrePoint = this.ToRhinoType(ellipse.Center);
 
@@ -249,7 +250,7 @@ public partial class GeometryConverter
     /// <summary>
     /// Converts a <see cref="Autodesk.AutoCAD.DatabaseServices.Arc"/> to a <see cref="RhinoArc"/>.
     /// </summary>
-    public RhinoArc ToRhinoType(Arc arc)
+    public RhinoArc ToRhinoType(CadArc arc)
     {
         var plane = this.ToRhinoType(arc.GetPlane());
 
@@ -267,9 +268,9 @@ public partial class GeometryConverter
     }
 
     /// <summary>
-    /// Converts a <see cref="Autodesk.AutoCAD.DatabaseServices.Circle"/> to a <see cref="RhinoCircle"/>.
+    /// Converts a <see cref="CadCircle"/> to a <see cref="RhinoCircle"/>.
     /// </summary>
-    public RhinoCircle ToRhinoType(Autodesk.AutoCAD.DatabaseServices.Circle circle)
+    public RhinoCircle ToRhinoType(CadCircle circle)
     {
         var origin = this.ToRhinoType(circle.Center);
 
@@ -281,32 +282,75 @@ public partial class GeometryConverter
     }
 
     /// <summary>
+    /// Converts a <see cref="CadCircle"/> to a <see cref="RhinoCircle"/>.
+    /// </summary>
+    public RhinoPolyCurve ToRhinoType(CadPolyline polyline)
+    {
+        var vertexCount = polyline.NumberOfVertices;
+
+        var polyCurve = new RhinoPolyCurve();
+
+        for (var index = 0; index < vertexCount; index++)
+        {
+            var segmentType = polyline.GetSegmentType(index);
+
+            switch (segmentType)
+            {
+                case SegmentType.Line:
+                    {
+                        var lineSegment2d = polyline.GetLineSegment2dAt(index);
+
+                        var lineCurve = this.ToRhinoType(lineSegment2d);
+
+                        polyCurve.Append(lineCurve);
+
+                        break;
+                    }
+                case SegmentType.Arc:
+                    {
+                        var arcSegment2d = polyline.GetArcSegment2dAt(index);
+
+                        var arcCurve = this.ToRhinoType(arcSegment2d);
+
+                        polyCurve.Append(arcCurve);
+
+                        break;
+                    }
+                default: continue;
+            }
+        }
+        return polyCurve;
+    }
+
+    /// <summary>
     /// Converts a <see cref="Autodesk.AutoCAD.DatabaseServices.Curve"/> to a <see cref="RhinoCurve"/>.
     /// </summary>
-    public RhinoCurve? ToRhinoType(Curve curve)
+    public RhinoCurve? ToRhinoType(CadCurve curve)
     {
         switch (curve)
         {
-            case Line line:
+            case CadLine line:
                 return this.ToRhinoType(line);
 
             case Spline spline:
                 return this.ToRhinoType(spline);
 
-            case Ellipse ellipse:
+            case CadEllipse ellipse:
                 var rhinoEllipse = this.ToRhinoType(ellipse);
                 return rhinoEllipse.ToNurbsCurve();
 
-            case Arc arc:
+            case CadArc arc:
                 var rhinoArc = this.ToRhinoType(arc);
 
                 return rhinoArc.ToNurbsCurve();
 
-            case Autodesk.AutoCAD.DatabaseServices.Circle circle:
+            case CadCircle circle:
                 var rhinoCircle = this.ToRhinoType(circle);
 
                 return rhinoCircle.ToNurbsCurve();
 
+            case CadPolyline polyline:
+                return this.ToRhinoType(polyline);
             default:
                 return null;
         }

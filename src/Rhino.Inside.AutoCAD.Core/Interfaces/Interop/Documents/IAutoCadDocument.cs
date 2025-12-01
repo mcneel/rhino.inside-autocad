@@ -38,7 +38,7 @@ public interface IAutoCadDocument
     /// <summary>
     /// Provides file information about this <see cref="IAutoCadDocument"/>.
     /// </summary>
-    IDocumentFileInfo FileInfo { get; }
+    IAutocadDocumentFileInfo FileInfo { get; }
 
     /* /// <summary>
      /// The <see cref="ILinePatternCache"/> of this <see cref="IDocument"/>.

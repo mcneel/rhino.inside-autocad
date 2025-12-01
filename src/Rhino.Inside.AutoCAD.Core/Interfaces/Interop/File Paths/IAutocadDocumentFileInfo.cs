@@ -3,7 +3,7 @@
 /// <summary>
 /// Provides file directory and paths of a <see cref="IAutoCadDocument"/> file.
 /// </summary>
-public interface IDocumentFileInfo
+public interface IAutocadDocumentFileInfo
 {
     /// <summary>
     /// Returns the <see cref="IAutoCadDocument.Id"/>.

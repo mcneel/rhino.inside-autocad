@@ -1,4 +1,5 @@
 ﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Services;
 using Rhino.Inside.AutoCAD.UI.Resources.ViewModels;
 using Rhino.Inside.AutoCAD.UI.Resources.Views;
 using System.Windows.Threading;
@@ -12,7 +13,6 @@ namespace Rhino.Inside.AutoCAD.UI.Resources.Models;
 /// </summary>
 public class SplashScreenLauncher : ISplashScreenLauncher
 {
-    // To detect redundant calls
     private bool _disposed;
 
     private readonly ILoggerService _logger = LoggerService.Instance;

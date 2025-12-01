@@ -47,16 +47,6 @@ public class UnitSystemManager : IUnitSystemManager
     }
 
     /// <inheritdoc/>
-    public double ToRhinoLength(IImperialLength imperialLength)
-    {
-        var majorLength = this.ToRhinoLength(imperialLength.Feet);
-
-        var minorLength = this.ToRhinoLength(imperialLength.Inches);
-
-        return majorLength + minorLength;
-    }
-
-    /// <inheritdoc/>
     public double ToRhinoArea(double area)
     {
         return _conversionAreaFactor * area;

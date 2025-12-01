@@ -11,11 +11,11 @@ public interface IDataCaptureCache
 {
     /// <summary>
     /// Imports a list of <typeparamref name="T"/> objects from the <see cref=
-    /// "IDataFileName"/>. The method searches the <see cref="IDocumentFileInfo
+    /// "IDataFileName"/>. The method searches the <see cref="IAutocadDocumentFileInfo
     /// .ResourceDirectory"/> first and if the JSON file is not found, defaults
     /// to the <see cref="IApplicationDirectories.Resources"/> directory to perform
     /// the search. Returns an empty list if no JSON file is found. Only use this
-    /// method if the JSON file is stored in the <see cref="IDocumentFileInfo
+    /// method if the JSON file is stored in the <see cref="IAutocadDocumentFileInfo
     /// .ResourceDirectory"/>, i.e. a project-specific data file, such as a JSON
     /// file.
     /// </summary>

@@ -1,12 +1,8 @@
 ﻿using Autodesk.AutoCAD.Runtime;
 using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
-using Rhino.Inside.AutoCAD.Services;
-using Rhino.Inside.AutoCAD.UI.Resources.Models;
 using System.Diagnostics;
-using Exception = Autodesk.AutoCAD.Runtime.Exception;
 
 [assembly: CommandClass(typeof(RhinoInsideAutoCadCommands))]
 
@@ -19,7 +15,7 @@ public class RhinoInsideAutoCadCommands
     /// <summary>
     /// The command to launch a GUI application with Rhino Inside.
     /// </summary>
-    private static void RunApplication(
+ /*   private static void RunApplication(
         Func<IRhinoInsideAutoCadApplication, IInteropService, IApplicationMain> mainlineType,
         ButtonApplicationId appId)
     {
@@ -69,7 +65,7 @@ public class RhinoInsideAutoCadCommands
 
             LoggerService.Instance.LogError(e);
         }
-    }
+    }*/
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO", CommandFlags.Modal)]
     public static void RHINO()

@@ -6,7 +6,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <summary>
 /// Provides file directory and paths of a <see cref="IAutoCadDocument"/> file.
 /// </summary>
-public class DocumentFileInfo : IDocumentFileInfo
+public class AutocadDocumentFileInfo : IAutocadDocumentFileInfo
 {
     private readonly string _resourcesFolderName = InteropConstants.ResourcesFolderName;
 
@@ -39,9 +39,9 @@ public class DocumentFileInfo : IDocumentFileInfo
     public string ResourceDirectory { get; }
 
     /// <summary>
-    /// Constructs a new <see cref="DocumentFileInfo"/>.
+    /// Constructs a new <see cref="AutocadDocumentFileInfo"/>.
     /// </summary>
-    public DocumentFileInfo(Document document, Guid id)
+    public AutocadDocumentFileInfo(Document document, Guid id)
     {
         var filePath = document.Database.Filename;
 

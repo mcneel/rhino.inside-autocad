@@ -2,6 +2,7 @@
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Runtime.InProcess;
 using System.Reflection;
+using Rhino.Inside.AutoCAD.Services;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 

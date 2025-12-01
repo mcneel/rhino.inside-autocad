@@ -21,7 +21,7 @@ public interface IDocumentCloseAction
     /// the active document to perform the <see cref="CloseActionType"/>. Once completed
     /// the active document is set back to the document activated by the user.
     /// </remarks>
-    void Invoke(IDocumentFileInfo fileInfo);
+    void Invoke(IAutocadDocumentFileInfo fileInfo);
 
     /// <summary>
     /// Sets the <see cref="CloseActionType"/> to apply to the <see cref="IAutoCadDocument"/>,

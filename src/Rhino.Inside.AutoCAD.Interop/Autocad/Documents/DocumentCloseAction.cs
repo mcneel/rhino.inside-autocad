@@ -35,13 +35,13 @@ public class DocumentCloseAction : IDocumentCloseAction
     /// The default close action. No action is performed on the
     /// <see cref="IAutoCadDocument"/> or underlying AutoCAD document.
     /// </summary>
-    private void NoAction(IDocumentFileInfo fileInfo) { }
+    private void NoAction(IAutocadDocumentFileInfo fileInfo) { }
 
     /// <summary>
     /// The action to save the <see cref="IAutoCadDocument"/>. The underlying AutoCAD
     /// document remains open.
     /// </summary>
-    private void SaveDocument(IDocumentFileInfo fileInfo)
+    private void SaveDocument(IAutocadDocumentFileInfo fileInfo)
     {
         var filePath = fileInfo.FilePath;
 
@@ -56,7 +56,7 @@ public class DocumentCloseAction : IDocumentCloseAction
     /// The action to save a close the <see cref="IAutoCadDocument"/> and the underlying
     /// AutoCAD document.
     /// </summary>
-    private void SaveAndCloseDocument(IDocumentFileInfo fileInfo)
+    private void SaveAndCloseDocument(IAutocadDocumentFileInfo fileInfo)
     {
         var filePath = fileInfo.FilePath;
 
@@ -66,7 +66,7 @@ public class DocumentCloseAction : IDocumentCloseAction
     /// <summary>
     /// Returns the close action based on the <see cref="CloseAction"/> type.
     /// </summary>
-    private Action<IDocumentFileInfo> GetCloseAction()
+    private Action<IAutocadDocumentFileInfo> GetCloseAction()
     {
         var closeActionType = this.CloseAction;
 
@@ -84,7 +84,7 @@ public class DocumentCloseAction : IDocumentCloseAction
     }
 
     /// <inheritdoc/>
-    public void Invoke(IDocumentFileInfo fileInfo)
+    public void Invoke(IAutocadDocumentFileInfo fileInfo)
     {
         var documentUnwrapped = _document;
 

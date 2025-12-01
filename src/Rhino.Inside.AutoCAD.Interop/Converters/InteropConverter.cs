@@ -1,5 +1,6 @@
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
+using Autodesk.AutoCAD.EditorInput;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using CadDbObject = Autodesk.AutoCAD.DatabaseServices.DBObject;
 using CadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
@@ -160,5 +161,16 @@ public static class InteropConverter
         var lineTypeTableRecord = (WrapperDisposableBase<LinetypeTableRecord>)linePattern;
 
         return lineTypeTableRecord.Internal;
+    }
+
+    /// <summary>
+    /// Unwraps the <see cref="ISelectionFilter"/> to the underlying AutoCAD
+    /// <see cref="SelectionFilter"/> object.
+    /// </summary>
+    public static SelectionFilter Unwrap(this ISelectionFilter selectionFilter)
+    {
+        var selectionWrapper = (WrapperBase<SelectionFilter>)selectionFilter;
+
+        return selectionWrapper.Internal;
     }
 }

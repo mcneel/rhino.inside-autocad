@@ -35,12 +35,6 @@ public interface IUnitSystemManager
     double ToRhinoLength(IUnitLength length);
 
     /// <summary>
-    /// Converts the given <see cref="IImperialLength"/> to the <see cref=
-    /// "RhinoUnits"/> units.
-    /// </summary>
-    double ToRhinoLength(IImperialLength imperialLength);
-
-    /// <summary>
     /// Converts the given <paramref name="area"/> from <see cref=
     /// "IAutoCadDocument.UnitSystem"/> to the <see cref="RhinoUnits"/> units.
     /// </summary>

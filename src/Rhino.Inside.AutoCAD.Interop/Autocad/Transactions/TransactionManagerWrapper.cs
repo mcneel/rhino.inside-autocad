@@ -6,7 +6,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="ITransactionManager"/>
 public class TransactionManagerWrapper : WrapperDisposableBase<TransactionManager>, ITransactionManager
 {
-    private Database _database;
+    private readonly Database _database;
 
     /// <summary>
     /// Constructs a new <see cref="TransactionManagerWrapper"/>.

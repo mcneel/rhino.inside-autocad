@@ -131,7 +131,8 @@ public partial class GeometryConverter
         var radiusRatio = _unitSystemManager.ToAutoCadLength(ellipse.Radius1) /
                           _unitSystemManager.ToAutoCadLength(ellipse.Radius2);
 
-        var cadEllipse = new Ellipse(centrePoint, normal, majorAxis, radiusRatio, 0, 2 * Math.PI);
+        var cadEllipse = new Ellipse(centrePoint, normal, majorAxis, radiusRatio, 0,
+            2 * Math.PI);
 
         return cadEllipse;
     }
@@ -188,7 +189,8 @@ public partial class GeometryConverter
 
         var radius = _unitSystemManager.ToRhinoLength(circle.Radius);
 
-        var cadCircle = new Autodesk.AutoCAD.DatabaseServices.Circle(center, normal, radius);
+        var cadCircle =
+            new Autodesk.AutoCAD.DatabaseServices.Circle(center, normal, radius);
 
         return cadCircle;
     }
@@ -211,7 +213,7 @@ public partial class GeometryConverter
         }
 
         return new Polyline3d(Poly3dType.SimplePoly, pointCollection,
-             polyLineCurve.IsClosed);
+            polyLineCurve.IsClosed);
 
     }
 
@@ -390,5 +392,17 @@ public partial class GeometryConverter
         }
 
         return addedObjects.ToArray();
+    }
+
+    /// <summary>
+    /// Converts a <see cref="BoundingBox"/> to a <see cref="Extents3d"/>.
+    /// </summary>
+    public BoundingBox ToRhinoType(Extents3d extents)
+    {
+        var min = this.ToRhinoType(extents.MinPoint);
+
+        var max = this.ToRhinoType(extents.MaxPoint);
+
+        return new BoundingBox(min, max);
     }
 }
