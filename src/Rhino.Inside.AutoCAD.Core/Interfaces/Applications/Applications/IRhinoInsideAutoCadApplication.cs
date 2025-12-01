@@ -1,9 +1,9 @@
-﻿using Bimorph.Core.Services.Core.Interfaces;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
 
-namespace Rhino.Inside.AutoCAD.Core.Interfaces.Applications.Applications;
+namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// The application entry point for Bimorph.Core.Services applications.
+/// The application entry point for Rhino.Inside.AutoCAD applications.
 /// </summary>
 public interface IRhinoInsideAutoCadApplication : IBimorphApplication
 {
@@ -22,6 +22,11 @@ public interface IRhinoInsideAutoCadApplication : IBimorphApplication
     /// provides access to both Rhino and autocad, and the AutoCAD-Rhino bridge.
     /// </summary>
     IRhinoInsideManager RhinoInsideManager { get; }
+
+    /// <summary>
+    /// Show an alert dialog with the given message.
+    /// </summary>
+    void ShowAlertDialog(string message);
 
     /// <summary>
     /// Terminate the <see cref="IRhinoInsideAutoCadApplication"/>

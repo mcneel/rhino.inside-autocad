@@ -1,7 +1,8 @@
 ﻿using Autodesk.AutoCAD.Runtime;
-using Bimorph.Core.Services.Services;
 using Rhino.Inside.AutoCAD.Applications;
-using Rhino.Inside.AutoCAD.Core.Interfaces.Applications.Applications;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
+using Rhino.Inside.AutoCAD.Services;
 
 [assembly: ExtensionApplication(typeof(RhinoInsideAutoCadExtension))]
 

@@ -1,0 +1,22 @@
+﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
+
+/// <summary>
+/// A interface defining core application-wide settings.
+/// </summary>
+public interface ISettingsCore
+{
+    /// <summary>
+    /// The <see cref="IDeploymentDirectory"/>.
+    /// </summary>
+    IDeploymentDirectory DeploymentDirectory { get; }
+
+    /// <summary>
+    /// The <see cref="ISplashScreenConstants"/>.
+    /// </summary>
+    ISplashScreenConstants SplashScreenConstants { get; }
+
+    /// <summary>
+    /// The <see cref="IUpdaterConfigs"/>.
+    /// </summary>
+    IUpdaterConfigs UpdaterConfigs { get; }
+}

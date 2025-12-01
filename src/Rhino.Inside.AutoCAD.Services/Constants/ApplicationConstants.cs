@@ -40,4 +40,14 @@ public class ApplicationConstants
         "MaterialDesignColors.dll",
         "Microsoft.Xaml.Behaviors.dll"
     ];
+
+    /// <summary>
+    /// The size of small icons used in the AutoCad application ribbon and UI.
+    /// </summary>
+    public const int SmallIconSize = 16;
+
+    /// <summary>
+    /// The size of small icons used in the AutoCad application ribbon and UI.
+    /// </summary>
+    public const int LargeIconSize = 32;
 }

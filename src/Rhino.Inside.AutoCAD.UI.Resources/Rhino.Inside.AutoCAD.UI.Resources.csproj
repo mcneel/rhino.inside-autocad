@@ -16,7 +16,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Bimorph.Core.Services" />
 		<PackageReference Include="MaterialDesignThemes" />
 		<PackageReference Include="CommunityToolkit.Mvvm" />
 
@@ -24,6 +23,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj" />
+		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Services.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

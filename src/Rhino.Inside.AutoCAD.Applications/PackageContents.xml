@@ -24,18 +24,16 @@
       <Commands GroupName="RHINOINSIDE_COMMANDS">
         <Command Local="RHINO" Global="RHINO" />
         <Command Local="GRASSHOPPER" Global="GRASSHOPPER" />
+        <Command Local="TOGGLE_RHINO_PREVIEW" Global="TOGGLE_RHINO_PREVIEW" />
+        <Command Local="OPEN_RHINO_VIEWPORT" Global="OPEN_RHINO_VIEWPORT" />
+        <Command Local="GRASSHOPPER_PLAYER" Global="GRASSHOPPER_PLAYER" />
+        <Command Local="RHINO_PACKAGE_MANGER" Global="RHINO_PACKAGE_MANGER" />
+        <Command Local="REQUEST_PLUGIN" Global="REQUEST_PLUGIN" />
+        <Command Local="REQUEST_MISSING_FEATURE" Global="REQUEST_MISSING_FEATURE" />
+        <Command Local="BIMORPH_WEBSITE" Global="BIMORPH_WEBSITE" />
       </Commands>
     </ComponentEntry>
 
-    <ComponentEntry AppName="Rhino.Inside.AutoCAD"
-                    ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.RhinoLauncher.dll"
-                    AppDescription="Rhino Launcher Dependency"
-                    AppType="Managed"/>
-
-    <ComponentEntry AppName="Rhino.Inside.AutoCAD"
-                    ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.GrasshopperLauncher.dll"
-                    AppDescription="Grasshopper Launcher Dependency"
-                    AppType="Managed"/>
 
     <ComponentEntry AppName="Rhino.Inside.AutoCAD"
                     ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.Interop.dll"
@@ -52,7 +50,13 @@
 	                  AppDescription="UI Dependency"
 	                  AppType="Managed"/>
 
-    <ComponentEntry AppName="Rhino.Inside.AutoCAD"
+	  <ComponentEntry AppName="Rhino.Inside.AutoCAD"
+	                  ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.GrasshopperLibrary.dll"
+	                  AppDescription="Grasshopper Component Dependency"
+	                  AppType="Managed"/>
+
+
+	  <ComponentEntry AppName="Rhino.Inside.AutoCAD"
                     ModuleName="./Toolbar/RhinoInsideAutocad_Toolbar.cuix"
                     AppDescription="Toolbar"/>
   </Components>

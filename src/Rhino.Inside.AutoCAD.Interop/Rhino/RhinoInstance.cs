@@ -1,0 +1,193 @@
+﻿using Grasshopper;
+using Grasshopper.Kernel;
+using Rhino.ApplicationSettings;
+using Rhino.Commands;
+using Rhino.DocObjects;
+using Rhino.Inside.AutoCAD.Core;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
+using System.Reflection;
+
+namespace Rhino.Inside.AutoCAD.Interop;
+
+/// <inheritdoc cref="IRhinoInstance"/>
+public class RhinoInstance : IRhinoInstance
+{
+    private readonly IApplicationDirectories _applicationDirectories;
+
+    /// <inheritdoc />
+    public event EventHandler? OnDocumentCreated;
+
+    /// <inheritdoc />
+    public event EventHandler? OnUnitChanged;
+
+    /// <inheritdoc />
+    public event EventHandler<IRhinoObjectModifiedEventArgs>? OnObjectModifiedOrAppended;
+
+    /// <inheritdoc />
+    public event EventHandler<IRhinoObjectModifiedEventArgs>? OnObjectRemoved;
+
+    /// <inheritdoc />
+    public IRhinoCoreExtension RhinoCore { get; }
+
+    /// <inheritdoc />
+    public RhinoDoc? ActiveDoc { get; private set; }
+
+    public UnitSystem UnitSystem { get; private set; }
+
+    /// <summary>
+    /// Constructs a new <see cref="IRhinoInstance"/> instance. Note that this does
+    /// not mean that Rhino is running yet. This only constructs the instance to manage
+    /// the Rhino Inside lifecycle and document. Use <see cref="IRhinoLauncher"/> to
+    /// create a running Rhino instance.
+    /// </summary>
+    public RhinoInstance(IApplicationDirectories applicationDirectories)
+    {
+        _applicationDirectories = applicationDirectories;
+        this.RhinoCore = RhinoCoreExtension.Instance;
+
+    }
+
+    /// <summary>
+    /// Uses reflection to load the Grasshopper library into the Grasshopper component server.
+    /// </summary>
+    private void LoadGrasshopperLibrary()
+    {
+        var assembliesFolder = _applicationDirectories.Assemblies;
+
+        var grasshopperLibraryPath = System.IO.Path.Combine(assembliesFolder, "Rhino.Inside.AutoCAD.GrasshopperLibrary.dll");
+
+        var loadGhaMethod = typeof(GH_ComponentServer).GetMethod(
+            "LoadGHA", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (loadGhaMethod == null)
+        {
+            throw new TargetException("LoadGHA method not found");
+        }
+
+        try
+        {
+            loadGhaMethod.Invoke(Instances.ComponentServer,
+                [new GH_ExternalFile(grasshopperLibraryPath), false]
+            );
+
+        }
+        catch (TargetInvocationException e)
+        {
+            throw e.InnerException;
+        }
+    }
+
+    /// <summary>
+    /// Initializes the Rhino Inside instance and returns true if it has successfully
+    /// launched otherwise false indicating a failure.
+    /// </summary>
+    private RhinoDoc CreateRhinoDoc(IValidationLogger validationLogger,
+        RhinoInsideMode mode)
+    {
+        var template =
+            $"{_applicationDirectories.Resources}Large Objects - Millimeters.3dm";
+
+        try
+        {
+
+            var rhinoDoc = mode == RhinoInsideMode.Headless
+                ? RhinoDoc.CreateHeadless(template)
+                : RhinoDoc.Create(template);
+
+            FileSettings.AutoSaveEnabled = false;
+
+            this.OnDocumentCreated?.Invoke(this, EventArgs.Empty);
+
+            this.UnitSystem = rhinoDoc.ModelUnitSystem;
+
+            RhinoDoc.DocumentPropertiesChanged += this.OnDocumentPropertiesModified;
+            RhinoDoc.AddRhinoObject += this.OnAddRhinoObject;
+            RhinoDoc.ModifyObjectAttributes += this.OnModifyRhinoObject;
+            RhinoDoc.DeleteRhinoObject += this.OnRemoveRhinoObject;
+
+            this.LoadGrasshopperLibrary();
+            return rhinoDoc;
+        }
+        catch
+        {
+            validationLogger.AddMessage("Failed to initialize Rhino Doc.");
+
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Event handler which fires when a Rhino object is removed.
+    /// </summary>
+    private void OnRemoveRhinoObject(object sender, RhinoObjectEventArgs e)
+    {
+        this.OnObjectRemoved?.Invoke(this, new RhinoObjectModifiedEventArgs(e.TheObject));
+    }
+
+    /// <summary>
+    /// Event handler which fires when a Rhino object is modified.
+    /// </summary>
+    private void OnModifyRhinoObject(object sender, RhinoModifyObjectAttributesEventArgs e)
+    {
+        this.OnObjectModifiedOrAppended?.Invoke(this, new RhinoObjectModifiedEventArgs(e.RhinoObject));
+    }
+
+    /// <summary>
+    /// Event handler which fires when a Rhino object is added.
+    /// </summary>
+    private void OnAddRhinoObject(object sender, RhinoObjectEventArgs e)
+    {
+        this.OnObjectModifiedOrAppended?.Invoke(this, new RhinoObjectModifiedEventArgs(e.TheObject));
+    }
+
+    /// <summary>
+    /// An event handler which fires when the Rhino document properties are modified.
+    /// It checks to see if the unit system has changed and raises the <see cref="OnUnitChanged"/>
+    /// event if it has.
+    /// </summary>
+    private void OnDocumentPropertiesModified(object sender, DocumentEventArgs e)
+    {
+        var currentUnits = e.Document.ModelUnitSystem;
+
+        if (currentUnits == this.UnitSystem)
+            return;
+
+        this.OnUnitChanged?.Invoke(this, EventArgs.Empty);
+
+        this.UnitSystem = currentUnits;
+    }
+
+    /// <inheritdoc />
+    public void ValidateRhinoDoc(RhinoInsideMode mode, IValidationLogger validationLogger)
+    {
+        if (this.ActiveDoc == null)
+        {
+            this.ActiveDoc = this.CreateRhinoDoc(validationLogger, mode);
+        }
+    }
+
+    /// <inheritdoc />
+    public Result RunRhinoCommand(string commandName)
+    {
+        return this.ActiveDoc == null
+            ? Result.Failure
+            : RhinoApp.ExecuteCommand(this.ActiveDoc, commandName);
+    }
+
+    /// <inheritdoc />
+    public bool RunRhinoScript(string commandName)
+    {
+        return this.ActiveDoc != null
+               && RhinoApp.RunScript(this.ActiveDoc.RuntimeSerialNumber, commandName, true);
+    }
+
+    /// <inheritdoc />
+    public void Shutdown()
+    {
+        RhinoDoc.DocumentPropertiesChanged -= this.OnDocumentPropertiesModified;
+        RhinoDoc.AddRhinoObject -= this.OnAddRhinoObject;
+        RhinoDoc.ModifyObjectAttributes -= this.OnModifyRhinoObject;
+        RhinoDoc.DeleteRhinoObject -= this.OnRemoveRhinoObject;
+        this.ActiveDoc?.Dispose();
+    }
+}

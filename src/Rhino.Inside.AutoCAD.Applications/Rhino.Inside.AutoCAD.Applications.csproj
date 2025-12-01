@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>$(Framework)</TargetFramework>
@@ -30,6 +30,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Icons\Large512\Rhinoceros_Preview_Off.png" />
+    <None Remove="Icons\Large512\Rhinoceros_Preview_Shaded.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoCAD.NET.Core">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
@@ -46,9 +51,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj" />
-    <ProjectReference Include="..\Rhino.Inside.AutoCAD.GrasshopperLauncher\Rhino.Inside.AutoCAD.GrasshopperLauncher.csproj" />
     <ProjectReference Include="..\Rhino.Inside.AutoCAD.Interop\Rhino.Inside.AutoCAD.Interop.csproj" />
-    <ProjectReference Include="..\Rhino.Inside.AutoCAD.RhinoLauncher\Rhino.Inside.AutoCAD.RhinoLauncher.csproj" />
     <ProjectReference Include="..\Rhino.Inside.AutoCAD.Services\Rhino.Inside.AutoCAD.Services.csproj" />
     <ProjectReference Include="..\Rhino.Inside.AutoCAD.UI.Resources\Rhino.Inside.AutoCAD.UI.Resources.csproj" />
   </ItemGroup>
@@ -56,6 +59,11 @@
   <ItemGroup>
     <Folder Include="Properties\" />
     <Folder Include="Toolbar\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icons\Large512\Rhinoceros_Preview_Off.png" />
+    <Resource Include="Icons\Large512\Rhinoceros_Preview_Shaded.png" />
   </ItemGroup>
 
   <PropertyGroup Condition="$(Configuration) == 'Debug' AND $([MSBuild]::IsOSPlatform(Windows))">

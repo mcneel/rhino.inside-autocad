@@ -1,8 +1,6 @@
 ﻿using Autodesk.AutoCAD.ApplicationServices.Core;
-using Bimorph.Core.Services.Core.Interfaces;
-using Bimorph.Core.Services.Services;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.Core.Interfaces.Applications.Applications;
+using Rhino.Inside.AutoCAD.Interop;
 using Rhino.Inside.AutoCAD.Services;
 using System.Reflection;
 
@@ -27,9 +25,6 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
     /// <inheritdoc/>
     public IApplicationConfig ApplicationConfig { get; }
-
-    /// <inheritdoc/>
-    public ISupportedApplicationManager SupportedApplicationManager { get; }
 
     /// <inheritdoc/>
     public IRhinoInsideManager RhinoInsideManager { get; }
@@ -57,9 +52,9 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
         var rhinoInstance = new RhinoInstance(applicationDirectories);
 
-        var autocadInstance = new AutoCadInstance(bootstrapper.Dispatcher);
-
         var objectRegister = new ObjectRegister();
+
+        var autocadInstance = new AutoCadInstance(bootstrapper.Dispatcher, objectRegister);
 
         var rhinoInsideManager = new RhinoInsideManager(rhinoInstance, autocadInstance, objectRegister);
 
@@ -72,8 +67,6 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
         this.ApplicationServicesCore = applicationServicesCore;
 
         this.ApplicationConfig = applicationConfig;
-
-        this.SupportedApplicationManager = bootstrapper.SupportedApplicationManager;
 
         this.RhinoInsideManager = rhinoInsideManager;
 
@@ -94,6 +87,12 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
             Assembly.Load(assemblyName);
         }
+    }
+
+    /// <inheritdoc />
+    public void ShowAlertDialog(string message)
+    {
+        Autodesk.AutoCAD.ApplicationServices.Core.Application.ShowAlertDialog(message);
     }
 
     /// <inheritdoc />

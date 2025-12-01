@@ -1,6 +1,7 @@
 ﻿using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
+using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Arc = Autodesk.AutoCAD.DatabaseServices.Arc;
 using CadCircularArc3d = Autodesk.AutoCAD.Geometry.CircularArc3d;
@@ -19,6 +20,7 @@ using RhinoMesh = Rhino.Geometry.Mesh;
 using RhinoNurbsCurve = Rhino.Geometry.NurbsCurve;
 using RhinoPolyCurve = Rhino.Geometry.PolyCurve;
 using RhinoPolyLineCurve = Rhino.Geometry.PolylineCurve;
+using RhinoSubD = Rhino.Geometry.SubD;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -45,7 +47,14 @@ public partial class GeometryConverter
                 return [this.ToAutoCadType(line)];
 
             case RhinoArcCurve arc:
-                return [this.ToAutoCadType(arc)];
+                {
+                    if (arc.IsCompleteCircle == false)
+                        return [this.ToAutoCadType(arc)];
+
+                    var circle = new RhinoCircle(arc.Arc);
+
+                    return [this.ToAutoCadType(circle)];
+                }
 
             case RhinoNurbsCurve nurbsCurve:
                 return [this.ToAutoCadType(nurbsCurve)];
@@ -66,9 +75,9 @@ public partial class GeometryConverter
     /// </summary>
     public Line ToAutoCadType(RhinoLineCurve line)
     {
-        var startPoint = this.ToRhinoType(line.PointAtStart);
+        var startPoint = this.ToAutoCadType(line.PointAtStart);
 
-        var endPoint = this.ToRhinoType(line.PointAtEnd);
+        var endPoint = this.ToAutoCadType(line.PointAtEnd);
 
         return new Line(startPoint, endPoint);
     }
@@ -82,7 +91,7 @@ public partial class GeometryConverter
         var weightCollection = new DoubleCollection();
         foreach (var rhinoControlPoint in nurbsCurve.Points)
         {
-            var cadPoint = this.ToRhinoType(rhinoControlPoint.Location);
+            var cadPoint = this.ToAutoCadType(rhinoControlPoint.Location);
 
             var weight = rhinoControlPoint.Weight;
             weightCollection.Add(weight);
@@ -113,11 +122,11 @@ public partial class GeometryConverter
     {
         var plane = ellipse.Plane;
 
-        var centrePoint = this.ToRhinoType(ellipse.Center);
+        var centrePoint = this.ToAutoCadType(ellipse.Center);
 
-        var normal = this.ToRhinoType(plane.Normal);
+        var normal = this.ToAutoCadType(plane.Normal);
 
-        var majorAxis = this.ToRhinoType(plane.XAxis);
+        var majorAxis = this.ToAutoCadType(plane.XAxis);
 
         var radiusRatio = _unitSystemManager.ToAutoCadLength(ellipse.Radius1) /
                           _unitSystemManager.ToAutoCadLength(ellipse.Radius2);
@@ -132,9 +141,9 @@ public partial class GeometryConverter
     /// </summary>
     public Arc ToAutoCadType(RhinoArc arc)
     {
-        var center = this.ToRhinoType(arc.Center);
+        var center = this.ToAutoCadType(arc.Center);
 
-        var plane = this.ToRhinoType(arc.Plane);
+        var plane = this.ToAutoCadType(arc.Plane);
 
         var normal = plane.Normal;
 
@@ -156,9 +165,9 @@ public partial class GeometryConverter
     {
         var midPoint = arcCurve.PointAtNormalizedLength(_midPointParam);
 
-        var startPoint = this.ToRhinoType(arcCurve.PointAtStart);
-        var endPoint = this.ToRhinoType(arcCurve.PointAtEnd);
-        var pointOnArc = this.ToRhinoType(midPoint);
+        var startPoint = this.ToAutoCadType(arcCurve.PointAtStart);
+        var endPoint = this.ToAutoCadType(arcCurve.PointAtEnd);
+        var pointOnArc = this.ToAutoCadType(midPoint);
 
         var circularArc = new CadCircularArc3d(startPoint, pointOnArc, endPoint);
 
@@ -169,13 +178,13 @@ public partial class GeometryConverter
     }
 
     /// <summary>
-    /// Converts a <see cref="RhinoCircle"/> to a <see cref="Circle"/>.
+    /// Converts a <see cref="RhinoCircle"/> to a <see cref="Autodesk.AutoCAD.DatabaseServices.Circle"/>.
     /// </summary>
     public Autodesk.AutoCAD.DatabaseServices.Circle ToAutoCadType(RhinoCircle circle)
     {
-        var center = this.ToRhinoType(circle.Center);
+        var center = this.ToAutoCadType(circle.Center);
 
-        var normal = this.ToRhinoType(circle.Normal);
+        var normal = this.ToAutoCadType(circle.Normal);
 
         var radius = _unitSystemManager.ToRhinoLength(circle.Radius);
 
@@ -185,7 +194,7 @@ public partial class GeometryConverter
     }
 
     /// <summary>
-    /// Converts a <see cref="RhinoPolyCurve"/> to a <see cref="Circle"/>.
+    /// Converts a <see cref="RhinoPolyCurve"/> to a <see cref="Autodesk.AutoCAD.DatabaseServices.Circle"/>.
     /// </summary>
     public Polyline3d ToAutoCadType(RhinoPolyLineCurve polyLineCurve)
     {
@@ -196,7 +205,7 @@ public partial class GeometryConverter
         {
             var rhinoPoint = polyLineCurve.Point(j);
 
-            var cadPoint = this.ToRhinoType(rhinoPoint);
+            var cadPoint = this.ToAutoCadType(rhinoPoint);
 
             pointCollection.Add(cadPoint);
         }
@@ -207,7 +216,7 @@ public partial class GeometryConverter
     }
 
     /// <summary>
-    /// Converts a <see cref="RhinoPolyCurve"/> to a <see cref="Circle"/>.
+    /// Converts a <see cref="RhinoPolyCurve"/> to a <see cref="Autodesk.AutoCAD.DatabaseServices.Circle"/>.
     /// </summary>
     public IList<Curve> ToAutoCadType(RhinoPolyCurve polyCurve)
     {
@@ -229,6 +238,53 @@ public partial class GeometryConverter
     /// <summary>
     /// Converts a Rhino mesh into an AutoCAD SubDMesh object.
     /// </summary>
+    public SubDMesh ToAutoCadType(RhinoSubD mesh)
+    {
+        var pointsCollection = new Autodesk.AutoCAD.Geometry.Point3dCollection();
+
+        var vertexMap = new List<SubDVertex>();
+
+        var faceArray = new Int32Collection();
+
+        for (var i = 0; i < mesh.Vertices.Count; i++)
+        {
+            var vertex = mesh.Vertices.Find(i);
+
+            var cadPoint = this.ToAutoCadType(vertex.ControlNetPoint);
+
+            pointsCollection.Add(cadPoint);
+
+            vertexMap.Add(vertex);
+        }
+
+        foreach (var face in mesh.Faces)
+        {
+            var numberOfVertices = face.VertexCount;
+
+            faceArray.Add(numberOfVertices);
+
+            for (var i = 0; i < numberOfVertices; i++)
+            {
+                var vertex = face.VertexAt(i);
+
+                var index = vertexMap.IndexOf(vertex);
+
+                faceArray.Add(index);
+            }
+        }
+
+        var subDMesh = new SubDMesh();
+
+        subDMesh.SetDatabaseDefaults();
+
+        subDMesh.SetSubDMesh(pointsCollection, faceArray, 0);
+
+        return subDMesh;
+    }
+
+    /// <summary>
+    /// Converts a Rhino mesh into an AutoCAD SubDMesh object.
+    /// </summary>
     public SubDMesh ToAutoCadType(RhinoMesh mesh)
     {
         var pointsCollection = new Autodesk.AutoCAD.Geometry.Point3dCollection();
@@ -236,7 +292,7 @@ public partial class GeometryConverter
         var faceArray = new Int32Collection();
 
         foreach (var point in mesh.Vertices)
-            pointsCollection.Add(this.ToRhinoType(point));
+            pointsCollection.Add(this.ToAutoCadType(point));
 
         foreach (var face in mesh.Faces)
         {

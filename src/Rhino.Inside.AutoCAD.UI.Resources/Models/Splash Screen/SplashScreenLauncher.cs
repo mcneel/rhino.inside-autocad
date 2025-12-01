@@ -1,6 +1,4 @@
-﻿using Bimorph.Core.Services.Core.Interfaces;
-using Bimorph.Core.Services.Services;
-using Rhino.Inside.AutoCAD.Core.Interfaces.Applications.Applications;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.UI.Resources.ViewModels;
 using Rhino.Inside.AutoCAD.UI.Resources.Views;
 using System.Windows.Threading;

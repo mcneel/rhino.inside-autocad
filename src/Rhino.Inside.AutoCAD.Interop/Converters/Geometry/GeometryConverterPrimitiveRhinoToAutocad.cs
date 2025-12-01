@@ -18,7 +18,7 @@ public partial class GeometryConverter
     /// </summary>
     public Autodesk.AutoCAD.Geometry.Point2d ConvertTo2d(RhinoPoint3d rhinoPoint3d)
     {
-        var point3d = this.ToRhinoType(rhinoPoint3d);
+        var point3d = this.ToAutoCadType(rhinoPoint3d);
 
         return new Autodesk.AutoCAD.Geometry.Point2d(point3d.X, point3d.Y);
     }
@@ -29,7 +29,7 @@ public partial class GeometryConverter
     /// </summary>
     public Autodesk.AutoCAD.Geometry.Vector2d ConvertTo2d(RhinoVector3d rhinoVector3d)
     {
-        var vector3d = this.ToRhinoType(rhinoVector3d);
+        var vector3d = this.ToAutoCadType(rhinoVector3d);
 
         var vector2d = new Autodesk.AutoCAD.Geometry.Vector2d(vector3d.X, vector3d.Y);
 
@@ -39,7 +39,7 @@ public partial class GeometryConverter
     /// <summary>
     /// Converts a <see cref="RhinoPoint2d"/> to a <see cref="Autodesk.AutoCAD.Geometry.Point2d"/>.
     /// </summary>
-    public Autodesk.AutoCAD.Geometry.Point2d ToRhinoType(RhinoPoint2d rhinoPoint2d)
+    public Autodesk.AutoCAD.Geometry.Point2d ToAutoCadType(RhinoPoint2d rhinoPoint2d)
     {
         var x = _unitSystemManager.ToAutoCadLength(rhinoPoint2d.X);
 
@@ -51,7 +51,7 @@ public partial class GeometryConverter
     /// <summary>
     /// Converts a <see cref="RhinoPoint3d"/> to a <see cref="Autodesk.AutoCAD.Geometry.Point3d"/>.
     /// </summary>
-    public Autodesk.AutoCAD.Geometry.Point3d ToRhinoType(RhinoPoint3d rhinoPoint3d)
+    public Autodesk.AutoCAD.Geometry.Point3d ToAutoCadType(RhinoPoint3d rhinoPoint3d)
     {
         var x = _unitSystemManager.ToAutoCadLength(rhinoPoint3d.X);
 
@@ -65,7 +65,7 @@ public partial class GeometryConverter
     /// <summary>
     /// Converts a <see cref="RhinoVector2d"/> to a unitized <see cref="Vector2d"/>.
     /// </summary>
-    public Vector2d ToRhinoType(RhinoVector2d rhinoVector2d)
+    public Vector2d ToAutoCadType(RhinoVector2d rhinoVector2d)
     {
         var x = _unitSystemManager.ToAutoCadLength(rhinoVector2d.X);
 
@@ -77,7 +77,7 @@ public partial class GeometryConverter
     /// <summary>
     /// Converts a <see cref="RhinoVector3d"/> to a unitized <see cref="Autodesk.AutoCAD.Geometry.Vector3d"/>.
     /// </summary>
-    public Autodesk.AutoCAD.Geometry.Vector3d ToRhinoType(RhinoVector3d rhinoVector3d)
+    public Autodesk.AutoCAD.Geometry.Vector3d ToAutoCadType(RhinoVector3d rhinoVector3d)
     {
         var x = _unitSystemManager.ToAutoCadLength(rhinoVector3d.X);
 
@@ -93,13 +93,13 @@ public partial class GeometryConverter
     /// <summary>
     /// Converts a <see cref="RhinoPlane"/> to a <see cref="Autodesk.AutoCAD.Geometry.Plane"/>.
     /// </summary>
-    public Autodesk.AutoCAD.Geometry.Plane ToRhinoType(RhinoPlane rhinoPlane)
+    public Autodesk.AutoCAD.Geometry.Plane ToAutoCadType(RhinoPlane rhinoPlane)
     {
-        var origin = this.ToRhinoType(rhinoPlane.Origin);
+        var origin = this.ToAutoCadType(rhinoPlane.Origin);
 
-        var xAxis = this.ToRhinoType(rhinoPlane.XAxis);
+        var xAxis = this.ToAutoCadType(rhinoPlane.XAxis);
 
-        var yAxis = this.ToRhinoType(rhinoPlane.YAxis);
+        var yAxis = this.ToAutoCadType(rhinoPlane.YAxis);
 
         return new Autodesk.AutoCAD.Geometry.Plane(origin, xAxis, yAxis);
     }

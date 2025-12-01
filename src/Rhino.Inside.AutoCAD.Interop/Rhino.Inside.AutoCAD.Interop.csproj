@@ -16,13 +16,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Bimorph.Core.Services" />
-		<PackageReference Include="NaturalSort.Extension" />
+	<PackageReference Include="NaturalSort.Extension" />
 		<PackageReference Include="MaterialDesignThemes" />
 		<PackageReference Include="RhinoCommon">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>
 		<PackageReference Include="RhinoWindows">
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</PackageReference>
+		<PackageReference Include="Grasshopper">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>
 		<PackageReference Include="AutoCAD.NET">
@@ -37,6 +39,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj" />
+		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Services.csproj" />
 	</ItemGroup>
 
 

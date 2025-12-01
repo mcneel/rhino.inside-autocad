@@ -1,5 +1,5 @@
-﻿using Bimorph.Core.Services.Core.Interfaces;
-using Bimorph.Core.Services.Services;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Services;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Services;
