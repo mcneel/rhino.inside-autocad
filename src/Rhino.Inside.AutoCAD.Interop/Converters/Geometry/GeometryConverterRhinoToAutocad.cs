@@ -71,6 +71,30 @@ public partial class GeometryConverter
     }
 
     /// <summary>
+    /// Converts the given <see cref="RhinoCurve"/> into a single composite curve. This
+    /// method provide a second processing step after the ToAutoCadType where each curve
+    /// in the converted list is appended into a single geometric composite curve.
+    /// </summary>
+    public Curve ToAutoCadSingleCurve(RhinoCurve curve)
+    {
+        var listCurves = this.ToAutoCadType(curve);
+
+        var curve3ds = new Curve3d[listCurves.Count];
+        for (var index = 0; index < listCurves.Count; index++)
+        {
+            var convertedCurve = listCurves[index];
+
+            var curve3d = convertedCurve.GetGeCurve();
+
+            curve3ds[index] = curve3d;
+        }
+
+        var compositeCurve = new CompositeCurve3d(curve3ds);
+
+        return Curve.CreateFromGeCurve(compositeCurve);
+    }
+
+    /// <summary>
     /// Converts a <see cref="RhinoLineCurve"/> to a <see cref="Line"/>.
     /// </summary>
     public Line ToAutoCadType(RhinoLineCurve line)

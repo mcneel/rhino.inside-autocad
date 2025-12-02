@@ -38,13 +38,24 @@ public interface IRhinoInsideManager
     IAutoCadInstance AutoCadInstance { get; }
 
     /// <summary>
+    /// Gets the instance of Grasshopper that is being managed.
+    /// </summary>
+    IGrasshopperInstance GrasshopperInstance { get; }
+
+    /// <summary>
     /// The <see cref="IUnitSystemManager"/> for managing unit systems between Rhino and AutoCAD.
     /// </summary>
     IUnitSystemManager UnitSystemManager { get; }
 
     /// <summary>
-    /// The <see cref="IObjectRegister"/> for tracking objects between Rhino and AutoCAD. This
-    /// is used to manage the transient objects previewed in the AutoCAD viewport.
+    /// The <see cref="IRhinoObjectPreviewServer"/> for previewing objects between Rhino and
+    /// AutoCAD. This is used to manage the transient objects previewed in the AutoCAD viewport.
     /// </summary>
-    IObjectRegister ObjectRegister { get; }
+    IRhinoObjectPreviewServer RhinoPreviewServer { get; }
+
+    /// <summary>
+    /// The <see cref="IRhinoObjectPreviewServer"/> for previewing objects between grasshopper and
+    /// AutoCAD. This is used to manage the transient objects previewed in the AutoCAD viewport.
+    /// </summary>
+    IGrasshopperObjectPreviewServer GrasshopperPreviewServer { get; }
 }

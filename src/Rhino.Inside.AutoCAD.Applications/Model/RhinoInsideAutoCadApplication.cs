@@ -52,11 +52,11 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
         var rhinoInstance = new RhinoInstance(applicationDirectories);
 
-        var objectRegister = new ObjectRegister();
+        var grasshopperInstance = new GrasshopperInstance(applicationDirectories);
 
-        var autocadInstance = new AutoCadInstance(bootstrapper.Dispatcher, objectRegister);
+        var autocadInstance = new AutoCadInstance(bootstrapper.Dispatcher);
 
-        var rhinoInsideManager = new RhinoInsideManager(rhinoInstance, autocadInstance, objectRegister);
+        var rhinoInsideManager = new RhinoInsideManager(rhinoInstance, grasshopperInstance, autocadInstance);
 
         this.SettingsManager = settingManager;
 

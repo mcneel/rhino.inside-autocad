@@ -98,7 +98,7 @@ public class RhinoInsideAutoCadCommands
 
         var rhinoInsideManager = application!.RhinoInsideManager;
 
-        var rhinoObjectPreview = rhinoInsideManager.AutoCadInstance.RhinoObjectPreviewer;
+        var rhinoObjectPreview = rhinoInsideManager.RhinoPreviewServer;
 
         rhinoObjectPreview.ToggleVisibility();
 

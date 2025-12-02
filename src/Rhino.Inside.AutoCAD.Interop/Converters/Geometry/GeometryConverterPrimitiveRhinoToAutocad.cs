@@ -16,7 +16,7 @@ public partial class GeometryConverter
     /// Converts a <see cref="RhinoPoint3d"/> to a <see cref="Autodesk.AutoCAD.Geometry.Point2d"/> with
     /// an optional input to provide the z coordinate.
     /// </summary>
-    public Autodesk.AutoCAD.Geometry.Point2d ConvertTo2d(RhinoPoint3d rhinoPoint3d)
+    public Autodesk.AutoCAD.Geometry.Point2d ToAutoCadType2d(RhinoPoint3d rhinoPoint3d)
     {
         var point3d = this.ToAutoCadType(rhinoPoint3d);
 
@@ -27,7 +27,7 @@ public partial class GeometryConverter
     /// Converts a <see cref="RhinoVector3d"/> to a <see cref="Vector2d"/>. The
     /// vector is normalized after creation.
     /// </summary>
-    public Autodesk.AutoCAD.Geometry.Vector2d ConvertTo2d(RhinoVector3d rhinoVector3d)
+    public Autodesk.AutoCAD.Geometry.Vector2d ToAutoCadType2d(RhinoVector3d rhinoVector3d)
     {
         var vector3d = this.ToAutoCadType(rhinoVector3d);
 

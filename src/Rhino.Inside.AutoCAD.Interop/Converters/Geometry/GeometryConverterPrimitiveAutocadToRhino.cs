@@ -1,4 +1,5 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
+using Rhino.Geometry;
 using CadArc = Autodesk.AutoCAD.DatabaseServices.Arc;
 using CadCircle = Autodesk.AutoCAD.DatabaseServices.Circle;
 using CadCurve = Autodesk.AutoCAD.DatabaseServices.Curve;
@@ -30,7 +31,7 @@ public partial class GeometryConverter
     /// Converts a <see cref="Autodesk.AutoCAD.Geometry.Point2d"/> to a <see cref="RhinoPoint3d"/> with
     /// an optional input to provide the z coordinate.
     /// </summary>
-    public RhinoPoint3d ConvertTo3d(Autodesk.AutoCAD.Geometry.Point2d point2d, double z = 0.0)
+    public RhinoPoint3d ToRhinoType3d(Autodesk.AutoCAD.Geometry.Point2d point2d, double z = 0.0)
     {
         var rhinoPoint2d = this.ToRhinoType(point2d);
 
@@ -42,7 +43,7 @@ public partial class GeometryConverter
     /// an optional input to provide the z coordinate. The vector is normalized
     /// after creation.
     /// </summary>
-    public RhinoVector3d ConvertTo3d(Autodesk.AutoCAD.Geometry.Vector2d vector2d, double z = 0.0)
+    public RhinoVector3d ToRhinoType3d(Autodesk.AutoCAD.Geometry.Vector2d vector2d, double z = 0.0)
     {
         var rhinoPoint2d = this.ToRhinoType(vector2d);
 

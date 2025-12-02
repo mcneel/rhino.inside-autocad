@@ -1,22 +1,35 @@
-﻿using Autodesk.AutoCAD.DatabaseServices;
+﻿using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
+using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using CadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
 using Entity = Rhino.Inside.AutoCAD.Interop.Entity;
 
-namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Params_Tab.ObjectPicker;
+namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
-public class AutocadObjectPicker
+/// <inheritdoc cref="IAutocadObjectPicker"/>
+public class AutocadObjectPicker : IAutocadObjectPicker
 {
-    private IAutoCadDocument _document;
-    public AutocadObjectPicker(IAutoCadDocument document)
+    private readonly IAutoCadDocument _document;
+
+    /// <summary>
+    /// Constructs a new <see cref="IAutocadObjectPicker"/> instance.
+    /// </summary>
+    public AutocadObjectPicker()
     {
-        _document = document;
+        var rhinoInsideApplication = RhinoInsideAutoCadExtension.Application!;
+
+        var activeDocument = rhinoInsideApplication.RhinoInsideManager.AutoCadInstance.ActiveDocument;
+
+        _document = activeDocument;
     }
 
+    /// <inheritdoc/>
     public IEntity? PickObject(ISelectionFilter filter, string message)
     {
+        Application.MainWindow.Focus();
 
         return _document.Transaction((transactionManager) =>
         {
@@ -58,8 +71,10 @@ public class AutocadObjectPicker
         });
     }
 
+    /// <inheritdoc/>
     public IList<IEntity> PickObjects(ISelectionFilter filter, string message)
     {
+        Application.MainWindow.Focus();
 
         return _document.Transaction((transactionManager) =>
         {

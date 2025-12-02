@@ -48,13 +48,10 @@ public class AutoCadInstance : IAutoCadInstance
     /// <inheritdoc/>
     //public IDataTagDatabaseManager DataTagDatabaseManager { get; }
 
-    /// <inheritdoc/>
-    public IRhinoObjectPreviewer RhinoObjectPreviewer { get; }
-
     /// <summary>
     /// Constructs a new <see cref="InteropService"/>.
     /// </summary>
-    public AutoCadInstance(Dispatcher dispatcher, IObjectRegister objectRegister)
+    public AutoCadInstance(Dispatcher dispatcher)
     {
         _dispatcher = dispatcher;
 
@@ -77,8 +74,6 @@ public class AutoCadInstance : IAutoCadInstance
             documentFiles.Add(documentFile);
         }
 
-        var rhinoPreview = new RhinoObjectPreviewer(objectRegister);
-
         _documentManager.DocumentActivated += this.OnDocumentActivated;
 
         //  this.Document = document;
@@ -88,8 +83,6 @@ public class AutoCadInstance : IAutoCadInstance
         // this.DataTagDatabaseManager = new DataTagDatabaseManager(document);
 
         this.Documents = documentFiles;
-
-        this.RhinoObjectPreviewer = rhinoPreview;
 
         this.ValidationLogger = new ValidationLogger();
 

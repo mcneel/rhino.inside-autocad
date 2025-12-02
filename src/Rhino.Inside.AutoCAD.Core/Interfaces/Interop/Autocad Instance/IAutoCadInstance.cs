@@ -64,11 +64,9 @@ public interface IAutoCadInstance
   //  IDataTagDatabaseManager? DataTagDatabaseManager { get; }
 
     List<IAutoCadDocument> Documents { get; }
-    IAutoCadDocument? ActiveDocument { get; }
 
     /// <summary>
-    /// The <see cref="IRhinoObjectPreviewer"/> used to manage the preview of
-    /// Rhino objects in AutoCAD as transient objects.
+    /// The current active <see cref="IAutoCadDocument"/> in the AutoCAD application.
     /// </summary>
-    IRhinoObjectPreviewer RhinoObjectPreviewer { get; }
+    IAutoCadDocument? ActiveDocument { get; }
 }

@@ -16,6 +16,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Include="Autocad\Transient\RhinoObjectPreviewServer.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 	<PackageReference Include="NaturalSort.Extension" />
 		<PackageReference Include="MaterialDesignThemes" />
 		<PackageReference Include="RhinoCommon">

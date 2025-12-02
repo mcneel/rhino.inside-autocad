@@ -1,22 +1,16 @@
-﻿using Rhino.DocObjects;
+﻿using Grasshopper.Kernel;
+using Grasshopper.Kernel.Types;
+using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using RhinoBrep = Rhino.Geometry.Brep;
-using RhinoCurve = Rhino.Geometry.Curve;
-using RhinoExtrusion = Rhino.Geometry.Extrusion;
-using RhinoHatch = Rhino.Geometry.Hatch;
-using RhinoMesh = Rhino.Geometry.Mesh;
-using RhinoPoint = Rhino.Geometry.Point;
-using RhinoSubD = Rhino.Geometry.SubD;
-using RhinoSurface = Rhino.Geometry.Surface;
+using Mesh = Rhino.Geometry.Mesh;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <inheritdoc cref="IRhinoInsideManager"/>
 public class RhinoInsideManager : IRhinoInsideManager
 {
-    private GeometryConverter _geometryConverter = GeometryConverter.Instance!;
     private readonly UnitSystem _defaultUnitSystem = InteropConstants.FallbackUnitSystem;
-    private const double _absoluteTolerance = GeometryConstants.ZeroTolerance;
+    private readonly RhinoObjectConverter _rhinoObjectConvert = RhinoObjectConverter.Instance!;
 
     /// <inheritdoc />
     public IRhinoInstance RhinoInstance { get; }
@@ -25,18 +19,27 @@ public class RhinoInsideManager : IRhinoInsideManager
     public IAutoCadInstance AutoCadInstance { get; }
 
     /// <inheritdoc />
+    public IGrasshopperInstance GrasshopperInstance { get; }
+
+    /// <inheritdoc />
     public IUnitSystemManager UnitSystemManager { get; private set; }
 
     /// <inheritdoc />
-    public IObjectRegister ObjectRegister { get; }
+    public IRhinoObjectPreviewServer RhinoPreviewServer { get; }
+
+    /// <inheritdoc />
+    public IGrasshopperObjectPreviewServer GrasshopperPreviewServer { get; }
 
     /// <summary>
     /// Constructs a new <see cref="IRhinoInsideManager"/> instance.
     /// </summary>
-    public RhinoInsideManager(IRhinoInstance rhinoInstance,
-        IAutoCadInstance autoCadInstance, IObjectRegister objectRegister)
+    public RhinoInsideManager(IRhinoInstance rhinoInstance, IGrasshopperInstance grasshopperInstance,
+        IAutoCadInstance autoCadInstance)
     {
-        this.ObjectRegister = objectRegister;
+
+        this.RhinoPreviewServer = new RhinoObjectPreviewServer();
+
+        this.GrasshopperPreviewServer = new GrasshopperObjectPreviewServer();
 
         this.AutoCadInstance = autoCadInstance;
         autoCadInstance.OnDocumentCreated += this.UpdateUnitSystem;
@@ -48,13 +51,99 @@ public class RhinoInsideManager : IRhinoInsideManager
         rhinoInstance.OnObjectModifiedOrAppended += this.OnRhinoObjectModifiedOrAppended;
         rhinoInstance.OnObjectRemoved += this.OnRhinoObjectRemoved;
 
+        this.GrasshopperInstance = grasshopperInstance;
+        grasshopperInstance.OnPreviewExpired += this.UpdateGrasshopperPreview;
+        grasshopperInstance.OnObjectRemoved += this.OnGrasshopperObjectRemoved;
+
         var unitsSystemManager = new UnitSystemManager(_defaultUnitSystem, _defaultUnitSystem);
 
         GeometryConverter.Initialize(unitsSystemManager);
 
-        _geometryConverter = GeometryConverter.Instance!;
-
         this.UnitSystemManager = unitsSystemManager;
+
+    }
+
+    /// <summary>
+    /// Removes the preview of a Grasshopper object from the <see cref="GrasshopperPreviewRegister"/>
+    /// when it is removed from the Grasshopper document.
+    /// </summary>
+    private void OnGrasshopperObjectRemoved(object sender, IGrasshopperObjectModifiedEventArgs e)
+    {
+        this.GrasshopperPreviewServer.RemoveObject(e.GrasshopperObject.InstanceGuid);
+    }
+
+    /// <summary>
+    /// Extracts geometry data from a Grasshopper parameter and adds it to the preview data.
+    /// </summary>
+    /// <param name="param">The Grasshopper parameter to extract geometry from.</param>
+    /// <param name="data">The container for the extracted preview data.</param>
+    private void ExtractGeometryFromParameter(IGH_Param param, IGrasshopperPreviewData data)
+    {
+        foreach (var goo in param.VolatileData.AllData(true))
+        {
+            if (goo is not IGH_PreviewObject) continue;
+
+            if (goo is GH_Curve curve)
+            {
+                data.Wires.Add(curve.Value);
+            }
+
+            if (goo is GH_Brep brep)
+            {
+                var meshes = Mesh.CreateFromBrep(brep.Value, MeshingParameters.Default);
+                data.Meshes.AddRange(meshes);
+            }
+
+            if (goo is GH_Mesh mesh)
+            {
+                data.Meshes.Add(mesh.Value);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Extracts preview geometry data from a Grasshopper document object.
+    /// </summary>
+    /// <param name="ghDocumentObject">The Grasshopper document object to extract geometry from.</param>
+    /// <returns>The extracted preview geometry data.</returns>
+    private IGrasshopperPreviewData ExtractPreviewGeometry(IGH_DocumentObject ghDocumentObject)
+    {
+        var previewGeometryData = new GrasshopperPreviewData();
+
+        if (ghDocumentObject is IGH_Component component)
+        {
+            foreach (var outputParam in component.Params.Output)
+            {
+                this.ExtractGeometryFromParameter(outputParam, previewGeometryData);
+            }
+
+            return previewGeometryData;
+        }
+
+        if (ghDocumentObject is IGH_Param param)
+        {
+            this.ExtractGeometryFromParameter(param, previewGeometryData);
+        }
+
+        return previewGeometryData;
+    }
+
+    /// <summary>
+    /// Updates the AutoCAD transient preview when a Grasshopper object's preview expires.
+    /// </summary>
+    private void UpdateGrasshopperPreview(object sender, IGrasshopperObjectModifiedEventArgs e)
+    {
+        var ghDocumentObject = e.GrasshopperObject;
+
+        var instanceGuid = ghDocumentObject.InstanceGuid;
+
+        this.GrasshopperPreviewServer.RemoveObject(e.GrasshopperObject.InstanceGuid);
+
+        var previewGeometryData = this.ExtractPreviewGeometry(ghDocumentObject);
+
+        var convertedEntities = previewGeometryData.GetEntities();
+
+        this.GrasshopperPreviewServer.AddObject(instanceGuid, convertedEntities);
 
     }
 
@@ -65,14 +154,7 @@ public class RhinoInsideManager : IRhinoInsideManager
     {
         var rhinoObject = e.RhinoObject;
 
-        if (this.ObjectRegister.TryGetObject(rhinoObject, out var oldEntities))
-        {
-            var rhinoPreview = this.AutoCadInstance.RhinoObjectPreviewer;
-
-            rhinoPreview.RemoveEntities(oldEntities);
-
-            this.ObjectRegister.RemoveObject(rhinoObject);
-        }
+        this.RhinoPreviewServer.RemoveObject(rhinoObject.Id);
 
         this.AutoCadInstance.ActiveDocument?.UpdateScreen();
     }
@@ -84,155 +166,14 @@ public class RhinoInsideManager : IRhinoInsideManager
     {
         var rhinoObject = e.RhinoObject;
 
-        var rhinoPreview = this.AutoCadInstance.RhinoObjectPreviewer;
+        this.RhinoPreviewServer.RemoveObject(rhinoObject.Id);
 
-        if (this.ObjectRegister.TryGetObject(rhinoObject, out var oldEntities))
+        if (_rhinoObjectConvert.TryConvert(rhinoObject, out var newEntities))
         {
-            rhinoPreview.RemoveEntities(oldEntities);
-        }
-
-        if (this.TryConvert(rhinoObject, out var newEntities))
-        {
-            this.ObjectRegister.RegisterObject(rhinoObject, newEntities);
-
-            rhinoPreview.AddEntities(newEntities);
+            this.RhinoPreviewServer.AddObject(rhinoObject.Id, newEntities);
         }
 
         this.AutoCadInstance.ActiveDocument?.UpdateScreen();
-    }
-
-    /// <summary>
-    /// Tries to convert a Rhino object to AutoCAD entities.
-    /// </summary>
-    private bool TryConvert(RhinoObject rhinoObject, out List<IEntity> entities)
-    {
-        var geometry = rhinoObject.Geometry;
-
-        entities = new List<IEntity>();
-
-        switch (geometry.ObjectType)
-        {
-            case ObjectType.Curve:
-                {
-                    var rhinoCurve = geometry as RhinoCurve;
-
-                    var curves = _geometryConverter.ToAutoCadType(rhinoCurve!);
-
-                    foreach (var curve in curves)
-                    {
-                        var entity = new Entity(curve);
-
-                        entities.Add(entity);
-                    }
-
-                    return true;
-                }
-            case ObjectType.Point:
-                {
-                    var rhinoPoint = geometry as RhinoPoint;
-
-                    var point3d = _geometryConverter.ToAutoCadType(rhinoPoint!.Location);
-
-                    var acPoint = new Autodesk.AutoCAD.DatabaseServices.DBPoint(point3d);
-
-                    var entity = new Entity(acPoint);
-
-                    entities.Add(entity);
-                    return true;
-                }
-            case ObjectType.Mesh:
-                {
-                    var rhinoMesh = geometry as RhinoMesh;
-
-                    var cadMesh = _geometryConverter.ToAutoCadType(rhinoMesh!);
-
-                    var entity = new Entity(cadMesh);
-
-                    entities.Add(entity);
-                    return true;
-                }
-            case ObjectType.SubD:
-                {
-                    var rhinoMesh = geometry as RhinoSubD;
-
-                    var cadMesh = _geometryConverter.ToAutoCadType(rhinoMesh!);
-
-                    var entity = new Entity(cadMesh);
-
-                    entities.Add(entity);
-                    return true;
-                }
-            case ObjectType.Brep:
-                {
-                    var brep = geometry as RhinoBrep;
-
-                    var cadSolid = _geometryConverter.ToAutoCadType(brep!);
-
-                    foreach (var solid in cadSolid)
-                    {
-                        var entity = new Entity(solid);
-
-                        entities.Add(entity);
-                    }
-
-                    return true;
-                }
-            case ObjectType.Extrusion:
-                {
-                    var extrusion = geometry as RhinoExtrusion;
-
-                    var cadSolid = _geometryConverter.ToAutoCadType(extrusion!.ToBrep());
-
-                    foreach (var solid in cadSolid)
-                    {
-                        var entity = new Entity(solid);
-
-                        entities.Add(entity);
-                    }
-
-                    return true;
-                }
-
-            case ObjectType.Hatch:
-                {
-                    var rhinoHatch = geometry as RhinoHatch;
-
-                    var borders = rhinoHatch!.Get3dCurves(false);
-
-                    var breps = RhinoBrep.CreatePlanarBreps(borders, _absoluteTolerance);
-
-                    foreach (var brep in breps)
-                    {
-                        var cadHatch = _geometryConverter.ToAutoCadType(brep);
-
-                        foreach (var solid in cadHatch)
-                        {
-                            var entity = new Entity(solid);
-
-                            entities.Add(entity);
-                        }
-                    }
-                    return true;
-                }
-            case ObjectType.Surface:
-                {
-                    var rhinoSurface = geometry as RhinoSurface;
-
-                    var cadSurface = _geometryConverter.ToAutoCadType(rhinoSurface!.ToBrep());
-
-                    foreach (var solid in cadSurface)
-                    {
-                        var entity = new Entity(solid);
-
-                        entities.Add(entity);
-                    }
-
-                    return true;
-                }
-
-            default: return false;
-
-        }
     }
 
     private void UpdateUnitSystem(object sender, EventArgs e)
@@ -248,7 +189,6 @@ public class RhinoInsideManager : IRhinoInsideManager
 
             GeometryConverter.Initialize(unitsSystemManager);
 
-            _geometryConverter = GeometryConverter.Instance!;
         }
     }
 }

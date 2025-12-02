@@ -3,7 +3,7 @@
 /// <summary>
 /// Manages the preview of a Rhino object in AutoCAD using transient entities.
 /// </summary>
-public interface IRhinoObjectPreviewer
+public interface IRhinoObjectPreviewServer
 {
     /// <summary>
     /// The current visibility state of the preview.
@@ -19,22 +19,14 @@ public interface IRhinoObjectPreviewer
     void ToggleVisibility();
 
     /// <summary>
-    /// Adds the provided <paramref name="entity"/> into this <see cref="ITransientManager"/>.
+    /// Adds the provided <paramref name="entities"/> into this <see cref=
+    /// "ITransientManager"/>.
     /// </summary>
-    void AddEntity(IEntity entity);
+    void AddObject(Guid rhinoObjectId, List<IEntity> entities);
 
     /// <summary>
-    /// Adds the provided <paramref name="entities"/> into this <see cref="ITransientManager"/>.
+    /// Removes the provided <paramref name="rhinoObjectId"/> from this <see cref=
+    /// "ITransientManager"/>.
     /// </summary>
-    void AddEntities(IEnumerable<IEntity> entities);
-
-    /// <summary>
-    /// Removes the provided <paramref name="entity"/> from this <see cref="ITransientManager"/>.
-    /// </summary>
-    void RemoveEntity(IEntity entity);
-
-    /// <summary>
-    /// Removes the provided <paramref name="entities"/> from this <see cref="ITransientManager"/>.
-    /// </summary>
-    void RemoveEntities(IEnumerable<IEntity> entities);
+    void RemoveObject(Guid rhinoObjectId);
 }

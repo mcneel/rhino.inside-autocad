@@ -58,7 +58,7 @@ public partial class GeometryConverter
 
                 var ellipseNurbs = nurbsTrimmed == null ? nurbs : (RhinoNurbsCurve)nurbsTrimmed;
 
-                var endPoint = this.ConvertTo3d(ellipticalArc2d.EndPoint);
+                var endPoint = this.ToRhinoType3d(ellipticalArc2d.EndPoint);
 
                 var startParameter = interval.T0;
                 var endParameter = interval.T1;
@@ -68,7 +68,7 @@ public partial class GeometryConverter
                 var hasSamplePoints = samplePoints.Count > 0;
 
                 var endTangent = hasSamplePoints
-                    ? this.ConvertTo3d(samplePoints.Last().GetDerivative(1, endParameter))
+                    ? this.ToRhinoType3d(samplePoints.Last().GetDerivative(1, endParameter))
                     : new RhinoVector3d(0, 0, 0);
 
                 ellipseNurbs.SetEndCondition(true, RhinoNurbsCurve.NurbsCurveEndConditionType.Position, endPoint, endTangent);
@@ -203,7 +203,7 @@ public partial class GeometryConverter
         }
         else
         {
-            var vector3d = this.ConvertTo3d(line2d.Direction);
+            var vector3d = this.ToRhinoType3d(line2d.Direction);
 
             var translation = Rhino.Geometry.Transform.Translation(vector3d);
 
@@ -235,7 +235,7 @@ public partial class GeometryConverter
         {
             var controlPoint = spline2d.GetControlPointAt(i);
 
-            var point3d = this.ConvertTo3d(controlPoint);
+            var point3d = this.ToRhinoType3d(controlPoint);
 
             rhinoPoints.Add(point3d);
         }
@@ -256,9 +256,9 @@ public partial class GeometryConverter
     /// </remarks>
     public RhinoEllipse ToRhinoType(EllipticalArc2d ellipticalArc2d, out RhinoInterval interval)
     {
-        var centrePoint = this.ConvertTo3d(ellipticalArc2d.Center);
-        var majorAxis = this.ConvertTo3d(ellipticalArc2d.MajorAxis);
-        var minorAxis = this.ConvertTo3d(ellipticalArc2d.MinorAxis);
+        var centrePoint = this.ToRhinoType3d(ellipticalArc2d.Center);
+        var majorAxis = this.ToRhinoType3d(ellipticalArc2d.MajorAxis);
+        var minorAxis = this.ToRhinoType3d(ellipticalArc2d.MinorAxis);
 
         var majorRadius = _unitSystemManager.ToRhinoLength(ellipticalArc2d.MajorRadius);
         var minorRadius = _unitSystemManager.ToRhinoLength(ellipticalArc2d.MinorRadius);
@@ -281,13 +281,13 @@ public partial class GeometryConverter
     {
         var arcStartPoint = circularArc2d.StartPoint;
 
-        var startPoint = this.ConvertTo3d(circularArc2d.StartPoint);
-        var endPoint = this.ConvertTo3d(circularArc2d.EndPoint);
+        var startPoint = this.ToRhinoType3d(circularArc2d.StartPoint);
+        var endPoint = this.ToRhinoType3d(circularArc2d.EndPoint);
 
         // Vector has to be negated as the Rhino arc is drawn in the opposite direction.
         var tangentVector = circularArc2d.GetTangent(arcStartPoint).Direction.Negate();
 
-        var rhinoVector = this.ConvertTo3d(tangentVector);
+        var rhinoVector = this.ToRhinoType3d(tangentVector);
 
         var rhinoArc = new RhinoArc(startPoint, rhinoVector, endPoint);
 
