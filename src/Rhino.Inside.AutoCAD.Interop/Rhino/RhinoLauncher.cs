@@ -40,22 +40,19 @@ public class RhinoLauncher : IRhinoLauncher
                 return;
             }
 
+            rhinoCoreExtension.ValidateRhinoCore();
 
+            var rhinoInstance = _rhinoInsideManager.RhinoInstance;
+            rhinoInstance.ValidateRhinoDoc(mode, validationLogger);
 
-            /*    rhinoCoreExtension.ValidateRhinoCore();
+            var grasshopperInstance = _rhinoInsideManager.GrasshopperInstance;
+            grasshopperInstance.ValidateGrasshopperLibrary(validationLogger);
 
-                var rhinoInstance = _rhinoInsideManager.RhinoInstance;
-                rhinoInstance.ValidateRhinoDoc(mode, validationLogger);
+            if (mode != RhinoInsideMode.Headless)
+            {
+                rhinoCoreExtension.WindowManager.ShowWindow();
+            }
 
-                var grasshopperInstance = _rhinoInsideManager.GrasshopperInstance;
-                grasshopperInstance.ValidateGrasshopperLibrary(validationLogger);
-
-
-                if (mode != RhinoInsideMode.Headless)
-                {
-                    rhinoCoreExtension.WindowManager.ShowWindow();
-                }
-                */
             splashScreenLauncher.Close();
         }
         catch (Exception e)

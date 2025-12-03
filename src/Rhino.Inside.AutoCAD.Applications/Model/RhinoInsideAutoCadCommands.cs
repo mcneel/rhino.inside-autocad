@@ -2,6 +2,7 @@
 using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core;
 using Rhino.Inside.AutoCAD.Interop;
+using Rhino.Inside.AutoCAD.Services;
 using System.Diagnostics;
 
 [assembly: CommandClass(typeof(RhinoInsideAutoCadCommands))]
@@ -112,6 +113,83 @@ public class RhinoInsideAutoCadCommands
 
     }
 
+    [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_PREVIEW_OFF", CommandFlags.Modal)]
+    public static void GRASSHOPPER_PREVIEW_OFF()
+    {
+        var application = RhinoInsideAutoCadExtension.Application;
+
+        var rhinoInsideManager = application!.RhinoInsideManager;
+
+        var grasshopperPreview = rhinoInsideManager.GrasshopperPreviewServer;
+        grasshopperPreview.SetMode(GrasshopperPreviewMode.Off);
+
+    }
+
+    [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_PREVIEW_SHADED", CommandFlags.Modal)]
+    public static void GRASSHOPPER_PREVIEW_SHADED()
+    {
+        var application = RhinoInsideAutoCadExtension.Application;
+
+        var rhinoInsideManager = application!.RhinoInsideManager;
+
+        var grasshopperPreview = rhinoInsideManager.GrasshopperPreviewServer;
+        grasshopperPreview.SetMode(GrasshopperPreviewMode.Shaded);
+
+    }
+
+    [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_PREVIEW_WIREFRAME", CommandFlags.Modal)]
+    public static void GRASSHOPPER_PREVIEW_WIREFRAME()
+    {
+        var application = RhinoInsideAutoCadExtension.Application;
+
+        var rhinoInsideManager = application!.RhinoInsideManager;
+
+        var grasshopperPreview = rhinoInsideManager.GrasshopperPreviewServer;
+        grasshopperPreview.SetMode(GrasshopperPreviewMode.Wireframe);
+
+    }
+
+    [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_RECOMPUTE", CommandFlags.Modal)]
+    public static void GRASSHOPPER_RECOMPUTE()
+    {
+        var application = RhinoInsideAutoCadExtension.Application;
+
+        var rhinoInsideManager = application!.RhinoInsideManager;
+
+        var grasshopperInstance = rhinoInsideManager.GrasshopperInstance;
+
+        grasshopperInstance.RecomputeSolution();
+    }
+
+    [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_TOGGLE_SOLVER", CommandFlags.Modal)]
+    public static void GRASSHOPPER_TOGGLE_SOLVER()
+    {
+        var application = RhinoInsideAutoCadExtension.Application;
+
+        var rhinoInsideManager = application!.RhinoInsideManager;
+
+        var grasshopperInstance = rhinoInsideManager.GrasshopperInstance;
+
+        var isEnabled = grasshopperInstance.IsEnabled;
+
+        if (isEnabled)
+        {
+            grasshopperInstance.DisableSolver();
+        }
+        else
+        {
+            grasshopperInstance.EnableSolver();
+        }
+
+        var buttonReplacer = new ButtonIconReplacer("GrasshopperSolverButtonId");
+
+        var imagePath = isEnabled
+            ? "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_SolverOff.png"
+            : "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_SolverOn.png";
+
+        buttonReplacer.Replace(imagePath);
+    }
+
     [CommandMethod("RHINOINSIDE_COMMANDS", "OPEN_RHINO_VIEWPORT", CommandFlags.Modal)]
     public static void OPEN_RHINO_VIEWPORT()
     {
@@ -187,4 +265,3 @@ public class RhinoInsideAutoCadCommands
         });
     }
 }
-

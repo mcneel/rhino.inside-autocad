@@ -30,6 +30,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Icons\Large512\Grasshopper_Preview_Off.png" />
+    <None Remove="Icons\Large512\Grasshopper_Preview_Off_Selected.png" />
+    <None Remove="Icons\Large512\Grasshopper_Preview_Shaded.png" />
+    <None Remove="Icons\Large512\Grasshopper_Preview_Shaded_Selected.png" />
+    <None Remove="Icons\Large512\Grasshopper_Preview_Wireframe.png" />
+    <None Remove="Icons\Large512\Grasshopper_Preview_Wireframe_Selected.png" />
+    <None Remove="Icons\Large512\Grasshopper_SolverOff.png" />
+    <None Remove="Icons\Large512\Grasshopper_SolverOn.png" />
     <None Remove="Icons\Large512\Rhinoceros_Preview_Off.png" />
     <None Remove="Icons\Large512\Rhinoceros_Preview_Shaded.png" />
   </ItemGroup>
@@ -74,6 +82,29 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Icons\Large512\Grasshopper_Preview_Wireframe.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icons\Large512\Grasshopper_Preview_Wireframe_Selected.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icons\Large512\Grasshopper_Preview_Off.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icons\Large512\Grasshopper_Preview_Off_Selected.png" />
+    <Resource Include="Icons\Large512\Grasshopper_Preview_Shaded.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icons\Large512\Grasshopper_Preview_Shaded_Selected.png" />
+    <Resource Include="Icons\Large512\Grasshopper_SolverOff.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icons\Large512\Grasshopper_SolverOn.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Icons\Large512\Rhinoceros_Preview_Off.png" />
     <Resource Include="Icons\Large512\Rhinoceros_Preview_Shaded.png" />
   </ItemGroup>

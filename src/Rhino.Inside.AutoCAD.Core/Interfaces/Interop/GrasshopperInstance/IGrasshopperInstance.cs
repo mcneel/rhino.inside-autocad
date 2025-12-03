@@ -28,6 +28,11 @@ public interface IGrasshopperInstance
     GH_Document? ActiveDoc { get; }
 
     /// <summary>
+    /// A value indicating whether the Grasshopper solver is enabled.
+    /// </summary>
+    bool IsEnabled { get; }
+
+    /// <summary>
     /// Validates that the Grasshopper library is loaded into the Grasshopper component server.
     /// </summary>
     void ValidateGrasshopperLibrary(IValidationLogger validationLogger);

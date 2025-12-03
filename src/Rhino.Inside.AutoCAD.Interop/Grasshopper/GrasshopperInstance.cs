@@ -24,6 +24,22 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <inheritdoc />
     public GH_Document? ActiveDoc { get; private set; }
 
+    /// <inheritdoc />
+    public bool IsEnabled
+    {
+        get
+        {
+            if (this.ActiveDoc != null)
+            {
+                return Grasshopper.Kernel.GH_Document.EnableSolutions;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="GrasshopperInstance"/> class.
     /// </summary>
@@ -31,6 +47,7 @@ public class GrasshopperInstance : IGrasshopperInstance
     public GrasshopperInstance(IApplicationDirectories applicationDirectories)
     {
         _applicationDirectories = applicationDirectories;
+
     }
 
     /// <summary>

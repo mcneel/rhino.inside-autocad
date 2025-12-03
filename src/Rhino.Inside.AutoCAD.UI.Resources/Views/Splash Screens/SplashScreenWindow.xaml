@@ -22,8 +22,8 @@
                 <ResourceDictionary Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Views/Styles/ColorStyles.xaml" />
 
                 <materialDesign:CustomColorTheme BaseTheme="Light"
-                                                 PrimaryColor="{StaticResource PrimaryColor}"
-                                                 SecondaryColor="{StaticResource SecondaryColor}" />
+                                                 PrimaryColor="{StaticResource BrandBlue}"
+                                                 SecondaryColor="{StaticResource BrandGrey}" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/materialdesign3.defaults.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -31,19 +31,24 @@
 
     <Grid Background="{StaticResource BackgroundCardBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Hide splash screen button -->
-        <Button Width="20"
+        <Button Grid.Row="0"
+                Width="20"
                 Height="20"
                 Content="{materialDesign:PackIcon Hide, Size=15}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Padding="0"
-                Margin="2"
+                Margin="2,2,0,0"
                 Foreground="White"
                 Click="HideButton_Click">
             <Button.Style>
@@ -69,67 +74,68 @@
         <Image Grid.Row="0"
                Grid.Column="0"
                Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Resources/RhinoInside-logo.ico"
-               Margin=" 0 10 0 0"
-               Width="100"
-               VerticalAlignment="Top" />
+               Margin="0,10,0,0"
+               Width="64"
+               Grid.RowSpan="2" />
 
         <!-- The copyright Label and version number -->
-        <Label Grid.Row="0"
-               Grid.Column="0"
-               Content="{Binding VersionCopyrightNotice, UpdateSourceTrigger=PropertyChanged}"
-               HorizontalAlignment="Center"
-               VerticalAlignment="Top"
-               FontSize="9"
-               Foreground="white"
-               Margin="0 110 0 0" />
+        <TextBlock Grid.Row="2"
+                   Text="{Binding VersionCopyrightNotice, UpdateSourceTrigger=PropertyChanged}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Top"
+                   FontSize="9"
+                   Foreground="white"
+                   Margin="0,8,0,0" />
 
         <!-- The error report TextBlock -->
-        <TextBlock MaxWidth="560"
-                   MaxHeight="50"
-                   Grid.Row="0"
+        <TextBlock Grid.Row="3"
                    Grid.Column="0"
-                   VerticalAlignment="Bottom"
+                   MaxWidth="560"
+                   MaxHeight="50"
+                   VerticalAlignment="Center"
                    Foreground="{StaticResource WarningColorBrush}"
                    Text="{Binding ErrorMessage}"
-                   Margin="20 5"
+                   Margin="20,0,20,0"
                    TextAlignment="Center"
                    TextTrimming="CharacterEllipsis"
                    TextWrapping="Wrap"
                    FontSize="11" />
 
+
         <!-- The Border between the logo and load status Labels -->
-        <Border Grid.Row="0"
+        <Border Grid.Row="3"
                 Grid.Column="0"
                 BorderThickness="0.5"
                 BorderBrush="{StaticResource BorderGreyColorBrush}"
-                VerticalAlignment="Bottom" />
+                VerticalAlignment="Top"
+                Margin="0,22,0,0" />
+
 
         <!-- The progress percent status title Label -->
-        <Label Grid.Row="1"
-               Grid.Column="0"
-               Margin="10 5"
-               Visibility="{Binding ProgressMessageVisibility}"
-               Content="{Binding TimeElapsedMessage, UpdateSourceTrigger=PropertyChanged, Mode=OneWay, FallbackValue=''}"
-               HorizontalAlignment="Center"
-               FontWeight="Regular"
-               Foreground="white"
-               VerticalAlignment="Top" />
+        <TextBlock Grid.Row="4"
+                   Margin="0,8,0,0"
+                   Visibility="{Binding ProgressMessageVisibility}"
+                   Text="{Binding TimeElapsedMessage, UpdateSourceTrigger=PropertyChanged, Mode=OneWay, FallbackValue=''}"
+                   HorizontalAlignment="Center"
+                   FontWeight="Regular"
+                   Foreground="white"
+                   VerticalAlignment="Center" />
+
 
         <!-- Status message StackPanel -->
-        <StackPanel Grid.Row="1"
-                    Grid.Column="0"
-                    Margin="0 15 0 0"
-                    VerticalAlignment="Center"
+        <StackPanel Grid.Row="5"
+                    Margin="0,8,0,0"
+                    VerticalAlignment="Top"
                     HorizontalAlignment="Center"
                     Visibility="{Binding ProgressMessageVisibility}"
                     Orientation="Horizontal">
 
             <!-- The progress percent status title Label -->
-            <Label Content="Initializing Rhino Inside"
-                   HorizontalAlignment="Center"
-                   FontWeight="Regular"
-                   Foreground="White"
-                   VerticalAlignment="Bottom" />
+            <TextBlock Text="Initializing Rhino Inside"
+                       HorizontalAlignment="Center"
+                       FontWeight="Regular"
+                       Foreground="White"
+                       VerticalAlignment="Bottom" />
 
             <StackPanel Orientation="Horizontal"
                         VerticalAlignment="Center"
@@ -184,16 +190,17 @@
             </StackPanel>
         </StackPanel>
 
-
-        <StackPanel Grid.Row="2"
+        <!-- Brought to you Label -->
+        <StackPanel Grid.Row="6"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
-                    Margin="0 0 0 3">
+                    Margin="0,8,0,8"
+                    Opacity="0.43">
             <TextBlock Text="Brought to you by"
                        FontStyle="Italic"
                        HorizontalAlignment="Center"
                        FontSize="10"
-                       Foreground="White"
+                       Foreground="Gainsboro"
                        VerticalAlignment="Center" />
 
             <Image Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Resources/BimorphLogo.png"
@@ -205,18 +212,18 @@
         <!-- The Alert icon which displays if there has been a startup failure -->
         <materialDesign:PackIcon Kind="Alert"
                                  Grid.Row="0"
-                                 Margin="10"
+                                 Margin="0,10,10,0"
                                  Foreground="{StaticResource WarningColorBrush}"
                                  HorizontalAlignment="Right"
                                  Visibility="{Binding WarningIconVisibility}" />
 
         <!-- The Action Button -->
-        <Button Grid.Row="1"
-                Grid.RowSpan="2"
+        <Button Grid.Row="4"
+                Grid.RowSpan="3"
                 Style="{StaticResource MaterialDesignOutlinedButton}"
                 Content="Close"
                 BorderThickness="2"
-                Margin="10 0"
+                Margin="0,24,10,23"
                 HorizontalAlignment="Right"
                 Visibility="{Binding ButtonVisibility}"
                 BorderBrush="{StaticResource WarningColorBrush}"

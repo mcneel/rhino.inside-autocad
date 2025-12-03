@@ -2,8 +2,8 @@
 
 namespace Rhino.Inside.AutoCAD.Services;
 
-/// <inheritdoc cref="IRhinoInsideAutoCadApplicationSettings"/>
-public class ApplicationSettings : IRhinoInsideAutoCadApplicationSettings
+/// <inheritdoc cref="IApplicationSettings"/>
+public class ApplicationSettings : IApplicationSettings
 {
     /// <inheritdoc/>
     public IFileNameLibrary FileNameLibrary { get; set; }

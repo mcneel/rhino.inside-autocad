@@ -50,4 +50,49 @@ public class ApplicationConstants
     /// The size of small icons used in the AutoCad application ribbon and UI.
     /// </summary>
     public const int LargeIconSize = 32;
+
+    /// <summary>
+    /// The identifier for the "Off" button in the Grasshopper preview.
+    /// </summary>
+    public const string OffButtonId = "GrasshopperPreviewOffButtonId";
+
+    /// <summary>
+    /// The identifier for the "Shaded" button in the Grasshopper preview.
+    /// </summary>
+    public const string ShadedButtonId = "GrasshopperPreviewShadedButtonId";
+
+    /// <summary>
+    /// The identifier for the "Wireframe" button in the Grasshopper preview.
+    /// </summary>
+    public const string WireframeButtonId = "GrasshopperPreviewWireframeButtonId";
+
+    /// <summary>
+    /// The URI for the unselected "Off" button icon in the Grasshopper preview.
+    /// </summary>
+    public const string OffButtonUnselected = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_Preview_Off.png";
+
+    /// <summary>
+    /// The URI for the selected "Off" button icon in the Grasshopper preview.
+    /// </summary>
+    public const string OffButtonSelected = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_Preview_Off_Selected.png";
+
+    /// <summary>
+    /// The URI for the unselected "Shaded" button icon in the Grasshopper preview.
+    /// </summary>
+    public const string ShadedButtonUnselected = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_Preview_Shaded.png";
+
+    /// <summary>
+    /// The URI for the selected "Shaded" button icon in the Grasshopper preview.
+    /// </summary>
+    public const string ShadedButtonSelected = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_Preview_Shaded_Selected.png";
+
+    /// <summary>
+    /// The URI for the unselected "Wireframe" button icon in the Grasshopper preview.
+    /// </summary>
+    public const string WireframeButtonUnselected = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_Preview_Wireframe.png";
+
+    /// <summary>
+    /// The URI for the selected "Wireframe" button icon in the Grasshopper preview.
+    /// </summary>
+    public const string WireframeButtonSelected = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_Preview_Wireframe_Selected.png";
 }

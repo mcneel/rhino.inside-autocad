@@ -1,22 +1,22 @@
-﻿namespace Rhino.Inside.AutoCAD.Core.Enum.Preview;
+﻿namespace Rhino.Inside.AutoCAD.Core;
 
 /// <summary>
 /// An enumeration representing the different preview modes available.
 /// </summary>
-public enum PreviewMode
+public enum GrasshopperPreviewMode
 {
     /// <summary>
-    /// No preview is shown.
+    /// Disables the Grasshopper preview.
     /// </summary>
     Off,
 
     /// <summary>
-    /// Only wireframe preview is shown.
+    /// Displays the Grasshopper preview in shaded mode.
     /// </summary>
-    Wires,
+    Shaded,
 
     /// <summary>
-    /// Full preview with meshes is shown.
+    /// Displays the Grasshopper preview in wireframe mode.
     /// </summary>
-    Meshes
+    Wireframe
 }

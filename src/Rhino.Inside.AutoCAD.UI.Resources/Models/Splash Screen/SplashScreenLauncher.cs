@@ -42,34 +42,72 @@ public class SplashScreenLauncher : ISplashScreenLauncher
     }
 
     /// <summary>
+    /// Handles assembly resolution for WPF pack URIs and dependencies in the new thread context.
+    /// </summary>
+    private System.Reflection.Assembly? CurrentDomain_AssemblyResolve(object? sender, ResolveEventArgs args)
+    {
+        // Check if the requested assembly is the UI.Resources assembly
+        var assemblyName = new System.Reflection.AssemblyName(args.Name);
+
+        if (assemblyName.Name == "Rhino.Inside.AutoCAD.UI.Resources")
+        {
+            // Return the currently executing assembly (UI.Resources)
+            return System.Reflection.Assembly.GetExecutingAssembly();
+        }
+
+        // Try to load the assembly from the same directory as the executing assembly
+        try
+        {
+            var executingAssemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var assemblyDirectory = System.IO.Path.GetDirectoryName(executingAssemblyPath);
+
+            if (assemblyDirectory != null)
+            {
+                var assemblyPath = System.IO.Path.Combine(assemblyDirectory, assemblyName.Name + ".dll");
+
+                if (System.IO.File.Exists(assemblyPath))
+                {
+                    return System.Reflection.Assembly.LoadFrom(assemblyPath);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex);
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// The thread start point to launch the progress reporter window.
     /// </summary>
     private void ThreadStartingPoint()
     {
-        // Ensure the UI.Resources assembly is loaded before WPF tries to resolve pack URIs
+        // Add assembly resolver for WPF pack URIs
         // This is necessary because WPF's pack URI resolver can't find the assembly in the new thread context
-        _ = System.Reflection.Assembly.GetExecutingAssembly();
-
-        _dispatcher = Dispatcher.CurrentDispatcher;
-
-        lock (_initLock)
-        {
-            _splashScreenViewModel = new SplashScreenViewModel(_splashScreenConstants, _versionLog);
-
-            _splashScreenWindow = new SplashScreenWindow(_splashScreenViewModel!)
-            {
-                Topmost = true
-            };
-
-            _splashScreenWindow.Show();
-
-            _isDispatcherReady = true;
-
-            Monitor.PulseAll(_initLock); // Notify all waiting threads that the dispatcher is ready
-        }
+        AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
         try
         {
+            _dispatcher = Dispatcher.CurrentDispatcher;
+
+            lock (_initLock)
+            {
+                _splashScreenViewModel = new SplashScreenViewModel(_splashScreenConstants, _versionLog);
+
+                _splashScreenWindow = new SplashScreenWindow(_splashScreenViewModel!)
+                {
+                    Topmost = true
+                };
+
+                _splashScreenWindow.Show();
+
+                _isDispatcherReady = true;
+
+                Monitor.PulseAll(_initLock); // Notify all waiting threads that the dispatcher is ready
+            }
+
             Dispatcher.Run();
         }
         catch (Exception e)
@@ -77,6 +115,11 @@ public class SplashScreenLauncher : ISplashScreenLauncher
             _logger.LogError(e);
 
             _isValidThreadState = false;
+        }
+        finally
+        {
+            // Remove the assembly resolver
+            AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
         }
     }
 

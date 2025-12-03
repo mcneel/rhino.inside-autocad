@@ -14,9 +14,4 @@ public interface ISettingsCore
     /// The <see cref="ISplashScreenConstants"/>.
     /// </summary>
     ISplashScreenConstants SplashScreenConstants { get; }
-
-    /// <summary>
-    /// The <see cref="IUpdaterConfigs"/>.
-    /// </summary>
-    IUpdaterConfigs UpdaterConfigs { get; }
 }

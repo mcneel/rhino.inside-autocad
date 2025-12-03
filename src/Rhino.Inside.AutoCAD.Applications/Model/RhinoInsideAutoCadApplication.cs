@@ -12,10 +12,10 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
     private readonly IList<string> _materialDesignAssemblyNames = ApplicationConstants.MaterialDesignAssemblyNames;
 
     /// <inheritdoc/>
-    public IRhinoInsideAutoCadSettingsManager SettingsManager { get; }
+    public ISettingsManager SettingsManager { get; }
 
     /// <inheritdoc/>
-    public IRhinoInsideAutoCadFileResourceManager FileResourceManager { get; }
+    public IFileResourceManager FileResourceManager { get; }
 
     /// <inheritdoc/>
     public IBootstrapper Bootstrapper { get; }
@@ -45,8 +45,6 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
         var settingManager = new SettingManager(applicationDirectories);
 
         var fileResourceManager = new FileResourceManager(applicationDirectories, settingManager);
-
-        SoftwareUpdater.Initialize(bootstrapper, applicationConfig, settingManager);
 
         var applicationServicesCore = new ApplicationServicesCore();
 

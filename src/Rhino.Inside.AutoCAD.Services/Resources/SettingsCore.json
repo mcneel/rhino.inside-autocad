@@ -2,11 +2,6 @@
     "DeploymentDirectory": {
         "Release": "Update",
         "Debug": "Update"
-    }, 
-    "UpdaterConfigs": {
-        "ReleasesFileName": "Releases.json",
-        "ManifestFileName": "PackageContents.xml",
-        "AppVersionName": "AppVersion"
     },
     "SplashScreenConstants": {
         "Copyright": "Bimorph Applications. Copyright",

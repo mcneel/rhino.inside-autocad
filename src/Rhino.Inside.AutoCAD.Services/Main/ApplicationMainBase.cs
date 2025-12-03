@@ -12,7 +12,7 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// </summary>
 public abstract class ApplicationMainBase : IApplicationMain
 {
-    private readonly IBimorphApplication _bimorphApplication;
+    private readonly IRhinoInsideAutoCadApplication _bimorphApplication;
 
     // To detect redundant calls
     private bool _disposed;
@@ -25,8 +25,6 @@ public abstract class ApplicationMainBase : IApplicationMain
 
     private readonly IWindowConfig _windowConfig;
     private readonly IVersionLog _versionLog;
-    private readonly ISoftwareUpdater? _softwareUpdater;
-
     protected readonly IList<ISatelliteService> _satelliteServices;
 
     private readonly ILoggerService _logger = LoggerService.Instance;
@@ -45,7 +43,7 @@ public abstract class ApplicationMainBase : IApplicationMain
     /// <summary>
     /// Constructs a new <see cref="ApplicationMainBase" />.
     /// </summary>
-    protected ApplicationMainBase(IBimorphApplication bimorphApplication)
+    protected ApplicationMainBase(IRhinoInsideAutoCadApplication bimorphApplication)
     {
         _bimorphApplication = bimorphApplication;
 
@@ -60,8 +58,6 @@ public abstract class ApplicationMainBase : IApplicationMain
         _applicationServicesCore = bimorphApplication.ApplicationServicesCore;
 
         _containerBuilder = new ContainerBuilder();
-
-        _softwareUpdater = SoftwareUpdater.Instance;
 
         _satelliteServices = [];
     }
@@ -126,7 +122,6 @@ public abstract class ApplicationMainBase : IApplicationMain
             _containerBuilder.RegisterInstance(_bimorphApplication.Bootstrapper).As<IBootstrapper>().SingleInstance();
             _containerBuilder.RegisterInstance(_bimorphApplication.ApplicationConfig).As<IApplicationConfig>().SingleInstance();
             _containerBuilder.RegisterInstance(_applicationServicesCore).As<IApplicationServicesCore>().SingleInstance();
-            _containerBuilder.RegisterInstance(_softwareUpdater!).As<ISoftwareUpdater>().SingleInstance();
             _containerBuilder.RegisterInstance(_versionLog).As<IVersionLog>().SingleInstance();
             _containerBuilder.RegisterInstance(_windowConfig).As<IWindowConfig>().SingleInstance();
             _containerBuilder.RegisterInstance(_appDispatcher).SingleInstance();

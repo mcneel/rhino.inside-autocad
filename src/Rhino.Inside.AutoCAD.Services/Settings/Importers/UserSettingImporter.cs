@@ -1,6 +1,4 @@
 ﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.Services;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
 using System.Text.Json;
 
 namespace Rhino.Inside.AutoCAD.Services;
@@ -8,7 +6,7 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// <summary>
 /// An example of a user settings importer, for the TemplateName applications.
 /// </summary>
-public class UserSettingImporter : IUserSettingsImporter<IRhinoInsideAutoCadUserSettings>
+public class UserSettingImporter : IUserSettingsImporter<IUserSettings>
 {
     private const string _userSettingsJsonName = CoreConstants.UserSettingsJsonName;
     private const string _userSettingDeserializeError = MessageConstants.UserSettingDeserializeError;
@@ -20,12 +18,12 @@ public class UserSettingImporter : IUserSettingsImporter<IRhinoInsideAutoCadUser
     /// deserialization fails the user settings are reset to the template and a second attempt
     /// is made to deserialize. If this fails an exception is thrown.
     /// </summary>
-    public IRhinoInsideAutoCadUserSettings Import(IApplicationDirectories applicationDirectories)
+    public IUserSettings Import(IApplicationDirectories applicationDirectories)
     {
         var serializerOptions = new JsonSerializerOptions
         {
             Converters = {
-                    new InterfaceConverterFactory(typeof(UserSettings), typeof(IRhinoInsideAutoCadUserSettings))
+                    new InterfaceConverterFactory(typeof(UserSettings), typeof(IUserSettings))
                 }
         };
 
@@ -59,13 +57,13 @@ public class UserSettingImporter : IUserSettingsImporter<IRhinoInsideAutoCadUser
     /// Tries to deserialize the user settings from the specified file path.
     /// </summary>
     private bool TryDeserialize(string localSettingsFilePath,
-        JsonSerializerOptions serializerOptions, out IRhinoInsideAutoCadUserSettings? RhinoInsideAutoCADUserSettings)
+        JsonSerializerOptions serializerOptions, out IUserSettings? RhinoInsideAutoCADUserSettings)
     {
         try
         {
             using var jsonFileStream = File.OpenRead(localSettingsFilePath);
 
-            var userSettings = JsonSerializer.Deserialize<IRhinoInsideAutoCadUserSettings>(jsonFileStream, serializerOptions);
+            var userSettings = JsonSerializer.Deserialize<IUserSettings>(jsonFileStream, serializerOptions);
 
             RhinoInsideAutoCADUserSettings = userSettings!;
             return true;

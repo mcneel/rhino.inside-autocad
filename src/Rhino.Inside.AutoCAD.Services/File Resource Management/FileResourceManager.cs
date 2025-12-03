@@ -1,6 +1,4 @@
 ﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.Services;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Services;
 
@@ -8,7 +6,7 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// A class providing essential file resource directories and file names
 /// for obtaining external resources.
 /// </summary>
-public class FileResourceManager : IRhinoInsideAutoCadFileResourceManager
+public class FileResourceManager : IFileResourceManager
 {
     private IFilepath? _currentFile = null;
 
@@ -25,9 +23,9 @@ public class FileResourceManager : IRhinoInsideAutoCadFileResourceManager
     public IJsonResourceImporter JsonResourceImporter { get; }
 
     /// <summary>
-    /// Constructs a new <see cref="IRhinoInsideAutoCadFileResourceManager"/>
+    /// Constructs a new <see cref="IFileResourceManager"/>
     /// </summary>
-    public FileResourceManager(IApplicationDirectories applicationDirectories, IRhinoInsideAutoCadSettingsManager settingsManager)
+    public FileResourceManager(IApplicationDirectories applicationDirectories, ISettingsManager settingsManager)
     {
         this.ApplicationDirectories = applicationDirectories;
 

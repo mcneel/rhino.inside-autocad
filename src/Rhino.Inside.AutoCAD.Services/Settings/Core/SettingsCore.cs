@@ -12,7 +12,4 @@ public class SettingsCore : ISettingsCore
 
     /// <inheritdoc/>
     public ISplashScreenConstants SplashScreenConstants { get; set; }
-
-    /// <inheritdoc/>
-    public IUpdaterConfigs UpdaterConfigs { get; set; }
 }

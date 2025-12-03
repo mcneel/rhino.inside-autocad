@@ -1,4 +1,6 @@
-﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Rhino.Inside.AutoCAD.Core;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Services;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -6,9 +8,10 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
 {
     private readonly IPreviewServer _previewServer;
+    private readonly IGrasshopperPreviewButtonManager _buttonManager;
 
     /// <inheritdoc/>
-    public bool Visible { get; private set; }
+    public GrasshopperPreviewMode PreviewMode { get; private set; }
 
     /// <summary>
     /// Constructs a new <see cref="IGrasshopperObjectPreviewServer"/>
@@ -16,7 +19,11 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     public GrasshopperObjectPreviewServer()
     {
         _previewServer = new PreviewServer();
-        this.Visible = true;
+
+        _buttonManager = new GrasshopperPreviewButtonManager();
+
+        this.PreviewMode = GrasshopperPreviewMode.Shaded;
+
     }
 
     /// <summary>
@@ -24,20 +31,27 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     /// </summary>
     private void UpdateTransientElements()
     {
-        if (this.Visible)
-        {
-            foreach (var entities in _previewServer.ObjectRegister)
-            {
-                _previewServer.AddTransientEntities(entities);
-            }
-        }
-        else
+        if (this.PreviewMode == GrasshopperPreviewMode.Off)
         {
             foreach (var entities in _previewServer.ObjectRegister)
             {
                 _previewServer.RemoveTransientEntities(entities);
             }
         }
+        else
+        {
+            foreach (var entities in _previewServer.ObjectRegister)
+            {
+                _previewServer.AddTransientEntities(entities);
+            }
+        }
+    }
+    /// <inheritdoc />
+    public void SetMode(GrasshopperPreviewMode previewMode)
+    {
+        this.PreviewMode = previewMode;
+        _buttonManager.SetPreviewMode(previewMode);
+        this.UpdateTransientElements();
     }
 
     /// <inheritdoc />
@@ -50,13 +64,5 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     public void RemoveObject(Guid rhinoObjectId)
     {
         _previewServer.RemoveObject(rhinoObjectId);
-    }
-
-    /// <inheritdoc />
-    public void ToggleVisibility()
-    {
-        this.Visible = !this.Visible;
-
-        this.UpdateTransientElements();
     }
 }

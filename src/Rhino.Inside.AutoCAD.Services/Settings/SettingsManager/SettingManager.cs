@@ -1,22 +1,20 @@
 ﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.Services;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
 using System.Text.Json;
 
 namespace Rhino.Inside.AutoCAD.Services;
 
-/// <inheritdoc cref="IRhinoInsideAutoCadSettingsManager"/>
-public class SettingManager : IRhinoInsideAutoCadSettingsManager
+/// <inheritdoc cref="ISettingsManager"/>
+public class SettingManager : ISettingsManager
 {
     private readonly IApplicationDirectories _applicationDirectories;
 
     /// <inheritdoc />
     public ISettingsCore Core { get; }
     /// <inheritdoc />
-    public IRhinoInsideAutoCadApplicationSettings Application { get; }
+    public IApplicationSettings Application { get; }
 
     /// <inheritdoc />
-    public IRhinoInsideAutoCadUserSettings User { get; }
+    public IUserSettings User { get; }
 
     /// <summary>
     /// Constructor for the <see cref="SettingManager"/>.
