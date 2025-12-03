@@ -1,6 +1,7 @@
 ﻿using Rhino.Inside.AutoCAD.Core;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Services;
+using Rhino.Inside.AutoCAD.UI.Resources.Models;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -22,12 +23,9 @@ public class RhinoLauncher : IRhinoLauncher
     /// <inheritdoc />
     public void Launch(RhinoInsideMode mode)
     {
-        //ToDo : Splash Screen then uncomment
-        //var application = RhinoInsideAutoCadExtension.Application;
+        var splashScreenLauncher = new SplashScreenLauncher(_application);
 
-        // var splashScreenLauncher = new SplashScreenLauncher(application);
-
-        // splashScreenLauncher.Show();
+        splashScreenLauncher.Show();
 
         try
         {
@@ -42,26 +40,27 @@ public class RhinoLauncher : IRhinoLauncher
                 return;
             }
 
-            rhinoCoreExtension.ValidateRhinoCore();
 
-            var rhinoInstance = _rhinoInsideManager.RhinoInstance;
 
-            rhinoInstance.ValidateRhinoDoc(mode, validationLogger);
+            /*    rhinoCoreExtension.ValidateRhinoCore();
 
-            var grasshopperInstance = _rhinoInsideManager.GrasshopperInstance;
+                var rhinoInstance = _rhinoInsideManager.RhinoInstance;
+                rhinoInstance.ValidateRhinoDoc(mode, validationLogger);
 
-            grasshopperInstance.ValidateGrasshopperLibrary(validationLogger);
+                var grasshopperInstance = _rhinoInsideManager.GrasshopperInstance;
+                grasshopperInstance.ValidateGrasshopperLibrary(validationLogger);
 
-            if (mode != RhinoInsideMode.Headless)
-            {
-                rhinoCoreExtension.WindowManager.ShowWindow();
-            }
 
-            //  splashScreenLauncher.Close();
+                if (mode != RhinoInsideMode.Headless)
+                {
+                    rhinoCoreExtension.WindowManager.ShowWindow();
+                }
+                */
+            splashScreenLauncher.Close();
         }
         catch (Exception e)
         {
-            // splashScreenLauncher.ShowExceptionInfo();
+            splashScreenLauncher.ShowExceptionInfo();
 
             LoggerService.Instance.LogError(e);
         }

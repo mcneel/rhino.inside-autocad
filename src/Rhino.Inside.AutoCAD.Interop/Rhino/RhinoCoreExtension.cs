@@ -1,8 +1,8 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Services;
 using Rhino.Runtime.InProcess;
 using System.Reflection;
-using Rhino.Inside.AutoCAD.Services;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -43,6 +43,14 @@ public class RhinoCoreExtension : IRhinoCoreExtension
     );
 
     /// <summary>
+    /// Gets the Rhino system directory in the local machines registry.
+    /// </summary>
+    static readonly string _pluginDir = (string)Microsoft.Win32.Registry.GetValue
+    (
+        @"HKEY_LOCAL_MACHINE\SOFTWARE\McNeel\Rhinoceros\7.0\Install", "Default Plug-ins Folder", string.Empty
+    );
+
+    /// <summary>
     /// Constructs a new <see cref="RhinoCoreExtension"/> instance.
     /// </summary>
     private RhinoCoreExtension()
@@ -57,30 +65,38 @@ public class RhinoCoreExtension : IRhinoCoreExtension
     static RhinoCoreExtension()
     {
         Instance = new RhinoCoreExtension();
-
         _rhinoInstallDirectoryExists = Directory.Exists(_systemDir);
-
         if (_rhinoInstallDirectoryExists)
         {
-            ResolveEventHandler? OnRhinoCommonResolve = null;
-
-            AppDomain.CurrentDomain.AssemblyResolve += OnRhinoCommonResolve = (_, args) =>
-            {
-                var rhinoCommonAssemblyName = "RhinoCommon";
-
-                var assemblyName = new AssemblyName(args.Name).Name;
-
-                if (assemblyName != rhinoCommonAssemblyName)
-                    return null;
-
-                AppDomain.CurrentDomain.AssemblyResolve -= OnRhinoCommonResolve;
-                return Assembly.LoadFrom(Path.Combine(_systemDir, $"{rhinoCommonAssemblyName}.dll"));
-            };
+            RegisterAssemblyResolver("RhinoCommon", Path.Combine(_systemDir, $"RhinoCommon.dll"));
+            RegisterAssemblyResolver("Grasshopper", Path.Combine(_pluginDir, $"Grasshopper//Grasshopper.dll"));
         }
         else
         {
             Instance.ValidationLogger.AddMessage("Rhino 7 not installed or could not be found. The application requires Rhino 7 to run.");
         }
+    }
+
+    /// <summary>
+    /// Registers an assembly resolver for the specified assembly name.
+    /// </summary>
+    /// <param name="assemblyName">The name of the assembly to resolve.</param>
+    /// <param name="assemblyPath">The path of the assembly to resolve.</param>
+    private static void RegisterAssemblyResolver(string assemblyName, string assemblyPath)
+    {
+        ResolveEventHandler? resolver = null;
+
+        AppDomain.CurrentDomain.AssemblyResolve += resolver = (_, args) =>
+        {
+            var requestedAssemblyName = new AssemblyName(args.Name).Name;
+
+            if (requestedAssemblyName != assemblyName)
+                return null;
+
+            AppDomain.CurrentDomain.AssemblyResolve -= resolver;
+
+            return Assembly.LoadFrom(assemblyPath);
+        };
     }
 
     /// <summary>

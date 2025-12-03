@@ -4,6 +4,7 @@
 		<TargetFramework>$(Framework)</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<OutputType>Library</OutputType>
+		<UseWPF>true</UseWPF>
 		<Nullable>enable</Nullable>
 		<LangVersion>preview</LangVersion>
 		<Version>$(AssemblyVersion)</Version>
@@ -16,6 +17,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="Resources\BimorphLogo.png" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="MaterialDesignThemes" />
 		<PackageReference Include="CommunityToolkit.Mvvm" />
 
@@ -25,19 +30,6 @@
 		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj" />
 		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Services\Rhino.Inside.AutoCAD.Services.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Page Include="Views\Splash Screens\SplashScreenWindow.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	  <Page Include="Views\Styles\ColorStyles.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
-
-
 
 	<ItemGroup>
 		<Reference Include="System.Windows.Forms">
@@ -59,13 +51,9 @@
 		</Reference>
 	</ItemGroup>
 
+
 	<ItemGroup>
-		<Reference Include="System.Windows.Forms">
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="WindowsFormsIntegration">
-			<Private>False</Private>
-		</Reference>
+		<Resource Include="Resources\BimorphLogo.png" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

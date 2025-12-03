@@ -10,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class RhinoInsideManager : IRhinoInsideManager
 {
     private readonly UnitSystem _defaultUnitSystem = InteropConstants.FallbackUnitSystem;
-    private readonly RhinoObjectConverter _rhinoObjectConvert = RhinoObjectConverter.Instance!;
+    private readonly IRhinoObjectConverter _rhinoObjectConvert;
 
     /// <inheritdoc />
     public IRhinoInstance RhinoInstance { get; }
@@ -58,13 +58,14 @@ public class RhinoInsideManager : IRhinoInsideManager
         var unitsSystemManager = new UnitSystemManager(_defaultUnitSystem, _defaultUnitSystem);
 
         GeometryConverter.Initialize(unitsSystemManager);
+        _rhinoObjectConvert = new RhinoObjectConverter(GeometryConverter.Instance!);
 
         this.UnitSystemManager = unitsSystemManager;
 
     }
 
     /// <summary>
-    /// Removes the preview of a Grasshopper object from the <see cref="GrasshopperPreviewRegister"/>
+    /// Removes the preview of a Grasshopper object from the <see cref="GrasshopperPreviewServer"/>
     /// when it is removed from the Grasshopper document.
     /// </summary>
     private void OnGrasshopperObjectRemoved(object sender, IGrasshopperObjectModifiedEventArgs e)
@@ -79,9 +80,38 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// <param name="data">The container for the extracted preview data.</param>
     private void ExtractGeometryFromParameter(IGH_Param param, IGrasshopperPreviewData data)
     {
+
         foreach (var goo in param.VolatileData.AllData(true))
         {
-            if (goo is not IGH_PreviewObject) continue;
+            if (goo is GH_Point point)
+            {
+                data.Points.Add(point.Value);
+                continue;
+            }
+
+            if (goo is GH_Line line)
+            {
+                data.Wires.Add(new LineCurve(line.Value));
+                continue;
+            }
+
+            if (goo is GH_Arc arc)
+            {
+                data.Wires.Add(new ArcCurve(arc.Value));
+                continue;
+            }
+
+            if (goo is GH_Circle circle)
+            {
+                data.Wires.Add(circle.Value.ToNurbsCurve());
+                continue;
+            }
+
+            if (goo is GH_Rectangle rectangle3d)
+            {
+                data.Wires.Add(rectangle3d.Value.ToNurbsCurve());
+                continue;
+            }
 
             if (goo is GH_Curve curve)
             {
@@ -109,6 +139,9 @@ public class RhinoInsideManager : IRhinoInsideManager
     private IGrasshopperPreviewData ExtractPreviewGeometry(IGH_DocumentObject ghDocumentObject)
     {
         var previewGeometryData = new GrasshopperPreviewData();
+
+        if (ghDocumentObject is not IGH_PreviewObject { Hidden: false })
+            return previewGeometryData;
 
         if (ghDocumentObject is IGH_Component component)
         {
@@ -144,6 +177,8 @@ public class RhinoInsideManager : IRhinoInsideManager
         var convertedEntities = previewGeometryData.GetEntities();
 
         this.GrasshopperPreviewServer.AddObject(instanceGuid, convertedEntities);
+
+        this.AutoCadInstance.ActiveDocument?.UpdateScreen();
 
     }
 

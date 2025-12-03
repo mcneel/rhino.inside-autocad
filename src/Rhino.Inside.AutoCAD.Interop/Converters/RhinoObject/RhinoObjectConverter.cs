@@ -1,41 +1,41 @@
 ﻿using Rhino.DocObjects;
+using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using RhinoBrep = Rhino.Geometry.Brep;
 using RhinoCurve = Rhino.Geometry.Curve;
-using RhinoExtrusion = Rhino.Geometry.Extrusion;
 using RhinoHatch = Rhino.Geometry.Hatch;
 using RhinoMesh = Rhino.Geometry.Mesh;
 using RhinoPoint = Rhino.Geometry.Point;
 using RhinoSubD = Rhino.Geometry.SubD;
-using RhinoSurface = Rhino.Geometry.Surface;
 
 namespace Rhino.Inside.AutoCAD.Interop;
+
+public interface IRhinoObjectConverter
+{
+    /// <summary>
+    /// Tries to convert a Rhino object to AutoCAD entities.
+    /// </summary>
+    bool TryConvert(RhinoObject rhinoObject, out List<IEntity> entities);
+}
 
 /// <summary>
 /// A Service to convert <see cref="RhinoObject"/> to Autocad <see cref="IEntity"/>.
 /// </summary>
-public class RhinoObjectConverter
+public class RhinoObjectConverter : IRhinoObjectConverter
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
+    private readonly GeometryConverter _geometryConverter;
     private const double _absoluteTolerance = GeometryConstants.ZeroTolerance;
 
     /// <summary>
-    /// Returns the <see cref="InternalColorConverter"/> singleton.
-    /// </summary>
-    public static RhinoObjectConverter Instance { get; }
-
-    /// <summary>
-    /// Static constructor that initializes the <see cref="RhinoObjectConverter"/> singleton.
-    /// </summary>
-    static RhinoObjectConverter()
-    {
-        RhinoObjectConverter.Instance = new RhinoObjectConverter();
-    }
-
-    /// <summary>
     /// Constructs a singleton instance of the <see cref="RhinoObjectConverter"/>.
+    /// The <see cref="GeometryConverter"/> instance is required to perform geometry
+    /// conversions it is passed as a parameter so that unit systems are always the latest
+    /// and forcing the <see cref="GeometryConverter"/> to be initialized first.
     /// </summary>
-    private RhinoObjectConverter() { }
+    public RhinoObjectConverter(GeometryConverter geometryConverter)
+    {
+        _geometryConverter = geometryConverter;
+    }
 
     /// <summary>
     /// Tries to convert a Rhino object to AutoCAD entities.
@@ -99,36 +99,27 @@ public class RhinoObjectConverter
                     return true;
                 }
             case ObjectType.Brep:
-                {
-                    var brep = geometry as RhinoBrep;
-
-                    var cadSolid = _geometryConverter.ToAutoCadType(brep!);
-
-                    foreach (var solid in cadSolid)
-                    {
-                        var entity = new Entity(solid);
-
-                        entities.Add(entity);
-                    }
-
-                    return true;
-                }
             case ObjectType.Extrusion:
+            case ObjectType.Surface:
                 {
-                    var extrusion = geometry as RhinoExtrusion;
+                    var renderMeshes = rhinoObject.GetMeshes(MeshType.Preview);
 
-                    var cadSolid = _geometryConverter.ToAutoCadType(extrusion!.ToBrep());
-
-                    foreach (var solid in cadSolid)
+                    if (renderMeshes == null || renderMeshes.Length == 0)
                     {
-                        var entity = new Entity(solid);
+                        rhinoObject.CreateMeshes(MeshType.Preview, MeshingParameters.Default, true);
+                        renderMeshes = rhinoObject.GetMeshes(MeshType.Preview);
+                    }
+
+                    foreach (var renderMesh in renderMeshes)
+                    {
+                        var cadMesh = _geometryConverter.ToAutoCadType(renderMesh);
+
+                        var entity = new Entity(cadMesh);
 
                         entities.Add(entity);
                     }
-
                     return true;
                 }
-
             case ObjectType.Hatch:
                 {
                     var rhinoHatch = geometry as RhinoHatch;
@@ -150,22 +141,6 @@ public class RhinoObjectConverter
                     }
                     return true;
                 }
-            case ObjectType.Surface:
-                {
-                    var rhinoSurface = geometry as RhinoSurface;
-
-                    var cadSurface = _geometryConverter.ToAutoCadType(rhinoSurface!.ToBrep());
-
-                    foreach (var solid in cadSurface)
-                    {
-                        var entity = new Entity(solid);
-
-                        entities.Add(entity);
-                    }
-
-                    return true;
-                }
-
             default: return false;
 
         }

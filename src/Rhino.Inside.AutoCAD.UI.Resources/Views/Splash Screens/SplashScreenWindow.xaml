@@ -32,7 +32,8 @@
     <Grid Background="{StaticResource BackgroundCardBrush}">
         <Grid.RowDefinitions>
             <RowDefinition />
-            <RowDefinition Height="60" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Hide splash screen button -->
@@ -184,6 +185,23 @@
         </StackPanel>
 
 
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0 0 0 3">
+            <TextBlock Text="Brought to you by"
+                       FontStyle="Italic"
+                       HorizontalAlignment="Center"
+                       FontSize="10"
+                       Foreground="White"
+                       VerticalAlignment="Center" />
+
+            <Image Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Resources/BimorphLogo.png"
+                   Width="70"
+                   Margin="8 0 0 0"
+                   VerticalAlignment="Center" />
+        </StackPanel>
+
         <!-- The Alert icon which displays if there has been a startup failure -->
         <materialDesign:PackIcon Kind="Alert"
                                  Grid.Row="0"
@@ -194,6 +212,7 @@
 
         <!-- The Action Button -->
         <Button Grid.Row="1"
+                Grid.RowSpan="2"
                 Style="{StaticResource MaterialDesignOutlinedButton}"
                 Content="Close"
                 BorderThickness="2"

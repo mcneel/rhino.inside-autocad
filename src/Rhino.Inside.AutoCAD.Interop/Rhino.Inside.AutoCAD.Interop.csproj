@@ -42,8 +42,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj" />
-		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Services\Rhino.Inside.AutoCAD.Services.csproj" />
+		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj">
+		  <Private>False</Private>
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Services\Rhino.Inside.AutoCAD.Services.csproj">
+		  <Private>False</Private>
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\Rhino.Inside.AutoCAD.UI.Resources\Rhino.Inside.AutoCAD.UI.Resources.csproj">
+		  <Private>False</Private>
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		</ProjectReference>
 	</ItemGroup>
 
 

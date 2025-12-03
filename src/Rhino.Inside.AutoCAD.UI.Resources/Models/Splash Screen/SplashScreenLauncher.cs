@@ -46,6 +46,9 @@ public class SplashScreenLauncher : ISplashScreenLauncher
     /// </summary>
     private void ThreadStartingPoint()
     {
+        // Ensure the UI.Resources assembly is loaded before WPF tries to resolve pack URIs
+        // This is necessary because WPF's pack URI resolver can't find the assembly in the new thread context
+        _ = System.Reflection.Assembly.GetExecutingAssembly();
 
         _dispatcher = Dispatcher.CurrentDispatcher;
 

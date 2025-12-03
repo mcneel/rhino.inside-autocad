@@ -17,6 +17,11 @@ public interface IGrasshopperPreviewData
     List<Rhino.Geometry.Mesh> Meshes { get; }
 
     /// <summary>
+    /// Gets the collection of meshes representing the preview geometry.
+    /// </summary>
+    List<Rhino.Geometry.Point3d> Points { get; }
+
+    /// <summary>
     /// Converts the stored preview geometry into a list of AutoCAD entities.
     /// </summary>
     /// <returns>A list of entities representing the preview geometry.</returns>

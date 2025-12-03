@@ -1,4 +1,5 @@
-﻿using Grasshopper;
+﻿using Autodesk.AutoCAD.BoundaryRepresentation;
+using Grasshopper;
 using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
@@ -42,23 +43,33 @@ public class GrasshopperInstance : IGrasshopperInstance
         var assembliesFolder = _applicationDirectories.Assemblies;
         var grasshopperLibraryPath = System.IO.Path.Combine(assembliesFolder, "Rhino.Inside.AutoCAD.GrasshopperLibrary.dll");
 
-        var loadGhaMethod = typeof(GH_ComponentServer).GetMethod(
-            "LoadGHA", BindingFlags.NonPublic | BindingFlags.Instance);
+        var assembly = Assembly.LoadFrom(grasshopperLibraryPath);
 
-        if (loadGhaMethod == null)
-        {
-            throw new TargetException("LoadGHA method not found");
-        }
+        var assemblyInfo = new GH_AssemblyInfoStub(assembly);
 
-        try
+        var comparer = new GH_AssemblyInfoStubComparer();
+
+        if (Grasshopper.Instances.ComponentServer.Libraries.Contains(assemblyInfo, comparer) ==
+            false)
         {
-            loadGhaMethod.Invoke(Instances.ComponentServer,
-                [new GH_ExternalFile(grasshopperLibraryPath), false]
-            );
-        }
-        catch (TargetInvocationException e)
-        {
-            throw e.InnerException;
+            var loadGhaMethod = typeof(GH_ComponentServer).GetMethod(
+                "LoadGHA", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (loadGhaMethod == null)
+            {
+                throw new TargetException("LoadGHA method not found");
+            }
+
+            try
+            {
+                loadGhaMethod.Invoke(Instances.ComponentServer,
+                    [new GH_ExternalFile(grasshopperLibraryPath), false]
+                );
+            }
+            catch (TargetInvocationException e)
+            {
+                throw e.InnerException;
+            }
         }
     }
 
@@ -68,26 +79,30 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <param name="validationLogger">The logger to record validation messages.</param>
     /// <returns>The active Grasshopper document.</returns>
     /// <exception cref="Exception">Thrown if Grasshopper fails to initialize.</exception>
-    private GH_Document LoadGrasshopper(IValidationLogger validationLogger)
+    private void LoadGrasshopper(IValidationLogger validationLogger)
     {
         try
         {
+
             this.LoadGrasshopperLibrary();
 
-            var activeCanvas = Grasshopper.Instances.ActiveCanvas;
-            var document = activeCanvas.Document;
+            Grasshopper.Instances.CanvasCreated += this.OnCanvasCreated;
 
-            activeCanvas.DocumentChanged += this.OnDocumentChanged;
-
-            this.AddDocumentSubscriptions(document);
-
-            return document;
         }
         catch
         {
             validationLogger.AddMessage("Failed to initialize Grasshopper");
             throw;
         }
+    }
+
+    /// <summary>
+    /// Registers event handlers when a new Grasshopper canvas is created.
+    /// </summary>
+    private void OnCanvasCreated(GH_Canvas canvas)
+    {
+        var activeCanvas = Grasshopper.Instances.ActiveCanvas;
+        activeCanvas.DocumentChanged += this.OnDocumentChanged;
     }
 
     /// <summary>
@@ -99,6 +114,7 @@ public class GrasshopperInstance : IGrasshopperInstance
         {
             this.ActiveDoc.ObjectsAdded -= this.OnObjectsAdded;
             this.ActiveDoc.ObjectsDeleted -= this.OnObjectsDeleted;
+            this.ActiveDoc.SolutionEnd -= this.OnSolutionEnd;
 
             foreach (var obj in this.ActiveDoc.Objects)
             {
@@ -141,7 +157,7 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <param name="documentObject">The document object to subscribe to.</param>
     private void HookPreviewExpired(IGH_DocumentObject documentObject)
     {
-        documentObject.PreviewExpired += this.OnGrasshopperPreviewExpired;
+        documentObject.ObjectChanged += this.OnGrasshopperObjectChanged;
     }
 
     /// <summary>
@@ -150,17 +166,18 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <param name="documentObject">The document object to unsubscribe from.</param>
     private void UnhookPreviewExpired(IGH_DocumentObject documentObject)
     {
-        documentObject.PreviewExpired -= this.OnGrasshopperPreviewExpired;
+        documentObject.ObjectChanged -= this.OnGrasshopperObjectChanged;
     }
 
     /// <summary>
-    /// Handles the PreviewExpired event for a Grasshopper document object.
+    /// Handles the ObjectChanged event for a Grasshopper document object.
     /// </summary>
-    /// <param name="sender">The document object that triggered the event.</param>
-    /// <param name="e">The event data.</param>
-    private void OnGrasshopperPreviewExpired(IGH_DocumentObject sender, GH_PreviewExpiredEventArgs e)
+    private void OnGrasshopperObjectChanged(IGH_DocumentObject sender, GH_ObjectChangedEventArgs e)
     {
-        this.OnPreviewExpired?.Invoke(this, new GrasshopperObjectModifiedEventArgs(sender));
+        if (e.Type == GH_ObjectEventType.Preview)
+        {
+            this.OnPreviewExpired?.Invoke(this, new GrasshopperObjectModifiedEventArgs(sender));
+        }
     }
 
     /// <summary>
@@ -171,10 +188,26 @@ public class GrasshopperInstance : IGrasshopperInstance
     {
         document.ObjectsAdded += this.OnObjectsAdded;
         document.ObjectsDeleted += this.OnObjectsDeleted;
+        document.SolutionEnd += this.OnSolutionEnd;
 
         foreach (var ghDocumentObject in document.Objects)
         {
             this.HookPreviewExpired(ghDocumentObject);
+        }
+    }
+
+    /// <summary>
+    /// Handles the event when a Grasshopper solution ends, this triggers the recalculation
+    /// of the autocad previews.
+    /// </summary>
+    private void OnSolutionEnd(object sender, GH_SolutionEventArgs e)
+    {
+        foreach (var ghDocumentObject in e.Document.Objects)
+        {
+            if (ghDocumentObject is not IGH_PreviewObject { Hidden: false })
+                continue;
+
+            this.OnPreviewExpired?.Invoke(this, new GrasshopperObjectModifiedEventArgs(ghDocumentObject));
         }
     }
 
@@ -186,8 +219,13 @@ public class GrasshopperInstance : IGrasshopperInstance
     private void OnDocumentChanged(GH_Canvas sender, GH_CanvasDocumentChangedEventArgs e)
     {
         this.RemoveDocumentSubscriptions();
+
         this.ActiveDoc = e.NewDocument;
-        this.AddDocumentSubscriptions(this.ActiveDoc);
+
+        if (this.ActiveDoc != null)
+        {
+            this.AddDocumentSubscriptions(this.ActiveDoc);
+        }
     }
 
     /// <summary>
@@ -196,7 +234,7 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <param name="validationLogger">The logger to record validation messages.</param>
     public void ValidateGrasshopperLibrary(IValidationLogger validationLogger)
     {
-        this.ActiveDoc ??= this.LoadGrasshopper(validationLogger);
+        this.LoadGrasshopper(validationLogger);
     }
 
     /// <summary>
@@ -232,5 +270,7 @@ public class GrasshopperInstance : IGrasshopperInstance
     {
         this.RemoveDocumentSubscriptions();
         this.ActiveDoc?.Dispose();
+
+        Grasshopper.Instances.CanvasCreated -= this.OnCanvasCreated;
     }
 }
