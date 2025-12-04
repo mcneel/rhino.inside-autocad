@@ -3,13 +3,13 @@
 namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// The host <see cref="IAutoCadDocument"/> <see cref="ISatelliteService"/>.
+/// The host <see cref="IAutocadDocument"/> <see cref="ISatelliteService"/>.
 /// The application is attached to this object and persists for its lifetime.
 /// </summary>
 public interface IInteropService : ISatelliteService
 {
     /// <summary>
-    /// Event raised when the <see cref="IAutoCadDocument"/> begins closing , or when the
+    /// Event raised when the <see cref="IAutocadDocument"/> begins closing , or when the
     /// user changes the active document. If either event occurs, the application will
     /// close.
     /// </summary>
@@ -28,7 +28,7 @@ public interface IInteropService : ISatelliteService
     event EventHandler? DocumentClosingOrActivated;
 
     /// <summary>
-    /// The <see cref="IAutoCadDocument"/> instance.
+    /// The <see cref="IAutocadDocument"/> instance.
     /// </summary>
     /// <remarks>
     /// This document is not necessarily the active document in the AutoCAD
@@ -36,9 +36,9 @@ public interface IInteropService : ISatelliteService
     /// this property will still return the document that was active when
     /// this <see cref="IInteropService"/> was initialized. This
     /// ensures that the AWI application is always working with the same
-    /// <see cref="IAutoCadDocument"/>.
+    /// <see cref="IAutocadDocument"/>.
     /// </remarks>
-    IAutoCadDocument? Document { get; }
+    IAutocadDocument? Document { get; }
 
     /// <summary>
     /// The <see cref="IObjectIdTagDatabaseManager"/>.

@@ -19,12 +19,11 @@ public interface IGrasshopperObjectPreviewServer
     /// Adds the provided <paramref name="entities"/> into this <see cref=
     /// "ITransientManager"/>.
     /// </summary>
-    void AddObject(Guid rhinoObjectId, List<IEntity> entities);
+    void AddObject(Guid rhinoObjectId, List<IEntity> wireframeEntities, List<IEntity> shadedEntities);
 
     /// <summary>
     /// Removes the provided <paramref name="rhinoObjectId"/> from this <see cref=
     /// "ITransientManager"/>.
     /// </summary>
     void RemoveObject(Guid rhinoObjectId);
-
 }

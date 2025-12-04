@@ -1,6 +1,7 @@
 ﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Services;
 
-namespace Rhino.Inside.AutoCAD.Services;
+namespace Rhino.Inside.AutoCAD.Applications;
 
 /// <summary>
 /// Configurations for the <see cref="IBimorphApplication"/>.

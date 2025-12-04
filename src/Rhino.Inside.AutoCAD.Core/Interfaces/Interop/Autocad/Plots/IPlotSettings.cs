@@ -1,7 +1,7 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// Represents plot settings in the active <see cref="IAutoCadDocument"/>.
+/// Represents plot settings in the active <see cref="IAutocadDocument"/>.
 /// </summary>
 public interface IPlotSettings : IDisposable
 {

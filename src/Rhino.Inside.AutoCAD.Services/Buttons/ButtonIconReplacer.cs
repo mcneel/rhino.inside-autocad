@@ -1,4 +1,5 @@
-﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Autodesk.Windows;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 using System.Windows.Media.Imaging;
 
 namespace Rhino.Inside.AutoCAD.Services;
@@ -6,6 +7,7 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// <inheritdoc cref="IButtonIconReplacer"/>
 public class ButtonIconReplacer : IButtonIconReplacer
 {
+    private const string _rhinoInsideTabName = ApplicationConstants.RhinoInsideTabName;
     private const int _smallIconSize = ApplicationConstants.SmallIconSize;
     private const int _largeIconSize = ApplicationConstants.LargeIconSize;
 
@@ -36,6 +38,18 @@ public class ButtonIconReplacer : IButtonIconReplacer
         return bitmap;
     }
 
+    /// <summary>
+    /// Updates the button images.
+    /// </summary>
+    private void UpdateButton(string buttonFilePath, RibbonButton button)
+    {
+        button.ShowImage = true;
+
+        button.Image = this.ResizeImage(buttonFilePath, _smallIconSize, _smallIconSize);
+
+        button.LargeImage = this.ResizeImage(buttonFilePath, _largeIconSize, _largeIconSize);
+    }
+
     /// <inheritdoc />
     public void Replace(string buttonFilePath)
     {
@@ -43,16 +57,27 @@ public class ButtonIconReplacer : IButtonIconReplacer
 
         foreach (var tab in ribbon.Tabs)
         {
+            if (tab.Title != _rhinoInsideTabName) continue;
+
             foreach (var panel in tab.Panels)
             {
                 foreach (var item in panel.Source.Items)
                 {
                     if (item is Autodesk.Windows.RibbonButton button && button.Id == this.ButtonId)
                     {
-                        button.ShowImage = true;
-                        button.Image = this.ResizeImage(buttonFilePath, _smallIconSize, _smallIconSize);
+                        this.UpdateButton(buttonFilePath, button);
+                    }
 
-                        button.LargeImage = this.ResizeImage(buttonFilePath, _largeIconSize, _largeIconSize);
+                    if (item is Autodesk.Windows.RibbonRowPanel subPanel)
+                    {
+                        foreach (var subPanelItem in subPanel.Items)
+                        {
+                            if (subPanelItem is Autodesk.Windows.RibbonButton subButton &&
+                                subButton.Id == this.ButtonId)
+                            {
+                                this.UpdateButton(buttonFilePath, subButton);
+                            }
+                        }
                     }
                 }
             }

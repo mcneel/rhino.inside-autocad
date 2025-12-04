@@ -1,8 +1,4 @@
-﻿using Grasshopper.Kernel;
-using Grasshopper.Kernel.Types;
-using Rhino.Geometry;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Mesh = Rhino.Geometry.Mesh;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -11,6 +7,7 @@ public class RhinoInsideManager : IRhinoInsideManager
 {
     private readonly UnitSystem _defaultUnitSystem = InteropConstants.FallbackUnitSystem;
     private readonly IRhinoObjectConverter _rhinoObjectConvert;
+    private readonly IGrasshopperGeometryExtractor _grasshopperGeometryExtractor;
 
     /// <inheritdoc />
     public IRhinoInstance RhinoInstance { get; }
@@ -61,7 +58,7 @@ public class RhinoInsideManager : IRhinoInsideManager
         _rhinoObjectConvert = new RhinoObjectConverter(GeometryConverter.Instance!);
 
         this.UnitSystemManager = unitsSystemManager;
-
+        _grasshopperGeometryExtractor = new GrasshopperGeometryExtractor();
     }
 
     /// <summary>
@@ -71,94 +68,6 @@ public class RhinoInsideManager : IRhinoInsideManager
     private void OnGrasshopperObjectRemoved(object sender, IGrasshopperObjectModifiedEventArgs e)
     {
         this.GrasshopperPreviewServer.RemoveObject(e.GrasshopperObject.InstanceGuid);
-    }
-
-    /// <summary>
-    /// Extracts geometry data from a Grasshopper parameter and adds it to the preview data.
-    /// </summary>
-    /// <param name="param">The Grasshopper parameter to extract geometry from.</param>
-    /// <param name="data">The container for the extracted preview data.</param>
-    private void ExtractGeometryFromParameter(IGH_Param param, IGrasshopperPreviewData data)
-    {
-
-        foreach (var goo in param.VolatileData.AllData(true))
-        {
-            if (goo is GH_Point point)
-            {
-                data.Points.Add(point.Value);
-                continue;
-            }
-
-            if (goo is GH_Line line)
-            {
-                data.Wires.Add(new LineCurve(line.Value));
-                continue;
-            }
-
-            if (goo is GH_Arc arc)
-            {
-                data.Wires.Add(new ArcCurve(arc.Value));
-                continue;
-            }
-
-            if (goo is GH_Circle circle)
-            {
-                data.Wires.Add(circle.Value.ToNurbsCurve());
-                continue;
-            }
-
-            if (goo is GH_Rectangle rectangle3d)
-            {
-                data.Wires.Add(rectangle3d.Value.ToNurbsCurve());
-                continue;
-            }
-
-            if (goo is GH_Curve curve)
-            {
-                data.Wires.Add(curve.Value);
-            }
-
-            if (goo is GH_Brep brep)
-            {
-                var meshes = Mesh.CreateFromBrep(brep.Value, MeshingParameters.Default);
-                data.Meshes.AddRange(meshes);
-            }
-
-            if (goo is GH_Mesh mesh)
-            {
-                data.Meshes.Add(mesh.Value);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Extracts preview geometry data from a Grasshopper document object.
-    /// </summary>
-    /// <param name="ghDocumentObject">The Grasshopper document object to extract geometry from.</param>
-    /// <returns>The extracted preview geometry data.</returns>
-    private IGrasshopperPreviewData ExtractPreviewGeometry(IGH_DocumentObject ghDocumentObject)
-    {
-        var previewGeometryData = new GrasshopperPreviewData();
-
-        if (ghDocumentObject is not IGH_PreviewObject { Hidden: false })
-            return previewGeometryData;
-
-        if (ghDocumentObject is IGH_Component component)
-        {
-            foreach (var outputParam in component.Params.Output)
-            {
-                this.ExtractGeometryFromParameter(outputParam, previewGeometryData);
-            }
-
-            return previewGeometryData;
-        }
-
-        if (ghDocumentObject is IGH_Param param)
-        {
-            this.ExtractGeometryFromParameter(param, previewGeometryData);
-        }
-
-        return previewGeometryData;
     }
 
     /// <summary>
@@ -172,11 +81,13 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         this.GrasshopperPreviewServer.RemoveObject(e.GrasshopperObject.InstanceGuid);
 
-        var previewGeometryData = this.ExtractPreviewGeometry(ghDocumentObject);
+        var previewGeometryData = _grasshopperGeometryExtractor.ExtractPreviewGeometry(ghDocumentObject);
 
-        var convertedEntities = previewGeometryData.GetEntities();
+        var convertedWireframeEntities = previewGeometryData.GetWireframeEntities();
 
-        this.GrasshopperPreviewServer.AddObject(instanceGuid, convertedEntities);
+        var convertedShadedEntities = previewGeometryData.GetShadedEntities();
+
+        this.GrasshopperPreviewServer.AddObject(instanceGuid, convertedWireframeEntities, convertedShadedEntities);
 
         this.AutoCadInstance.ActiveDocument?.UpdateScreen();
 

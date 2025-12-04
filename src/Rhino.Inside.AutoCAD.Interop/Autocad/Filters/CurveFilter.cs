@@ -2,7 +2,7 @@
 using Autodesk.AutoCAD.EditorInput;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
-namespace Rhino.Inside.AutoCAD.Interop.Filters;
+namespace Rhino.Inside.AutoCAD.Interop;
 
 public class CurveFilter : IFilter
 {

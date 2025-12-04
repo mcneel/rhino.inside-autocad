@@ -1,8 +1,8 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// A mapper interface which aims to handle AWI compliant <see cref="ILayer"/>s
-/// with our internal host <see cref="ILayer"/>s.
+/// A mapper interface which aims to handle AWI compliant <see cref="IAutocadLayer"/>s
+/// with our internal host <see cref="IAutocadLayer"/>s.
 /// </summary>
 public interface ILayerMapper
 {
@@ -16,21 +16,21 @@ public interface ILayerMapper
  //   public event EventHandler<ILayerSelectedEventArgs>? SelectedLayerChanged;
 
     /// <summary>
-    /// An <see cref="ILayer"/> of the <see cref="IInteropService"/>'s
-    /// <see cref="IAutoCadDocument"/> that host <see cref="IEntity"/>s.
+    /// An <see cref="IAutocadLayer"/> of the <see cref="IInteropService"/>'s
+    /// <see cref="IAutocadDocument"/> that host <see cref="IEntity"/>s.
     /// </summary>
     /// <remarks>
-    /// Typically this <see cref="ILayer"/> has derived from an external
+    /// Typically this <see cref="IAutocadLayer"/> has derived from an external
     /// consultants file (e.g. an architect), and is not a standard AWI
     /// layer.
     /// </remarks>
-    ILayer HostLayer { get; }
+    IAutocadLayer HostLayer { get; }
 
     /// <summary>
-    /// Represents the <see cref="ILayer"/> that is currently selected
+    /// Represents the <see cref="IAutocadLayer"/> that is currently selected
     /// from the <see cref="CompliantLayerSet"/>.
     /// </summary>
-    ILayer? SelectedLayer { get; set; }
+    IAutocadLayer? SelectedLayer { get; set; }
 
     /// <summary>
     /// The <see cref="ICompliantLayerSet"/>.

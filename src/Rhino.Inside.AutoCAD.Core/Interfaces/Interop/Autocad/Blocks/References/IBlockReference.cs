@@ -28,7 +28,7 @@ public interface IBlockReference : IEntity
 
     /// <summary>
     /// Commits the custom properties of the <see cref="IBlockReference"/> in the active
-    /// <see cref="IAutoCadDocument"/>.
+    /// <see cref="IAutocadDocument"/>.
     /// </summary>
     void CommitCustomProperties();
 }

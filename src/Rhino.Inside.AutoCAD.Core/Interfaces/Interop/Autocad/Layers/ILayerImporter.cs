@@ -1,4 +1,6 @@
-﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+
+namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
 /// An interface defining a contract to importing layers from an external

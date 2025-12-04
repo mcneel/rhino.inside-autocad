@@ -1,7 +1,7 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// An interface which defines units conversion between <see cref="IAutoCadDocument.UnitSystem"/>
+/// An interface which defines units conversion between <see cref="IAutocadDocument.UnitSystem"/>
 /// and the <see cref="RhinoUnits"/> <see cref="UnitSystem"/>.
 /// </summary>
 public interface IUnitSystemManager
@@ -15,15 +15,15 @@ public interface IUnitSystemManager
     UnitSystem RhinoUnits { get; }
 
     /// <summary>
-    /// The <see cref="UnitSystem"/> of the active <see cref="IAutoCadDocument"/>.
+    /// The <see cref="UnitSystem"/> of the active <see cref="IAutocadDocument"/>.
     /// </summary>
     /// <remarks>
-    /// The value returns the same value as <see cref="IAutoCadDocument.UnitSystem"/>.
+    /// The value returns the same value as <see cref="IAutocadDocument.UnitSystem"/>.
     /// </remarks>
     UnitSystem AutoCadUnits { get; }
 
     /// <summary>
-    /// Converts the given <paramref name="length"/> from <see cref="IAutoCadDocument.UnitSystem"/>
+    /// Converts the given <paramref name="length"/> from <see cref="IAutocadDocument.UnitSystem"/>
     /// to the <see cref="RhinoUnits"/> units.
     /// </summary>
     double ToRhinoLength(double length);
@@ -36,12 +36,12 @@ public interface IUnitSystemManager
 
     /// <summary>
     /// Converts the given <paramref name="area"/> from <see cref=
-    /// "IAutoCadDocument.UnitSystem"/> to the <see cref="RhinoUnits"/> units.
+    /// "IAutocadDocument.UnitSystem"/> to the <see cref="RhinoUnits"/> units.
     /// </summary>
     double ToRhinoArea(double area);
 
     /// <summary>
-    /// Converts the given <paramref name="internalLength"/> from <see cref="IAutoCadDocument.UnitSystem"/>.
+    /// Converts the given <paramref name="internalLength"/> from <see cref="IAutocadDocument.UnitSystem"/>.
     /// </summary>
     double ToAutoCadLength(double internalLength);
 
@@ -52,7 +52,7 @@ public interface IUnitSystemManager
     double ToAutoCadLength(IUnitLength length);
 
     /// <summary>
-    /// Converts the given <paramref name="internalArea"/> to <see cref="IAutoCadDocument.UnitSystem"/>.
+    /// Converts the given <paramref name="internalArea"/> to <see cref="IAutocadDocument.UnitSystem"/>.
     /// </summary>
     double ToAutoCadArea(double internalArea);
 

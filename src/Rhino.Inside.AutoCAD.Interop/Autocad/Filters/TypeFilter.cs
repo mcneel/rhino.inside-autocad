@@ -1,8 +1,8 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
-using Rhino.Inside.AutoCAD.Interop;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 
-namespace Rhino.Inside.AutoCAD.Core.Interfaces;
+namespace Rhino.Inside.AutoCAD.Interop;
 
 public class TypeFilter : ITypeFilter
 {

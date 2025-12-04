@@ -1,10 +1,10 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// A unique set of <see cref="ILayer"/>s that are compliant with AWI CAD
+/// A unique set of <see cref="IAutocadLayer"/>s that are compliant with AWI CAD
 /// standards 
 /// </summary>
-public interface ICompliantLayerSet : IEnumerable<ILayer>
+public interface ICompliantLayerSet : IEnumerable<IAutocadLayer>
 {
     /// <summary>
     /// Indicates whether this <see cref="ICompliantLayerSet"/> is empty.
@@ -12,7 +12,7 @@ public interface ICompliantLayerSet : IEnumerable<ILayer>
     bool IsEmpty { get; }
 
     /// <summary>
-    /// Filters all layers in the <see cref="IAutoCadDocument"/> and adds layers that
+    /// Filters all layers in the <see cref="IAutocadDocument"/> and adds layers that
     /// are compliant with AWI CAD standards using the <see cref="ILayerFilter"/>.
     /// </summary>
     void FilterLayers();

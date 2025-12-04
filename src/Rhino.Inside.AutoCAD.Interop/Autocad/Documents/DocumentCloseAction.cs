@@ -33,12 +33,12 @@ public class DocumentCloseAction : IDocumentCloseAction
 
     /// <summary>
     /// The default close action. No action is performed on the
-    /// <see cref="IAutoCadDocument"/> or underlying AutoCAD document.
+    /// <see cref="IAutocadDocument"/> or underlying AutoCAD document.
     /// </summary>
     private void NoAction(IAutocadDocumentFileInfo fileInfo) { }
 
     /// <summary>
-    /// The action to save the <see cref="IAutoCadDocument"/>. The underlying AutoCAD
+    /// The action to save the <see cref="IAutocadDocument"/>. The underlying AutoCAD
     /// document remains open.
     /// </summary>
     private void SaveDocument(IAutocadDocumentFileInfo fileInfo)
@@ -53,7 +53,7 @@ public class DocumentCloseAction : IDocumentCloseAction
     }
 
     /// <summary>
-    /// The action to save a close the <see cref="IAutoCadDocument"/> and the underlying
+    /// The action to save a close the <see cref="IAutocadDocument"/> and the underlying
     /// AutoCAD document.
     /// </summary>
     private void SaveAndCloseDocument(IAutocadDocumentFileInfo fileInfo)

@@ -6,7 +6,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="IObjectIdTagDatabaseManager"/>
 public class ObjectIdTagDatabaseManager : IObjectIdTagDatabaseManager
 {
-    private readonly IAutoCadDocument _autoCadDocument;
+    private readonly IAutocadDocument _autocadDocument;
 
     // A cache of ITagDatabase's for rapid access - lazily populated.
     private readonly Dictionary<string, IObjectIdTagDatabase> _tagDatabaseCache;
@@ -14,9 +14,9 @@ public class ObjectIdTagDatabaseManager : IObjectIdTagDatabaseManager
     /// <summary>
     /// Constructs a new <see cref="ObjectIdTagDatabaseManager"/>.
     /// </summary>
-    public ObjectIdTagDatabaseManager(IAutoCadDocument autoCadDocument)
+    public ObjectIdTagDatabaseManager(IAutocadDocument autocadDocument)
     {
-        _autoCadDocument = autoCadDocument;
+        _autocadDocument = autocadDocument;
 
         _tagDatabaseCache = new Dictionary<string, IObjectIdTagDatabase>();
     }
@@ -118,11 +118,11 @@ public class ObjectIdTagDatabaseManager : IObjectIdTagDatabaseManager
         if (_tagDatabaseCache.TryGetValue(key, out var tagDatabase))
             return tagDatabase;
 
-        tagDatabase = _autoCadDocument.Transaction(transactionManagerWrapper =>
+        tagDatabase = _autocadDocument.Transaction(transactionManagerWrapper =>
         {
             var transactionManager = transactionManagerWrapper.Unwrap();
 
-            using var namedObjectsDictionary = _autoCadDocument.Database.GetNamedObjectsDictionary();
+            using var namedObjectsDictionary = _autocadDocument.Database.GetNamedObjectsDictionary();
 
             if (namedObjectsDictionary.TryGetValue(key, out var objectId) == false) 
                 return new ObjectIdTagDatabase(key);
@@ -144,9 +144,9 @@ public class ObjectIdTagDatabaseManager : IObjectIdTagDatabaseManager
     /// <inheritdoc/>
     public void CommitAll()
     {
-        _ = _autoCadDocument.Transaction(transactionManagerWrapper =>
+        _ = _autocadDocument.Transaction(transactionManagerWrapper =>
         {
-            using var namedObjectsDictionary = _autoCadDocument.Database.GetNamedObjectsDictionary();
+            using var namedObjectsDictionary = _autocadDocument.Database.GetNamedObjectsDictionary();
             namedObjectsDictionary.UpgradeOpen();
 
             foreach (var tagDatabase in _tagDatabaseCache.Values)

@@ -12,7 +12,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <inheritdoc cref="IAutocadObjectPicker"/>
 public class AutocadObjectPicker : IAutocadObjectPicker
 {
-    private readonly IAutoCadDocument _document;
+    private readonly IAutocadDocument _document;
 
     /// <summary>
     /// Constructs a new <see cref="IAutocadObjectPicker"/> instance.

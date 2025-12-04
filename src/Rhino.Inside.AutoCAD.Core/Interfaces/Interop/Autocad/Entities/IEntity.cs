@@ -12,7 +12,7 @@ public interface IEntity : IDbObject
    // IBoundingBox3d BoundingBox { get; }
 
     /// <summary>
-    /// Returns the name of this <see cref="IEntity"/>'s host <see cref="ILayer"/>.
+    /// Returns the name of this <see cref="IEntity"/>'s host <see cref="IAutocadLayer"/>.
     /// </summary>
     string LayerName { get; }
 

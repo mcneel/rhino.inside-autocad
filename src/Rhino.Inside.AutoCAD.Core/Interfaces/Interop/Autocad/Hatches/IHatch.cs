@@ -2,7 +2,7 @@
 
 /// <summary>
 /// An interface which wraps a hatch entity from an AutoCAD
-/// <see cref="IAutoCadDocument"/>.
+/// <see cref="IAutocadDocument"/>.
 /// </summary>
 public interface IHatch : IEntity
 {

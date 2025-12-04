@@ -6,7 +6,7 @@ using System.Windows.Threading;
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <summary>
-/// The host <see cref="IAutoCadDocument"/> <see cref="ISatelliteService"/>.
+/// The host <see cref="IAutocadDocument"/> <see cref="ISatelliteService"/>.
 /// The application is attached to this object and persists for its lifetime.
 /// </summary>
 public class AutoCadInstance : IAutoCadInstance
@@ -38,9 +38,9 @@ public class AutoCadInstance : IAutoCadInstance
     //public IAutoCadDocument Document { get; }
 
     /// <inheritdoc/>
-    public List<IAutoCadDocument> Documents { get; }
+    public List<IAutocadDocument> Documents { get; }
 
-    public IAutoCadDocument? ActiveDocument => this.GetActiveDocument();
+    public IAutocadDocument? ActiveDocument => this.GetActiveDocument();
 
     /// <inheritdoc/>
     //public IObjectIdTagDatabaseManager TagDatabaseManager { get; }
@@ -59,14 +59,14 @@ public class AutoCadInstance : IAutoCadInstance
 
         // _activeDocument = _documentManager.MdiActiveDocument;
 
-        var documentFiles = new List<IAutoCadDocument>();
+        var documentFiles = new List<IAutocadDocument>();
         foreach (var documentObject in _documentManager)
         {
             if (documentObject is Document document == false) continue;
 
             var documentCloseAction = new DocumentCloseAction(document, _documentManager);
 
-            var documentFile = new AutocadDocumentFile(document, documentCloseAction, _dispatcher);
+            var documentFile = new AutocadDocument(document, documentCloseAction, _dispatcher);
 
             documentFile.OnUnitsChanged += this.DocumentUnitsChanged;
             document.BeginDocumentClose += this.OnDocumentClosing;
@@ -92,7 +92,7 @@ public class AutoCadInstance : IAutoCadInstance
     /// <summary>
     /// Returns the active document in the AutoCAD application.
     /// </summary>
-    private IAutoCadDocument? GetActiveDocument()
+    private IAutocadDocument? GetActiveDocument()
     {
         foreach (var autoCadDocument in this.Documents)
         {
@@ -128,7 +128,7 @@ public class AutoCadInstance : IAutoCadInstance
         {
             var documentCloseAction = new DocumentCloseAction(document, _documentManager!);
 
-            var documentFile = new AutocadDocumentFile(document, documentCloseAction, _dispatcher);
+            var documentFile = new AutocadDocument(document, documentCloseAction, _dispatcher);
 
             documentFile.OnUnitsChanged += this.DocumentUnitsChanged;
             document.BeginDocumentClose += this.OnDocumentClosing;
@@ -166,7 +166,7 @@ public class AutoCadInstance : IAutoCadInstance
     /// Validates this service by posting any known invalid states to the
     /// <see cref="ValidationLogger"/>.
     /// </summary>
-    private void Validate(List<IAutoCadDocument> autoCadDocuments)
+    private void Validate(List<IAutocadDocument> autoCadDocuments)
     {
         foreach (var autoCadDocument in autoCadDocuments)
         {

@@ -9,6 +9,5 @@ public interface IGrasshopperPreviewButtonManager
     /// <summary>
     /// Sets the preview mode button states based on the provided mode.
     /// </summary>
-    /// <param name="mode"></param>
     void SetPreviewMode(GrasshopperPreviewMode mode);
 }

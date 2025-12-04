@@ -42,6 +42,11 @@ public class ApplicationConstants
     ];
 
     /// <summary>
+    /// The name  of the Rhino.Inside tab in the AutoCad application ribbon.
+    /// </summary>
+    public const string RhinoInsideTabName = "Rhino.Inside";
+
+    /// <summary>
     /// The size of small icons used in the AutoCad application ribbon and UI.
     /// </summary>
     public const int SmallIconSize = 16;

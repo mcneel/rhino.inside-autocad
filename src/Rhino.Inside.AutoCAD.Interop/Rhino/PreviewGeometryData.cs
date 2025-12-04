@@ -17,18 +17,7 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
     /// <inheritdoc />
     public List<Point3d> Points { get; }
 
-    /// <summary>
-    /// Constructs a new empty <see cref="IGrasshopperPreviewData"/> instance.
-    /// </summary>
-    public GrasshopperPreviewData()
-    {
-        this.Wires = new List<Rhino.Geometry.Curve>();
-        this.Meshes = new List<Rhino.Geometry.Mesh>();
-        this.Points = new List<Rhino.Geometry.Point3d>();
-    }
-
-    /// <inheritdoc />
-    public List<IEntity> GetEntities()
+    public List<IEntity> GetWireframeEntities()
     {
         var entities = new List<IEntity>();
 
@@ -52,6 +41,13 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
             entities.Add(entity);
         }
 
+        return entities;
+    }
+
+    public List<IEntity> GetShadedEntities()
+    {
+        var entities = new List<IEntity>();
+
         foreach (var mesh in this.Meshes)
         {
             var cadMesh = _geometryConverter.ToAutoCadType(mesh);
@@ -62,5 +58,15 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
         }
 
         return entities;
+    }
+
+    /// <summary>
+    /// Constructs a new empty <see cref="IGrasshopperPreviewData"/> instance.
+    /// </summary>
+    public GrasshopperPreviewData()
+    {
+        this.Wires = new List<Rhino.Geometry.Curve>();
+        this.Meshes = new List<Rhino.Geometry.Mesh>();
+        this.Points = new List<Rhino.Geometry.Point3d>();
     }
 }

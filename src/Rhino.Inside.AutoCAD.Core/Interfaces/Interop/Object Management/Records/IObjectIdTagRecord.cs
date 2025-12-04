@@ -58,7 +58,7 @@ public interface IObjectIdTagRecord : IEnumerable<IObjectIdTag>
 
     /// <summary>
     /// Returns the list of registered <see cref="IObjectIdTag"/>s that are stored in the
-    /// active <see cref="IAutoCadDocument"/>.
+    /// active <see cref="IAutocadDocument"/>.
     /// </summary>
     IList<IObjectIdTag> GetRegisteredTags();
 }

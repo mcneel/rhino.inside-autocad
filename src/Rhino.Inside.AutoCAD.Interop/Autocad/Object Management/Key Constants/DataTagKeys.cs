@@ -18,7 +18,7 @@ public class DataTagKeys
 
     #region IDocument Keys
     /// <summary>
-    /// The <see cref="IAutoCadDocument.Id"/> key for extended data.
+    /// The <see cref="IAutocadDocument.Id"/> key for extended data.
     /// </summary>
     public const GroupCodeValue DocumentIdKey = GroupCodeValue._1000;
     #endregion
@@ -272,39 +272,39 @@ public class DataTagKeys
     /// <summary>
     /// The <see cref="IDataTag"/> key used to store the <see cref=
     /// "ISheet.Type"/> of the created <see cref="ISheet"/> within the
-    /// active <see cref= "IAutoCadDocument"/>.
+    /// active <see cref= "IAutocadDocument"/>.
     /// </summary>
     public const GroupCodeValue SheetType = GroupCodeValue._3;
 
     /// <summary>
     /// The <see cref="IDataTag"/> key used to store the <see cref= "ISheetContentName.Name"/>
-    /// of the created <see cref="ISheetContent"/> within the active <see cref= "IAutoCadDocument"/>.
+    /// of the created <see cref="ISheetContent"/> within the active <see cref= "IAutocadDocument"/>.
     /// </summary>
     public const GroupCodeValue SheetContentName = GroupCodeValue._4;
 
     /// <summary>
     /// The <see cref="IDataTag"/> key used to store the <see cref= "ISheetContentName.Title"/>
-    /// of the created <see cref="ISheetContent"/> within the active <see cref= "IAutoCadDocument"/>.
+    /// of the created <see cref="ISheetContent"/> within the active <see cref= "IAutocadDocument"/>.
     /// </summary>
     public const GroupCodeValue SheetContentTitle = GroupCodeValue._5;
 
     /// <summary>
     /// The <see cref="IDataTag"/> key used to store the <see cref= "ISheetContent.Type"/>
-    /// of the created <see cref="ISheetContent"/> within the active <see cref= "IAutoCadDocument"/>.
+    /// of the created <see cref="ISheetContent"/> within the active <see cref= "IAutocadDocument"/>.
     /// </summary>
     public const GroupCodeValue SheetContentType = GroupCodeValue._410;
 
     /// <summary>
     /// The <see cref="IDataTag"/> key for storing a <see cref="IModelSpaceCrop.Min"/>
     /// of the <see cref= "ISheetContent"/> that's related to, within the active
-    /// <see cref= "IAutoCadDocument"/>.
+    /// <see cref= "IAutocadDocument"/>.
     /// </summary>
     public const GroupCodeValue ModelSpaceCropMin = GroupCodeValue._12;
 
     /// <summary>
     /// The <see cref="IDataTag"/> key for storing a <see cref="IModelSpaceCrop.Max"/>
     /// of the <see cref= "ISheetContent"/> that's related to, within the active
-    /// <see cref= "IAutoCadDocument"/>.
+    /// <see cref= "IAutocadDocument"/>.
     /// </summary>
     public const GroupCodeValue ModelSpaceCropMax = GroupCodeValue._13;
 

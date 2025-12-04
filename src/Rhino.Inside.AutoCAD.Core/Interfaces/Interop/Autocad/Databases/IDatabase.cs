@@ -6,6 +6,11 @@
 public interface IDatabase : IDisposable
 {
     /// <summary>
+    /// Returns the BlockTableId of this <see cref="IDatabase"/>.
+    /// </summary>
+    IObjectId BlockTableId { get; }
+
+    /// <summary>
     /// Returns an <see cref="IObjectId"/> from the <see cref="IDatabase"/> using
     /// the provided <paramref name="id"/>. If the id does not exist, or if the id
     /// has been erased <paramref name="isValid"/> is set to false otherwise it is
@@ -18,7 +23,7 @@ public interface IDatabase : IDisposable
     /// </summary>
     INamedObjectsDictionary GetNamedObjectsDictionary();
 
-    /// <summary>
+    /// <summary>+
     /// Returns the <see cref="IObjectId"/> of the ByLayer line type (style).
     /// </summary>
     IObjectId ByLayerLineTypeId { get; }

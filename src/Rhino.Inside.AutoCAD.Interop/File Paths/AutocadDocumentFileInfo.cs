@@ -3,54 +3,42 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
-/// <summary>
-/// Provides file directory and paths of a <see cref="IAutoCadDocument"/> file.
-/// </summary>
+/// <inheritdoc cref="IAutocadDocumentFileInfo"/>
 public class AutocadDocumentFileInfo : IAutocadDocumentFileInfo
 {
-    private readonly string _resourcesFolderName = InteropConstants.ResourcesFolderName;
+    private readonly Document _document;
 
     /// <summary>
     /// Returns a unique hashcode ID based on the <see cref="FilePath"/>. This ensures
-    /// the hash is always reliable regardless of whether the <see cref="IAutoCadDocument"/> is
+    /// the hash is always reliable regardless of whether the <see cref="IAutocadDocument"/> is
     /// closed and reopened since the <see cref="FilePath"/> is always unique.
     /// </summary>
     public Guid UniqueId { get; }
 
-    /// <summary>
-    /// The file name of the <see cref="IAutoCadDocument"/>.
-    /// </summary>
+    /// <inheritdoc />
     public string FileName { get; }
 
-    /// <summary>
-    /// The file path of the <see cref="IAutoCadDocument"/>.
-    /// </summary>
+    /// <inheritdoc />
     public string FilePath { get; }
 
-    /// <summary>
-    /// The root directory where the <see cref="IAutoCadDocument"/> is saved.
-    /// </summary>
+    /// <inheritdoc />
     public string RootDirectory { get; }
 
-    /// <summary>
-    /// The directory to the resources folder where project-specific resources
-    /// are stored.
-    /// </summary>
-    public string ResourceDirectory { get; }
+    /// <inheritdoc />
+    public bool IsActive => _document.IsActive;
+
+    /// <inheritdoc />
+    public bool IsReadOnly => _document.IsReadOnly;
 
     /// <summary>
     /// Constructs a new <see cref="AutocadDocumentFileInfo"/>.
     /// </summary>
     public AutocadDocumentFileInfo(Document document, Guid id)
     {
+        _document = document;
         var filePath = document.Database.Filename;
 
         var rootDirectory = File.Exists(filePath) ? Path.GetDirectoryName(filePath) : string.Empty;
-
-        var resourceDirectory = $"{rootDirectory}\\{_resourcesFolderName}\\";
-
-        if (Directory.Exists(resourceDirectory) == false)
-            Directory.CreateDirectory(resourceDirectory);
 
         this.UniqueId = id;
 
@@ -59,7 +47,5 @@ public class AutocadDocumentFileInfo : IAutocadDocumentFileInfo
         this.FilePath = filePath;
 
         this.RootDirectory = rootDirectory!;
-
-        this.ResourceDirectory = resourceDirectory;
     }
 }

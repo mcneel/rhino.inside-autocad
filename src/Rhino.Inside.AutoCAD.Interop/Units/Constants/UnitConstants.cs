@@ -8,10 +8,10 @@ namespace Rhino.Inside.AutoCAD.Interop;
 internal sealed class UnitConstants
 {
     /// <summary>
-    /// Units conversion table organized with a key of the <see cref="IAutoCadDocument.UnitSystem"/>
+    /// Units conversion table organized with a key of the <see cref="IAutocadDocument.UnitSystem"/>
     /// units system and value of a dictionary with a key of the
     /// <see cref="IUnitSystemManager.RhinoUnits"/> units system and corresponding conversion
-    /// factor. E.g. <see cref="IAutoCadDocument.UnitSystem"/> = Ft and <see cref="Internal"/>
+    /// factor. E.g. <see cref="IAutocadDocument.UnitSystem"/> = Ft and <see cref="Internal"/>
     /// units = mm, so the units conversion factor is 304.8.
     /// </summary>
     internal static Dictionary<UnitSystem, Dictionary<UnitSystem, double>> LengthConversionFactors = new()

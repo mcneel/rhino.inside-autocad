@@ -1,7 +1,7 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// The host <see cref="IAutoCadDocument"/> <see cref="ISatelliteService"/>.
+/// The host <see cref="IAutocadDocument"/> <see cref="ISatelliteService"/>.
 /// The application is attached to this object and persists for its lifetime.
 /// </summary>
 public interface IAutoCadInstance
@@ -17,7 +17,7 @@ public interface IAutoCadInstance
     event EventHandler? OnUnitsChanged;
 
     /// <summary>
-    /// Event raised when the <see cref="IAutoCadDocument"/> begins closing , or when the
+    /// Event raised when the <see cref="IAutocadDocument"/> begins closing , or when the
     /// user changes the active document. If either event occurs, the application will
     /// close.
     /// </summary>
@@ -63,10 +63,10 @@ public interface IAutoCadInstance
     /// </summary>
   //  IDataTagDatabaseManager? DataTagDatabaseManager { get; }
 
-    List<IAutoCadDocument> Documents { get; }
+    List<IAutocadDocument> Documents { get; }
 
     /// <summary>
-    /// The current active <see cref="IAutoCadDocument"/> in the AutoCAD application.
+    /// The current active <see cref="IAutocadDocument"/> in the AutoCAD application.
     /// </summary>
-    IAutoCadDocument? ActiveDocument { get; }
+    IAutocadDocument? ActiveDocument { get; }
 }

@@ -17,24 +17,15 @@ public class GrasshopperPreviewButtonManager : IGrasshopperPreviewButtonManager
     private const string _wireframeButtonSelected = ApplicationConstants.WireframeButtonSelected;
 
     /// <summary>
-    /// Unselects the button with the given ID by replacing its icon with the unselected image.
+    /// Updates the button with the given ID by replacing its icon with the new image.
     /// </summary>
-    private void UnselectButton(string buttonId, string unselectedImagePath)
+    private void UpdateButton(string buttonId, string unselectedImagePath)
     {
         var buttonReplacer = new ButtonIconReplacer(buttonId);
 
         buttonReplacer.Replace(unselectedImagePath);
     }
 
-    /// <summary>
-    /// Selects the button with the given ID by replacing its icon with the selected image.
-    /// </summary>
-    private void SelectButton(string buttonId, string selectedImagePath)
-    {
-        var buttonReplacer = new ButtonIconReplacer(buttonId);
-
-        buttonReplacer.Replace(selectedImagePath);
-    }
 
     /// <inheritdoc/>
     public void SetPreviewMode(GrasshopperPreviewMode mode)
@@ -42,19 +33,19 @@ public class GrasshopperPreviewButtonManager : IGrasshopperPreviewButtonManager
         switch (mode)
         {
             case GrasshopperPreviewMode.Off:
-                this.SelectButton(_offButtonId, _offButtonSelected);
-                this.UnselectButton(_shadedButtonId, _shadedButtonUnselected);
-                this.UnselectButton(_wireframeButtonId, _wireframeButtonUnselected);
+                this.UpdateButton(_offButtonId, _offButtonSelected);
+                this.UpdateButton(_shadedButtonId, _shadedButtonUnselected);
+                this.UpdateButton(_wireframeButtonId, _wireframeButtonUnselected);
                 break;
             case GrasshopperPreviewMode.Shaded:
-                this.UnselectButton(_offButtonId, _offButtonUnselected);
-                this.SelectButton(_shadedButtonId, _shadedButtonSelected);
-                this.UnselectButton(_wireframeButtonId, _wireframeButtonUnselected);
+                this.UpdateButton(_offButtonId, _offButtonUnselected);
+                this.UpdateButton(_shadedButtonId, _shadedButtonSelected);
+                this.UpdateButton(_wireframeButtonId, _wireframeButtonUnselected);
                 break;
             case GrasshopperPreviewMode.Wireframe:
-                this.UnselectButton(_offButtonId, _offButtonUnselected);
-                this.UnselectButton(_shadedButtonId, _shadedButtonUnselected);
-                this.SelectButton(_wireframeButtonId, _wireframeButtonSelected);
+                this.UpdateButton(_offButtonId, _offButtonUnselected);
+                this.UpdateButton(_shadedButtonId, _shadedButtonUnselected);
+                this.UpdateButton(_wireframeButtonId, _wireframeButtonSelected);
                 break;
         }
     }

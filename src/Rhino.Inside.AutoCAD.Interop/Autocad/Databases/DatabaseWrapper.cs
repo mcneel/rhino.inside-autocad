@@ -10,6 +10,9 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class DatabaseWrapper : WrapperDisposableBase<Database>, IDatabase
 {
     /// <inheritdoc/>
+    public IObjectId BlockTableId { get; }
+
+    /// <inheritdoc/>
     public IObjectId ByLayerLineTypeId { get; }
 
     /// <summary>
@@ -18,6 +21,8 @@ public class DatabaseWrapper : WrapperDisposableBase<Database>, IDatabase
     /// </summary>
     public DatabaseWrapper(Database database) : base(database)
     {
+        this.BlockTableId = new ObjectId(database.BlockTableId);
+
         this.ByLayerLineTypeId = new ObjectId(database.ByLayerLinetype);
     }
 

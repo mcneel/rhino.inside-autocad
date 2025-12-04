@@ -13,16 +13,16 @@ public class GroupObjectEraser : IObjectEraser
     private readonly RXObject _groupRxClass;
 
     /// <inheritdoc />
-    public IAutoCadDocument AutoCadDocument { get; }
+    public IAutocadDocument AutocadDocument { get; }
 
     /// <summary>
     /// Constructs a new <see cref="GenericObjectEraser"/>.
     /// </summary>
-    public GroupObjectEraser(IAutoCadDocument autoCadDocument)
+    public GroupObjectEraser(IAutocadDocument autocadDocument)
     {
         _groupRxClass = RXObject.GetClass(typeof(CadGroup));
 
-        this.AutoCadDocument = autoCadDocument;
+        this.AutocadDocument = autocadDocument;
     }
 
     /// <inheritdoc />

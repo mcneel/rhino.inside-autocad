@@ -156,6 +156,8 @@ public class RhinoInsideAutoCadCommands
 
         var rhinoInsideManager = application!.RhinoInsideManager;
 
+        if (rhinoInsideManager.RhinoInstance.ActiveDoc == null) return;
+
         var grasshopperInstance = rhinoInsideManager.GrasshopperInstance;
 
         grasshopperInstance.RecomputeSolution();
@@ -167,6 +169,8 @@ public class RhinoInsideAutoCadCommands
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoInsideManager = application!.RhinoInsideManager;
+
+        if (rhinoInsideManager.RhinoInstance.ActiveDoc == null) return;
 
         var grasshopperInstance = rhinoInsideManager.GrasshopperInstance;
 

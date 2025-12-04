@@ -1,33 +1,37 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// Provides file directory and paths of a <see cref="IAutoCadDocument"/> file.
+/// Provides file directory and paths of a <see cref="IAutocadDocument"/> file.
 /// </summary>
 public interface IAutocadDocumentFileInfo
 {
     /// <summary>
-    /// Returns the <see cref="IAutoCadDocument.Id"/>.
+    /// Returns the <see cref="IAutocadDocument.Id"/>.
     /// </summary>
     Guid UniqueId { get; }
 
     /// <summary>
-    /// The file name of the <see cref="IAutoCadDocument"/>.
+    /// The file name of the <see cref="IAutocadDocument"/>.
     /// </summary>
     string FileName { get; }
 
     /// <summary>
-    /// The file path of the <see cref="IAutoCadDocument"/>.
+    /// The file path of the <see cref="IAutocadDocument"/>.
     /// </summary>
     string FilePath { get; }
 
     /// <summary>
-    /// The root directory where the <see cref="IAutoCadDocument"/> is saved.
+    /// The root directory where the <see cref="IAutocadDocument"/> is saved.
     /// </summary>
     string RootDirectory { get; }
 
     /// <summary>
-    /// The directory to the resources folder where project-specific resources
-    /// are stored.
+    /// Returns whether the <see cref="IAutocadDocument"/> is currently active.
     /// </summary>
-    string ResourceDirectory { get; }
+    bool IsActive { get; }
+
+    /// <summary>
+    /// Returns whether the <see cref="IAutocadDocument"/> is read-only.
+    /// </summary>
+    bool IsReadOnly { get; }
 }

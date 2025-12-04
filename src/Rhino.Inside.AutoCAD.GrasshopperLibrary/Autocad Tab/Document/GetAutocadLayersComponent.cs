@@ -1,0 +1,57 @@
+using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Interop;
+
+namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
+
+/// <summary>
+/// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
+/// </summary>
+public class GetAutocadLayersComponent : GH_Component
+{
+    /// <inheritdoc />
+    public override Guid ComponentGuid => new("41c4ed14-3a97-4812-94bc-4950bca8be7d");
+
+    /// <inheritdoc />
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.GetAutocadLayersComponent;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
+    /// </summary>
+    public GetAutocadLayersComponent()
+        : base("GetAutoCadLayers", "GetLayers",
+            "Returns the list of all the AutoCAD layer in the document",
+            "AutoCAD", "Document")
+    {
+    }
+
+    /// <inheritdoc />
+    protected override void RegisterInputParams(GH_InputParamManager pManager)
+    {
+        pManager.AddParameter(new Param_AutocadDocument(GH_ParamAccess.item), "Document",
+            "Doc", "An AutoCAD Document", GH_ParamAccess.item);
+    }
+
+    /// <inheritdoc />
+    protected override void RegisterOutputParams(GH_OutputParamManager pManager)
+    {
+        pManager.AddParameter(new Param_AutocadLayer(GH_ParamAccess.list), "Layers", "Layers", "The AutoCAD Layers",
+            GH_ParamAccess.list);
+    }
+
+    /// <inheritdoc />
+    protected override void SolveInstance(IGH_DataAccess DA)
+    {
+        AutocadDocument? autocadDocument = null;
+
+        if (!DA.GetData(0, ref autocadDocument)
+            || autocadDocument is null) return;
+
+        var layers = autocadDocument.LayerRepository;
+
+        var gooLayers = layers
+            .Select(layer => new GH_AutocadLayer(layer))
+            .ToList();
+
+        DA.SetDataList(0, gooLayers);
+    }
+}

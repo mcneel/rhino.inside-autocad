@@ -18,15 +18,15 @@ public class ObjectId : WrapperBase<CadObjectId>, IObjectId
     /// <remarks>
     /// This value corresponds to the <see cref="Handle.Value"/> of the
     /// encapsulated <see cref="Autodesk.AutoCAD.DatabaseServices.ObjectId"/>.
-    /// This value is persistent even if the <see cref="IAutoCadDocument"/> is closed.
+    /// This value is persistent even if the <see cref="IAutocadDocument"/> is closed.
     /// </remarks>
     public long Value { get; }
 
-    /// <summary>
-    /// Returns true if the <see cref="ObjectId"/> is valid, otherwise
-    /// returns false.
-    /// </summary>
+    /// <inheritdoc/>
     public bool IsValid => _wrappedValue.IsNull == false && _wrappedValue.Equals(_nullId) == false;
+
+    /// <inheritdoc/>
+    public bool IsErased => _wrappedValue.IsErased;
 
     /// <summary>
     /// Constructs a default/invalid <see cref="ObjectId"/>.
@@ -42,5 +42,14 @@ public class ObjectId : WrapperBase<CadObjectId>, IObjectId
     public ObjectId(CadObjectId id) : base(id)
     {
         this.Value = id.Handle.Value;
+
+    }
+
+    /// <summary>
+    /// Creates a shallow clone of the <see cref="ObjectId"/>.
+    /// </summary>
+    public IObjectId ShallowClone()
+    {
+        return new ObjectId(_wrappedValue);
     }
 }

@@ -9,7 +9,7 @@ public class PreviewServer : IPreviewServer
 {
     private readonly int _subDrawingMode = 0;
     private readonly IntegerCollection _emptyInterCollection = [];
-    private readonly TransientDrawingMode _transientDrawingMode = TransientDrawingMode.Contrast;
+    private readonly TransientDrawingMode _transientDrawingMode = TransientDrawingMode.Main;
 
     /// <inheritdoc/>
     public IObjectRegister ObjectRegister { get; }

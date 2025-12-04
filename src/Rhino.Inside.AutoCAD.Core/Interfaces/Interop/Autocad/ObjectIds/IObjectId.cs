@@ -15,4 +15,15 @@ public interface IObjectId
     /// returns false.
     /// </summary>
     bool IsValid { get; }
+
+    /// <summary>
+    /// Returns true if the <see cref="IObjectId"/> is erased, otherwise
+    /// returns false.
+    /// </summary>
+    bool IsErased { get; }
+
+    /// <summary>
+    /// Creates a shallow clone of the <see cref="IObjectId"/>.
+    /// </summary>
+    IObjectId ShallowClone();
 }

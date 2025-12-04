@@ -25,20 +25,8 @@ public class GrasshopperInstance : IGrasshopperInstance
     public GH_Document? ActiveDoc { get; private set; }
 
     /// <inheritdoc />
-    public bool IsEnabled
-    {
-        get
-        {
-            if (this.ActiveDoc != null)
-            {
-                return Grasshopper.Kernel.GH_Document.EnableSolutions;
-            }
-            else
-            {
-                return true;
-            }
-        }
-    }
+    public bool IsEnabled => Grasshopper.Kernel.GH_Document.EnableSolutions;
+
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GrasshopperInstance"/> class.

@@ -18,12 +18,12 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public static class InteropConverter
 {
     /// <summary>
-    /// Unwraps the <see cref="IAutoCadDocument"/> to the underlying AutoCAD
+    /// Unwraps the <see cref="IAutocadDocument"/> to the underlying AutoCAD
     /// <see cref="Document"/> object.
     /// </summary>
-    public static Document Unwrap(this IAutoCadDocument autoCadDocument)
+    public static Document Unwrap(this IAutocadDocument autocadDocument)
     {
-        var documentWrapper = (WrapperBase<Document>)autoCadDocument;
+        var documentWrapper = (WrapperBase<Document>)autocadDocument;
 
         return documentWrapper.Internal;
     }
@@ -60,9 +60,9 @@ public static class InteropConverter
     }
 
     /// <summary>
-    /// Unwraps the <see cref="ILayer"/> and returns the <see cref="CadLayer"/>.
+    /// Unwraps the <see cref="IAutocadLayer"/> and returns the <see cref="CadLayer"/>.
     /// </summary>
-    public static CadLayer Unwrap(this ILayer layer)
+    public static CadLayer Unwrap(this IAutocadLayer layer)
     {
         var layerWrapper = (WrapperDisposableBase<CadLayer>)layer;
 
@@ -156,9 +156,9 @@ public static class InteropConverter
     /// Unwraps the <see cref="INamedObjectsDictionary"/> and returns the
     /// <see cref="DBDictionary"/>.
     /// </summary>
-    public static LinetypeTableRecord Unwrap(this ILinePattern linePattern)
+    public static LinetypeTableRecord Unwrap(this IAutocadLinePattern autocadLinePattern)
     {
-        var lineTypeTableRecord = (WrapperDisposableBase<LinetypeTableRecord>)linePattern;
+        var lineTypeTableRecord = (WrapperDisposableBase<LinetypeTableRecord>)autocadLinePattern;
 
         return lineTypeTableRecord.Internal;
     }

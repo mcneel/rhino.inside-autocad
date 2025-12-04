@@ -16,6 +16,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Include="Autocad Tab\Document\AutocadLayerInfo.cs" />
+	  <None Include="Types\Goo\Document\GH_AutocadLayer.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="NaturalSort.Extension" />
 		<PackageReference Include="MaterialDesignThemes" />
 		<PackageReference Include="RhinoCommon">
