@@ -1,4 +1,5 @@
-﻿using Grasshopper.Kernel.Types;
+﻿using Autodesk.AutoCAD.DatabaseServices;
+using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 
@@ -7,8 +8,11 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD layers.
 /// </summary>
-public class GH_AutocadLayer : GH_Goo<AutocadLayerWrapper>
+public class GH_AutocadLayer : GH_Goo<AutocadLayerWrapper>, IGH_AutocadReference
 {
+    /// <inheritdoc />
+    public IObjectId Id => this.Value.Id;
+
     /// <inheritdoc />
     public override bool IsValid => this.Value != null;
 
@@ -74,6 +78,22 @@ public class GH_AutocadLayer : GH_Goo<AutocadLayerWrapper>
         {
             this.Value = layer;
             return true;
+        }
+
+        if (source is GH_AutocadObject objectGoo
+            && objectGoo.Value.Unwrap() is LayerTableRecord layerFromObjectGoo)
+        {
+            this.Value = new AutocadLayerWrapper(layerFromObjectGoo);
+            return true;
+
+        }
+
+        if (source is DbObjectWrapper dbObject
+            && dbObject.Unwrap() is LayerTableRecord layerFromObject)
+        {
+            this.Value = new AutocadLayerWrapper(layerFromObject);
+            return true;
+
         }
 
         return false;

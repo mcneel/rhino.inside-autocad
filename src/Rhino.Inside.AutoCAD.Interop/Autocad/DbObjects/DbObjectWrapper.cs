@@ -4,7 +4,7 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <inheritdoc cref="IDbObject"/>
-public class DbObject : WrapperDisposableBase<DBObject>, IDbObject
+public class DbObjectWrapper : WrapperDisposableBase<DBObject>, IDbObject
 {
     ///<inheritdoc />
     public IObjectId Id => this.GetObjectId();
@@ -13,9 +13,9 @@ public class DbObject : WrapperDisposableBase<DBObject>, IDbObject
     public bool IsValid => this.Validate();
 
     /// <summary>
-    /// Constructs a new <see cref="DbObject"/>.
+    /// Constructs a new <see cref="DbObjectWrapper"/>.
     /// </summary>
-    public DbObject(DBObject value) : base(value) { }
+    public DbObjectWrapper(DBObject value) : base(value) { }
 
     /// <summary>
     /// Returns the current <see cref="IObjectId"/> of the <see cref="IDbObject"/>. In 
@@ -24,15 +24,23 @@ public class DbObject : WrapperDisposableBase<DBObject>, IDbObject
     /// </summary>
     private IObjectId GetObjectId()
     {
-        return new ObjectId(_wrappedValue.Id);
+        return new AutocadObjectId(_wrappedValue.Id);
     }
 
     /// <summary>
     /// Validates the <see cref="IDbObject"/>. The <see cref="IDbObject"/> is valid if 
-    /// the <see cref="ObjectId"/> is not null, valid and not erased.
+    /// the <see cref="AutocadObjectId"/> is not null, valid and not erased.
     /// </summary>
     protected virtual bool Validate()
     {
         return _wrappedValue.Id is { IsNull: false, IsValid: true, IsErased: false };
+    }
+
+    /// <summary>
+    /// Creates a shallow clone of the <see cref="DbObjectWrapper"/>.
+    /// </summary>
+    public IDbObject ShallowClone()
+    {
+        return new DbObjectWrapper(_wrappedValue);
     }
 }

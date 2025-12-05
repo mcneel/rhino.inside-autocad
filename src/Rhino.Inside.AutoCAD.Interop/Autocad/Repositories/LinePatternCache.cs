@@ -1,5 +1,4 @@
-﻿using Autodesk.AutoCAD.ApplicationServices;
-using Autodesk.AutoCAD.DatabaseServices;
+﻿using Autodesk.AutoCAD.DatabaseServices;
 using Autofac.Util;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
@@ -16,7 +15,7 @@ public class LinePatternCache : Disposable, ILinePatternCache
     /// <summary>
     /// Constructs a new <see cref="LinePatternCache"/>.
     /// </summary>
-    public LinePatternCache(Document document)
+    public LinePatternCache(IAutocadDocument document)
     {
         _linePatterns = this.CreateCache(document);
 
@@ -30,31 +29,39 @@ public class LinePatternCache : Disposable, ILinePatternCache
     /// Populates this <see cref="ILinePatternCache"/> with <see cref="IAutocadLinePattern"/>s
     /// from the active <see cref="IAutocadDocument"/>.
     /// </summary>
-    private Dictionary<IObjectId, IAutocadLinePattern> CreateCache(Document document)
+    private Dictionary<IObjectId, IAutocadLinePattern> CreateCache(IAutocadDocument document)
     {
-        using var database = document.Database;
 
-        using var transactionManager = database.TransactionManager;
-
-        using var transaction = transactionManager.StartTransaction();
-
-        var lineTypeTableId = database.LinetypeTableId;
-
-        using var lineTypeTable = (LinetypeTable)transactionManager.GetObject(lineTypeTableId, OpenMode.ForRead)!;
-
-        var linePatterns = new Dictionary<IObjectId, IAutocadLinePattern>(new ObjectIdEqualityComparer());
-        foreach (var lineTypeRecordId in lineTypeTable)
+        return document.Transaction((transactionManagerWrapper) =>
         {
-            using var linetypeTableRecord = (LinetypeTableRecord)transactionManager.GetObject(lineTypeRecordId, OpenMode.ForRead)!;
+            using var database = document.Database;
 
-            var linePattern = new AutocadLinePattern(linetypeTableRecord);
+            var transactionManager = transactionManagerWrapper.Unwrap();
 
-            linePatterns.Add(linePattern.Id, linePattern);
-        }
+            var lineTypeTableId = database.LinetypeTableId;
 
-        transaction.Commit();
+            using var lineTypeTable =
+                (LinetypeTable)transactionManager.GetObject(lineTypeTableId.Unwrap(),
+                    OpenMode.ForRead)!;
 
-        return linePatterns;
+            var linePatterns =
+                new Dictionary<IObjectId, IAutocadLinePattern>(
+                    new ObjectIdEqualityComparer());
+            foreach (var lineTypeRecordId in lineTypeTable)
+            {
+                using var linetypeTableRecord =
+                    (LinetypeTableRecord)transactionManager.GetObject(lineTypeRecordId,
+                        OpenMode.ForRead)!;
+
+                var linePattern = new AutocadLinePattern(linetypeTableRecord);
+
+                linePatterns.Add(linePattern.Id, linePattern);
+            }
+
+            return linePatterns;
+
+        });
+
     }
 
     /// <inheritdoc/>

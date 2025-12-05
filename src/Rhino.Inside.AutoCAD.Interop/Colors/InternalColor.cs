@@ -3,7 +3,7 @@
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <inheritdoc cref="IColor"/>
-public class Color : IColor
+public class InternalColor : IColor
 {
     /// <inheritdoc/>
     public byte Red { get; }
@@ -18,9 +18,9 @@ public class Color : IColor
     public byte Alpha { get; }
 
     /// <summary>
-    /// Constructs a new <see cref="Color"/>.
+    /// Constructs a new <see cref="InternalColor"/>.
     /// </summary>
-    public Color(byte red, byte green, byte blue, byte alpha = 255)
+    public InternalColor(byte red, byte green, byte blue, byte alpha = 255)
     {
         this.Red = red;
 
@@ -32,10 +32,10 @@ public class Color : IColor
     }
 
     /// <summary>
-    /// Constructs a new <see cref="Color"/> from <see cref=
+    /// Constructs a new <see cref="InternalColor"/> from <see cref=
     /// "Autodesk.AutoCAD.Colors.Color"/>.
     /// </summary>
-    public Color(Autodesk.AutoCAD.Colors.Color color)
+    public InternalColor(Autodesk.AutoCAD.Colors.Color color)
     {
         this.Red = color.Red;
 
@@ -45,9 +45,9 @@ public class Color : IColor
     }
 
     /// <summary>
-    /// Constructs a new <see cref="Color"/> from <see cref="System.Drawing.Color"/>.
+    /// Constructs a new <see cref="InternalColor"/> from <see cref="System.Drawing.Color"/>.
     /// </summary>
-    public Color(System.Drawing.Color color)
+    public InternalColor(System.Drawing.Color color)
     {
         this.Red = color.R;
 

@@ -17,7 +17,6 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     private readonly DwgVersion _dwgVersion = DwgVersion.Current;
 
     private readonly Document _document;
-    private readonly Database _database;
 
     private readonly IDocumentCloseAction _documentCloseAction;
     private readonly Dispatcher _dispatcher;
@@ -32,13 +31,13 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     /// peculiar behavior such as losing visibility of all entities in the active
     /// viewport.
     /// </summary>
-    private bool _documentChanged;
+    private IAutocadDocumentChange _documentChange;
+
+    /// <inheritdoc/>
+    public event EventHandler<IAutocadDocumentChangeEventArgs>? DocumentChanged;
 
     /// <inheritdoc/>
     public event EventHandler? OnUnitsChanged;
-
-    /// <inheritdoc/>
-    public event EventHandler? DocumentChanged;
 
     /// <inheritdoc/>
     public Guid Id { get; }
@@ -50,30 +49,7 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     public IAutocadDocumentFileInfo FileInfo { get; }
 
     /// <inheritdoc/>
-    public ILinePatternCache LinePatternCache { get; }
-
-    /// <inheritdoc/>
     public ILayerRepository LayerRepository { get; }
-
-
-
-    /// <inheritdoc/>
-    public ILayoutRepository LayoutRepository { get; }
-
-    /// <inheritdoc/>
-    /*    public IBlockTableRecordRepository BlockTableRecordRepository { get; }
-
-     /// <inheritdoc/>
-     public IPlotSettingsRepository PlotSettingsRepository { get; }
-
-     /// <inheritdoc/>
-     public IDimensionStyleTableRecordRepository DimensionStyleTableRecordRepository { get; }
-
-     /// <inheritdoc/>
-     public ILeaderStyleObjectRepository LeaderStyleObjectRepository { get; }
-
-     /// <inheritdoc/>
-     public ITextStyleTableRecordRepository TextStyleTableRecordRepository { get; }*/
 
     /// <inheritdoc/>
     public UnitSystem UnitSystem { get; private set; }
@@ -90,50 +66,36 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     {
         _document = document;
 
-        _database = document.Database;
+        var database = document.Database;
 
         _dispatcher = dispatcher;
 
         _document.CommandEnded += this.OnDocumentCommandEnded;
         _document.CommandCancelled += this.OnDocumentCommandEnded;
 
-        _database.ObjectAppended += this.OnDatabaseObjectAppended;
-        _database.ObjectModified += this.OnDatabaseObjectModified;
-        _database.ObjectErased += this.OnDatabaseObjectErased;
+        database.ObjectAppended += this.OnDatabaseObjectAppended;
+        database.ObjectModified += this.OnDatabaseObjectModified;
+        database.ObjectErased += this.OnDatabaseObjectErased;
 
         _documentCloseAction = documentCloseAction;
 
         var id = this.RegisterApplication(document);
 
-        var documentUnits = _database.Insunits.ToUnitSystem();
+        var documentUnits = database.Insunits.ToUnitSystem();
 
-        var database = new DatabaseWrapper(_database);
-
-        var linePatternCache = new LinePatternCache(document);
+        var databaseWrapper = new DatabaseWrapper(database);
 
         this.Id = id;
 
-        this.Database = database;
+        this.Database = databaseWrapper;
 
         this.FileInfo = new AutocadDocumentFileInfo(document, id);
 
-        this.LinePatternCache = linePatternCache;
-
-        this.LayerRepository = new LayerRepository(this, linePatternCache);
-
-        this.LayoutRepository = new LayoutRepository(this);
-
-        /*   this.BlockTableRecordRepository = new BlockTableRecordRepository(document);
-
-         this.PlotSettingsRepository = new PlotSettingsRepository(document);
-
-         this.DimensionStyleTableRecordRepository = new DimensionStyleTableRecordRepository(document);
-
-         this.TextStyleTableRecordRepository = new TextStyleTableRecordRepository(document);
-
-         this.LeaderStyleObjectRepository = new LeaderStyleObjectRepository(document);*/
-
         this.UnitSystem = documentUnits;
+
+        this.LayerRepository = new LayerRepository(document);
+
+        _documentChange = new AutocadDocumentChange(this);
     }
 
     /// <summary>
@@ -166,7 +128,7 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
 
         using var transaction = transactionManager.StartTransaction();
 
-        var blockModelSpaceId = SymbolUtilityServices.GetBlockModelSpaceId(_database);
+        var blockModelSpaceId = SymbolUtilityServices.GetBlockModelSpaceId(database);
 
         using var modelSpace = (BlockTableRecord)blockModelSpaceId.GetObject(OpenMode.ForRead);
 
@@ -236,7 +198,7 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
 
     /// <summary>
     /// Event handler which fires when a command is ended or cancelled. If the
-    /// <see cref="_documentChanged"/> flag is true, <see cref="DocumentChanged"/>
+    /// <see cref="_documentChange"/> flag is true, <see cref="DocumentChanged"/>
     /// is invoked and the flag is set back to false ready for any future changes.
     /// </summary>
     /// <remarks>
@@ -252,43 +214,59 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
         if (Enum.GetNames(typeof(ButtonApplicationId)).Any(appId => e.GlobalCommandName.Contains(appId)))
             return;
 
-        if (_documentChanged)
-        {
-            _documentChanged = false;
+        this.CheckUnits();
 
+        if (_documentChange.HasChanges)
+        {
             this.OnDocumentChanged(EventArgs.Empty);
+
+            _documentChange = new AutocadDocumentChange(this);
         }
     }
 
-    private void OnDatabaseObjectModified(object sender, ObjectEventArgs e)
+    /// <summary>
+    /// Checks the document units against the stored units to see if they have changed.
+    /// If they have, the <see cref="OnUnitsChanged"/> event is invoked.
+    /// </summary>
+    private void CheckUnits()
     {
-        _documentChanged = true;
+        var database = _document.Database;
 
-        var documentUnits = _database.Insunits.ToUnitSystem();
+        var documentUnits = database.Insunits.ToUnitSystem();
 
         if (this.UnitSystem != documentUnits)
         {
             OnUnitsChanged?.Invoke(this, EventArgs.Empty);
             this.UnitSystem = documentUnits;
         }
+        _documentChange.AddChange(ChangeType.UnitsChanged);
     }
 
     /// <summary>
-    /// Event handler which fires when an object is appended or modified in the database.
-    /// Sets the <see cref="_documentChanged"/> to true. 
+    /// Event handler which fires when an object is modified in the database.
+    /// Sets the <see cref="_documentChange"/> to true. 
+    /// </summary>
+    private void OnDatabaseObjectModified(object sender, ObjectEventArgs e)
+    {
+        _documentChange?.AddObjectChange(ChangeType.ObjectModified, new DbObjectWrapper(e.DBObject));
+    }
+
+    /// <summary>
+    /// Event handler which fires when an object is appended  in the database.
+    /// Sets the <see cref="_documentChange"/> to true. 
     /// </summary>
     private void OnDatabaseObjectAppended(object sender, ObjectEventArgs e)
     {
-        _documentChanged = true;
+        _documentChange?.AddObjectChange(ChangeType.ObjectCreated, new DbObjectWrapper(e.DBObject));
     }
 
     /// <summary>
     /// Event handler which fires when an object is erased from the database.
-    /// Sets the <see cref="_documentChanged"/> to true. 
+    /// Sets the <see cref="_documentChange"/> to true. 
     /// </summary>
     private void OnDatabaseObjectErased(object sender, ObjectErasedEventArgs e)
     {
-        _documentChanged = true;
+        _documentChange?.AddObjectChange(ChangeType.ObjectCreated, new DbObjectWrapper(e.DBObject));
     }
 
     /// <summary>
@@ -308,7 +286,9 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     {
         using var documentLock = _document.LockDocument();
 
-        using var transactionManagerWrapper = new TransactionManagerWrapper(_database);
+        var database = _document.Database;
+
+        using var transactionManagerWrapper = new TransactionManagerWrapper(database);
 
         using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
 
@@ -346,7 +326,9 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     /// </summary>
     protected virtual void OnDocumentChanged(EventArgs e)
     {
-        DocumentChanged?.Invoke(this, e);
+        var eventArgs = new AutocadDocumentChangeEventArgs(_documentChange);
+
+        DocumentChanged?.Invoke(this, eventArgs);
     }
 
     /// <inheritdoc/>
@@ -356,30 +338,39 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     }
 
     /// <inheritdoc/>
+    public IDbObject GetObjectById(IObjectId objectId)
+    {
+        return this.Transaction((transactionManagerWrapper) =>
+        {
+            var cadObjectId = objectId.Unwrap();
+
+            var transactionManager = transactionManagerWrapper.Unwrap();
+
+            var dbObject = transactionManager.GetObject(cadObjectId, OpenMode.ForRead);
+
+            return new DbObjectWrapper(dbObject);
+        });
+    }
+
+    /// <inheritdoc/>
     public void Close()
     {
         _document.CommandEnded -= this.OnDocumentCommandEnded;
         _document.CommandCancelled -= this.OnDocumentCommandEnded;
-        _database.ObjectAppended -= this.OnDatabaseObjectAppended;
-        _database.ObjectModified -= this.OnDatabaseObjectModified;
-        _database.ObjectErased -= this.OnDatabaseObjectErased;
+        var database = _document.Database;
+        database.ObjectAppended -= this.OnDatabaseObjectAppended;
+        database.ObjectModified -= this.OnDatabaseObjectModified;
+        database.ObjectErased -= this.OnDatabaseObjectErased;
 
         _documentCloseAction.Invoke(this.FileInfo);
 
         this.Database.Dispose();
+        this.LayerRepository?.Dispose();
 
-        this.LinePatternCache.Dispose();
-
-        this.LayerRepository.Dispose();
-        this.LayoutRepository.Dispose();
-        /** this.BlockTableRecordRepository.Dispose();
-        this.PlotSettingsRepository.Dispose();
-        this.DimensionStyleTableRecordRepository.Dispose();
-        this.LeaderStyleObjectRepository.Dispose();
-        this.TextStyleTableRecordRepository.Dispose();*/
         if (_document.IsDisposed)
             return;
 
         _documentCloseAction.Invoke(this.FileInfo);
     }
 }
+

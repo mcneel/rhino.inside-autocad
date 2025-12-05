@@ -4,7 +4,7 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <inheritdoc cref="IBlockReference"/>
-public class BlockReferenceWrapper : Entity, IBlockReference
+public class BlockReferenceWrapper : EntityWrapper, IBlockReference
 {
     private readonly BlockReference _blockReference;
 

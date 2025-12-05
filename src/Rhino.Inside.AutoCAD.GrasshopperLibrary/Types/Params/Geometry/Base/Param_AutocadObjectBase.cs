@@ -11,8 +11,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// </summary>
 /// <typeparam name="TGoo">The Grasshopper Goo type that wraps the AutoCAD entity.</typeparam>
 /// <typeparam name="TEntity">The AutoCAD entity type.</typeparam>
-public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentParam<TGoo>
-    where TGoo : class, IGH_Goo
+public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentParam<TGoo>, IReferenceParam
+    where TGoo : class, IGH_Goo, IGH_AutocadReference
     where TEntity : CadEntity
 {
     /// <summary>
@@ -97,4 +97,16 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentPara
 
         return GH_GetterResult.success;
     }
+
+    public bool NeedsToBeExpired(IAutocadDocumentChange change)
+    {
+        foreach (TGoo autocadId in m_data.AllData(true).OfType<TGoo>())
+        {
+            if (change.DoesAffectObject(autocadId.Id))
+                return true;
+        }
+
+        return false;
+    }
 }
+

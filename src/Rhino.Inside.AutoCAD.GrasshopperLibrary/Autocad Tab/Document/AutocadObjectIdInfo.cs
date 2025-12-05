@@ -1,5 +1,4 @@
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -50,7 +49,7 @@ public class AutocadObjectIdInfo : GH_Component
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        ObjectId? objectId = null;
+        AutocadObjectId? objectId = null;
 
         if (!DA.GetData(0, ref objectId)
             || objectId is null) return;

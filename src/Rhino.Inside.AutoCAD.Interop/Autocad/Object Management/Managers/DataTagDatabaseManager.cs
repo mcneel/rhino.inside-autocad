@@ -44,7 +44,7 @@ public class DataTagDatabaseManager : IDataTagDatabaseManager
         {
             var modelSpace = transactionManager.GetModelSpaceBlockTableRecord();
 
-            var dbObject = new DbObject(modelSpace.Unwrap());
+            var dbObject = new DbObjectWrapper(modelSpace.Unwrap());
 
             var dataTagDatabase = new ProjectWideDataTagDatabase(dbObject);
 

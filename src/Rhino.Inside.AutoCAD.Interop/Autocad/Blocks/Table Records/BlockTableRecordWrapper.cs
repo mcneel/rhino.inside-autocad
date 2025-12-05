@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <remarks>
 /// Block table records are located in the <see cref="IBlockTableRecordRepository"/>
 /// </remarks>
-public class BlockTableRecordWrapper : DbObject, IBlockTableRecord
+public class BlockTableRecordWrapper : DbObjectWrapper, IBlockTableRecord
 {
     private readonly BlockTableRecord _blockTableRecord;
 

@@ -27,7 +27,7 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
 
             var dbPoint = new Autodesk.AutoCAD.DatabaseServices.DBPoint(point3d);
 
-            var entity = new Entity(dbPoint);
+            var entity = new EntityWrapper(dbPoint);
 
             entities.Add(entity);
         }
@@ -36,7 +36,7 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
         {
             var cadCurve = _geometryConverter.ToAutoCadSingleCurve(curve);
 
-            var entity = new Entity(cadCurve);
+            var entity = new EntityWrapper(cadCurve);
 
             entities.Add(entity);
         }
@@ -52,7 +52,7 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
         {
             var cadMesh = _geometryConverter.ToAutoCadType(mesh);
 
-            var entity = new Entity(cadMesh);
+            var entity = new EntityWrapper(cadMesh);
 
             entities.Add(entity);
         }

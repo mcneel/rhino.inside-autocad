@@ -1,6 +1,7 @@
 ﻿using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using AutocadCurve = Autodesk.AutoCAD.DatabaseServices.Curve;
 using RhinoCurve = Rhino.Geometry.Curve;
@@ -10,9 +11,12 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD curves.
 /// </summary>
-public class GH_AutocadCurve : GH_GeometricGoo<AutocadCurve>, IGH_PreviewData
+public class GH_AutocadCurve : GH_GeometricGoo<AutocadCurve>, IGH_PreviewData, IGH_AutocadReference
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
+
+    /// <inheritdoc />
+    public IObjectId Id => new AutocadObjectId(this.Value.Id);
 
     /// <summary>
     /// Gets the Rhino geometry equivalent of the AutoCAD curve.

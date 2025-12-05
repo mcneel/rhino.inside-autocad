@@ -4,7 +4,7 @@ using CadDimensionStyleTableRecord = Autodesk.AutoCAD.DatabaseServices.DimStyleT
 namespace Rhino.Inside.AutoCAD.Interop;
 
 ///<inheritdoc cref="IDimensionStyleTableRecord"/>
-public class DimensionStyleTableRecord : DbObject, IDimensionStyleTableRecord
+public class DimensionStyleTableRecord : DbObjectWrapper, IDimensionStyleTableRecord
 {
     ///<inheritdoc/>
     public string Name { get; }

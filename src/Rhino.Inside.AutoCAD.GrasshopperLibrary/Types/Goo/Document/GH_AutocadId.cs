@@ -7,13 +7,17 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD ObjectIds.
 /// </summary>
-public class GH_AutocadId : GH_Goo<ObjectId>
+public class GH_AutocadId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
 {
+
+    /// <inheritdoc />
+    public IObjectId Id => this.Value;
+
     /// <inheritdoc />
     public override bool IsValid => this.Value != null && this.Value.IsValid;
 
     /// <inheritdoc />
-    public override string TypeName => nameof(ObjectId);
+    public override string TypeName => nameof(AutocadObjectId);
 
     /// <inheritdoc />
     public override string TypeDescription => "Represents an AutoCAD ObjectId";
@@ -30,7 +34,7 @@ public class GH_AutocadId : GH_Goo<ObjectId>
     /// specified AutoCAD ObjectId.
     /// </summary>
     /// <param name="objectId">The AutoCAD ObjectId to wrap.</param>
-    public GH_AutocadId(ObjectId objectId) : base(objectId)
+    public GH_AutocadId(AutocadObjectId objectId) : base(objectId)
     {
     }
 
@@ -48,7 +52,7 @@ public class GH_AutocadId : GH_Goo<ObjectId>
     /// Constructs a new <see cref="IObjectId"/> via the interface.
     /// </summary>
     public GH_AutocadId(IObjectId objectId)
-        : base((objectId as ObjectId)!)
+        : base((objectId as AutocadObjectId)!)
     {
 
     }
@@ -70,7 +74,7 @@ public class GH_AutocadId : GH_Goo<ObjectId>
             return true;
         }
 
-        if (source is ObjectId objectId)
+        if (source is AutocadObjectId objectId)
         {
             this.Value = objectId;
             return true;
@@ -82,7 +86,7 @@ public class GH_AutocadId : GH_Goo<ObjectId>
     /// <inheritdoc />
     public override bool CastTo<Q>(ref Q target)
     {
-        if (typeof(Q).IsAssignableFrom(typeof(ObjectId)))
+        if (typeof(Q).IsAssignableFrom(typeof(AutocadObjectId)))
         {
             target = (Q)(object)this.Value;
             return true;

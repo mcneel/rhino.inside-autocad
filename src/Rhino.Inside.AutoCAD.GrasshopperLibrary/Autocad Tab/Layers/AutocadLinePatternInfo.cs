@@ -20,7 +20,7 @@ public class AutocadLinePatternInfo : GH_Component
     public AutocadLinePatternInfo()
         : base("AutoCadLinePatternInfo", "LinePatternInfo",
             "Gets Information from an AutoCAD Line Pattern",
-            "AutoCAD", "Document")
+            "AutoCAD", "Layers")
     {
     }
 
@@ -39,7 +39,6 @@ public class AutocadLinePatternInfo : GH_Component
 
         pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "Id", "Id",
             "The Id of the AutoCAD Line Pattern.", GH_ParamAccess.item);
-
 
     }
 

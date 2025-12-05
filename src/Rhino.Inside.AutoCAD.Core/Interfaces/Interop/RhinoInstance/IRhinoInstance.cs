@@ -15,22 +15,22 @@ public interface IRhinoInstance
     /// <summary>
     /// Event raised when a Rhino document changed, e.g. a new document is opened.
     /// </summary>
-    event EventHandler? OnDocumentCreated;
+    event EventHandler? DocumentCreated;
 
     /// <summary>
     /// Event raised when the Rhino unit system is changed.
     /// </summary>
-    event EventHandler? OnUnitChanged;
+    event EventHandler? UnitsChanged;
 
     /// <summary>
     /// Event raised when a Rhino object is modified or appended.
     /// </summary>
-    event EventHandler<IRhinoObjectModifiedEventArgs>? OnObjectModifiedOrAppended;
+    event EventHandler<IRhinoObjectModifiedEventArgs>? ObjectModifiedOrAppended;
 
     /// <summary>
     /// Event raised when a Rhino object is removed.
     /// </summary>
-    event EventHandler<IRhinoObjectModifiedEventArgs>? OnObjectRemoved;
+    event EventHandler<IRhinoObjectModifiedEventArgs>? ObjectRemoved;
 
     /// <summary>
     /// The instance of the Rhino core extension.

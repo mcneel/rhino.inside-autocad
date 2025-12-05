@@ -22,7 +22,7 @@ public interface IAutocadDocument
     /// press "Enter", the command completes successfully and this event will be
     /// triggered.
     /// </remarks>
-    event EventHandler? DocumentChanged;
+    event EventHandler<IAutocadDocumentChangeEventArgs>? DocumentChanged;
 
     /// <summary>
     /// Event raised when the units of the Autocad document change.
@@ -41,47 +41,48 @@ public interface IAutocadDocument
     IAutocadDocumentFileInfo FileInfo { get; }
 
     /// <summary>
-    /// The <see cref="ILinePatternCache"/> of this <see cref="IAutocadDocument"/>.
-    /// </summary>
-    ILinePatternCache LinePatternCache { get; }
-
-    /// <summary>
     /// The <see cref="ILayerRepository"/> of this <see cref="IAutocadDocument"/>.
     /// </summary>
     ILayerRepository LayerRepository { get; }
 
-    /// <summary>
-    /// The <see cref="ILayoutRepository"/> of this <see cref="IAutocadDocument"/>.
-    /// </summary>
-    ILayoutRepository LayoutRepository { get; }
-    /*
-   /// <summary>
-   /// The <see cref="IBlockTableRecordRepository"/> of this <see cref="IAutocadDocument"/>.
-   /// </summary>
-   IBlockTableRecordRepository BlockTableRecordRepository { get; }
+    /*/// <summary>
+  /// The <see cref="ILinePatternCache"/> of this <see cref="IAutocadDocument"/>.
+  /// </summary>
+  ILinePatternCache LinePatternCache { get; }
 
-   /// <summary>
-   /// The <see cref="IPlotSettingsRepository"/> of this <see cref="IAutocadDocument"/>.
-   /// </summary>
-   IPlotSettingsRepository PlotSettingsRepository { get; }
 
-   /// <summary>
-   /// The <see cref="IDimensionStyleTableRecordRepository"/> of this <see
-   /// cref="IAutocadDocument"/>.
-   /// </summary>
-   IDimensionStyleTableRecordRepository DimensionStyleTableRecordRepository { get; }
+  /// <summary>
+  /// The <see cref="ILayoutRepository"/> of this <see cref="IAutocadDocument"/>.
+  /// </summary>
+  ILayoutRepository LayoutRepository { get; }
 
-   /// <summary>
-   /// The <see cref="ILeaderStyleObjectRepository"/> of this <see cref=
-   /// "IAutocadDocument"/>.
-   /// </summary>
-   ILeaderStyleObjectRepository LeaderStyleObjectRepository { get; }
+ /// <summary>
+ /// The <see cref="IBlockTableRecordRepository"/> of this <see cref="IAutocadDocument"/>.
+ /// </summary>
+ IBlockTableRecordRepository BlockTableRecordRepository { get; }
 
-   /// <summary>
-   /// The <see cref="ITextStyleTableRecordRepository"/> of this <see cref=
-   /// "IDocument"/>.
-   /// </summary>
-   ITextStyleTableRecordRepository TextStyleTableRecordRepository { get; }*/
+ /// <summary>
+ /// The <see cref="IPlotSettingsRepository"/> of this <see cref="IAutocadDocument"/>.
+ /// </summary>
+ IPlotSettingsRepository PlotSettingsRepository { get; }
+
+ /// <summary>
+ /// The <see cref="IDimensionStyleTableRecordRepository"/> of this <see
+ /// cref="IAutocadDocument"/>.
+ /// </summary>
+ IDimensionStyleTableRecordRepository DimensionStyleTableRecordRepository { get; }
+
+ /// <summary>
+ /// The <see cref="ILeaderStyleObjectRepository"/> of this <see cref=
+ /// "IAutocadDocument"/>.
+ /// </summary>
+ ILeaderStyleObjectRepository LeaderStyleObjectRepository { get; }
+
+ /// <summary>
+ /// The <see cref="ITextStyleTableRecordRepository"/> of this <see cref=
+ /// "IDocument"/>.
+ /// </summary>
+ ITextStyleTableRecordRepository TextStyleTableRecordRepository { get; }*/
 
     /// <summary>
     /// The <see cref="UnitSystem"/> of this <see cref="IAutocadDocument"/>.
@@ -116,6 +117,11 @@ public interface IAutocadDocument
     /// the same underlying autocad document but is inside a new wrapper.
     /// </summary>
     IAutocadDocument ShallowClone();
+
+    /// <summary>
+    /// Gets the <see cref="IDbObject"/> by its <see cref="IObjectId"/>.
+    /// </summary>
+    IDbObject GetObjectById(IObjectId objectId);
 
     /// <summary>
     /// Shuts down this <see cref="IAutocadDocument"/> instance. This method ensures that

@@ -49,7 +49,7 @@ public class InternalColorConverter
     /// </summary>
     public IColor Convert(CadColor color)
     {
-        return new Color(color);
+        return new InternalColor(color);
     }
 
     /// <summary>
@@ -57,6 +57,6 @@ public class InternalColorConverter
     /// </summary>
     public IColor Convert(SystemColor color)
     {
-        return new Color(color);
+        return new InternalColor(color);
     }
 }

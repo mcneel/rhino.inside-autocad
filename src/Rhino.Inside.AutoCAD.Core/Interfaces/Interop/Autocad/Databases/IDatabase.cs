@@ -11,6 +11,11 @@ public interface IDatabase : IDisposable
     IObjectId BlockTableId { get; }
 
     /// <summary>
+    /// Returns the LinetypeTableId of this <see cref="IDatabase"/>.
+    /// </summary>
+    IObjectId LinetypeTableId { get; }
+
+    /// <summary>
     /// Returns an <see cref="IObjectId"/> from the <see cref="IDatabase"/> using
     /// the provided <paramref name="id"/>. If the id does not exist, or if the id
     /// has been erased <paramref name="isValid"/> is set to false otherwise it is

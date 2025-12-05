@@ -13,6 +13,12 @@ public interface ILayerRepository : IRepository<IAutocadLayer>, IEnumerable<IAut
     event EventHandler<ILayerAddedEventArgs>? LayerAdded;
 
     /// <summary>
+    /// Layer Table modified event handler. This event is raised when the layer table
+    /// is modified.
+    /// </summary>
+    event EventHandler? LayerTableModified;
+
+    /// <summary>
     /// Check if the given <paramref name="layer"/> exists in the
     /// <see cref="ILayerRepository"/>. Returns true if the
     /// <paramref name="layer"/> is found, false otherwise.
@@ -24,7 +30,7 @@ public interface ILayerRepository : IRepository<IAutocadLayer>, IEnumerable<IAut
     /// and creates it in the active document. If the <see cref="IAutocadLayer"/> already exists
     /// no change is made.
     /// </summary>
-    void TryAddLayer(IColor color, string name);
+    bool TryAddLayer(IColor color, string name, out IAutocadLayer layer);
 
     /// <summary>
     /// Returns the default layer 0 from AutoCAD.

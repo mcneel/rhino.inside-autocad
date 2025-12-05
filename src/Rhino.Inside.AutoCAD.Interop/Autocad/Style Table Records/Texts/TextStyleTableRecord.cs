@@ -4,7 +4,7 @@ using CadTextStyleTableRecord = Autodesk.AutoCAD.DatabaseServices.TextStyleTable
 namespace Rhino.Inside.AutoCAD.Interop;
 
 ///<inheritdoc cref="ITextStyleTableRecord"/>
-public class TextStyleTableRecord : DbObject, ITextStyleTableRecord
+public class TextStyleTableRecord : DbObjectWrapper, ITextStyleTableRecord
 {
     ///<inheritdoc />
     public string Name { get; }

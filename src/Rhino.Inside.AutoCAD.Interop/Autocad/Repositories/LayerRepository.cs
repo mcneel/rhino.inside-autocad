@@ -1,4 +1,5 @@
-﻿using Autodesk.AutoCAD.DatabaseServices;
+﻿using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.DatabaseServices;
 using NaturalSort.Extension;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Services;
@@ -16,24 +17,34 @@ public class LayerRepository : Disposable, ILayerRepository
     private readonly string _defaultLayerName = InteropConstants.DefaultLayerName;
     private readonly SortedDictionary<string, IAutocadLayer> _layers;
 
-    private readonly IAutocadDocument _document;
-    private readonly ILinePatternCache _linePatternCache;
+    //  private readonly IAutocadDocument _document;
+    private readonly Document _document;
 
     /// <inheritdoc/>
     public event EventHandler<ILayerAddedEventArgs>? LayerAdded;
 
+    /// <inheritdoc/>
+    public event EventHandler? LayerTableModified;
+
     /// <summary>
     /// Constructs a new <see cref="LayerRepository"/>.
     /// </summary>
-    public LayerRepository(IAutocadDocument document, ILinePatternCache linePatternCache)
+    public LayerRepository(IAutocadDocument document) : this(document.Unwrap())
+    {
+    }
+
+    /// <summary>
+    /// Constructs a new <see cref="LayerRepository"/>.
+    /// </summary>
+    public LayerRepository(Document document)
     {
         _document = document;
-
-        _linePatternCache = linePatternCache;
 
         var comparer = StringComparison.OrdinalIgnoreCase.WithNaturalSort();
 
         _layers = new SortedDictionary<string, IAutocadLayer>(comparer);
+
+        this.SubscribeToModifyEvent();
 
         this.Populate();
     }
@@ -43,34 +54,75 @@ public class LayerRepository : Disposable, ILayerRepository
     /// </summary>
     private IAutocadLayer CreateLayer(IColor color, string name)
     {
-        var layer = _document.Transaction(transactionManagerWrapper =>
+        using var documentLock = _document.LockDocument();
+
+        var database = _document.Database;
+
+        using var transactionManager = database.TransactionManager;
+
+        using var transaction = transactionManager.StartTransaction();
+
+        var layerTableRecord = new LayerTableRecord
         {
-            var transactionManager = transactionManagerWrapper.Unwrap();
+            Name = name,
+            Color = _internalColorConverter.ToCadColor(color)
+        };
 
-            var database = _document.Database.Unwrap();
+        using var layerTable = (LayerTable)transactionManager.GetObject(database.LayerTableId, OpenMode.ForWrite);
 
-            var layerTableRecord = new LayerTableRecord
-            {
-                Name = name,
-                Color = _internalColorConverter.ToCadColor(color)
-            };
+        layerTable.Add(layerTableRecord);
 
-            using var layerTable = (LayerTable)transactionManager.GetObject(database.LayerTableId, OpenMode.ForWrite);
+        transactionManager.AddNewlyCreatedDBObject(layerTableRecord, true);
 
-            layerTable.Add(layerTableRecord);
+        var layerWrapper = new AutocadLayerWrapper(layerTableRecord);
 
-            transactionManager.AddNewlyCreatedDBObject(layerTableRecord, true);
+        transaction.Commit();
 
-            var linePatternId = new ObjectId(layerTableRecord.LinetypeObjectId);
+        return layerWrapper;
 
-            var linePattern = _linePatternCache.GetById(linePatternId);
+    }
 
-            var layerWrapper = new AutocadLayerWrapper(layerTableRecord, linePattern);
+    /// <summary>
+    /// Handles the LayerTable Modified event.
+    /// </summary>
+    private void LayerTable_Modified(object sender, EventArgs e)
+    {
+        this.Populate();
+        LayerTableModified?.Invoke(this, EventArgs.Empty);
+    }
 
-            return layerWrapper;
-        });
+    private void SubscribeToModifyEvent()
+    {
+        using var documentLock = _document.LockDocument();
 
-        return layer;
+        var database = _document.Database;
+
+        using var transactionManager = database.TransactionManager;
+
+        using var transaction = transactionManager.StartTransaction();
+
+        using var layerTable = (LayerTable)transactionManager.GetObject(database.LayerTableId, OpenMode.ForRead);
+
+        layerTable.Modified += this.LayerTable_Modified;
+
+        transaction.Commit();
+    }
+
+    private void UnsubscribeToModifyEvent()
+    {
+        using var documentLock = _document.LockDocument();
+
+        var database = _document.Database;
+
+        using var transactionManager = database.TransactionManager;
+
+        using var transaction = transactionManager.StartTransaction();
+
+        using var layerTable = (LayerTable)transactionManager.GetObject(database.LayerTableId, OpenMode.ForRead);
+
+        layerTable.Modified -= this.LayerTable_Modified;
+
+        transaction.Commit();
     }
 
     /// <summary>
@@ -81,31 +133,28 @@ public class LayerRepository : Disposable, ILayerRepository
     {
         _layers.Clear();
 
-        _ = _document.Transaction(transactionManagerWrapper =>
+        using var documentLock = _document.LockDocument();
+
+        var database = _document.Database;
+
+        using var transactionManager = database.TransactionManager;
+
+        using var transaction = transactionManager.StartTransaction();
+
+        using var layerTable = (LayerTable)transactionManager.GetObject(database.LayerTableId, OpenMode.ForRead);
+
+        foreach (var layerId in layerTable)
         {
-            var transactionManager = transactionManagerWrapper.Unwrap();
+            var cadLayer = (LayerTableRecord)transactionManager.GetObject(layerId, OpenMode.ForRead);
 
-            var database = _document.Database.Unwrap();
+            var layer = new AutocadLayerWrapper(cadLayer);
 
-            using var layerTable = (LayerTable)transactionManager.GetObject(database.LayerTableId, OpenMode.ForRead);
+            var layerName = layer.Name;
+            if (_layers.ContainsKey(layerName) == false)
+                _layers[layerName] = layer;
+        }
 
-            foreach (var layerId in layerTable)
-            {
-                var cadLayer = (LayerTableRecord)transactionManager.GetObject(layerId, OpenMode.ForRead);
-
-                var linePatternId = new ObjectId(cadLayer.LinetypeObjectId);
-
-                var linePattern = _linePatternCache.GetById(linePatternId);
-
-                var layer = new AutocadLayerWrapper(cadLayer, linePattern);
-
-                var layerName = layer.Name;
-                if (_layers.ContainsKey(layerName) == false)
-                    _layers[layerName] = layer;
-            }
-
-            return true;
-        });
+        transaction.Commit();
     }
 
     /// <inheritdoc/>
@@ -129,18 +178,23 @@ public class LayerRepository : Disposable, ILayerRepository
     }
 
     /// <inheritdoc/>
-    public void TryAddLayer(IColor color, string name)
+    public bool TryAddLayer(IColor color, string name, out IAutocadLayer layer)
     {
         if (_layers.ContainsKey(name) == false)
         {
-            var layer = this.CreateLayer(color, name);
+            layer = this.CreateLayer(color, name);
 
             _layers[layer.Name] = layer;
 
             var layerAddedEventArgs = new LayerAddedEventArgs(layer);
 
             LayerAdded?.Invoke(this, layerAddedEventArgs);
+
+            return true;
         }
+
+        layer = this.GetDefault();
+        return false;
     }
 
     /// <inheritdoc/>
@@ -190,6 +244,9 @@ public class LayerRepository : Disposable, ILayerRepository
 
         if (disposing)
         {
+
+            this.UnsubscribeToModifyEvent();
+
             foreach (var layer in _layers.Values)
                 layer.Dispose();
 

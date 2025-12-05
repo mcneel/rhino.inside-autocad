@@ -17,9 +17,9 @@ public interface IAutocadLayer : IDisposable
     IObjectId Id { get; }
 
     /// <summary>
-    /// The <see cref="IAutocadLinePattern"/> assigned to the <see cref="IAutocadLayer"/>.
+    /// The <see cref="IObjectId"/> of the line pattern for this layer.
     /// </summary>
-    IAutocadLinePattern AutocadLinePattern { get; }
+    IObjectId LinePattenId { get; }
 
     /// <summary>
     /// The name of the <see cref="IAutocadLayer"/>.
@@ -40,6 +40,11 @@ public interface IAutocadLayer : IDisposable
     /// <see cref="IEntity"/>s within it, making them as read-only.
     /// </remarks>
     bool IsLocked { get; }
+
+    /// <summary>
+    /// Returns the <see cref="IAutocadLinePattern"/> assigned to the <see cref="IAutocadLayer"/>.
+    /// </summary>
+    IAutocadLinePattern GetLinePattern(ILinePatternCache linePatternCache);
 
     /// <summary>
     /// Creates a shallow clone of the <see cref="IAutocadLayer"/>.

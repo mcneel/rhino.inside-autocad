@@ -1,3 +1,4 @@
+using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
@@ -74,6 +75,22 @@ public class GH_AutocadLinePattern : GH_Goo<AutocadLinePattern>
         {
             this.Value = linePattern;
             return true;
+        }
+
+        if (source is GH_AutocadObject objectGoo
+            && objectGoo.Value.Unwrap() is LinetypeTableRecord lineTypeFromObjectGoo)
+        {
+            this.Value = new AutocadLinePattern(lineTypeFromObjectGoo);
+            return true;
+
+        }
+
+        if (source is DbObjectWrapper dbObject
+            && dbObject.Unwrap() is LinetypeTableRecord lineTypeFromObject)
+        {
+            this.Value = new AutocadLinePattern(lineTypeFromObject);
+            return true;
+
         }
 
         return false;

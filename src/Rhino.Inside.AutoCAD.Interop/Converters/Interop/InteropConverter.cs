@@ -40,7 +40,7 @@ public static class InteropConverter
     }
 
     /// <summary>
-    /// Unwraps the <see cref="IObjectId"/> and returns the <see cref="ObjectId"/>.
+    /// Unwraps the <see cref="IObjectId"/> and returns the <see cref="AutocadObjectId"/>.
     /// </summary>
     public static CadObjectId Unwrap(this IObjectId objectId)
     {
@@ -50,7 +50,7 @@ public static class InteropConverter
     }
 
     /// <summary>
-    /// Unwraps the <see cref="IDbObject"/> and returns the <see cref="Rhino.Inside.AutoCAD.Interop.DbObject"/>.
+    /// Unwraps the <see cref="IDbObject"/> and returns the <see cref="DbObjectWrapper"/>.
     /// </summary>
     public static CadDbObject Unwrap(this IDbObject dbObject)
     {

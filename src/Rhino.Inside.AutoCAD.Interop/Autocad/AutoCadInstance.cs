@@ -1,4 +1,5 @@
 ﻿using Autodesk.AutoCAD.ApplicationServices;
+using Rhino.Inside.AutoCAD.Core;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Services;
 using System.Windows.Threading;
@@ -13,7 +14,7 @@ public class AutoCadInstance : IAutoCadInstance
 {
     private readonly Dispatcher _dispatcher;
 
-    private DocumentCollection? _documentManager;
+    private readonly DocumentCollection? _documentManager;
     //  private Document? _activeDocument;
 
     private readonly string _unsavedNotSupported = MessageConstants.UnsavedNotSupported;
@@ -23,10 +24,13 @@ public class AutoCadInstance : IAutoCadInstance
     private bool _documentClosing;
 
     /// <inheritdoc/>
-    public event EventHandler? OnDocumentCreated;
+    public event EventHandler? DocumentCreated;
 
     /// <inheritdoc/>
-    public event EventHandler? OnUnitsChanged;
+    public event EventHandler? UnitsChanged;
+
+    /// <inheritdoc/>
+    public event EventHandler<IAutocadDocumentChangeEventArgs>? DocumentChanged;
 
     /// <inheritdoc/>
     public event EventHandler? DocumentClosingOrActivated;
@@ -35,29 +39,19 @@ public class AutoCadInstance : IAutoCadInstance
     public IValidationLogger ValidationLogger { get; }
 
     /// <inheritdoc/>
-    //public IAutoCadDocument Document { get; }
-
-    /// <inheritdoc/>
     public List<IAutocadDocument> Documents { get; }
 
+    /// <inheritdoc/>
     public IAutocadDocument? ActiveDocument => this.GetActiveDocument();
 
-    /// <inheritdoc/>
-    //public IObjectIdTagDatabaseManager TagDatabaseManager { get; }
-
-    /// <inheritdoc/>
-    //public IDataTagDatabaseManager DataTagDatabaseManager { get; }
-
     /// <summary>
-    /// Constructs a new <see cref="InteropService"/>.
+    /// Constructs a new <see cref="IAutoCadInstance"/>.
     /// </summary>
     public AutoCadInstance(Dispatcher dispatcher)
     {
         _dispatcher = dispatcher;
 
         _documentManager = Application.DocumentManager;
-
-        // _activeDocument = _documentManager.MdiActiveDocument;
 
         var documentFiles = new List<IAutocadDocument>();
         foreach (var documentObject in _documentManager)
@@ -68,25 +62,53 @@ public class AutoCadInstance : IAutoCadInstance
 
             var documentFile = new AutocadDocument(document, documentCloseAction, _dispatcher);
 
-            documentFile.OnUnitsChanged += this.DocumentUnitsChanged;
-            document.BeginDocumentClose += this.OnDocumentClosing;
+            this.SubscribeToDocumentEvents(documentFile);
 
             documentFiles.Add(documentFile);
         }
 
         _documentManager.DocumentActivated += this.OnDocumentActivated;
 
-        //  this.Document = document;
-
-        //  this.TagDatabaseManager = new ObjectIdTagDatabaseManager(document);
-
-        // this.DataTagDatabaseManager = new DataTagDatabaseManager(document);
-
         this.Documents = documentFiles;
 
         this.ValidationLogger = new ValidationLogger();
 
         this.Validate(documentFiles);
+    }
+
+    /// <summary>
+    /// Subscribes to the relevant document events.
+    /// </summary>
+    private void SubscribeToDocumentEvents(IAutocadDocument autocadDocument)
+    {
+        var document = autocadDocument.Unwrap();
+        document.BeginDocumentClose += this.OnDocumentClosing;
+        autocadDocument.DocumentChanged += this.OnDocumentChanged;
+    }
+
+    /// <summary>
+    /// Unsubscribes to the relevant document events.
+    /// </summary>
+    private void UnsubscribeToDocumentEvents(IAutocadDocument autocadDocument)
+    {
+        var document = autocadDocument.Unwrap();
+        document.BeginDocumentClose -= this.OnDocumentClosing;
+        autocadDocument.DocumentChanged -= this.OnDocumentChanged;
+    }
+
+    /// <summary>
+    /// Internal event handler which bubbles up the document modified event.
+    /// </summary>
+    private void OnDocumentChanged(object sender, IAutocadDocumentChangeEventArgs e)
+    {
+        if (e.Change.Contains(ChangeType.UnitsChanged))
+        {
+            this.UnitsChanged?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        this.DocumentChanged?.Invoke(this, e);
+
     }
 
     /// <summary>
@@ -102,14 +124,6 @@ public class AutoCadInstance : IAutoCadInstance
             }
         }
         return null;
-    }
-
-    /// <summary>
-    /// Bubble up the units changed event from the document.
-    /// </summary>
-    private void DocumentUnitsChanged(object sender, EventArgs e)
-    {
-        this.OnUnitsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -130,13 +144,12 @@ public class AutoCadInstance : IAutoCadInstance
 
             var documentFile = new AutocadDocument(document, documentCloseAction, _dispatcher);
 
-            documentFile.OnUnitsChanged += this.DocumentUnitsChanged;
             document.BeginDocumentClose += this.OnDocumentClosing;
 
             this.Documents.Add(documentFile);
         }
 
-        this.OnDocumentCreated?.Invoke(this, EventArgs.Empty);
+        this.DocumentCreated?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -154,7 +167,6 @@ public class AutoCadInstance : IAutoCadInstance
         var autoCadDocument = this.Documents.FirstOrDefault(d => d.Unwrap() == document);
         if (autoCadDocument != null)
         {
-            autoCadDocument.OnUnitsChanged -= this.DocumentUnitsChanged;
             document!.BeginDocumentClose -= this.OnDocumentClosing;
             this.Documents.Remove(autoCadDocument);
         }
@@ -210,7 +222,7 @@ public class AutoCadInstance : IAutoCadInstance
 
         foreach (var autoCadDocument in this.Documents)
         {
-            autoCadDocument.OnUnitsChanged -= this.DocumentUnitsChanged;
+            this.UnsubscribeToDocumentEvents(autoCadDocument);
 
         }
 
@@ -227,8 +239,7 @@ public class AutoCadInstance : IAutoCadInstance
 
             foreach (var autoCadDocument in this.Documents)
             {
-                autoCadDocument.OnUnitsChanged -= this.DocumentUnitsChanged;
-                autoCadDocument.Unwrap().BeginDocumentClose -= this.OnDocumentClosing;
+                this.UnsubscribeToDocumentEvents(autoCadDocument);
 
                 autoCadDocument.Close();
             }

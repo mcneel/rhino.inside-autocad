@@ -5,7 +5,6 @@ using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using CadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
-using Entity = Rhino.Inside.AutoCAD.Interop.Entity;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -61,7 +60,7 @@ public class AutocadObjectPicker : IAutocadObjectPicker
                 var entity = transaction.GetObject(selectedObject.ObjectId,
                     OpenMode.ForRead) as CadEntity;
 
-                var wrappedEntity = new Entity(entity);
+                var wrappedEntity = new EntityWrapper(entity);
 
                 entities.Add(wrappedEntity);
             }
@@ -106,7 +105,7 @@ public class AutocadObjectPicker : IAutocadObjectPicker
                 var entity = transaction.GetObject(selectedObject.ObjectId,
                     OpenMode.ForRead) as CadEntity;
 
-                var wrappedEntity = new Entity(entity);
+                var wrappedEntity = new EntityWrapper(entity);
 
                 entities.Add(wrappedEntity);
             }

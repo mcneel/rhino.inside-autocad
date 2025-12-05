@@ -4,7 +4,7 @@ using CadLayout = Autodesk.AutoCAD.DatabaseServices.Layout;
 namespace Rhino.Inside.AutoCAD.Interop;
 
 ///<inheritdoc cref="IAutocadLayout"/>
-public class AutocadLayoutWrapper : DbObject, IAutocadLayout
+public class AutocadLayoutWrapper : DbObjectWrapper, IAutocadLayout
 {
     private readonly CadLayout _layout;
 

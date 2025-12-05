@@ -28,7 +28,7 @@ public class AutocadLinePattern : WrapperDisposableBase<LinetypeTableRecord>, IA
         _lineTypeTableRecord = lineTypeTableRecord;
         this.Name = lineTypeTableRecord.Name;
 
-        this.Id = new ObjectId(lineTypeTableRecord.Id);
+        this.Id = new AutocadObjectId(lineTypeTableRecord.Id);
     }
 
     /// <inheritdoc/>

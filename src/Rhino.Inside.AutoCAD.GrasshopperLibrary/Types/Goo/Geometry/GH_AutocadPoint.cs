@@ -1,6 +1,7 @@
 ﻿using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using AutocadPoint = Autodesk.AutoCAD.DatabaseServices.DBPoint;
 using RhinoPoint = Rhino.Geometry.Point;
@@ -10,9 +11,12 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD points.
 /// </summary>
-public class GH_AutocadPoint : GH_GeometricGoo<AutocadPoint>, IGH_PreviewData
+public class GH_AutocadPoint : GH_GeometricGoo<AutocadPoint>, IGH_PreviewData, IGH_AutocadReference
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
+
+    /// <inheritdoc />
+    public IObjectId Id => new AutocadObjectId(this.Value.Id);
 
     /// <summary>
     /// Gets the Rhino geometry equivalent of the AutoCAD point.

@@ -17,7 +17,7 @@ public class PlotSettings : WrapperDisposableBase<CadPlotSettings>, IPlotSetting
     /// </summary>
     public PlotSettings(CadPlotSettings plotSettings) : base(plotSettings)
     {
-        this.Id = new ObjectId(plotSettings.Id);
+        this.Id = new AutocadObjectId(plotSettings.Id);
 
         this.Name = plotSettings.PlotSettingsName;
     }

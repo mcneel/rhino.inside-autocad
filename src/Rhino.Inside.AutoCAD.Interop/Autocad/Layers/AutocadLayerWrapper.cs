@@ -12,13 +12,13 @@ public class AutocadLayerWrapper : WrapperDisposableBase<LayerTableRecord>, IAut
     public IColor Color { get; }
 
     /// <inheritdoc/>
-    public IAutocadLinePattern AutocadLinePattern { get; }
-
-    /// <inheritdoc/>
     public string Name { get; }
 
     /// <inheritdoc/>
     public IObjectId Id { get; }
+
+    /// <inheritdoc/>
+    public IObjectId LinePattenId { get; }
 
     /// <inheritdoc/>
     public bool IsValid => this.Id.IsValid;
@@ -29,20 +29,27 @@ public class AutocadLayerWrapper : WrapperDisposableBase<LayerTableRecord>, IAut
     /// <summary>
     /// Constructs a new <see cref="AutocadLayerWrapper"/>.
     /// </summary>
-    public AutocadLayerWrapper(LayerTableRecord layerTableRecord, IAutocadLinePattern pattern) : base(layerTableRecord)
+    public AutocadLayerWrapper(LayerTableRecord layerTableRecord) : base(layerTableRecord)
     {
         this.Name = layerTableRecord.Name;
 
-        this.Id = new ObjectId(layerTableRecord.Id);
+        this.Id = new AutocadObjectId(layerTableRecord.Id);
+
+        this.LinePattenId = new AutocadObjectId(layerTableRecord.LinetypeObjectId);
 
         this.Color = _internalColorConverter.Convert(layerTableRecord.Color);
 
-        this.AutocadLinePattern = pattern;
+    }
+
+    /// <inheritdoc/>
+    public IAutocadLinePattern GetLinePattern(ILinePatternCache linePatternCache)
+    {
+        return linePatternCache.GetById(this.LinePattenId);
     }
 
     /// <inheritdoc/>
     public IAutocadLayer ShallowClone()
     {
-        return new AutocadLayerWrapper(_wrappedValue, this.AutocadLinePattern);
+        return new AutocadLayerWrapper(_wrappedValue);
     }
 }

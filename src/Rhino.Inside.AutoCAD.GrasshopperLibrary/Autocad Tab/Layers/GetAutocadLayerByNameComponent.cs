@@ -1,5 +1,7 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
+using CadLayer = Autodesk.AutoCAD.DatabaseServices.LayerTableRecord;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -20,7 +22,7 @@ public class GetAutocadLayerByNameComponent : GH_Component
     public GetAutocadLayerByNameComponent()
         : base("GetAutoCadLayerByName", "GetLayer",
             "Returns the the AutoCAD layer which matches the name",
-            "AutoCAD", "Document")
+            "AutoCAD", "Layers")
     {
     }
 
@@ -50,10 +52,32 @@ public class GetAutocadLayerByNameComponent : GH_Component
             || autocadDocument is null) return;
         DA.GetData(1, ref name);
 
-        var layer = autocadDocument.LayerRepository.GetByNameOrDefault(name);
+        var layersRepository = autocadDocument.LayerRepository;
+
+        var layer = layersRepository.GetByNameOrDefault(name);
 
         var gooLayer = new GH_AutocadLayer(layer);
 
         DA.SetData(0, gooLayer);
+    }
+
+    /// <inheritdoc />
+    public bool NeedsToBeExpired(IAutocadDocumentChange change)
+    {
+        foreach (var ghParam in this.Params.Output.OfType<IReferenceParam>())
+        {
+            if (ghParam.NeedsToBeExpired(change)) return true;
+        }
+
+        foreach (var changedObject in change)
+        {
+            if (changedObject.Unwrap() is CadLayer)
+            {
+                return true;
+            }
+        }
+
+        return false;
+
     }
 }

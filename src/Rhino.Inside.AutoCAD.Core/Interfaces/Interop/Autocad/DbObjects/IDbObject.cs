@@ -18,4 +18,10 @@ public interface IDbObject : IDisposable
     /// returns false.
     /// </remarks>
     bool IsValid { get; }
+
+    /// <summary>
+    /// Creates a shallow clone of the <see cref="IDbObject"/>. The autocad
+    /// references are the same, but a new wrapper is created.
+    /// </summary>
+    IDbObject ShallowClone();
 }

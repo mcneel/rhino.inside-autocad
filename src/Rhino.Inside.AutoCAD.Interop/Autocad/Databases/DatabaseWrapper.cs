@@ -13,6 +13,9 @@ public class DatabaseWrapper : WrapperDisposableBase<Database>, IDatabase
     public IObjectId BlockTableId { get; }
 
     /// <inheritdoc/>
+    public IObjectId LinetypeTableId { get; }
+
+    /// <inheritdoc/>
     public IObjectId ByLayerLineTypeId { get; }
 
     /// <summary>
@@ -21,9 +24,11 @@ public class DatabaseWrapper : WrapperDisposableBase<Database>, IDatabase
     /// </summary>
     public DatabaseWrapper(Database database) : base(database)
     {
-        this.BlockTableId = new ObjectId(database.BlockTableId);
+        this.BlockTableId = new AutocadObjectId(database.BlockTableId);
 
-        this.ByLayerLineTypeId = new ObjectId(database.ByLayerLinetype);
+        this.LinetypeTableId = new AutocadObjectId(database.LinetypeTableId);
+
+        this.ByLayerLineTypeId = new AutocadObjectId(database.ByLayerLinetype);
     }
 
     /// <inheritdoc/>
@@ -33,7 +38,7 @@ public class DatabaseWrapper : WrapperDisposableBase<Database>, IDatabase
 
         var cadObjectId = _wrappedValue.GetObjectId(true, handle, 0);
 
-        var objectId = new ObjectId(cadObjectId);
+        var objectId = new AutocadObjectId(cadObjectId);
 
         isValid = cadObjectId is { IsValid: true, IsNull: false, IsErased: false, IsEffectivelyErased: false };
 

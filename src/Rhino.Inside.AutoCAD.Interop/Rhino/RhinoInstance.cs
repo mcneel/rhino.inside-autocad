@@ -12,16 +12,16 @@ public class RhinoInstance : IRhinoInstance
     private readonly IApplicationDirectories _applicationDirectories;
 
     /// <inheritdoc />
-    public event EventHandler? OnDocumentCreated;
+    public event EventHandler? DocumentCreated;
 
     /// <inheritdoc />
-    public event EventHandler? OnUnitChanged;
+    public event EventHandler? UnitsChanged;
 
     /// <inheritdoc />
-    public event EventHandler<IRhinoObjectModifiedEventArgs>? OnObjectModifiedOrAppended;
+    public event EventHandler<IRhinoObjectModifiedEventArgs>? ObjectModifiedOrAppended;
 
     /// <inheritdoc />
-    public event EventHandler<IRhinoObjectModifiedEventArgs>? OnObjectRemoved;
+    public event EventHandler<IRhinoObjectModifiedEventArgs>? ObjectRemoved;
 
     /// <inheritdoc />
     public IRhinoCoreExtension RhinoCore { get; }
@@ -63,7 +63,7 @@ public class RhinoInstance : IRhinoInstance
 
             FileSettings.AutoSaveEnabled = false;
 
-            this.OnDocumentCreated?.Invoke(this, EventArgs.Empty);
+            this.DocumentCreated?.Invoke(this, EventArgs.Empty);
 
             this.UnitSystem = rhinoDoc.ModelUnitSystem;
 
@@ -87,7 +87,7 @@ public class RhinoInstance : IRhinoInstance
     /// </summary>
     private void OnRemoveRhinoObject(object sender, RhinoObjectEventArgs e)
     {
-        this.OnObjectRemoved?.Invoke(this, new RhinoObjectModifiedEventArgs(e.TheObject));
+        this.ObjectRemoved?.Invoke(this, new RhinoObjectModifiedEventArgs(e.TheObject));
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ public class RhinoInstance : IRhinoInstance
     /// </summary>
     private void OnModifyRhinoObject(object sender, RhinoModifyObjectAttributesEventArgs e)
     {
-        this.OnObjectModifiedOrAppended?.Invoke(this, new RhinoObjectModifiedEventArgs(e.RhinoObject));
+        this.ObjectModifiedOrAppended?.Invoke(this, new RhinoObjectModifiedEventArgs(e.RhinoObject));
     }
 
     /// <summary>
@@ -103,12 +103,12 @@ public class RhinoInstance : IRhinoInstance
     /// </summary>
     private void OnAddRhinoObject(object sender, RhinoObjectEventArgs e)
     {
-        this.OnObjectModifiedOrAppended?.Invoke(this, new RhinoObjectModifiedEventArgs(e.TheObject));
+        this.ObjectModifiedOrAppended?.Invoke(this, new RhinoObjectModifiedEventArgs(e.TheObject));
     }
 
     /// <summary>
     /// An event handler which fires when the Rhino document properties are modified.
-    /// It checks to see if the unit system has changed and raises the <see cref="OnUnitChanged"/>
+    /// It checks to see if the unit system has changed and raises the <see cref="UnitsChanged"/>
     /// event if it has.
     /// </summary>
     private void OnDocumentPropertiesModified(object sender, DocumentEventArgs e)
@@ -118,7 +118,7 @@ public class RhinoInstance : IRhinoInstance
         if (currentUnits == this.UnitSystem)
             return;
 
-        this.OnUnitChanged?.Invoke(this, EventArgs.Empty);
+        this.UnitsChanged?.Invoke(this, EventArgs.Empty);
 
         this.UnitSystem = currentUnits;
     }

@@ -24,7 +24,7 @@ public class NamedObjectsDictionary : WrapperDisposableBase<DBDictionary>, IName
             return false;
         }
 
-        value = new ObjectId(_wrappedValue.GetAt(key));
+        value = new AutocadObjectId(_wrappedValue.GetAt(key));
 
         return true;
     }

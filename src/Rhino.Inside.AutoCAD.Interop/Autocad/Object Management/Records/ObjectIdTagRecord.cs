@@ -99,7 +99,7 @@ public class ObjectIdTagRecord : IObjectIdTagRecord
 
                 var dbObject = objectIdUnwrapped.GetObject(OpenMode.ForWrite, true, true);
 
-                var dbObjectWrapper = new DbObject(dbObject);
+                var dbObjectWrapper = new DbObjectWrapper(dbObject);
 
                 eraser.Erase(dbObjectWrapper);
             }

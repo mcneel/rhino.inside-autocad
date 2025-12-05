@@ -1,12 +1,14 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
+using CadLayer = Autodesk.AutoCAD.DatabaseServices.LayerTableRecord;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
 /// </summary>
-public class GetAutocadLayersComponent : GH_Component
+public class GetAutocadLayersComponent : GH_Component, IReferenceComponent
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("41c4ed14-3a97-4812-94bc-4950bca8be7d");
@@ -20,7 +22,7 @@ public class GetAutocadLayersComponent : GH_Component
     public GetAutocadLayersComponent()
         : base("GetAutoCadLayers", "GetLayers",
             "Returns the list of all the AutoCAD layer in the document",
-            "AutoCAD", "Document")
+            "AutoCAD", "Layers")
     {
     }
 
@@ -46,12 +48,33 @@ public class GetAutocadLayersComponent : GH_Component
         if (!DA.GetData(0, ref autocadDocument)
             || autocadDocument is null) return;
 
-        var layers = autocadDocument.LayerRepository;
+        var layersRepository = autocadDocument.LayerRepository;
+        layersRepository.LayerTableModified += (_, _) => this.ExpireSolution(true);
 
-        var gooLayers = layers
+        var gooLayers = layersRepository
             .Select(layer => new GH_AutocadLayer(layer))
             .ToList();
 
         DA.SetDataList(0, gooLayers);
+    }
+
+    /// <inheritdoc />
+    public bool NeedsToBeExpired(IAutocadDocumentChange change)
+    {
+        foreach (var ghParam in this.Params.Output.OfType<IReferenceParam>())
+        {
+            if (ghParam.NeedsToBeExpired(change)) return true;
+        }
+
+        foreach (var changedObject in change)
+        {
+            if (changedObject.Unwrap() is CadLayer)
+            {
+                return true;
+            }
+        }
+
+        return false;
+
     }
 }

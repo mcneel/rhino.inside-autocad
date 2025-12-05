@@ -1,11 +1,13 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
 /// Represents a Grasshopper parameter for AutoCAD ObjectIds.
 /// </summary>
-public class Param_AutocadId : GH_Param<GH_AutocadId>
+public class Param_AutocadId : GH_Param<GH_AutocadId>, IReferenceParam
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new Guid("a3d8f7c2-4b1e-4f9a-8c5d-2e7a9b3c6d4f");
@@ -40,4 +42,16 @@ public class Param_AutocadId : GH_Param<GH_AutocadId>
         : base("AutoCAD ObjectId", "Id",
             "An ObjectId in AutoCAD", "Params", "AutoCAD", access)
     { }
+
+    /// <inheritdoc />
+    public bool NeedsToBeExpired(IAutocadDocumentChange change)
+    {
+        foreach (var autocadId in m_data.AllData(true).OfType<GH_AutocadId>())
+        {
+            if (change.DoesAffectObject(autocadId.Value))
+                return true;
+        }
+
+        return false;
+    }
 }

@@ -8,12 +8,12 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// A class which wraps the AutoCAD
 /// <see cref="Autodesk.AutoCAD.DatabaseServices.ObjectId"/>.
 /// </summary>
-public class ObjectId : WrapperBase<CadObjectId>, IObjectId
+public class AutocadObjectId : WrapperBase<CadObjectId>, IObjectId
 {
     private readonly CadObjectId _nullId = CadObjectId.Null;
 
     /// <summary>
-    /// The <see cref="ObjectId"/> value.
+    /// The <see cref="AutocadObjectId"/> value.
     /// </summary>
     /// <remarks>
     /// This value corresponds to the <see cref="Handle.Value"/> of the
@@ -29,27 +29,36 @@ public class ObjectId : WrapperBase<CadObjectId>, IObjectId
     public bool IsErased => _wrappedValue.IsErased;
 
     /// <summary>
-    /// Constructs a default/invalid <see cref="ObjectId"/>.
+    /// Constructs a default/invalid <see cref="AutocadObjectId"/>.
     /// </summary>
-    public ObjectId() : base(CadObjectId.Null)
+    public AutocadObjectId() : base(CadObjectId.Null)
     {
         this.Value = _nullId.Handle.Value;
     }
 
     /// <summary>
-    /// Constructs a new <see cref="ObjectId"/>.
+    /// Constructs a new <see cref="AutocadObjectId"/>.
     /// </summary>
-    public ObjectId(CadObjectId id) : base(id)
+    public AutocadObjectId(CadObjectId id) : base(id)
     {
         this.Value = id.Handle.Value;
 
     }
 
     /// <summary>
-    /// Creates a shallow clone of the <see cref="ObjectId"/>.
+    /// Creates a shallow clone of the <see cref="AutocadObjectId"/>.
     /// </summary>
     public IObjectId ShallowClone()
     {
-        return new ObjectId(_wrappedValue);
+        return new AutocadObjectId(_wrappedValue);
+    }
+
+    /// <summary>
+    /// Overrides the default <see cref="Object.ToString"/> method with
+    /// the <see cref="IObjectId"/> value.
+    /// </summary>
+    public override string ToString()
+    {
+        return $"({this.Value})";
     }
 }

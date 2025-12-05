@@ -1,7 +1,7 @@
 ﻿namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <summary>
-/// An extensions class for <see cref="ObjectId"/>s.
+/// An extensions class for <see cref="AutocadObjectId"/>s.
 /// </summary>
 public static class DbObjectExtensions
 {

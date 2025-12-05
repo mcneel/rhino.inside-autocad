@@ -1,11 +1,13 @@
 ﻿using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
 /// Represents a Grasshopper parameter for AutoCAD curves.
 /// </summary>
-public class Param_AutocadLayer : GH_Param<GH_AutocadLayer>
+public class Param_AutocadLayer : GH_Param<GH_AutocadLayer>, IReferenceParam
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new Guid("f7be9005-8755-42b9-93fc-ace2e19e736f");
@@ -40,4 +42,17 @@ public class Param_AutocadLayer : GH_Param<GH_AutocadLayer>
         : base("AutoCAD Layer", "Layer",
             "A Layer in AutoCAD", "Params", "AutoCAD", access)
     { }
+
+    /// <inheritdoc />
+    public bool NeedsToBeExpired(IAutocadDocumentChange change)
+    {
+
+        foreach (var autocadId in m_data.AllData(true).OfType<GH_AutocadLayer>())
+        {
+            if (change.DoesAffectObject(autocadId.Value.Id))
+                return true;
+        }
+
+        return false;
+    }
 }
