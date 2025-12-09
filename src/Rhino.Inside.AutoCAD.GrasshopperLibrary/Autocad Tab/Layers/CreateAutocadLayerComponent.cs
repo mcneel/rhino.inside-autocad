@@ -8,19 +8,19 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
 /// </summary>
-public class CreateAutocadLayer : GH_Component
+public class CreateAutocadLayerComponent : GH_Component
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("e5b9283d-5312-4c6a-8a1f-a0504257c52b");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadLayerInfo;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.CreateAutocadLayerComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
     /// </summary>
-    public CreateAutocadLayer()
-        : base("NewAutocadLayer", "NewLayer",
+    public CreateAutocadLayerComponent()
+        : base("CreateAutocadLayer", "CreateLayer",
             "Creates a new AutoCAD Layer",
             "AutoCAD", "Layers")
     {
@@ -37,7 +37,8 @@ public class CreateAutocadLayer : GH_Component
 
         pManager.AddColourParameter("NewColour", "Colour",
             "The color associated with the layer",
-            GH_ParamAccess.item);
+            GH_ParamAccess.item, Color.White);
+        pManager[2].Optional = true;
 
     }
 

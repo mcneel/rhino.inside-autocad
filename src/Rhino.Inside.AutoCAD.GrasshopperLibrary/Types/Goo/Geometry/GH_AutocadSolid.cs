@@ -1,8 +1,5 @@
 ﻿using Grasshopper.Kernel;
-using Grasshopper.Kernel.Types;
-using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.Interop;
 using AutocadSolid = Autodesk.AutoCAD.DatabaseServices.Solid3d;
 using RhinoBrep = Rhino.Geometry.Brep;
 
@@ -11,58 +8,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD solids.
 /// </summary>
-public class GH_AutocadSolid : GH_GeometricGoo<AutocadSolid>, IGH_PreviewData, IGH_AutocadReference
+public class GH_AutocadSolid : GH_AutocadGeometricGoo<AutocadSolid, RhinoBrep>
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
-    /// <inheritdoc />
-    public IObjectId Id => new AutocadObjectId(this.Value.Id);
-
-    /// <summary>
-    /// Gets the Rhino geometry equivalent of the AutoCAD solid.
-    /// </summary>
-    public RhinoBrep[]? RhinoGeometry =>
-        this.Value == null
-            ? null
-            : _geometryConverter.ToRhinoType(this.Value);
-
-    /// <inheritdoc />
-    public override BoundingBox Boundingbox
-    {
-        get
-        {
-            if (this.Value == null && this.Value.Bounds.HasValue == false)
-                return BoundingBox.Empty;
-
-            var bounds = this.Value.Bounds;
-
-            return _geometryConverter.ToRhinoType(bounds!.Value);
-        }
-    }
-
-    /// <inheritdoc />
-    public BoundingBox ClippingBox => this.Boundingbox;
-
-    /// <inheritdoc />
-    public override string IsValidWhyNot
-    {
-        get
-        {
-            if (this.Value == null)
-                return "No internal AutocadSolid data";
-            return string.Empty;
-        }
-    }
-
-    /// <inheritdoc />
-    public override string TypeName => "AutocadSolid";
-
-    /// <inheritdoc />
-    public override string TypeDescription => "Represents an AutoCAD solid object";
-
-    /// <inheritdoc />
-    public override bool IsValid => this.Value != null;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadSolid"/> class with no value.
     /// </summary>
@@ -71,150 +18,63 @@ public class GH_AutocadSolid : GH_GeometricGoo<AutocadSolid>, IGH_PreviewData, I
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GH_AutocadSolid"/> class with the specified AutoCAD solid.
+    /// Initializes a new instance of the <see cref="GH_AutocadSolid"/> class with the
+    /// specified AutoCAD solid. Internally, the curve is cloned, but the autocad
+    /// reference ID is maintained.
     /// </summary>
     /// <param name="solid">The AutoCAD solid to wrap.</param>
-    public GH_AutocadSolid(AutocadSolid solid) : base(solid.Clone() as AutocadSolid)
+    public GH_AutocadSolid(AutocadSolid solid) : base(solid)
     {
 
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GH_AutocadSolid"/> class by copying another instance.
+    /// A private constructor used to create a reference Goo which is a clone of the
+    /// input curve.
     /// </summary>
-    /// <param name="other">The instance to copy.</param>
-    public GH_AutocadSolid(GH_AutocadSolid other)
+    private GH_AutocadSolid(AutocadSolid curve, IObjectId referenceId) : base(curve, referenceId)
     {
-        m_value = other.m_value;
-        if (m_value != null)
-            m_value = m_value.Clone() as AutocadSolid;
     }
 
     /// <inheritdoc />
-    public override IGH_Goo Duplicate() => (IGH_Goo)this.DuplicateSolid();
-
-    /// <inheritdoc />
-    public override IGH_GeometricGoo DuplicateGeometry()
+    protected override GH_AutocadGeometricGoo<AutocadSolid, RhinoBrep> CreateClonedInstance(AutocadSolid entity)
     {
-        return (IGH_GeometricGoo)this.DuplicateSolid();
-    }
-
-    /// <summary>
-    /// Duplicates this <see cref="GH_AutocadSolid"/> instance.
-    /// </summary>
-    /// <returns></returns>
-    public GH_AutocadSolid DuplicateSolid() => new GH_AutocadSolid(this);
-
-    /// <inheritdoc />
-    public override BoundingBox GetBoundingBox(Transform xform)
-    {
-        if (this.Value == null)
-            return BoundingBox.Empty;
-
-        var box = this.Boundingbox;
-        box.Transform(xform);
-        return box;
+        return new GH_AutocadSolid(entity.Clone() as AutocadSolid, this.AutocadReferenceId);
     }
 
     /// <inheritdoc />
-    public override IGH_GeometricGoo Transform(Transform xform)
+    protected override GH_AutocadGeometricGoo<AutocadSolid, RhinoBrep> CreateInstance(AutocadSolid entity)
     {
-        //TODO: This should be updated when we have a proper AutoCAD to Rhino Brep Conversation implementation
-        if (this.RhinoGeometry == null || this.RhinoGeometry.Length != 1)
-            return this;
-
-        var rhinoSolid = this.RhinoGeometry[0];
-
-        rhinoSolid.Transform(xform);
-
-        var morphedSolids = _geometryConverter.ToAutoCadType(rhinoSolid);
-
-        return new GH_AutocadSolid(morphedSolids[0]);
+        return new GH_AutocadSolid(entity);
     }
 
     /// <inheritdoc />
-    public override IGH_GeometricGoo Morph(SpaceMorph xmorph)
+    protected override AutocadSolid? Convert(RhinoBrep rhinoType)
     {
         //TODO: This should be updated when we have a proper AutoCAD to Rhino Brep Conversation implementation
 
-        if (this.RhinoGeometry == null || this.RhinoGeometry.Length != 1)
-            return this;
-
-        var rhinoSolid = this.RhinoGeometry[0];
-
-        xmorph.Morph(rhinoSolid);
-
-        var morphedSolid = _geometryConverter.ToAutoCadType(rhinoSolid);
-
-        return new GH_AutocadSolid(morphedSolid[0]);
+        return _geometryConverter.ToAutoCadType(rhinoType)[0];
     }
 
     /// <inheritdoc />
-    public void DrawViewportWires(GH_PreviewWireArgs args)
+    protected override RhinoBrep? Convert(AutocadSolid wrapperType)
     {
-        if (this.RhinoGeometry == null)
-            return;
+        //TODO: This should be updated when we have a proper AutoCAD to Rhino Brep Conversation implementation
 
-        foreach (var brep in this.RhinoGeometry)
-        {
-            args.Pipeline.DrawBrepWires(brep, args.Color);
-        }
+        return _geometryConverter.ToRhinoType(wrapperType)[0];
     }
 
     /// <inheritdoc />
-    public void DrawViewportMeshes(GH_PreviewMeshArgs args)
+    protected override void DrawViewportGeometryWires(GH_PreviewWireArgs args)
     {
-        if (this.RhinoGeometry == null)
-            return;
 
-        foreach (var brep in this.RhinoGeometry)
-        {
-            args.Pipeline.DrawBrepShaded(brep, args.Material);
-        }
+        args.Pipeline.DrawBrepWires(this.RhinoGeometry, args.Color);
     }
 
     /// <inheritdoc />
-    public override bool CastFrom(object source)
+    protected override void DrawViewportGeometryMeshes(GH_PreviewMeshArgs args)
     {
-        if (source is GH_AutocadSolid goo)
-        {
-            this.Value = goo.Value;
-            return true;
-        }
-
-        if (source is AutocadSolid solid)
-        {
-            this.Value = solid;
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <inheritdoc />
-    public override bool CastTo<Q>(ref Q target)
-    {
-        if (typeof(Q).IsAssignableFrom(typeof(AutocadSolid)))
-        {
-            target = (Q)(object)this.Value;
-            return true;
-        }
-
-        if (typeof(Q).IsAssignableFrom(typeof(GH_AutocadSolid)))
-        {
-            target = (Q)(object)new GH_AutocadSolid(this.Value);
-            return true;
-        }
-        return false;
-    }
-
-    /// <inheritdoc />
-    public override string ToString()
-    {
-        if (this.Value == null)
-            return "Null AutocadSolid";
-
-        return $"AutocadSolid [{this.Value.GetType().ToString()}]";
+        args.Pipeline.DrawBrepShaded(this.RhinoGeometry, args.Material);
     }
 }
 

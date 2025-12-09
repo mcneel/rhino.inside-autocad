@@ -6,19 +6,23 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns information about an AutoCAD ObjectId.
 /// </summary>
-public class AutocadObjectIdInfo : GH_Component
+public class AutocadObjectIdComponent : GH_Component
 {
+
+    /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.secondary;
+
     /// <inheritdoc />
     public override Guid ComponentGuid => new("c4d6e8f9-5a3b-4c7d-9e2f-1a8b3c5d7e9f");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadObjectIdInfo;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadObjectIdComponent;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AutocadObjectIdInfo"/> class.
+    /// Initializes a new instance of the <see cref="AutocadObjectIdComponent"/> class.
     /// </summary>
-    public AutocadObjectIdInfo()
-        : base("AutoCadObjectIdInfo", "IdInfo",
+    public AutocadObjectIdComponent()
+        : base("AutoCadObjectId", "Id",
             "Gets Information from an AutoCAD ObjectId",
             "AutoCAD", "Document")
     {

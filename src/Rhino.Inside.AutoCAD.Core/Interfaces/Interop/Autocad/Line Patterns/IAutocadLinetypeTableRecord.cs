@@ -6,18 +6,38 @@ namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 /// A geometrical representation of a line pattern from AutoCAD used for
 /// display purposes.
 /// </summary>
-public interface IAutocadLinePattern : IDisposable
+public interface IAutocadLinetypeTableRecord : IDisposable
 {
     /// <summary>
-    /// The <see cref="IObjectId"/> of this <see cref="IAutocadLinePattern"/>.
+    /// The <see cref="IObjectId"/> of this <see cref="IAutocadLinetypeTableRecord"/>.
     /// </summary>
     IObjectId Id { get; }
 
     /// <summary>
-    /// The name of this <see cref="IAutocadLinePattern"/> and underlying line style
+    /// The name of this <see cref="IAutocadLinetypeTableRecord"/> and underlying line style
     /// in AutoCAD.
     /// </summary>
     string Name { get; }
+
+    /// <summary>
+    /// The total length of the linetype pattern.
+    /// </summary>
+    double PatternLength { get; }
+
+    /// <summary>
+    /// The number of dash segments in the pattern.
+    /// </summary>
+    int NumDashes { get; }
+
+    /// <summary>
+    /// Indicates whether the pattern is scaled to fit the geometry.
+    /// </summary>
+    bool IsScaledToFit { get; }
+
+    /// <summary>
+    /// Comments associated with the linetype.
+    /// </summary>
+    string Comments { get; }
 
     /// <summary>
     /// Returns the pattern of the <see cref="LinetypeTableRecord"/> as a list
@@ -30,7 +50,7 @@ public interface IAutocadLinePattern : IDisposable
         int maxIterations);
 
     /// <summary>
-    /// Creates a shallow clone of the <see cref="IAutocadLinePattern"/>.
+    /// Creates a shallow clone of the <see cref="IAutocadLinetypeTableRecord"/>.
     /// </summary>
-    IAutocadLinePattern ShallowClone();
+    IAutocadLinetypeTableRecord ShallowClone();
 }

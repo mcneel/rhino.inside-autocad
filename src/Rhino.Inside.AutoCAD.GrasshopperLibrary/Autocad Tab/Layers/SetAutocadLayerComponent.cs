@@ -8,19 +8,19 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
 /// </summary>
-public class SetAutocadLayerInfo : GH_Component
+public class SetAutocadLayerComponent : GH_Component
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("fb1aba74-b083-43b0-acc2-749eb011617d");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadLayerInfo;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.SetAutocadLayerComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
     /// </summary>
-    public SetAutocadLayerInfo()
-        : base("SetAutocadLayerInfo", "SetLayerInfo",
+    public SetAutocadLayerComponent()
+        : base("SetAutocadLayer", "SetLayer",
             "Sets Information for an AutoCAD Layer",
             "AutoCAD", "Layers")
     {
@@ -72,7 +72,7 @@ public class SetAutocadLayerInfo : GH_Component
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        AutocadLayerWrapper? autocadLayer = null;
+        AutocadLayerTableRecordWrapper? autocadLayer = null;
 
         if (!DA.GetData(0, ref autocadLayer)
             || autocadLayer is null) return;
@@ -93,7 +93,7 @@ public class SetAutocadLayerInfo : GH_Component
         cadLayer.Color = Autodesk.AutoCAD.Colors.Color.FromRgb(newColor.Red, newColor.Green, newColor.Blue);
         cadLayer.IsLocked = newIsLocked;
 
-        autocadLayer = new AutocadLayerWrapper(cadLayer);
+        autocadLayer = new AutocadLayerTableRecordWrapper(cadLayer);
 
         var linePatten = autocadLayer.LinePattenId;
 

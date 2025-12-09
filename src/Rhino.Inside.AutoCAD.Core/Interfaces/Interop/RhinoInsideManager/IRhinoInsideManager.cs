@@ -59,3 +59,4 @@ public interface IRhinoInsideManager
     /// </summary>
     IGrasshopperObjectPreviewServer GrasshopperPreviewServer { get; }
 }
+

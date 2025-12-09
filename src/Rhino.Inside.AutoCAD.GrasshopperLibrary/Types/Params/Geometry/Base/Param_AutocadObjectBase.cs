@@ -1,5 +1,6 @@
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
+using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using CadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
@@ -11,10 +12,20 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// </summary>
 /// <typeparam name="TGoo">The Grasshopper Goo type that wraps the AutoCAD entity.</typeparam>
 /// <typeparam name="TEntity">The AutoCAD entity type.</typeparam>
-public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentParam<TGoo>, IReferenceParam
-    where TGoo : class, IGH_Goo, IGH_AutocadReference
+public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeometryParam<TGoo>, IReferenceParam, IGH_PreviewObject
+    where TGoo : class, IGH_GeometricGoo, IGH_AutocadReference
     where TEntity : CadEntity
 {
+
+    /// <inheritdoc />
+    public BoundingBox ClippingBox => this.Preview_ComputeClippingBox();
+
+    /// <inheritdoc />
+    public bool IsPreviewCapable => true;
+
+    /// <inheritdoc />
+    public bool Hidden { get; set; }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Param_AutocadObjectBase{TGoo, TEntity}"/> class.
     /// </summary>
@@ -29,8 +40,11 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentPara
         string description,
         string category,
         string subcategory)
-        : base(name, nickname, description, category, subcategory)
-    { }
+        : base(new GH_InstanceDescription(name, nickname, description, category,
+            subcategory))
+    {
+        this.Hidden = false;
+    }
 
     /// <summary>
     /// Creates the filter to use for selecting objects in AutoCAD.
@@ -69,6 +83,7 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentPara
         if (entity.Unwrap() is TEntity typedEntity)
         {
             value = this.WrapEntity(typedEntity);
+
             return GH_GetterResult.success;
         }
 
@@ -98,15 +113,25 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentPara
         return GH_GetterResult.success;
     }
 
+    /// <inheritdoc />
     public bool NeedsToBeExpired(IAutocadDocumentChange change)
     {
-        foreach (TGoo autocadId in m_data.AllData(true).OfType<TGoo>())
+        foreach (var autocadId in m_data.AllData(true).OfType<TGoo>())
         {
-            if (change.DoesAffectObject(autocadId.Id))
+            if (change.DoesAffectObject(autocadId.AutocadReferenceId))
                 return true;
         }
 
         return false;
     }
+
+    /// <inheritdoc />
+    public void DrawViewportWires(IGH_PreviewArgs args) =>
+        this.Preview_DrawWires(args);
+
+    /// <inheritdoc />
+    public void DrawViewportMeshes(IGH_PreviewArgs args) =>
+        this.Preview_DrawMeshes(args);
+
 }
 

@@ -19,7 +19,7 @@ public class DataTagDatabase : IDataTagDatabase
     /// </summary>
     public DataTagDatabase(IDbObject dbObject)
     {
-        _tagRecords = this.GetExistingRecords(dbObject.Unwrap());
+        _tagRecords = this.GetExistingRecords(dbObject.UnwrapObject());
 
         this.DbObjectOwner = dbObject;
     }

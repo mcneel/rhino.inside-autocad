@@ -100,4 +100,87 @@ public class ApplicationConstants
     /// The URI for the selected "Wireframe" button icon in the Grasshopper preview.
     /// </summary>
     public const string WireframeButtonSelected = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_Preview_Wireframe_Selected.png";
+
+    #region Rhino Constants
+
+    /// <summary>
+    /// The registry key path for Rhino 8 installation information.
+    /// </summary>
+    public const string RhinoRegistryKeyPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\McNeel\Rhinoceros\8.0\Install";
+
+    /// <summary>
+    /// The registry value name for Rhino installation path.
+    /// </summary>
+    public const string RhinoInstallPathValueName = "Path";
+
+    /// <summary>
+    /// The registry value name for Rhino default plugins folder.
+    /// </summary>
+    public const string RhinoPluginsFolderValueName = "Default Plug-ins Folder";
+
+    /// <summary>
+    /// The name of the RhinoCommon assembly (without extension).
+    /// </summary>
+    public const string RhinoCommonAssemblyName = "RhinoCommon";
+
+    /// <summary>
+    /// The name of the Grasshopper assembly (without extension).
+    /// </summary>
+    public const string GrasshopperAssemblyName = "Grasshopper";
+
+    /// <summary>
+    /// The filename of the RhinoCommon assembly.
+    /// </summary>
+    public const string RhinoCommonDllName = "RhinoCommon.dll";
+
+    /// <summary>
+    /// The relative path to Grasshopper.dll within the plugins folder.
+    /// </summary>
+    public const string GrasshopperDllRelativePath = "Grasshopper//Grasshopper.dll";
+
+    /// <summary>
+    /// Command line argument to suppress Rhino splash screen.
+    /// </summary>
+    public const string RhinoNoSplashArgument = "/nosplash";
+
+    /// <summary>
+    /// Format string for Rhino scheme name argument.
+    /// </summary>
+    public const string RhinoSchemeArgumentFormat = "/scheme={0}";
+
+    /// <summary>
+    /// Format string for creating Rhino Inside scheme name.
+    /// </summary>
+    public const string RhinoInsideSchemeNameFormat = "Inside-{0}-{1}";
+
+    /// <summary>
+    /// Error message when Rhino 8 is not installed.
+    /// </summary>
+    public const string RhinoNotInstalledErrorMessage = "Rhino 8 not installed or could not be found. The application requires Rhino 8 to run.";
+
+    /// <summary>
+    /// Error message when Rhino Core fails to initialize.
+    /// </summary>
+    public const string RhinoCoreInitializationFailedErrorMessage = "Failed to initialize Rhino Core";
+
+    #endregion
+
+    #region Application Initialization Messages
+
+    /// <summary>
+    /// Success message displayed when Rhino.Inside.AutoCAD loads successfully.
+    /// </summary>
+    public const string ApplicationLoadedSuccessMessage = "\nRhino.Inside.AutoCAD loaded successfully.";
+
+    /// <summary>
+    /// Format string for error message when Rhino.Inside.AutoCAD fails to load.
+    /// </summary>
+    public const string ApplicationLoadErrorMessageFormat = "\nERROR loading Rhino.Inside.AutoCAD: {0}\n";
+
+    /// <summary>
+    /// Format string for displaying stack trace information.
+    /// </summary>
+    public const string StackTraceMessageFormat = "\nStack trace: {0}\n";
+
+    #endregion
 }

@@ -11,6 +11,10 @@ namespace Rhino.Inside.AutoCAD.Applications;
 /// <inheritdoc cref="IRhinoInsideAutoCadApplication"/>
 public class RhinoInsideAutoCadExtension : IExtensionApplication
 {
+    private const string _applicationLoadedSuccessMessage = ApplicationConstants.ApplicationLoadedSuccessMessage;
+    private const string _applicationLoadErrorMessageFormat = ApplicationConstants.ApplicationLoadErrorMessageFormat;
+    private const string _stackTraceMessageFormat = ApplicationConstants.StackTraceMessageFormat;
+
     /// <summary>
     /// The singleton instance of the <see cref="IRhinoInsideAutoCadApplication"/>
     /// </summary>
@@ -31,13 +35,13 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
             Application = new RhinoInsideAutoCadApplication();
 
             var editor = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument?.Editor;
-            editor?.WriteMessage("\nRhino.Inside.AutoCAD loaded successfully.");
+            editor?.WriteMessage(_applicationLoadedSuccessMessage);
         }
         catch (System.Exception e)
         {
             var editor = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument?.Editor;
-            editor?.WriteMessage($"\nERROR loading Rhino.Inside.AutoCAD: {e.Message}\n");
-            editor?.WriteMessage($"\nStack trace: {e.StackTrace}\n");
+            editor?.WriteMessage(string.Format(_applicationLoadErrorMessageFormat, e.Message));
+            editor?.WriteMessage(string.Format(_stackTraceMessageFormat, e.StackTrace));
 
             LoggerService.Instance?.LogError(e);
             throw;

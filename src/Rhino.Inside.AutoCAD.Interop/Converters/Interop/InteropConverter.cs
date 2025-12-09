@@ -52,7 +52,7 @@ public static class InteropConverter
     /// <summary>
     /// Unwraps the <see cref="IDbObject"/> and returns the <see cref="DbObjectWrapper"/>.
     /// </summary>
-    public static CadDbObject Unwrap(this IDbObject dbObject)
+    public static CadDbObject UnwrapObject(this IDbObject dbObject)
     {
         var dbObjectWrapper = (WrapperDisposableBase<CadDbObject>)dbObject;
 
@@ -60,9 +60,9 @@ public static class InteropConverter
     }
 
     /// <summary>
-    /// Unwraps the <see cref="IAutocadLayer"/> and returns the <see cref="CadLayer"/>.
+    /// Unwraps the <see cref="IAutocadLayerTableRecord"/> and returns the <see cref="CadLayer"/>.
     /// </summary>
-    public static CadLayer Unwrap(this IAutocadLayer layer)
+    public static CadLayer Unwrap(this IAutocadLayerTableRecord layer)
     {
         var layerWrapper = (WrapperDisposableBase<CadLayer>)layer;
 
@@ -131,6 +131,16 @@ public static class InteropConverter
     }
 
     /// <summary>
+    /// Unwraps the provided <see cref="IAutocadLayout"/> instance.
+    /// </summary>
+    public static Layout Unwrap(this IAutocadLayout layout)
+    {
+        var wrapper = (WrapperDisposableBase<CadDbObject>)layout;
+
+        return (Layout)wrapper.Internal;
+    }
+
+    /// <summary>
     /// Unwraps the <see cref="IPlotSettings"/> and returns the
     /// <see cref="Autodesk.AutoCAD.DatabaseServices.PlotSettings"/>.
     /// </summary>
@@ -156,9 +166,9 @@ public static class InteropConverter
     /// Unwraps the <see cref="INamedObjectsDictionary"/> and returns the
     /// <see cref="DBDictionary"/>.
     /// </summary>
-    public static LinetypeTableRecord Unwrap(this IAutocadLinePattern autocadLinePattern)
+    public static LinetypeTableRecord Unwrap(this IAutocadLinetypeTableRecord autocadLinetypeTableRecord)
     {
-        var lineTypeTableRecord = (WrapperDisposableBase<LinetypeTableRecord>)autocadLinePattern;
+        var lineTypeTableRecord = (WrapperDisposableBase<LinetypeTableRecord>)autocadLinetypeTableRecord;
 
         return lineTypeTableRecord.Internal;
     }

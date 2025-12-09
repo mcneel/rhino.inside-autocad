@@ -45,17 +45,17 @@ public interface IAutocadDocument
     /// </summary>
     ILayerRepository LayerRepository { get; }
 
-    /*/// <summary>
-  /// The <see cref="ILinePatternCache"/> of this <see cref="IAutocadDocument"/>.
-  /// </summary>
-  ILinePatternCache LinePatternCache { get; }
+    /// <summary>
+    /// The <see cref="ILineTypeRepository"/> of this <see cref="IAutocadDocument"/>.
+    /// </summary>
+    ILineTypeRepository LineTypeRepository { get; }
 
+    /// <summary>
+    /// The <see cref="ILayoutRepository"/> of this <see cref="IAutocadDocument"/>.
+    /// </summary>
+    ILayoutRepository LayoutRepository { get; }
 
-  /// <summary>
-  /// The <see cref="ILayoutRepository"/> of this <see cref="IAutocadDocument"/>.
-  /// </summary>
-  ILayoutRepository LayoutRepository { get; }
-
+    /*
  /// <summary>
  /// The <see cref="IBlockTableRecordRepository"/> of this <see cref="IAutocadDocument"/>.
  /// </summary>

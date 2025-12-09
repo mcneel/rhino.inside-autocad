@@ -1,8 +1,8 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// A mapper interface which aims to handle AWI compliant <see cref="IAutocadLayer"/>s
-/// with our internal host <see cref="IAutocadLayer"/>s.
+/// A mapper interface which aims to handle AWI compliant <see cref="IAutocadLayerTableRecord"/>s
+/// with our internal host <see cref="IAutocadLayerTableRecord"/>s.
 /// </summary>
 public interface ILayerMapper
 {
@@ -16,21 +16,21 @@ public interface ILayerMapper
  //   public event EventHandler<ILayerSelectedEventArgs>? SelectedLayerChanged;
 
     /// <summary>
-    /// An <see cref="IAutocadLayer"/> of the <see cref="IInteropService"/>'s
+    /// An <see cref="IAutocadLayerTableRecord"/> of the <see cref="IInteropService"/>'s
     /// <see cref="IAutocadDocument"/> that host <see cref="IEntity"/>s.
     /// </summary>
     /// <remarks>
-    /// Typically this <see cref="IAutocadLayer"/> has derived from an external
+    /// Typically this <see cref="IAutocadLayerTableRecord"/> has derived from an external
     /// consultants file (e.g. an architect), and is not a standard AWI
     /// layer.
     /// </remarks>
-    IAutocadLayer HostLayer { get; }
+    IAutocadLayerTableRecord HostLayerTableRecord { get; }
 
     /// <summary>
-    /// Represents the <see cref="IAutocadLayer"/> that is currently selected
+    /// Represents the <see cref="IAutocadLayerTableRecord"/> that is currently selected
     /// from the <see cref="CompliantLayerSet"/>.
     /// </summary>
-    IAutocadLayer? SelectedLayer { get; set; }
+    IAutocadLayerTableRecord? SelectedLayer { get; set; }
 
     /// <summary>
     /// The <see cref="ICompliantLayerSet"/>.
@@ -38,7 +38,7 @@ public interface ILayerMapper
     ICompliantLayerSet CompliantLayerSet { get; }
 
     /// <summary>
-    /// True if the <see cref="HostLayer"/> is part of the
+    /// True if the <see cref="HostLayerTableRecord"/> is part of the
     /// <see cref="CompliantLayerSet"/> collection, otherwise false.
     /// </summary>
     bool IsCompliant { get; }

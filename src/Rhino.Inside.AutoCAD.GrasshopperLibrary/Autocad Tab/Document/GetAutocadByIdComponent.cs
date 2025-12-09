@@ -11,6 +11,9 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 public class GetByAutocadIdComponent : GH_Component
 {
     /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.secondary;
+
+    /// <inheritdoc />
     public override Guid ComponentGuid => new("ab9f48ba-bef6-4646-a3ad-146a92678440");
 
     /// <inheritdoc />
@@ -71,7 +74,7 @@ public class GetByAutocadIdComponent : GH_Component
 
         foreach (var changedObject in change)
         {
-            if (changedObject.Unwrap() is CadLayer)
+            if (changedObject.UnwrapObject() is CadLayer)
             {
                 return true;
             }

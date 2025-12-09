@@ -76,7 +76,7 @@ public class DataTagDatabaseManager : IDataTagDatabaseManager
 
                 if (dbObjectOwner.IsValid == false) continue;
 
-                var dbObject = dataTagDatabase.DbObjectOwner.Unwrap();
+                var dbObject = dataTagDatabase.DbObjectOwner.UnwrapObject();
 
                 var extensionDictionaryId = dbObject.ExtensionDictionary;
 

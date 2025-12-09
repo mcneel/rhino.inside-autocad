@@ -49,7 +49,6 @@ public class GetAutocadLayersComponent : GH_Component, IReferenceComponent
             || autocadDocument is null) return;
 
         var layersRepository = autocadDocument.LayerRepository;
-        layersRepository.LayerTableModified += (_, _) => this.ExpireSolution(true);
 
         var gooLayers = layersRepository
             .Select(layer => new GH_AutocadLayer(layer))
@@ -68,7 +67,7 @@ public class GetAutocadLayersComponent : GH_Component, IReferenceComponent
 
         foreach (var changedObject in change)
         {
-            if (changedObject.Unwrap() is CadLayer)
+            if (changedObject.UnwrapObject() is CadLayer)
             {
                 return true;
             }

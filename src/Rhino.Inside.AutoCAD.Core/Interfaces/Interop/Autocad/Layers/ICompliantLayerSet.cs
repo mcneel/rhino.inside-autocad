@@ -1,10 +1,10 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// A unique set of <see cref="IAutocadLayer"/>s that are compliant with AWI CAD
+/// A unique set of <see cref="IAutocadLayerTableRecord"/>s that are compliant with AWI CAD
 /// standards 
 /// </summary>
-public interface ICompliantLayerSet : IEnumerable<IAutocadLayer>
+public interface ICompliantLayerSet : IEnumerable<IAutocadLayerTableRecord>
 {
     /// <summary>
     /// Indicates whether this <see cref="ICompliantLayerSet"/> is empty.

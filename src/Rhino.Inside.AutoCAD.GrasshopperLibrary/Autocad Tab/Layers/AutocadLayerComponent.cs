@@ -8,19 +8,19 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
 /// </summary>
-public class AutocadLayerInfo : GH_Component
+public class AutocadLayerComponent : GH_Component
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("4455be27-68f3-4695-b56e-894ab15ae964");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadLayerInfo;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadLayerComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
     /// </summary>
-    public AutocadLayerInfo()
-        : base("AutoCadLayerInfo", "LayerInfo",
+    public AutocadLayerComponent()
+        : base("AutoCadLayer", "Layer",
             "Gets Information from an AutoCAD Layer",
             "AutoCAD", "Layers")
     {
@@ -58,7 +58,7 @@ public class AutocadLayerInfo : GH_Component
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        AutocadLayerWrapper? autocadLayer = null;
+        AutocadLayerTableRecordWrapper? autocadLayer = null;
 
         if (!DA.GetData(0, ref autocadLayer)
             || autocadLayer is null) return;

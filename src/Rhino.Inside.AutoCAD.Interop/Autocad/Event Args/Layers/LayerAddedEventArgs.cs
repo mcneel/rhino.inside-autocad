@@ -3,7 +3,7 @@
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <summary>
-/// An event args class created when a <see cref="IAutocadLayer"/> is added
+/// An event args class created when a <see cref="IAutocadLayerTableRecord"/> is added
 /// to the <see cref="ILayerRepository"/>.
 /// </summary>
 public class LayerAddedEventArgs : EventArgs, ILayerAddedEventArgs
@@ -12,13 +12,13 @@ public class LayerAddedEventArgs : EventArgs, ILayerAddedEventArgs
     /// The layer added to the <see cref="ILayerRepository"/> that raised this
     /// event args.
     /// </summary>
-    public IAutocadLayer Layer { get; }
+    public IAutocadLayerTableRecord LayerTableRecord { get; }
 
     /// <summary>
     /// Constructs a new <see cref="LayerAddedEventArgs"/>.
     /// </summary>
-    public LayerAddedEventArgs(IAutocadLayer layer)
+    public LayerAddedEventArgs(IAutocadLayerTableRecord layer)
     {
-        this.Layer = layer;
+        this.LayerTableRecord = layer;
     }
 }

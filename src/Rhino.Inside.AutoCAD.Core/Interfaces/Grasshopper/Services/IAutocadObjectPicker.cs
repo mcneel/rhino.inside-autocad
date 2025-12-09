@@ -18,4 +18,9 @@ public interface IAutocadObjectPicker
     /// prompt. This method returns an empty list if no objects were picked.
     /// </summary>
     IList<IEntity> PickObjects(ISelectionFilter filter, string message);
+
+    /// <summary>
+    /// Tries to get the updated object represented by the given <paramref name="objectId"/>.
+    /// </summary>
+    bool TryGetUpdatedObject(IObjectId objectId, out IEntity? entity);
 }

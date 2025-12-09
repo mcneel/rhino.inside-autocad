@@ -1,5 +1,4 @@
-﻿using Autodesk.AutoCAD.DatabaseServices;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -22,7 +21,7 @@ public class GenericObjectEraser : IObjectEraser
     /// <inheritdoc />
     public void Erase(IDbObject dbObject)
     {
-        var dbObjectUnwrapped = dbObject.Unwrap();
+        var dbObjectUnwrapped = dbObject.UnwrapObject();
 
         dbObjectUnwrapped.Erase(true);
     }

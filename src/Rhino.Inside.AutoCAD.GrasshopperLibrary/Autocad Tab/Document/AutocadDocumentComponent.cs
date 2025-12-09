@@ -6,21 +6,19 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD documents currently open in the AutoCAD session.
 /// </summary>
-public class AutocadDocumentInfo : GH_Component
+public class AutocadDocumentComponent : GH_Component
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("c3c7891a-8e29-42d0-8a23-79784877069c");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadDocumentsInfo;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadDocumentComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetAutocadDocumentsComponent"/> class.
     /// </summary>
-    public AutocadDocumentInfo()
-        : base("AutoCadDocumentInfo", "DocInfo",
+    public AutocadDocumentComponent()
+        : base("AutoCadDocument", "Doc",
             "Gets Information from an autocad Document",
             "AutoCAD", "Document")
     {

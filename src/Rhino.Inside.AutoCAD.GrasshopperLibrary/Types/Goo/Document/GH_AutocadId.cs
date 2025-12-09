@@ -9,9 +9,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// </summary>
 public class GH_AutocadId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
 {
-
     /// <inheritdoc />
-    public IObjectId Id => this.Value;
+    public IObjectId AutocadReferenceId => this.Value;
 
     /// <inheritdoc />
     public override bool IsValid => this.Value != null && this.Value.IsValid;
@@ -80,6 +79,14 @@ public class GH_AutocadId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
             return true;
         }
 
+        var converter = new GooConverter();
+
+        if (converter.TryConvertGetId(source, out var target))
+        {
+            this.Value = new AutocadObjectId(target!.Unwrap());
+            return true;
+        }
+
         return false;
     }
 
@@ -97,15 +104,16 @@ public class GH_AutocadId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
             target = (Q)(object)new GH_AutocadId(this.Value);
             return true;
         }
+
         return false;
     }
+
     /// <inheritdoc />
     public override string ToString()
     {
         if (this.Value == null)
-            return "Null AutocadId";
+            return "Null Autocad Object";
 
-        return $"AutocadId [Value: {this.Value.Value}, IsValid: {this.Value.IsValid} ]";
+        return $"Autocad ObjectId [Id: {this.Value.ToString()} ]";
     }
 }
-

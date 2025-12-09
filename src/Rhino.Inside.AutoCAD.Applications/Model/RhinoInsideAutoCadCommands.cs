@@ -11,7 +11,7 @@ namespace Rhino.Inside.AutoCAD.Applications;
 
 public class RhinoInsideAutoCadCommands
 {
-    private static bool _isRunning;
+    private static bool _isLanunching;
 
     /// <summary>
     /// The command to launch a GUI application with Rhino Inside.
@@ -71,16 +71,27 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO", CommandFlags.Modal)]
     public static void RHINO()
     {
+        if (_isLanunching)
+            return;
+
+        _isLanunching = true;
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoLauncher = new RhinoLauncher(application!);
 
         rhinoLauncher.Launch(RhinoInsideMode.Windowed);
+
+        _isLanunching = false;
     }
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER", CommandFlags.Modal)]
     public static void GRASSHOPPER()
     {
+        if (_isLanunching)
+            return;
+
+        _isLanunching = true;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoLauncher = new RhinoLauncher(application!);
@@ -90,6 +101,7 @@ public class RhinoInsideAutoCadCommands
         var rhinoInstance = application!.RhinoInsideManager.RhinoInstance;
 
         rhinoInstance.RunRhinoCommand("Grasshopper");
+        _isLanunching = false;
     }
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "TOGGLE_RHINO_PREVIEW", CommandFlags.Modal)]
@@ -197,6 +209,11 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "OPEN_RHINO_VIEWPORT", CommandFlags.Modal)]
     public static void OPEN_RHINO_VIEWPORT()
     {
+        if (_isLanunching)
+            return;
+
+        _isLanunching = true;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoLauncher = new RhinoLauncher(application!);
@@ -206,11 +223,19 @@ public class RhinoInsideAutoCadCommands
         var rhinoInstance = application!.RhinoInsideManager.RhinoInstance;
 
         rhinoInstance.RunRhinoScript("_NewFloatingViewport _Projection _CopyActive");
+
+        _isLanunching = false;
     }
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO_PACKAGE_MANGER", CommandFlags.Modal)]
     public static void RHINO_PACKAGE_MANGER()
     {
+
+        if (_isLanunching)
+            return;
+
+        _isLanunching = true;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoLauncher = new RhinoLauncher(application!);
@@ -220,11 +245,18 @@ public class RhinoInsideAutoCadCommands
         var rhinoInstance = application!.RhinoInsideManager.RhinoInstance;
 
         rhinoInstance.RunRhinoCommand("PackageManager");
+
+        _isLanunching = false;
     }
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_PLAYER", CommandFlags.Modal)]
     public static void GRASSHOPPER_PLAYER()
     {
+        if (_isLanunching)
+            return;
+
+        _isLanunching = true;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoLauncher = new RhinoLauncher(application!);
@@ -234,6 +266,8 @@ public class RhinoInsideAutoCadCommands
         var rhinoInstance = application!.RhinoInsideManager.RhinoInstance;
 
         rhinoInstance.RunRhinoCommand("GrasshopperPlayer");
+
+        _isLanunching = false;
     }
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "REQUEST_PLUGIN", CommandFlags.Modal)]

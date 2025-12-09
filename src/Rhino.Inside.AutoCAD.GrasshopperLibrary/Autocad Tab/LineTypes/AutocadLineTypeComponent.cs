@@ -6,28 +6,28 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns information about an AutoCAD Line Pattern.
 /// </summary>
-public class AutocadLinePatternInfo : GH_Component
+public class AutocadLineTypeComponent : GH_Component
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("d5e7f0a1-6b4c-4d8e-0f3a-2b9c4d6e8f0b");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadLinePatternInfo;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.SetAutocadLineTypeComponent;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AutocadLinePatternInfo"/> class.
+    /// Initializes a new instance of the <see cref="AutocadLineTypeComponent"/> class.
     /// </summary>
-    public AutocadLinePatternInfo()
-        : base("AutoCadLinePatternInfo", "LinePatternInfo",
-            "Gets Information from an AutoCAD Line Pattern",
-            "AutoCAD", "Layers")
+    public AutocadLineTypeComponent()
+        : base("AutocadLineType", "LineType",
+            "Gets Information from an AutoCAD Line Type Pattern",
+            "AutoCAD", "LineTypes")
     {
     }
 
     /// <inheritdoc />
     protected override void RegisterInputParams(GH_InputParamManager pManager)
     {
-        pManager.AddParameter(new Param_AutocadLinePattern(GH_ParamAccess.item), "LinePattern",
+        pManager.AddParameter(new Param_AutocadLineType(GH_ParamAccess.item), "LinePattern",
             "Pattern", "An AutoCAD Line Pattern", GH_ParamAccess.item);
     }
 
@@ -45,7 +45,7 @@ public class AutocadLinePatternInfo : GH_Component
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        AutocadLinePattern? linePattern = null;
+        AutocadLinetypeTableRecord? linePattern = null;
 
         if (!DA.GetData(0, ref linePattern)
             || linePattern is null) return;

@@ -26,5 +26,5 @@ public enum ChangeType
     /// <summary>
     /// Indicates that the units of the AutoCAD document were changed.
     /// </summary>
-    UnitsChanged
+    UnitsChanged,
 }

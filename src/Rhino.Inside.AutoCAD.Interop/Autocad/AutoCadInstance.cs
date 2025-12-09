@@ -104,11 +104,12 @@ public class AutoCadInstance : IAutoCadInstance
         if (e.Change.Contains(ChangeType.UnitsChanged))
         {
             this.UnitsChanged?.Invoke(this, EventArgs.Empty);
-            return;
+
+            if (e.Change.Count() == 1)
+                return;
         }
 
         this.DocumentChanged?.Invoke(this, e);
-
     }
 
     /// <summary>
@@ -147,6 +148,8 @@ public class AutoCadInstance : IAutoCadInstance
             document.BeginDocumentClose += this.OnDocumentClosing;
 
             this.Documents.Add(documentFile);
+
+            this.SubscribeToDocumentEvents(documentFile);
         }
 
         this.DocumentCreated?.Invoke(this, EventArgs.Empty);

@@ -1,8 +1,5 @@
 ﻿using Grasshopper.Kernel;
-using Grasshopper.Kernel.Types;
-using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.Interop;
 using AutocadCurve = Autodesk.AutoCAD.DatabaseServices.Curve;
 using RhinoCurve = Rhino.Geometry.Curve;
 
@@ -11,198 +8,68 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD curves.
 /// </summary>
-public class GH_AutocadCurve : GH_GeometricGoo<AutocadCurve>, IGH_PreviewData, IGH_AutocadReference
+public class GH_AutocadCurve : GH_AutocadGeometricGoo<AutocadCurve, RhinoCurve>
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
-    /// <inheritdoc />
-    public IObjectId Id => new AutocadObjectId(this.Value.Id);
-
     /// <summary>
-    /// Gets the Rhino geometry equivalent of the AutoCAD curve.
-    /// </summary>
-    public RhinoCurve? RhinoGeometry =>
-        this.Value == null
-            ? null
-            : _geometryConverter.ToRhinoType(this.Value);
-
-    /// <inheritdoc />
-    public override BoundingBox Boundingbox
-    {
-        get
-        {
-            if (this.Value == null && this.Value.Bounds.HasValue == false)
-                return BoundingBox.Empty;
-
-            var bounds = this.Value.Bounds;
-
-            return _geometryConverter.ToRhinoType(bounds!.Value);
-        }
-    }
-
-    /// <inheritdoc />
-    public BoundingBox ClippingBox => this.Boundingbox;
-
-    /// <inheritdoc />
-    public override string IsValidWhyNot
-    {
-        get
-        {
-            if (this.Value == null)
-                return "No internal AutocadCurve data";
-            return string.Empty;
-        }
-    }
-
-    /// <inheritdoc />
-    public override string TypeName => "AutocadCurve";
-
-    /// <inheritdoc />
-    public override string TypeDescription => "Represents an AutoCAD curve object";
-
-    /// <inheritdoc />
-    public override bool IsValid => this.Value != null;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="GH_AutocadCurve"/> class with no value.
+    /// Initializes a new instance of the <see cref="GH_AutocadCurve"/> class with no
+    /// value.
     /// </summary>
     public GH_AutocadCurve()
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GH_AutocadCurve"/> class with the specified AutoCAD curve.
+    /// Initializes a new instance of the <see cref="GH_AutocadCurve"/> class with the
+    /// specified AutoCAD curve. Internally, the curve is cloned, but the autocad
+    /// reference Id is maintained.
     /// </summary>
     /// <param name="curve">The AutoCAD curve to wrap.</param>
-    public GH_AutocadCurve(AutocadCurve curve) : base(curve.Clone() as AutocadCurve)
+    public GH_AutocadCurve(AutocadCurve curve) : base(curve)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GH_AutocadCurve"/> class by copying another instance.
+    /// A private constructor used to create a reference Goo which is not a clone of the
+    /// input curve.
     /// </summary>
-    /// <param name="other">The instance to copy.</param>
-    public GH_AutocadCurve(GH_AutocadCurve other)
+    private GH_AutocadCurve(AutocadCurve curve, IObjectId referenceId) : base(curve, referenceId)
     {
-        m_value = other.m_value;
-        if (m_value != null)
-            m_value = m_value.Clone() as AutocadCurve;
-
     }
 
     /// <inheritdoc />
-    public override IGH_Goo Duplicate() => (IGH_Goo)this.DuplicateCurve();
-
-    /// <inheritdoc />
-    public override IGH_GeometricGoo DuplicateGeometry()
+    protected override GH_AutocadGeometricGoo<AutocadCurve, RhinoCurve> CreateClonedInstance(AutocadCurve entity)
     {
-        return (IGH_GeometricGoo)this.DuplicateCurve();
-    }
-
-    /// <summary>
-    /// Duplicates this <see cref="GH_AutocadCurve"/> instance.
-    /// </summary>
-    /// <returns></returns>
-    public GH_AutocadCurve DuplicateCurve() => new GH_AutocadCurve(this);
-
-    /// <inheritdoc />
-    public override BoundingBox GetBoundingBox(Transform xform)
-    {
-        if (this.Value == null)
-            return BoundingBox.Empty;
-
-        var box = this.Boundingbox;
-        box.Transform(xform);
-        return box;
+        return new GH_AutocadCurve(entity.Clone() as AutocadCurve, this.AutocadReferenceId);
     }
 
     /// <inheritdoc />
-    public override IGH_GeometricGoo Transform(Transform xform)
+    protected override GH_AutocadGeometricGoo<AutocadCurve, RhinoCurve> CreateInstance(AutocadCurve entity)
     {
-        if (this.RhinoGeometry == null)
-            return this;
-
-        var rhinoCurve = this.RhinoGeometry;
-
-        rhinoCurve.Transform(xform);
-
-        var morphedCurves = _geometryConverter.ToAutoCadSingleCurve(rhinoCurve);
-
-        return new GH_AutocadCurve(morphedCurves);
+        return new GH_AutocadCurve(entity);
     }
 
     /// <inheritdoc />
-    public override IGH_GeometricGoo Morph(SpaceMorph xmorph)
+    protected override AutocadCurve? Convert(RhinoCurve rhinoType)
     {
-        if (this.RhinoGeometry == null)
-            return this;
-
-        var rhinoCurve = this.RhinoGeometry;
-
-        xmorph.Morph(rhinoCurve);
-
-        var morphedCurve = _geometryConverter.ToAutoCadSingleCurve(rhinoCurve);
-
-        return new GH_AutocadCurve(morphedCurve);
+        return _geometryConverter.ToAutoCadSingleCurve(rhinoType);
     }
 
     /// <inheritdoc />
-    public void DrawViewportWires(GH_PreviewWireArgs args)
+    protected override RhinoCurve? Convert(AutocadCurve wrapperType)
     {
-        if (this.RhinoGeometry == null)
-            return;
+        return _geometryConverter.ToRhinoType(wrapperType);
+    }
 
+    /// <inheritdoc />
+    protected override void DrawViewportGeometryWires(GH_PreviewWireArgs args)
+    {
         args.Pipeline.DrawCurve(this.RhinoGeometry, args.Color, args.Thickness);
     }
 
     /// <inheritdoc />
-    public void DrawViewportMeshes(GH_PreviewMeshArgs args)
+    protected override void DrawViewportGeometryMeshes(GH_PreviewMeshArgs args)
     {
         return;
-    }
-
-    /// <inheritdoc />
-    public override bool CastFrom(object source)
-    {
-        if (source is GH_AutocadCurve goo)
-        {
-            this.Value = goo.Value;
-            return true;
-        }
-
-        if (source is AutocadCurve curve)
-        {
-            this.Value = curve;
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <inheritdoc />
-    public override bool CastTo<Q>(ref Q target)
-    {
-        if (typeof(Q).IsAssignableFrom(typeof(AutocadCurve)))
-        {
-            target = (Q)(object)this.Value;
-            return true;
-        }
-
-        if (typeof(Q).IsAssignableFrom(typeof(GH_AutocadCurve)))
-        {
-            target = (Q)(object)new GH_AutocadCurve(this.Value);
-            return true;
-        }
-        return false;
-    }
-
-    /// <inheritdoc />
-    public override string ToString()
-    {
-        if (this.Value == null)
-            return "Null AutocadCurve";
-
-        return $"AutocadCurve [{this.Value.GetType().ToString()}]";
     }
 }
 

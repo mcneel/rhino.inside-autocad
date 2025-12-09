@@ -25,14 +25,14 @@ public class InteropConstants
 
     /// <summary>
     /// The length in <see cref="IUnitSystemManager.RhinoUnits"/> of a pattern point
-    /// in a <see cref="IAutocadLinePattern"/> that is 0-length. The length is used to represent
+    /// in a <see cref="IAutocadLinetypeTableRecord"/> that is 0-length. The length is used to represent
     /// the point as a line internally.
     /// </summary>
     public const double LinePatternPointLength = 0.1;
 
     /// <summary>
     /// The total length in <see cref="IUnitSystemManager.RhinoUnits"/> of a 
-    /// <see cref="IAutocadLinePattern"/>.
+    /// <see cref="IAutocadLinetypeTableRecord"/>.
     /// </summary>
     public const double LinePatternTotalLength = 85.0;
 }

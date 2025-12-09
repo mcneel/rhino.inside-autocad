@@ -9,15 +9,14 @@ namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <summary>
 /// A class which represents a repository for handling
-/// <see cref="IAutocadLayer"/>s.
+/// <see cref="IAutocadLayerTableRecord"/>s.
 /// </summary>
 public class LayerRepository : Disposable, ILayerRepository
 {
     private readonly InternalColorConverter _internalColorConverter = InternalColorConverter.Instance;
     private readonly string _defaultLayerName = InteropConstants.DefaultLayerName;
-    private readonly SortedDictionary<string, IAutocadLayer> _layers;
+    private readonly SortedDictionary<string, IAutocadLayerTableRecord> _layers;
 
-    //  private readonly IAutocadDocument _document;
     private readonly Document _document;
 
     /// <inheritdoc/>
@@ -42,7 +41,7 @@ public class LayerRepository : Disposable, ILayerRepository
 
         var comparer = StringComparison.OrdinalIgnoreCase.WithNaturalSort();
 
-        _layers = new SortedDictionary<string, IAutocadLayer>(comparer);
+        _layers = new SortedDictionary<string, IAutocadLayerTableRecord>(comparer);
 
         this.SubscribeToModifyEvent();
 
@@ -50,11 +49,13 @@ public class LayerRepository : Disposable, ILayerRepository
     }
 
     /// <summary>
-    /// Creates a new layer in the active document and returns the <see cref="IAutocadLayer"/>. 
+    /// Creates a new layer in the active document and returns the <see cref="IAutocadLayerTableRecord"/>. 
     /// </summary>
-    private IAutocadLayer CreateLayer(IColor color, string name)
+    private IAutocadLayerTableRecord CreateLayer(IColor color, string name)
     {
         using var documentLock = _document.LockDocument();
+
+        this.UnsubscribeToModifyEvent();
 
         var database = _document.Database;
 
@@ -74,9 +75,11 @@ public class LayerRepository : Disposable, ILayerRepository
 
         transactionManager.AddNewlyCreatedDBObject(layerTableRecord, true);
 
-        var layerWrapper = new AutocadLayerWrapper(layerTableRecord);
+        var layerWrapper = new AutocadLayerTableRecordWrapper(layerTableRecord);
 
         transaction.Commit();
+
+        this.SubscribeToModifyEvent();
 
         return layerWrapper;
 
@@ -93,8 +96,6 @@ public class LayerRepository : Disposable, ILayerRepository
 
     private void SubscribeToModifyEvent()
     {
-        using var documentLock = _document.LockDocument();
-
         var database = _document.Database;
 
         using var transactionManager = database.TransactionManager;
@@ -110,8 +111,6 @@ public class LayerRepository : Disposable, ILayerRepository
 
     private void UnsubscribeToModifyEvent()
     {
-        using var documentLock = _document.LockDocument();
-
         var database = _document.Database;
 
         using var transactionManager = database.TransactionManager;
@@ -126,14 +125,12 @@ public class LayerRepository : Disposable, ILayerRepository
     }
 
     /// <summary>
-    /// Populates this <see cref="ILayerRepository"/> with <see cref="IAutocadLayer"/>s
+    /// Populates this <see cref="ILayerRepository"/> with <see cref="IAutocadLayerTableRecord"/>s
     /// from the active <see cref="IAutocadDocument"/>.
     /// </summary>
     private void Populate()
     {
         _layers.Clear();
-
-        using var documentLock = _document.LockDocument();
 
         var database = _document.Database;
 
@@ -147,7 +144,7 @@ public class LayerRepository : Disposable, ILayerRepository
         {
             var cadLayer = (LayerTableRecord)transactionManager.GetObject(layerId, OpenMode.ForRead);
 
-            var layer = new AutocadLayerWrapper(cadLayer);
+            var layer = new AutocadLayerTableRecordWrapper(cadLayer);
 
             var layerName = layer.Name;
             if (_layers.ContainsKey(layerName) == false)
@@ -158,13 +155,13 @@ public class LayerRepository : Disposable, ILayerRepository
     }
 
     /// <inheritdoc/>
-    public bool Exists(IAutocadLayer layer)
+    public bool Exists(IAutocadLayerTableRecord layer)
     {
         return _layers.ContainsKey(layer.Name);
     }
 
     /// <inheritdoc/>
-    public bool TryGetByName(string name, out IAutocadLayer? layer)
+    public bool TryGetByName(string name, out IAutocadLayerTableRecord? layer)
     {
         var containsLayer = _layers.TryGetValue(name, out layer);
 
@@ -172,13 +169,13 @@ public class LayerRepository : Disposable, ILayerRepository
     }
 
     /// <inheritdoc/>
-    public IAutocadLayer GetByNameOrDefault(string name)
+    public IAutocadLayerTableRecord GetByNameOrDefault(string name)
     {
         return this.TryGetByName(name, out var layer) ? layer! : this.GetDefault();
     }
 
     /// <inheritdoc/>
-    public bool TryAddLayer(IColor color, string name, out IAutocadLayer layer)
+    public bool TryAddLayer(IColor color, string name, out IAutocadLayerTableRecord layer)
     {
         if (_layers.ContainsKey(name) == false)
         {
@@ -198,7 +195,7 @@ public class LayerRepository : Disposable, ILayerRepository
     }
 
     /// <inheritdoc/>
-    public IAutocadLayer GetDefault()
+    public IAutocadLayerTableRecord GetDefault()
     {
         _ = _layers.TryGetValue(_defaultLayerName, out var layer);
 
@@ -206,9 +203,9 @@ public class LayerRepository : Disposable, ILayerRepository
     }
 
     /// <inheritdoc/>
-    public IList<IAutocadLayer> GetLayers(IList<string> names)
+    public IList<IAutocadLayerTableRecord> GetLayers(IList<string> names)
     {
-        var layers = new List<IAutocadLayer>();
+        var layers = new List<IAutocadLayerTableRecord>();
 
         foreach (var name in names)
         {
@@ -220,7 +217,7 @@ public class LayerRepository : Disposable, ILayerRepository
     }
 
     /// <inheritdoc/>
-    public IEnumerator<IAutocadLayer> GetEnumerator()
+    public IEnumerator<IAutocadLayerTableRecord> GetEnumerator()
     {
         foreach (var entity in _layers.Values)
         {

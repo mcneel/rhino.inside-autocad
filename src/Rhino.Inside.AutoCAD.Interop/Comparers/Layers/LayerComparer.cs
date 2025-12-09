@@ -4,27 +4,27 @@ namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <summary>
 /// An <see cref="IEqualityComparer{T}"/> which compares two
-/// <see cref="IAutocadLayer"/>s for equivalence.
+/// <see cref="IAutocadLayerTableRecord"/>s for equivalence.
 /// </summary>
-public class LayerComparer : EqualityComparer<IAutocadLayer>
+public class LayerComparer : EqualityComparer<IAutocadLayerTableRecord>
 {
     /// <summary>
-    /// Determines whether the specified <see cref="IAutocadLayer"/> objects are equal,
-    /// with comparison based on the <see cref="IAutocadLayer.Name"/> properties.
+    /// Determines whether the specified <see cref="IAutocadLayerTableRecord"/> objects are equal,
+    /// with comparison based on the <see cref="IAutocadLayerTableRecord.Name"/> properties.
     /// </summary>
     /// <remarks>
-    /// <see cref="IAutocadLayer"/>s are considered equal if their <see cref="IAutocadLayer.Name"/>
+    /// <see cref="IAutocadLayerTableRecord"/>s are considered equal if their <see cref="IAutocadLayerTableRecord.Name"/>
     /// properties match.
     /// </remarks>
-    public override bool Equals(IAutocadLayer layer, IAutocadLayer otherLayer)
+    public override bool Equals(IAutocadLayerTableRecord layer, IAutocadLayerTableRecord otherLayer)
     {
         return string.Equals(layer.Name, otherLayer.Name, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
-    /// Generates a hash code for the specified <see cref="IAutocadLayer"/>.
+    /// Generates a hash code for the specified <see cref="IAutocadLayerTableRecord"/>.
     /// </summary>
-    public override int GetHashCode(IAutocadLayer layer)
+    public override int GetHashCode(IAutocadLayerTableRecord layer)
     {
         return StringComparer.OrdinalIgnoreCase.GetHashCode(layer.Name);
     }

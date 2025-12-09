@@ -3,11 +3,11 @@
 /// <summary>
 /// An interface defining a list of in-use layers that host <see cref="IHatch"/>es.
 /// </summary>
-public interface IHatchLayerSet : IEnumerable<IAutocadLayer>
+public interface IHatchLayerSet : IEnumerable<IAutocadLayerTableRecord>
 {
     /// <summary>
-    /// Returns a <see cref="IAutocadLayer"/> from this <see cref="IHatchLayerSet"/>
+    /// Returns a <see cref="IAutocadLayerTableRecord"/> from this <see cref="IHatchLayerSet"/>
     /// that matches the <paramref name="layerName"/> otherwise returns null.
     /// </summary>
-    IAutocadLayer? GetLayerByName(string layerName);
+    IAutocadLayerTableRecord? GetLayerByName(string layerName);
 }

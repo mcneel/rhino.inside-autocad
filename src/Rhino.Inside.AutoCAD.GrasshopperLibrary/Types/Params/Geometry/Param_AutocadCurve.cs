@@ -38,4 +38,5 @@ public class Param_AutocadCurve : Param_AutocadObjectBase<GH_AutocadCurve, CadCu
 
     /// <inheritdoc />
     protected override GH_AutocadCurve WrapEntity(CadCurve entity) => new GH_AutocadCurve(entity);
+
 }

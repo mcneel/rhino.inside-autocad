@@ -3,16 +3,16 @@
 /// <summary>
 /// Represents a wrapped AutoCAD LayerTableRecord
 /// </summary>
-public interface IAutocadLayer : IDisposable
+public interface IAutocadLayerTableRecord : IDisposable
 {
     /// <summary>
     /// The <see cref="IColor"/> of the
-    /// <see cref="IAutocadLayer"/>.
+    /// <see cref="IAutocadLayerTableRecord"/>.
     /// </summary>
     IColor Color { get; }
 
     /// <summary>
-    /// The <see cref="IObjectId"/> of the <see cref="IAutocadLayer"/>.
+    /// The <see cref="IObjectId"/> of the <see cref="IAutocadLayerTableRecord"/>.
     /// </summary>
     IObjectId Id { get; }
 
@@ -22,32 +22,32 @@ public interface IAutocadLayer : IDisposable
     IObjectId LinePattenId { get; }
 
     /// <summary>
-    /// The name of the <see cref="IAutocadLayer"/>.
+    /// The name of the <see cref="IAutocadLayerTableRecord"/>.
     /// </summary>
     string Name { get; }
 
     /// <summary>
-    /// Returns true if the  <see cref="IAutocadLayer"/> is
+    /// Returns true if the  <see cref="IAutocadLayerTableRecord"/> is
     /// valid, otherwise returns false.
     /// </summary>>
     bool IsValid { get; }
 
     /// <summary>
-    /// Returns true if the <see cref="IAutocadLayer"/> is locked, and false otherwise.
+    /// Returns true if the <see cref="IAutocadLayerTableRecord"/> is locked, and false otherwise.
     /// </summary>
     /// <remarks>
-    /// A locked <see cref="IAutocadLayer"/> restricts any modifications to the
+    /// A locked <see cref="IAutocadLayerTableRecord"/> restricts any modifications to the
     /// <see cref="IEntity"/>s within it, making them as read-only.
     /// </remarks>
     bool IsLocked { get; }
 
     /// <summary>
-    /// Returns the <see cref="IAutocadLinePattern"/> assigned to the <see cref="IAutocadLayer"/>.
+    /// Returns the <see cref="IAutocadLinetypeTableRecord"/> assigned to the <see cref="IAutocadLayerTableRecord"/>.
     /// </summary>
-    IAutocadLinePattern GetLinePattern(ILinePatternCache linePatternCache);
+    IAutocadLinetypeTableRecord GetLinePattern(ILineTypeRepository lineTypeRepository);
 
     /// <summary>
-    /// Creates a shallow clone of the <see cref="IAutocadLayer"/>.
+    /// Creates a shallow clone of the <see cref="IAutocadLayerTableRecord"/>.
     /// </summary>
-    IAutocadLayer ShallowClone();
+    IAutocadLayerTableRecord ShallowClone();
 }

@@ -14,7 +14,7 @@ public interface IEntity : IDbObject
     BoundingBox BoundingBox { get; }
 
     /// <summary>
-    /// Returns the name of this <see cref="IEntity"/>'s host <see cref="IAutocadLayer"/>.
+    /// Returns the name of this <see cref="IEntity"/>'s host <see cref="IAutocadLayerTableRecord"/>.
     /// </summary>
     string LayerName { get; }
 

@@ -52,6 +52,12 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     public ILayerRepository LayerRepository { get; }
 
     /// <inheritdoc/>
+    public ILineTypeRepository LineTypeRepository { get; }
+
+    /// <inheritdoc/>
+    public ILayoutRepository LayoutRepository { get; }
+
+    /// <inheritdoc/>
     public UnitSystem UnitSystem { get; private set; }
 
     /// <inheritdoc/>
@@ -94,6 +100,10 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
         this.UnitSystem = documentUnits;
 
         this.LayerRepository = new LayerRepository(document);
+
+        this.LineTypeRepository = new LineTypeRepository(document);
+
+        this.LayoutRepository = new LayoutRepository(document);
 
         _documentChange = new AutocadDocumentChange(this);
     }
@@ -218,9 +228,7 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
 
         if (_documentChange.HasChanges)
         {
-            this.OnDocumentChanged(EventArgs.Empty);
-
-            _documentChange = new AutocadDocumentChange(this);
+            this.TriggerDocumentChanged();
         }
     }
 
@@ -236,10 +244,13 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
 
         if (this.UnitSystem != documentUnits)
         {
-            OnUnitsChanged?.Invoke(this, EventArgs.Empty);
+
             this.UnitSystem = documentUnits;
+
+            _documentChange.AddChange(ChangeType.UnitsChanged);
+
+            OnUnitsChanged?.Invoke(this, EventArgs.Empty);
         }
-        _documentChange.AddChange(ChangeType.UnitsChanged);
     }
 
     /// <summary>
@@ -324,11 +335,13 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     /// <summary>
     /// Raises the <see cref="DocumentChanged"/> event.
     /// </summary>
-    protected virtual void OnDocumentChanged(EventArgs e)
+    private void TriggerDocumentChanged()
     {
         var eventArgs = new AutocadDocumentChangeEventArgs(_documentChange);
 
         DocumentChanged?.Invoke(this, eventArgs);
+
+        _documentChange = new AutocadDocumentChange(this);
     }
 
     /// <inheritdoc/>
@@ -338,8 +351,10 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     }
 
     /// <inheritdoc/>
-    public IDbObject GetObjectById(IObjectId objectId)
+    public IDbObject? GetObjectById(IObjectId objectId)
     {
+        if (objectId.IsValid == false) return null;
+
         return this.Transaction((transactionManagerWrapper) =>
         {
             var cadObjectId = objectId.Unwrap();

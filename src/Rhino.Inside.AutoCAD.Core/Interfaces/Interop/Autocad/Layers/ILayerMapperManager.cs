@@ -12,13 +12,13 @@ public interface ILayerMapperManager : IEnumerable<ILayerMapper>
   //  event EventHandler<ILayerSelectedEventArgs>? SelectedLayerChanged;
 
     /// <summary>
-    /// Remaps <see cref="IEntity"/> instances linked with the <see cref="ILayerMapper.HostLayer"/> to the
+    /// Remaps <see cref="IEntity"/> instances linked with the <see cref="ILayerMapper.HostLayerTableRecord"/> to the
     /// <see cref="ILayerMapper.SelectedLayer"/> across all <see cref="ILayerMapper"/> instances within this
     /// <see cref="ILayerMapperManager"/>.
     /// </summary>
     /// <remarks>
     /// In the course of this operation, the <see cref="IEntity.Layer"/> property of each associated entity 
-    /// originally aligned with the <see cref="ILayerMapper.HostLayer"/> is updated to reference the
+    /// originally aligned with the <see cref="ILayerMapper.HostLayerTableRecord"/> is updated to reference the
     /// <see cref="ILayerMapper.SelectedLayer"/>, thereby shifting the entity's layer affiliation.
     /// </remarks>
     void MapAll();

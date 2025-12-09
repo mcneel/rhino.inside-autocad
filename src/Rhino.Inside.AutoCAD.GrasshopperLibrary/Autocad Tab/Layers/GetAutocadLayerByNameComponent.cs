@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD documents currently open in the AutoCAD session.
 /// </summary>
-public class GetAutocadLayerByNameComponent : GH_Component
+public class GetAutocadLayerByNameComponent : GH_Component, IReferenceComponent
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("e74496d3-c465-4676-8584-c6f277bfbf0e");
@@ -54,7 +54,12 @@ public class GetAutocadLayerByNameComponent : GH_Component
 
         var layersRepository = autocadDocument.LayerRepository;
 
-        var layer = layersRepository.GetByNameOrDefault(name);
+        if (layersRepository.TryGetByName(name, out var layer) == false)
+        {
+            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                $"No layer exists with name: {name}");
+            return;
+        }
 
         var gooLayer = new GH_AutocadLayer(layer);
 
@@ -71,7 +76,7 @@ public class GetAutocadLayerByNameComponent : GH_Component
 
         foreach (var changedObject in change)
         {
-            if (changedObject.Unwrap() is CadLayer)
+            if (changedObject.UnwrapObject() is CadLayer)
             {
                 return true;
             }

@@ -6,8 +6,8 @@ using CadPoint3d = Autodesk.AutoCAD.Geometry.Point3d;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
-/// <inheritdoc cref="IAutocadLinePattern"/>
-public class AutocadLinePattern : WrapperDisposableBase<LinetypeTableRecord>, IAutocadLinePattern
+/// <inheritdoc cref="IAutocadLinetypeTableRecord"/>
+public class AutocadLinetypeTableRecord : DbObjectWrapper, IAutocadLinetypeTableRecord
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
     private readonly LinetypeTableRecord _lineTypeTableRecord;
@@ -15,20 +15,32 @@ public class AutocadLinePattern : WrapperDisposableBase<LinetypeTableRecord>, IA
     private readonly double _patternPointLength = InteropConstants.LinePatternPointLength;
 
     /// <inheritdoc/>
-    public IObjectId Id { get; }
+    public string Name { get; }
 
     /// <inheritdoc/>
-    public string Name { get; }
+    public double PatternLength { get; }
+
+    /// <inheritdoc/>
+    public int NumDashes { get; }
+
+    /// <inheritdoc/>
+    public bool IsScaledToFit { get; }
+
+    /// <inheritdoc/>
+    public string Comments { get; }
 
     /// <summary>
     /// Constructs a new <see cref="LinetypeTableRecord"/>.
     /// </summary>
-    public AutocadLinePattern(LinetypeTableRecord lineTypeTableRecord) : base(lineTypeTableRecord)
+    public AutocadLinetypeTableRecord(LinetypeTableRecord lineTypeTableRecord) : base(lineTypeTableRecord)
     {
         _lineTypeTableRecord = lineTypeTableRecord;
-        this.Name = lineTypeTableRecord.Name;
 
-        this.Id = new AutocadObjectId(lineTypeTableRecord.Id);
+        this.Name = lineTypeTableRecord.Name;
+        this.PatternLength = lineTypeTableRecord.PatternLength;
+        this.NumDashes = lineTypeTableRecord.NumDashes;
+        this.IsScaledToFit = lineTypeTableRecord.IsScaledToFit;
+        this.Comments = lineTypeTableRecord.Comments ?? string.Empty;
     }
 
     /// <inheritdoc/>
@@ -101,10 +113,10 @@ public class AutocadLinePattern : WrapperDisposableBase<LinetypeTableRecord>, IA
     }
 
     /// <summary>
-    /// Creates a shallow clone of the <see cref="AutocadLinePattern"/>.
+    /// Creates a shallow clone of the <see cref="AutocadLinetypeTableRecord"/>.
     /// </summary>
-    public IAutocadLinePattern ShallowClone()
+    public IAutocadLinetypeTableRecord ShallowClone()
     {
-        return new AutocadLinePattern(_wrappedValue);
+        return new AutocadLinetypeTableRecord(_lineTypeTableRecord);
     }
 }
