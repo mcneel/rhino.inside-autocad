@@ -15,7 +15,7 @@ class FlushQueueHandler : IFlushQueueHandler
     }
 
     /// <inheritdoc />
-    public async Task Execute()
+    public void Execute()
     {
         var solutions = new List<GH_Document>();
         while (_changeQueue.Count > 0)

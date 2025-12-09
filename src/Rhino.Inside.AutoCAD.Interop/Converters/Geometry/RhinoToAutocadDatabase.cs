@@ -97,6 +97,8 @@ public partial class GeometryConverter
     /// Converts the given <see cref="RhinoCurve"/> into a single composite curve. This
     /// method provide a second processing step after the ToAutoCadType where each curve
     /// in the converted list is appended into a single geometric composite curve.
+    /// CreateFromGeCurve can fail in many cases so this method should be used with caution.
+    /// Where possible, use the list of curves returned by <see cref="ToAutoCadType(RhinoCurve)"/>
     /// </summary>
     public CadCurve ToAutoCadSingleCurve(RhinoCurve curve)
     {

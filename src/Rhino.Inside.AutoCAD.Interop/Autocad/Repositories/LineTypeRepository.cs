@@ -1,7 +1,7 @@
 ﻿using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
-using Autofac.Util;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Services;
 using System.Collections;
 
 namespace Rhino.Inside.AutoCAD.Interop;
@@ -150,12 +150,12 @@ public class LineTypeRepository : Disposable, ILineTypeRepository
     {
         if (numberOfDashes <= 0) return;
 
-        double segmentLength = patternLength / numberOfDashes;
+        var segmentLength = patternLength / numberOfDashes;
 
-        for (int i = 0; i < numberOfDashes; i++)
+        for (var i = 0; i < numberOfDashes; i++)
         {
             // Alternate: dash (positive), space (negative)
-            double dashLength = (i % 2 == 0) ? segmentLength : -segmentLength;
+            var dashLength = (i % 2 == 0) ? segmentLength : -segmentLength;
             record.SetDashLengthAt(i, dashLength);
         }
     }

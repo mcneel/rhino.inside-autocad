@@ -21,9 +21,6 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
     public IBootstrapper Bootstrapper { get; }
 
     /// <inheritdoc/>
-    public IApplicationServicesCore ApplicationServicesCore { get; }
-
-    /// <inheritdoc/>
     public IApplicationConfig ApplicationConfig { get; }
 
     /// <inheritdoc/>
@@ -46,8 +43,6 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
         var fileResourceManager = new FileResourceManager(applicationDirectories, settingManager);
 
-        var applicationServicesCore = new ApplicationServicesCore();
-
         var rhinoInstance = new RhinoInstance(applicationDirectories);
 
         var grasshopperInstance = new GrasshopperInstance(applicationDirectories);
@@ -61,8 +56,6 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
         this.FileResourceManager = fileResourceManager;
 
         this.Bootstrapper = bootstrapper;
-
-        this.ApplicationServicesCore = applicationServicesCore;
 
         this.ApplicationConfig = applicationConfig;
 

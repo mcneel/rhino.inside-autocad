@@ -3,7 +3,7 @@
         "Release": "Update",
         "Debug": "Update"
     },
-    "SplashScreenConstants": {
+    "LoadingScreenConstants": {
         "Copyright": "Bimorph Applications. Copyright",
         "VersionPrefix": "Software version",
         "FailedServiceMessage": "UNHANDLED EXCEPTION: Send your CAD file & error log found in [AppData\\Roaming\\Bimorph\\Logs] to support@bimorph.com"

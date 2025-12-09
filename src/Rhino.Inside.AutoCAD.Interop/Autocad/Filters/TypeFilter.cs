@@ -23,7 +23,7 @@ public class TypeFilter : ITypeFilter
     {
         var filterCriteria = new[]
         {
-            new TypedValue((int) DxfCode.Start, this.TypeName.ToUpper()),
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue((int) DxfCode.Start, this.TypeName.ToUpper()),
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

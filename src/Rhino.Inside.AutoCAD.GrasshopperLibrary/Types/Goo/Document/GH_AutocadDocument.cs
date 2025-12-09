@@ -22,8 +22,7 @@ public class GH_AutocadDocument : GH_Goo<AutocadDocument>
     /// Initializes a new instance of the <see cref="GH_AutocadDocument"/> class with no value.
     /// </summary>
     public GH_AutocadDocument()
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadDocument"/> class with the
@@ -31,8 +30,7 @@ public class GH_AutocadDocument : GH_Goo<AutocadDocument>
     /// </summary>
     /// <param name="document">The AutoCAD document to wrap.</param>
     public GH_AutocadDocument(AutocadDocument document) : base(document)
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadDocument"/> class by copying
@@ -49,9 +47,7 @@ public class GH_AutocadDocument : GH_Goo<AutocadDocument>
     /// </summary>
     public GH_AutocadDocument(IAutocadDocument autocadDocument)
         : base((autocadDocument as AutocadDocument)!)
-    {
-
-    }
+    { }
 
     /// <inheritdoc />
     public override IGH_Goo Duplicate()
@@ -104,4 +100,3 @@ public class GH_AutocadDocument : GH_Goo<AutocadDocument>
         return $"AutocadDocument [Name: {this.Value.FileInfo.FileName}, Id: {this.Value.Id} ]";
     }
 }
-

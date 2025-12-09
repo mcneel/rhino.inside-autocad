@@ -6,6 +6,11 @@
 public interface IGrasshopperObjectPreviewServer
 {
     /// <summary>
+    /// The settings used to configure the geometry preview.
+    /// </summary>
+    IGeometryPreviewSettings Settings { get; }
+
+    /// <summary>
     /// The current visibility state of the preview.
     /// </summary>
     GrasshopperPreviewMode PreviewMode { get; }

@@ -13,8 +13,7 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
     /// Initializes a new instance of the <see cref="GH_AutocadBlockReference"/> class with no value.
     /// </summary>
     public GH_AutocadBlockReference()
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadBlockReference"/> class with the
@@ -22,8 +21,7 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
     /// </summary>
     /// <param name="blockRefWrapper">The AutoCAD block instance to wrap.</param>
     public GH_AutocadBlockReference(BlockReferenceWrapper blockRefWrapper) : base(blockRefWrapper)
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadBlockReference"/> class by copying

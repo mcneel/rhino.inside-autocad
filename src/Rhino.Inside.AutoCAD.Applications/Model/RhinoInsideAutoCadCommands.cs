@@ -9,88 +9,50 @@ using System.Diagnostics;
 
 namespace Rhino.Inside.AutoCAD.Applications;
 
+/// <summary>
+/// The commands class for Rhino.Inside.AutoCAD application commands. This class contains
+/// all the command methods that can be invoked from AutoCAD to interact with Rhino and Grasshopper.
+/// </summary>
 public class RhinoInsideAutoCadCommands
 {
-    private static bool _isLanunching;
+    private static bool _isLaunching;
 
-    /// <summary>
-    /// The command to launch a GUI application with Rhino Inside.
-    /// </summary>
- /*   private static void RunApplication(
-        Func<IRhinoInsideAutoCadApplication, IInteropService, IApplicationMain> mainlineType,
-        ButtonApplicationId appId)
-    {
-        if (_isRunning)
-            return;
-
-        var application = RhinoInsideAutoCadExtension.Application;
-
-        var splashScreenLauncher = new SplashScreenLauncher(application);
-
-        splashScreenLauncher.Show();
-
-        var applicationServicesCore = application.ApplicationServicesCore;
-
-        var fileResourceManager = application.FileResourceManager;
-
-        try
-        {
-            _isRunning = true;
-
-            var interopService = new InteropService(application, appId);
-
-            var mainline = mainlineType(application, interopService);
-
-            mainline.ShutdownStarted += (_, _) => _isRunning = false;
-
-            var result = mainline.Run();
-
-            if (result == RunResult.Invalid)
-            {
-                var failingService = applicationServicesCore.GetFailedService();
-
-                splashScreenLauncher.ShowFailedValidationInfo(failingService.ValidationLogger);
-
-                _isRunning = false;
-            }
-            else
-            {
-                splashScreenLauncher.Close();
-            }
-        }
-        catch (Exception e)
-        {
-            splashScreenLauncher.ShowExceptionInfo();
-
-            _isRunning = false;
-
-            LoggerService.Instance.LogError(e);
-        }
-    }*/
+    private const string _rhinoPreviewButtonId = ApplicationConstants.RhinoPreviewButtonId;
+    private const string _grasshopperSolverButtonId = ApplicationConstants.GrasshopperSolverButtonId;
+    private const string _rhinocerosPreviewShadedIcon = ApplicationConstants.RhinocerosPreviewShadedIcon;
+    private const string _rhinocerosPreviewOffIcon = ApplicationConstants.RhinocerosPreviewOffIcon;
+    private const string _grasshopperSolverOnIcon = ApplicationConstants.GrasshopperSolverOnIcon;
+    private const string _grasshopperSolverOffIcon = ApplicationConstants.GrasshopperSolverOffIcon;
+    private const string _grasshopperCommandName = ApplicationConstants.GrasshopperCommandName;
+    private const string _packageManagerCommandName = ApplicationConstants.PackageManagerCommandName;
+    private const string _grasshopperPlayerCommandName = ApplicationConstants.GrasshopperPlayerCommandName;
+    private const string _newFloatingViewportScript = ApplicationConstants.NewFloatingViewportScript;
+    private const string _bimorphContactUrl = ApplicationConstants.BimorphContactUrl;
+    private const string _bimorphWebsiteUrl = ApplicationConstants.BimorphWebsiteUrl;
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO", CommandFlags.Modal)]
     public static void RHINO()
     {
-        if (_isLanunching)
+        if (_isLaunching)
             return;
 
-        _isLanunching = true;
+        _isLaunching = true;
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoLauncher = new RhinoLauncher(application!);
 
         rhinoLauncher.Launch(RhinoInsideMode.Windowed);
 
-        _isLanunching = false;
+        _isLaunching = false;
     }
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER", CommandFlags.Modal)]
     public static void GRASSHOPPER()
     {
-        if (_isLanunching)
+        if (_isLaunching)
             return;
 
-        _isLanunching = true;
+        _isLaunching = true;
 
         var application = RhinoInsideAutoCadExtension.Application;
 
@@ -100,8 +62,8 @@ public class RhinoInsideAutoCadCommands
 
         var rhinoInstance = application!.RhinoInsideManager.RhinoInstance;
 
-        rhinoInstance.RunRhinoCommand("Grasshopper");
-        _isLanunching = false;
+        rhinoInstance.RunRhinoCommand(_grasshopperCommandName);
+        _isLaunching = false;
     }
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "TOGGLE_RHINO_PREVIEW", CommandFlags.Modal)]
@@ -115,11 +77,11 @@ public class RhinoInsideAutoCadCommands
 
         rhinoObjectPreview.ToggleVisibility();
 
-        var buttonReplacer = new ButtonIconReplacer("RhinoPreviewButtonId");
+        var buttonReplacer = new ButtonIconReplacer(_rhinoPreviewButtonId);
 
         var imagePath = rhinoObjectPreview.Visible
-            ? "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Rhinoceros_Preview_Shaded.png"
-            : "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Rhinoceros_Preview_Off.png";
+            ? _rhinocerosPreviewShadedIcon
+            : _rhinocerosPreviewOffIcon;
 
         buttonReplacer.Replace(imagePath);
 
@@ -197,11 +159,11 @@ public class RhinoInsideAutoCadCommands
             grasshopperInstance.EnableSolver();
         }
 
-        var buttonReplacer = new ButtonIconReplacer("GrasshopperSolverButtonId");
+        var buttonReplacer = new ButtonIconReplacer(_grasshopperSolverButtonId);
 
         var imagePath = isEnabled
-            ? "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_SolverOff.png"
-            : "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_SolverOn.png";
+            ? _grasshopperSolverOffIcon
+            : _grasshopperSolverOnIcon;
 
         buttonReplacer.Replace(imagePath);
     }
@@ -209,10 +171,10 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "OPEN_RHINO_VIEWPORT", CommandFlags.Modal)]
     public static void OPEN_RHINO_VIEWPORT()
     {
-        if (_isLanunching)
+        if (_isLaunching)
             return;
 
-        _isLanunching = true;
+        _isLaunching = true;
 
         var application = RhinoInsideAutoCadExtension.Application;
 
@@ -222,19 +184,19 @@ public class RhinoInsideAutoCadCommands
 
         var rhinoInstance = application!.RhinoInsideManager.RhinoInstance;
 
-        rhinoInstance.RunRhinoScript("_NewFloatingViewport _Projection _CopyActive");
+        rhinoInstance.RunRhinoScript(_newFloatingViewportScript);
 
-        _isLanunching = false;
+        _isLaunching = false;
     }
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO_PACKAGE_MANGER", CommandFlags.Modal)]
     public static void RHINO_PACKAGE_MANGER()
     {
 
-        if (_isLanunching)
+        if (_isLaunching)
             return;
 
-        _isLanunching = true;
+        _isLaunching = true;
 
         var application = RhinoInsideAutoCadExtension.Application;
 
@@ -244,18 +206,18 @@ public class RhinoInsideAutoCadCommands
 
         var rhinoInstance = application!.RhinoInsideManager.RhinoInstance;
 
-        rhinoInstance.RunRhinoCommand("PackageManager");
+        rhinoInstance.RunRhinoCommand(_packageManagerCommandName);
 
-        _isLanunching = false;
+        _isLaunching = false;
     }
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_PLAYER", CommandFlags.Modal)]
     public static void GRASSHOPPER_PLAYER()
     {
-        if (_isLanunching)
+        if (_isLaunching)
             return;
 
-        _isLanunching = true;
+        _isLaunching = true;
 
         var application = RhinoInsideAutoCadExtension.Application;
 
@@ -265,9 +227,9 @@ public class RhinoInsideAutoCadCommands
 
         var rhinoInstance = application!.RhinoInsideManager.RhinoInstance;
 
-        rhinoInstance.RunRhinoCommand("GrasshopperPlayer");
+        rhinoInstance.RunRhinoCommand(_grasshopperPlayerCommandName);
 
-        _isLanunching = false;
+        _isLaunching = false;
     }
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "REQUEST_PLUGIN", CommandFlags.Modal)]
@@ -276,7 +238,7 @@ public class RhinoInsideAutoCadCommands
         //TODO: These should open a UI first.
         Process.Start(new ProcessStartInfo
         {
-            FileName = "https://www.bimorph.com/contact",
+            FileName = _bimorphContactUrl,
             UseShellExecute = true
         });
     }
@@ -287,7 +249,7 @@ public class RhinoInsideAutoCadCommands
         //TODO: These should open a UI first.
         Process.Start(new ProcessStartInfo
         {
-            FileName = "https://www.bimorph.com/contact",
+            FileName = _bimorphContactUrl,
             UseShellExecute = true
         });
     }
@@ -298,7 +260,7 @@ public class RhinoInsideAutoCadCommands
         //TODO: These should open a UI first.
         Process.Start(new ProcessStartInfo
         {
-            FileName = "https://www.bimorph.com/",
+            FileName = _bimorphWebsiteUrl,
             UseShellExecute = true
         });
     }

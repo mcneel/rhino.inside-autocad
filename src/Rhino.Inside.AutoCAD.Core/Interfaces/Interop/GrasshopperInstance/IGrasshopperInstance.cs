@@ -3,12 +3,14 @@
 namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// Represents an instance of the Rhino application within the Rhino.Inside.AutoCAD environment.
+/// Represents an instance of the Rhino application within the Rhino.Inside.AutoCAD
+/// environment.
 /// </summary>
 /// <remarks>
-/// This interface provides access to the core functionality of Rhino, including its core extension,
-/// the active document, and methods for validating and interacting with Rhino commands.
-/// It acts as the primary entry point for managing the Rhino instance.
+/// This interface provides access to the core functionality of Rhino, including
+/// its core extension, the active document, and methods for validating and
+/// interacting with Rhino commands. It acts as the primary entry point for
+/// managing the Rhino instance.
 /// </remarks>
 public interface IGrasshopperInstance
 {
@@ -33,7 +35,8 @@ public interface IGrasshopperInstance
     bool IsEnabled { get; }
 
     /// <summary>
-    /// Validates that the Grasshopper library is loaded into the Grasshopper component server.
+    /// Validates that the Grasshopper library is loaded into the Grasshopper
+    /// component server.
     /// </summary>
     void ValidateGrasshopperLibrary(IValidationLogger validationLogger);
 
@@ -57,4 +60,3 @@ public interface IGrasshopperInstance
     /// </summary>
     void Shutdown();
 }
-

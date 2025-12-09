@@ -8,16 +8,21 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
 
     private readonly IPreviewServer _previewServer;
 
+    public IGeometryPreviewSettings Settings { get; }
+
     /// <inheritdoc/>
     public bool Visible { get; private set; }
 
     /// <summary>
     /// Constructs a new <see cref="RhinoObjectPreviewServer"/>
     /// </summary>
-    public RhinoObjectPreviewServer()
+    public RhinoObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings)
     {
-        _previewServer = new PreviewServer();
+        _previewServer = new PreviewServer(geometryPreviewSettings);
+
         this.Visible = true;
+
+        this.Settings = geometryPreviewSettings;
     }
 
     /// <summary>

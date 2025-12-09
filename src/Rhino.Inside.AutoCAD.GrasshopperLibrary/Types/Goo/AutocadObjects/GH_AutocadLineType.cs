@@ -13,8 +13,7 @@ public class GH_AutocadLineType : GH_AutocadObjectGoo<AutocadLinetypeTableRecord
     /// Initializes a new instance of the <see cref="GH_AutocadLineType"/> class with no value.
     /// </summary>
     public GH_AutocadLineType()
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadLineType"/> class with the
@@ -22,8 +21,7 @@ public class GH_AutocadLineType : GH_AutocadObjectGoo<AutocadLinetypeTableRecord
     /// </summary>
     /// <param name="linetypeTableRecord">The AutoCAD line pattern to wrap.</param>
     public GH_AutocadLineType(AutocadLinetypeTableRecord linetypeTableRecord) : base(linetypeTableRecord)
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadLineType"/> class by copying
@@ -50,4 +48,3 @@ public class GH_AutocadLineType : GH_AutocadObjectGoo<AutocadLinetypeTableRecord
         return new GH_AutocadObject(dbObject);
     }
 }
-

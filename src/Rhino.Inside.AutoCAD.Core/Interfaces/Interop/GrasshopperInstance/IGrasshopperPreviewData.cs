@@ -24,12 +24,16 @@ public interface IGrasshopperPreviewData
     /// <summary>
     /// Converts the stored preview wireframe geometry into a list of AutoCAD entities.
     /// </summary>
-    /// <returns>A list of entities representing the preview geometry.</returns>
+    /// <returns>
+    /// A list of entities representing the preview geometry.
+    /// </returns>
     List<IEntity> GetWireframeEntities();
 
     /// <summary>
     /// Converts the stored preview shaded geometry into a list of AutoCAD entities.
     /// </summary>
-    /// <returns>A list of entities representing the preview geometry.</returns>
+    /// <returns>
+    /// A list of entities representing the preview geometry.
+    /// </returns>
     List<IEntity> GetShadedEntities();
 }

@@ -16,8 +16,6 @@ where TWrapperType : IDbObject
     /// <inheritdoc />
     public IDbObject ObjectValue => this.Value;
 
-
-
     /// <inheritdoc />
     public override bool IsValid => this.Value != null && this.Value.IsValid;
 
@@ -88,7 +86,7 @@ where TWrapperType : IDbObject
         return false;
     }
     /// <inheritdoc />
-    public void GetLatestObject()
+    public void GetUpdatedObject()
     {
         var picker = new AutocadObjectPicker();
         if (picker.TryGetUpdatedObject(this.AutocadReferenceId, out var entity))

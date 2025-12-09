@@ -13,8 +13,7 @@ public class GH_AutocadBlockTableRecord : GH_AutocadObjectGoo<BlockTableRecordWr
     /// Initializes a new instance of the <see cref="GH_AutocadBlockTableRecord"/> class with no value.
     /// </summary>
     public GH_AutocadBlockTableRecord()
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadBlockTableRecord"/> class with the
@@ -22,8 +21,7 @@ public class GH_AutocadBlockTableRecord : GH_AutocadObjectGoo<BlockTableRecordWr
     /// </summary>
     /// <param name="blockWrapper">The AutoCAD block definition to wrap.</param>
     public GH_AutocadBlockTableRecord(BlockTableRecordWrapper blockWrapper) : base(blockWrapper)
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadBlockTableRecord"/> class by copying

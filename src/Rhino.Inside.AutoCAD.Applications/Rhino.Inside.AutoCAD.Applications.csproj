@@ -46,7 +46,6 @@
     <PackageReference Include="AutoCAD.NET.Core">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Autofac" />
     <PackageReference Include="Grasshopper">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>

@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.UI.Resources.ViewModels;
 /// <summary>
 /// The view model for the MFE Formwork software splash screen.
 /// </summary>
-public partial class SplashScreenViewModel : ObservableObject, IDisposable
+public partial class LoadingScreenViewModel : ObservableObject, IDisposable
 {
     // To detect redundant calls
     private bool _disposed;
@@ -68,13 +68,13 @@ public partial class SplashScreenViewModel : ObservableObject, IDisposable
 #endif
 
     /// <summary>
-    /// Constructs a new <see cref="SplashScreenViewModel"/>.
+    /// Constructs a new <see cref="LoadingScreenViewModel"/>.
     /// </summary>
-    public SplashScreenViewModel(ISplashScreenConstants splashScreenConstants, IVersionLog versionLog)
+    public LoadingScreenViewModel(ILoadingScreenConstants LoadingScreenConstants, IVersionLog versionLog)
     {
         var version = versionLog.CurrentVersion;
 
-        _versionCopyrightNotice = $"{splashScreenConstants.Copyright} {DateTime.Now.Year} ©. {splashScreenConstants.VersionPrefix} {version}";
+        _versionCopyrightNotice = $"{LoadingScreenConstants.Copyright} {DateTime.Now.Year} ©. {LoadingScreenConstants.VersionPrefix} {version}";
 
         _dispatcherTimer = new DispatcherTimer(DispatcherPriority.Background)
         {

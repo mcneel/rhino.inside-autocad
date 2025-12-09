@@ -12,19 +12,23 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     private readonly IGrasshopperPreviewButtonManager _buttonManager;
 
     /// <inheritdoc/>
+    public IGeometryPreviewSettings Settings { get; }
+
+    /// <inheritdoc/>
     public GrasshopperPreviewMode PreviewMode { get; private set; }
 
     /// <summary>
     /// Constructs a new <see cref="IGrasshopperObjectPreviewServer"/>
     /// </summary>
-    public GrasshopperObjectPreviewServer()
+    public GrasshopperObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings)
     {
-        _shadedPreviewServer = new PreviewServer();
-        _wireframePreviewServer = new PreviewServer();
+        _shadedPreviewServer = new PreviewServer(geometryPreviewSettings);
+        _wireframePreviewServer = new PreviewServer(geometryPreviewSettings);
 
         _buttonManager = new GrasshopperPreviewButtonManager();
 
         this.PreviewMode = GrasshopperPreviewMode.Shaded;
+        this.Settings = geometryPreviewSettings;
     }
 
     /// <summary>

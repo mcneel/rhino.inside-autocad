@@ -11,7 +11,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// Represents a Grasshopper Goo object for AutoCAD ObjectIds.
 /// </summary>
 public abstract class GH_AutocadGeometricGoo<TWrapperType, TRhinoType>
-    : GH_GeometricGoo<TWrapperType>, IGH_AutocadReferenceObject, IGH_PreviewData
+    : GH_GeometricGoo<TWrapperType>, IGH_AutocadReferenceObject,
+        IGH_PreviewData, IGH_AutocadGeometryPreview
 where TWrapperType : Entity
 where TRhinoType : GeometryBase
 {
@@ -134,6 +135,9 @@ where TRhinoType : GeometryBase
     protected abstract void DrawViewportGeometryMeshes(GH_PreviewMeshArgs args);
 
     /// <inheritdoc />
+    public abstract void DrawAutocadPreview(IGrasshopperPreviewData previewData);
+
+    /// <inheritdoc />
     public override IGH_Goo Duplicate() => (IGH_Goo)this.CreateClonedInstance(this.Value);
 
     /// <inheritdoc />
@@ -234,12 +238,12 @@ where TRhinoType : GeometryBase
     }
 
     /// <inheritdoc />
-    public void GetLatestObject()
+    public void GetUpdatedObject()
     {
         var picker = new AutocadObjectPicker();
         if (picker.TryGetUpdatedObject(this.AutocadReferenceId, out var entity))
         {
-            this.Value = (TWrapperType?)entity;
+            this.Value = (TWrapperType?)entity.Unwrap();
         }
     }
 

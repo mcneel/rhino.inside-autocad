@@ -31,8 +31,13 @@ public class InteropConstants
     public const double LinePatternPointLength = 0.1;
 
     /// <summary>
-    /// The total length in <see cref="IUnitSystemManager.RhinoUnits"/> of a 
+    /// The total length in <see cref="IUnitSystemManager.RhinoUnits"/> of a
     /// <see cref="IAutocadLinetypeTableRecord"/>.
     /// </summary>
     public const double LinePatternTotalLength = 85.0;
+
+    /// <summary>
+    /// The file name of the Grasshopper library DLL.
+    /// </summary>
+    public const string GrasshopperLibraryFileName = "Rhino.Inside.AutoCAD.GrasshopperLibrary.dll";
 }

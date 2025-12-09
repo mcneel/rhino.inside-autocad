@@ -49,13 +49,6 @@ public class ConvertFromAutoCadMeshComponent : GH_Component
 
         var rhinoMesh = _geometryConverter.ToRhinoType(autocadMesh);
 
-        if (rhinoMesh == null)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                "Failed to convert mesh to Rhino format");
-            return;
-        }
-
         DA.SetData(0, rhinoMesh);
     }
 }

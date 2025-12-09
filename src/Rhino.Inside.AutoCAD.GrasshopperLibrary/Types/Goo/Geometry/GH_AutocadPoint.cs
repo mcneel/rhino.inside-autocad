@@ -71,4 +71,14 @@ public class GH_AutocadPoint : GH_AutocadGeometricGoo<AutocadPoint, RhinoPoint>
     {
         return;
     }
+
+    /// <inheritdoc />
+    public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
+    {
+        var rhinoGeometry = this.RhinoGeometry;
+
+        if (rhinoGeometry == null) return;
+
+        previewData.Points.Add(rhinoGeometry.Location);
+    }
 }

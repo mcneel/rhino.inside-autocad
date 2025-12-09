@@ -12,6 +12,7 @@
 /// </remarks>
 public interface ITransactionManager : IDisposable
 {
+
     /// <summary>
     /// Returns the <see cref="IBlockTableRecord"/>. Input true to
     /// open the block table record for write purposes.

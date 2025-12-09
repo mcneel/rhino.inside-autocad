@@ -18,14 +18,14 @@ public class CurveFilter : IFilter
     {
         var filterCriteria = new[]
         {
-            new TypedValue(-4, "<OR"),
-            new TypedValue(0, "ARC,CIRCLE,ELLIPSE,LEADER,LINE,LWPOLYLINE,RAY,SPLINE,XLINE"),
-            new TypedValue(-4, "<AND"),
-            new TypedValue(0, "POLYLINE"),
-            new TypedValue(-4, "&"),
-            new TypedValue(70, 16 | 32 | 64),
-            new TypedValue(-4, "AND>"),
-            new TypedValue(-4, "OR>")
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue(-4, "<OR"),
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue(0, "ARC,CIRCLE,ELLIPSE,LEADER,LINE,LWPOLYLINE,RAY,SPLINE,XLINE"),
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue(-4, "<AND"),
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue(0, "POLYLINE"),
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue(-4, "&"),
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue(70, 16 | 32 | 64),
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue(-4, "AND>"),
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue(-4, "OR>")
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

@@ -19,8 +19,6 @@ public class ApplicationSettingsImporter : IApplicationSettingsImporter<IApplica
         var serializerOptions = new JsonSerializerOptions
         {
             Converters = {
-                new InterfaceConverterFactory(typeof(FileNameLibrary), typeof(IFileNameLibrary)),
-                new InterfaceConverterFactory(typeof(JsonNameLibrary), typeof(IJsonNameLibrary)),
                 new InterfaceConverterFactory(typeof(DataFileName), typeof(IDataFileName)),
                 new InterfaceConverterFactory(typeof(ApplicationSettings), typeof(IApplicationSettings))
             }

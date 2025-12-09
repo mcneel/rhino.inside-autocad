@@ -3,7 +3,7 @@
 /// <summary>
 /// Defines constants providing messages displayed in the splash screen
 /// </summary>
-public interface ISplashScreenConstants
+public interface ILoadingScreenConstants
 {
     /// <summary>
     /// The copyright notice displayed in the splash screen.

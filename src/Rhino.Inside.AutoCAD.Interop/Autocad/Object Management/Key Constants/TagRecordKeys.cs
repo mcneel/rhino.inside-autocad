@@ -24,35 +24,35 @@ public class TagRecordKeys
 
     /// <summary>
     /// The key for the <see cref="IObjectIdTagRecord"/> containing <see cref=
-    /// "IDataTag"/>s relating to <see cref="ISheetNameIdentity.InternalId"/>s 
+    /// "ITypedValue"/>s relating to <see cref="ISheetNameIdentity.InternalId"/>s 
     /// of the created <see cref="ISheet"/>s in the active <see cref="IAutocadDocument"/>.
     /// </summary>
     public const string SheetInternalIds = "SHEET_INTERNAL_IDS";
 
     /// <summary>
-    /// The key for the <see cref="IDataTagRecord"/> containing <see cref=
-    /// "IDataTag"/>s relating to the <see cref="IModelSpaceIdentity.InternalId"/>s
-    /// in the <see cref="IDataTagDatabaseManager.GetProjectWideDatabase"/>.
+    /// The key for the <see cref="IXRecord"/> containing <see cref=
+    /// "ITypedValue"/>s relating to the <see cref="IModelSpaceIdentity.InternalId"/>s
+    /// in the <see cref="IXRecordDictionaryManager.GetProjectWideDatabase"/>.
     /// </summary>
     public const string ModelSpaceInternalIds = "MODEL_SPACE_INTERNAL_IDS";
 
     /// <summary>
     /// The key for the <see cref="IObjectIdTagRecord"/> containing <see cref=
-    /// "IDataTag"/>s relating to the <see cref="ISheetContent.InternalId"/>
+    /// "ITypedValue"/>s relating to the <see cref="ISheetContent.InternalId"/>
     /// in Project Wide Database of the active <see cref="IAutocadDocument"/>.
     /// </summary>
     public const string SheetContentInternalIds = "SHEET_CONTENT_INTERNAL_IDS";
 
     /// <summary>
     /// The key for the <see cref="IObjectIdTagRecord"/> containing <see cref=
-    /// "IDataTag"/>s relating to the <see cref="IModelContent.InternalId"/>
+    /// "ITypedValue"/>s relating to the <see cref="IModelContent.InternalId"/>
     /// in Project Wide Database of the active <see cref="IAutocadDocument"/>.
     /// </summary>
     public const string ModelContentInternalIds = "MODEL_CONTENT_INTERNAL_IDS";
 
     /// <summary>
     /// The key for the <see cref="IObjectIdTagRecord"/> containing <see cref=
-    /// "IDataTag"/>s relating to the <see cref="ICommitIdentity.InternalId"/>
+    /// "ITypedValue"/>s relating to the <see cref="ICommitIdentity.InternalId"/>
     /// in Project Wide Database of the active <see cref="IAutocadDocument"/>.
     /// </summary>
     public const string CommitInternalIds = "COMMIT_INTERNAL_IDS";
@@ -65,15 +65,15 @@ public class TagRecordKeys
     public const string Layouts = "LAYOUT_NAMES";
 
     /// <summary>
-    /// The key for the <see cref="IDataTagRecord"/> containing <see cref=
-    /// "ICeiling3dGroupIdentity.InternalId"/> <see cref="IDataTag"/>s in 
+    /// The key for the <see cref="IXRecord"/> containing <see cref=
+    /// "ICeiling3dGroupIdentity.InternalId"/> <see cref="ITypedValue"/>s in 
     /// Project Wide Database of the active <see cref="IAutocadDocument"/>.
     /// </summary>
     public const string Ceiling3dGroupIds = "CEILING_ASSEMBLY_IDS";
 
     /// <summary>
-    /// The key for the <see cref="IDataTagRecord"/> containing <see cref="ISheet"/> 
-    /// <see cref="IDataTag"/>s in the <see cref="IAutocadLayout"/> instance.
+    /// The key for the <see cref="IXRecord"/> containing <see cref="ISheet"/> 
+    /// <see cref="ITypedValue"/>s in the <see cref="IAutocadLayout"/> instance.
     /// </summary>
     public const string SheetKey = "SHEET";
     
@@ -116,40 +116,40 @@ public class TagRecordKeys
     public const string PanelTypeTagsKey = "PanelTypeBlockTags";
 
     /// <summary>
-    /// The key for the <see cref="IDataTagRecord"/> containing <see cref="IPanelType"/>
-    /// <see cref="IPanelDefinition"/> <see cref="IDataTag"/>s such as the
+    /// The key for the <see cref="IXRecord"/> containing <see cref="IPanelType"/>
+    /// <see cref="IPanelDefinition"/> <see cref="ITypedValue"/>s such as the
     /// <see cref="PanelShape"/> and <see cref="IPanelTypeIdentity.PositionNumber"/>.
     /// </summary>
     public const string PanelTypeDefinitionTagsKey = "PanelTypeDefinitionTags";
 
     /// <summary>
-    /// The key for the <see cref="IDataTagRecord"/> containing <see cref="IPanelType"/>
-    /// <see cref="IGlobalGrainDirection"/> <see cref="IDataTag"/>s such as the
+    /// The key for the <see cref="IXRecord"/> containing <see cref="IPanelType"/>
+    /// <see cref="IGlobalGrainDirection"/> <see cref="ITypedValue"/>s such as the
     /// <see cref="IGlobalGrainDirection.GrainType"/> and
     /// <see cref="IGlobalGrainDirection.ActualDirection"/>.
     /// </summary>
     public const string PanelTypeGrainTagsKey = "PanelTypeGrainDirectionTagsKey";
 
     /// <summary>
-    /// The key for the <see cref="IDataTagRecord"/> containing the Id of the Text Object for
+    /// The key for the <see cref="IXRecord"/> containing the Id of the Text Object for
     /// <see cref="IPanelTypePositionNumber"/>
     /// </summary>
     public const string PositionNumberTextTagsKey = "PositionNumberTextTagsKey";
 
     /// <summary>
-    /// The key for the <see cref="IDataTagRecord"/> containing the Curve Id of the <see
+    /// The key for the <see cref="IXRecord"/> containing the Curve Id of the <see
     /// cref="IPerforationBoundary"/> Curves.
     /// </summary>
     public const string PerforationCurveTagsKey = "PerforationCurveTagsKey";
 
     /// <summary>
-    /// The key for the <see cref="IDataTagRecord"/> containing <see cref="IPanelTypeEdgeLoop"/>
-    /// <see cref="IDataTag"/>s such as the  <see cref="IPanelProfileExtents3d"/>.
+    /// The key for the <see cref="IXRecord"/> containing <see cref="IPanelTypeEdgeLoop"/>
+    /// <see cref="ITypedValue"/>s such as the  <see cref="IPanelProfileExtents3d"/>.
     /// </summary>
     public const string PanelTypePerforationExtentsKey = "PanelTypeEdgeLoopTagsKey";
 
     /// <summary>
-    /// The key for the <see cref="IDataTagRecord"/> containing <see cref="IDataTag"/>
+    /// The key for the <see cref="IXRecord"/> containing <see cref="ITypedValue"/>
     /// relating to the active <see cref="ISheetTemplateDefinition"/>.
     /// </summary>
     public const string SheetTemplateDefinition = "SheetTemplateDefinitionTags";

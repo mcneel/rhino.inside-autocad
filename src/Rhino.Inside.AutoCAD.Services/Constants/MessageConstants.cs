@@ -10,4 +10,9 @@ public class MessageConstants
     /// </summary>
     public const string UserSettingDeserializeError = "Unable to deserialize user settings";
 
+    /// <summary>
+    /// The error message when the Rhino Inside ribbon tab is not loaded.
+    /// </summary>
+    public const string RhinoInsideTabNotLoadedError = "Rhino Inside Ribbon Tab not loaded";
+
 }

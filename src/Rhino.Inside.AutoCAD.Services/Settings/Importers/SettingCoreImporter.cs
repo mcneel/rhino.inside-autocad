@@ -17,7 +17,7 @@ public class SettingCoreImporter : ISettingCoreImporter
         {
             Converters = {
                 new InterfaceConverterFactory(typeof(DeploymentDirectory), typeof(IDeploymentDirectory)),
-                new InterfaceConverterFactory(typeof(SplashScreenConstants), typeof(ISplashScreenConstants)),
+                new InterfaceConverterFactory(typeof(LoadingScreenConstants), typeof(ILoadingScreenConstants)),
                 new InterfaceConverterFactory(typeof(SettingsCore), typeof(ISettingsCore))
             }
         };

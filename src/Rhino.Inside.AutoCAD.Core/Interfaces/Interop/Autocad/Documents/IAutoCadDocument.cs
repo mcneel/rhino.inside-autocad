@@ -82,7 +82,11 @@ public interface IAutocadDocument
  /// The <see cref="ITextStyleTableRecordRepository"/> of this <see cref=
  /// "IDocument"/>.
  /// </summary>
- ITextStyleTableRecordRepository TextStyleTableRecordRepository { get; }*/
+ ITextStyleTableRecordRepository TextStyleTableRecordRepository { get; }
+        /// <summary>
+         /// The <see cref="IXRecordDictionaryManager"/>.
+         /// </summary>
+       //  IDataTagDatabaseManager? DataTagDatabaseManager { get; }*/
 
     /// <summary>
     /// The <see cref="UnitSystem"/> of this <see cref="IAutocadDocument"/>.

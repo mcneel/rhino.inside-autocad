@@ -10,6 +10,9 @@ using RhinoSubD = Rhino.Geometry.SubD;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
+/// <summary>
+/// A Service to convert <see cref="RhinoObject"/> to Autocad <see cref="IEntity"/>.
+/// </summary>
 public interface IRhinoObjectConverter
 {
     /// <summary>
@@ -18,9 +21,7 @@ public interface IRhinoObjectConverter
     bool TryConvert(RhinoObject rhinoObject, out List<IEntity> entities);
 }
 
-/// <summary>
-/// A Service to convert <see cref="RhinoObject"/> to Autocad <see cref="IEntity"/>.
-/// </summary>
+/// <inheritdoc cref="IRhinoObjectConverter"/>
 public class RhinoObjectConverter : IRhinoObjectConverter
 {
     private readonly GeometryConverter _geometryConverter;

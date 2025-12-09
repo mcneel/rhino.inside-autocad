@@ -13,8 +13,7 @@ public class GH_AutocadLayer : GH_AutocadObjectGoo<AutocadLayerTableRecordWrappe
     /// Initializes a new instance of the <see cref="GH_AutocadLayer"/> class with no value.
     /// </summary>
     public GH_AutocadLayer()
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadLayer"/> class with the
@@ -22,8 +21,7 @@ public class GH_AutocadLayer : GH_AutocadObjectGoo<AutocadLayerTableRecordWrappe
     /// </summary>
     /// <param name="layerWrapper">The AutoCAD layer to wrap.</param>
     public GH_AutocadLayer(AutocadLayerTableRecordWrapper layerWrapper) : base(layerWrapper)
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadLayer"/> class by copying
@@ -50,4 +48,3 @@ public class GH_AutocadLayer : GH_AutocadObjectGoo<AutocadLayerTableRecordWrappe
         return new GH_AutocadObject(dbObject);
     }
 }
-

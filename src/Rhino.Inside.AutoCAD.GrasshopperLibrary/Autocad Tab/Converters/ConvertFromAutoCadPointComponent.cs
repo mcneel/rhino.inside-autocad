@@ -49,13 +49,6 @@ public class ConvertFromAutoCadPointComponent : GH_Component
 
         var rhinoPoint = _geometryConverter.ToRhinoType(autocadPoint);
 
-        if (rhinoPoint == null)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                "Failed to convert point to Rhino format");
-            return;
-        }
-
         DA.SetData(0, rhinoPoint.Location);
     }
 }

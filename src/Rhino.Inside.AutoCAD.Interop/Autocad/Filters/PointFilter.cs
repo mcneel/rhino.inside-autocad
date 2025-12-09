@@ -18,7 +18,7 @@ public class PointFilter : IFilter
     {
         var filterCriteria = new[]
         {
-            new TypedValue(0, "POINT")
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue(0, "POINT")
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

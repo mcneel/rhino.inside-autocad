@@ -24,7 +24,7 @@ public class BlockNameFilter : IBlockNameFilter
     {
         var filterCriteria = new[]
         {
-            new TypedValue((int) DxfCode.BlockName, this.Name.ToUpper()),
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue((int) DxfCode.BlockName, this.Name.ToUpper()),
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

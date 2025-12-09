@@ -36,12 +36,12 @@ public class GrasshopperDocumentChangedEvent : IGrasshopperDocumentChangedEvent
                 {
                     if (ghParam is IGH_AutocadReferenceObject referenceObject)
                     {
-                        referenceObject.GetLatestObject();
+                        referenceObject.GetUpdatedObject();
                     }
                 }
             }
 
-            obj.ExpireSolution(false);
+            obj.ExpireSolution(true);
         }
 
         return this.Definition;

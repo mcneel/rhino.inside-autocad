@@ -9,13 +9,11 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// </summary>
 public class GH_AutocadObject : GH_AutocadObjectGoo<DbObjectWrapper>
 {
-
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadObject"/> class with no value.
     /// </summary>
     protected GH_AutocadObject()
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadObject"/> class with the
@@ -23,8 +21,7 @@ public class GH_AutocadObject : GH_AutocadObjectGoo<DbObjectWrapper>
     /// </summary>
     /// <param name="dbObject">The AutoCAD Object to wrap.</param>
     protected GH_AutocadObject(DbObjectWrapper dbObject) : base(dbObject)
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadObject"/> class by copying

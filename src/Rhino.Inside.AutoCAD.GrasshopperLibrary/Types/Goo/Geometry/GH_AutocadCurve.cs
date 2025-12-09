@@ -1,5 +1,6 @@
 ﻿using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadCurve = Autodesk.AutoCAD.DatabaseServices.Curve;
 using RhinoCurve = Rhino.Geometry.Curve;
 
@@ -39,7 +40,17 @@ public class GH_AutocadCurve : GH_AutocadGeometricGoo<AutocadCurve, RhinoCurve>
     /// <inheritdoc />
     protected override GH_AutocadGeometricGoo<AutocadCurve, RhinoCurve> CreateClonedInstance(AutocadCurve entity)
     {
-        return new GH_AutocadCurve(entity.Clone() as AutocadCurve, this.AutocadReferenceId);
+        if (this.AutocadReferenceId.IsValid)
+        {
+            var picker = new AutocadObjectPicker();
+            if (picker.TryGetUpdatedObject(this.AutocadReferenceId, out var updatedEntity)
+                && updatedEntity!.Unwrap() is AutocadCurve curve)
+            {
+                return new GH_AutocadCurve(curve);
+            }
+        }
+
+        return new GH_AutocadCurve(this.Value);
     }
 
     /// <inheritdoc />
@@ -70,6 +81,16 @@ public class GH_AutocadCurve : GH_AutocadGeometricGoo<AutocadCurve, RhinoCurve>
     protected override void DrawViewportGeometryMeshes(GH_PreviewMeshArgs args)
     {
         return;
+    }
+
+    /// <inheritdoc />
+    public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
+    {
+        var rhinoGeometry = this.RhinoGeometry;
+        if (rhinoGeometry != null)
+        {
+            previewData.Wires.Add(this.RhinoGeometry);
+        }
     }
 }
 

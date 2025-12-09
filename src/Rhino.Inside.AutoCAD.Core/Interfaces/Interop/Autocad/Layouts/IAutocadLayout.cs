@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents a wrapped AutoCAD Layout.
 /// </summary>
-public interface IAutocadLayout : IDbObject, ITaggedObjectId
+public interface IAutocadLayout : IDbObject
 {
     /// <summary>
     /// The name of the <see cref="IAutocadLayout"/>.

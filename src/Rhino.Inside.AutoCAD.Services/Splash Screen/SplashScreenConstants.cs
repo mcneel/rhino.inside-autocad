@@ -5,7 +5,7 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// <summary>
 /// A constants class storing messages displayed in the splash screen
 /// </summary>
-public class SplashScreenConstants : ISplashScreenConstants
+public class LoadingScreenConstants : ILoadingScreenConstants
 {
     /// <summary>
     /// The copyright notice displayed in the splash screen.

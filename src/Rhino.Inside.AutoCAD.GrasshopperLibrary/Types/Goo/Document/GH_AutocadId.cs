@@ -13,7 +13,7 @@ public class GH_AutocadId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
     public IObjectId AutocadReferenceId => this.Value;
 
     /// <inheritdoc />
-    public override bool IsValid => this.Value != null && this.Value.IsValid;
+    public override bool IsValid => this.Value is { IsValid: true };
 
     /// <inheritdoc />
     public override string TypeName => nameof(AutocadObjectId);

@@ -183,4 +183,68 @@ public class ApplicationConstants
     public const string StackTraceMessageFormat = "\nStack trace: {0}\n";
 
     #endregion
+
+    #region Command Constants
+
+    /// <summary>
+    /// The identifier for the Rhino preview toggle button.
+    /// </summary>
+    public const string RhinoPreviewButtonId = "RhinoPreviewButtonId";
+
+    /// <summary>
+    /// The identifier for the Grasshopper solver toggle button.
+    /// </summary>
+    public const string GrasshopperSolverButtonId = "GrasshopperSolverButtonId";
+
+    /// <summary>
+    /// The URI for the Rhinoceros preview shaded icon.
+    /// </summary>
+    public const string RhinocerosPreviewShadedIcon = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Rhinoceros_Preview_Shaded.png";
+
+    /// <summary>
+    /// The URI for the Rhinoceros preview off icon.
+    /// </summary>
+    public const string RhinocerosPreviewOffIcon = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Rhinoceros_Preview_Off.png";
+
+    /// <summary>
+    /// The URI for the Grasshopper solver on icon.
+    /// </summary>
+    public const string GrasshopperSolverOnIcon = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_SolverOn.png";
+
+    /// <summary>
+    /// The URI for the Grasshopper solver off icon.
+    /// </summary>
+    public const string GrasshopperSolverOffIcon = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_SolverOff.png";
+
+    /// <summary>
+    /// The Rhino command name for launching Grasshopper.
+    /// </summary>
+    public const string GrasshopperCommandName = "Grasshopper";
+
+    /// <summary>
+    /// The Rhino command name for launching the Package Manager.
+    /// </summary>
+    public const string PackageManagerCommandName = "PackageManager";
+
+    /// <summary>
+    /// The Rhino command name for launching Grasshopper Player.
+    /// </summary>
+    public const string GrasshopperPlayerCommandName = "GrasshopperPlayer";
+
+    /// <summary>
+    /// The Rhino script command for creating a new floating viewport.
+    /// </summary>
+    public const string NewFloatingViewportScript = "_NewFloatingViewport _Projection _CopyActive";
+
+    /// <summary>
+    /// The URL for the Bimorph contact page.
+    /// </summary>
+    public const string BimorphContactUrl = "https://www.bimorph.com/contact";
+
+    /// <summary>
+    /// The URL for the Bimorph website home page.
+    /// </summary>
+    public const string BimorphWebsiteUrl = "https://www.bimorph.com/";
+
+    #endregion
 }

@@ -6,14 +6,14 @@ using System.Windows.Input;
 namespace Rhino.Inside.AutoCAD.UI.Resources.Views;
 
 /// <summary>
-/// Interaction logic for SplashScreenWindow.xaml
+/// Interaction logic for LoadingScreenWindow.xaml
 /// </summary>
-public partial class SplashScreenWindow : IWindow
+public partial class LoadingScreenWindow : IWindow
 {
     /// <summary>
-    /// Constructs a new <see cref="SplashScreenWindow"/>.
+    /// Constructs a new <see cref="LoadingScreenWindow"/>.
     /// </summary>
-    public SplashScreenWindow(SplashScreenViewModel viewModel)
+    public LoadingScreenWindow(LoadingScreenViewModel viewModel)
     {
         InitializeComponent();
 

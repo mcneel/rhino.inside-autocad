@@ -18,7 +18,7 @@ public class SolidFilter : IFilter
     {
         var filterCriteria = new[]
         {
-            new TypedValue((int)DxfCode.Start, "3DSOLID")
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue((int)DxfCode.Start, "3DSOLID")
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

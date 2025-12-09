@@ -1,4 +1,6 @@
-﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Rhino.Geometry;
+
+namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
 /// An interface which wraps a hatch entity from an AutoCAD
@@ -9,7 +11,7 @@ public interface IHatch : IEntity
     /// <summary>
     /// The origin of this <see cref="IHatch"/>.
     /// </summary>
-   // IPoint2d Origin { get; }
+    Point2d Origin { get; }
 
     /// <summary>
     /// The list of <see cref="IHatchLoop"/>s that make up the bounds of
@@ -23,12 +25,7 @@ public interface IHatch : IEntity
     IHatchLoopSet Loops { get; }
 
     /// <summary>
-    /// The <see cref="IHatchValidator"/> for this <see cref="IHatch"/>.
+    /// The <see cref="Plane"/> of this <see cref="IHatch"/>.
     /// </summary>
-    IHatchValidator Validator { get; }
-
-    /// <summary>
-    /// The <see cref="IPlane"/> of this <see cref="IHatch"/>.
-    /// </summary>
-    //IPlane Plane { get; }
+    Plane Plane { get; }
 }

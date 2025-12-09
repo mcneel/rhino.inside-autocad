@@ -35,12 +35,18 @@ public class RhinoInsideManager : IRhinoInsideManager
         IAutoCadInstance autoCadInstance)
     {
 
-        this.RhinoPreviewServer = new RhinoObjectPreviewServer();
+        var rhinoPreviewSettings = new GeometryPreviewSettings(128,
+            "Rhino.Inside.AutoCAD.Preview.Rhino.Material", 5);
 
-        this.GrasshopperPreviewServer = new GrasshopperObjectPreviewServer();
+        this.RhinoPreviewServer = new RhinoObjectPreviewServer(rhinoPreviewSettings);
+
+        var grasshopperPreviewSettings = new GeometryPreviewSettings(128,
+            "Rhino.Inside.AutoCAD.Preview.Grasshopper.Material", 1);
+
+        this.GrasshopperPreviewServer = new GrasshopperObjectPreviewServer(grasshopperPreviewSettings);
 
         this.AutoCadInstance = autoCadInstance;
-        autoCadInstance.DocumentCreated += this.UpdateUnitSystem;
+        autoCadInstance.DocumentCreated += this.AutocadDocumentSwitched;
         autoCadInstance.UnitsChanged += this.UpdateUnitSystem;
         autoCadInstance.DocumentChanged += this.AutocadDocumentChange;
 
@@ -64,6 +70,26 @@ public class RhinoInsideManager : IRhinoInsideManager
         _grasshopperChangeResponder = new GrasshopperChangeResponder();
     }
 
+    /// <summary>
+    /// Handles AutoCAD document switching and creates preview materials in both Rhino and Grasshopper
+    /// preview servers.
+    /// </summary>
+    private void AutocadDocumentSwitched(object sender, EventArgs e)
+    {
+        this.UpdateUnitSystem(sender, e);
+
+        var document = this.AutoCadInstance.ActiveDocument;
+
+        if (document == null) return;
+
+        this.RhinoPreviewServer.Settings.CreateMaterial(document);
+
+        this.GrasshopperPreviewServer.Settings.CreateMaterial(document);
+    }
+
+    /// <summary>
+    /// Handles AutoCAD document changes and responds to them in Grasshopper.
+    /// </summary>
     private void AutocadDocumentChange(object sender, IAutocadDocumentChangeEventArgs e)
     {
         _grasshopperChangeResponder.Respond(e.Change);

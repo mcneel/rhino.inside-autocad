@@ -37,7 +37,7 @@ public class ConvertToAutoCadCurveComponent : GH_Component
     protected override void RegisterOutputParams(GH_OutputParamManager pManager)
     {
         pManager.AddParameter(new Param_AutocadCurve(), "Curve", "C", "AutoCAD curve",
-            GH_ParamAccess.item);
+            GH_ParamAccess.list);
     }
 
     /// <inheritdoc />
@@ -48,16 +48,16 @@ public class ConvertToAutoCadCurveComponent : GH_Component
         if (!DA.GetData(0, ref rhinoCurve)
         || rhinoCurve is null) return;
 
-        var cadCurve = _geometryConverter.ToAutoCadSingleCurve(rhinoCurve);
+        var cadCurves = _geometryConverter.ToAutoCadType(rhinoCurve);
 
-        if (cadCurve == null)
+        if (cadCurves == null || cadCurves.Count == 0)
         {
             this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                 "Failed to convert curve to AutoCAD format");
             return;
         }
 
-        var goo = new GH_AutocadCurve(cadCurve);
-        DA.SetData(0, goo);
+        var goo = cadCurves.Select(cadCurve => new GH_AutocadCurve(cadCurve));
+        DA.SetDataList(0, goo);
     }
 }

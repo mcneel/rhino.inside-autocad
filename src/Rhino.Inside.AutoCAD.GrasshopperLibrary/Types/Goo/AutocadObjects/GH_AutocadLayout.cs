@@ -13,8 +13,7 @@ public class GH_AutocadLayout : GH_AutocadObjectGoo<AutocadLayoutWrapper>
     /// Initializes a new instance of the <see cref="GH_AutocadLayout"/> class with no value.
     /// </summary>
     public GH_AutocadLayout()
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadLayout"/> class with the
@@ -22,8 +21,7 @@ public class GH_AutocadLayout : GH_AutocadObjectGoo<AutocadLayoutWrapper>
     /// </summary>
     /// <param name="layoutWrapper">The AutoCAD layout to wrap.</param>
     public GH_AutocadLayout(AutocadLayoutWrapper layoutWrapper) : base(layoutWrapper)
-    {
-    }
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadLayout"/> class by copying
@@ -49,4 +47,3 @@ public class GH_AutocadLayout : GH_AutocadObjectGoo<AutocadLayoutWrapper>
         return new GH_AutocadObject(dbObject);
     }
 }
-

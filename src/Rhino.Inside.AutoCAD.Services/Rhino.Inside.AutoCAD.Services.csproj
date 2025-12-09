@@ -31,7 +31,6 @@
 
 		<PackageReference Include="NaturalSort.Extension" />
 		<PackageReference Include="MaterialDesignThemes" />
-		<PackageReference Include="Autofac" />
 		<PackageReference Include="AutoCAD.NET">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>

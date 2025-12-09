@@ -34,11 +34,14 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
 
         foreach (var curve in this.Wires)
         {
-            var cadCurve = _geometryConverter.ToAutoCadSingleCurve(curve);
+            var cadCurves = _geometryConverter.ToAutoCadType(curve);
 
-            var entity = new EntityWrapper(cadCurve);
+            foreach (var cadCurve in cadCurves)
+            {
+                var entity = new EntityWrapper(cadCurve);
 
-            entities.Add(entity);
+                entities.Add(entity);
+            }
         }
 
         return entities;

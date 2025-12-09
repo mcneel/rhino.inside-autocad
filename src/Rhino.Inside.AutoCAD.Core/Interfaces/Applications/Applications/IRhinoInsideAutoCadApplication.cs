@@ -11,11 +11,6 @@ public interface IRhinoInsideAutoCadApplication
     IBootstrapper Bootstrapper { get; }
 
     /// <summary>
-    /// The core application services.
-    /// </summary>
-    IApplicationServicesCore ApplicationServicesCore { get; }
-
-    /// <summary>
     /// The application configuration settings.
     /// </summary>
     IApplicationConfig ApplicationConfig { get; }

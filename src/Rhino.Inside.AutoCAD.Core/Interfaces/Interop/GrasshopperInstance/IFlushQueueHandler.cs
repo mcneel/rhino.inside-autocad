@@ -15,6 +15,5 @@ public interface IFlushQueueHandler
     /// <summary>
     /// Executes all queued Grasshopper document changes, processing them sequentially.
     /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task Execute();
+    void Execute();
 }

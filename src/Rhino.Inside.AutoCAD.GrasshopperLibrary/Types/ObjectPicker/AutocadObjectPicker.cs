@@ -138,6 +138,6 @@ public class AutocadObjectPicker : IAutocadObjectPicker
              }
          });
 
-        return entity == null;
+        return entity != null;
     }
 }

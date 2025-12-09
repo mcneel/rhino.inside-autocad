@@ -1,4 +1,5 @@
 ﻿using Grasshopper.Kernel;
+using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using AutocadMesh = Autodesk.AutoCAD.DatabaseServices.PolyFaceMesh;
 using RhinoMesh = Rhino.Geometry.Mesh;
@@ -70,6 +71,23 @@ public class GH_AutocadMesh : GH_AutocadGeometricGoo<AutocadMesh, RhinoMesh>
     protected override void DrawViewportGeometryMeshes(GH_PreviewMeshArgs args)
     {
         args.Pipeline.DrawMeshShaded(this.RhinoGeometry, args.Material);
+    }
+
+    /// <inheritdoc />
+    public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
+    {
+        var rhinoGeometry = this.RhinoGeometry;
+
+        if (rhinoGeometry == null) return;
+
+        previewData.Meshes.Add(rhinoGeometry);
+
+        var polylines = rhinoGeometry.GetNakedEdges();
+
+        foreach (var polyline in polylines)
+        {
+            previewData.Wires.Add(new PolylineCurve(polyline));
+        }
     }
 }
 

@@ -1,4 +1,5 @@
 ﻿using Grasshopper.Kernel;
+using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using AutocadSolid = Autodesk.AutoCAD.DatabaseServices.Solid3d;
 using RhinoBrep = Rhino.Geometry.Brep;
@@ -75,6 +76,25 @@ public class GH_AutocadSolid : GH_AutocadGeometricGoo<AutocadSolid, RhinoBrep>
     protected override void DrawViewportGeometryMeshes(GH_PreviewMeshArgs args)
     {
         args.Pipeline.DrawBrepShaded(this.RhinoGeometry, args.Material);
+    }
+
+    /// <inheritdoc />
+    public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
+    {
+        var rhinoGeometry = this.RhinoGeometry;
+
+        if (rhinoGeometry == null) return;
+
+        var meshes = Mesh.CreateFromBrep(rhinoGeometry, MeshingParameters.Default);
+
+        previewData.Meshes.AddRange(meshes);
+
+        var polylines = rhinoGeometry.Curves3D;
+
+        foreach (var polyline in polylines)
+        {
+            previewData.Wires.Add(polyline);
+        }
     }
 }
 

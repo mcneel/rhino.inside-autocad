@@ -56,7 +56,6 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
         try
         {
             Application?.Terminate();
-
         }
         catch (System.Exception e)
         {

@@ -159,8 +159,8 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
         {
             documentId = Guid.NewGuid();
 
-            xData.Add(new TypedValue((short)_applicationNameKey, _applicationName));
-            xData.Add(new TypedValue(idKey, documentId.ToString()));
+            xData.Add(new Autodesk.AutoCAD.DatabaseServices.TypedValue((short)_applicationNameKey, _applicationName));
+            xData.Add(new Autodesk.AutoCAD.DatabaseServices.TypedValue(idKey, documentId.ToString()));
 
             modelSpace.UpgradeOpen();
 
