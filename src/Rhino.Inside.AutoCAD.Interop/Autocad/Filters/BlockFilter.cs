@@ -4,18 +4,13 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
-public class BlockNameFilter : IBlockNameFilter
+public class BlockFilter : IFilter
 {
-
-    /// <inheritdoc />
-    public string Name { get; }
-
     /// <summary>
-    /// Constructs a filter that selects entities of the specified name.
+    /// Constructs a filter that selects entities of which are block References.
     /// </summary>
-    public BlockNameFilter(string name)
+    public BlockFilter()
     {
-        this.Name = name;
     }
 
     /// <inheritdoc />
@@ -23,7 +18,7 @@ public class BlockNameFilter : IBlockNameFilter
     {
         var filterCriteria = new[]
         {
-            new Autodesk.AutoCAD.DatabaseServices.TypedValue((int) DxfCode.BlockName, this.Name.ToUpper()),
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue((int)DxfCode.Start, "INSERT")
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

@@ -8,18 +8,24 @@ public class TransactionManagerWrapper : WrapperDisposableBase<TransactionManage
 {
     private readonly Database _database;
 
+    /// <inheritdoc/>
+    public IObjectId BlockTableId { get; }
+
     /// <summary>
     /// Constructs a new <see cref="TransactionManagerWrapper"/>.
     /// </summary>
     public TransactionManagerWrapper(Database database) : base(database.TransactionManager)
     {
         _database = database;
+        this.BlockTableId = new AutocadObjectId(database.BlockTableId);
     }
 
     /// <summary>
     /// Returns the <see cref="OpenMode"/> via the <paramref name="openForWrite"/> flag.
     /// </summary>
     private OpenMode GetOpenMode(bool openForWrite) => openForWrite ? OpenMode.ForWrite : OpenMode.ForRead;
+
+
 
     /// <inheritdoc/>
     public IBlockTableRecord GetModelSpaceBlockTableRecord(bool openForWrite = false)

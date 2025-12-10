@@ -5,8 +5,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="IRhinoObjectPreviewServer"/>
 public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
 {
-
-    private readonly IPreviewServer _previewServer;
+    private readonly IPreviewServer2 _previewServer;
 
     public IGeometryPreviewSettings Settings { get; }
 
@@ -16,9 +15,10 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
     /// <summary>
     /// Constructs a new <see cref="RhinoObjectPreviewServer"/>
     /// </summary>
-    public RhinoObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings)
+    public RhinoObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings,
+        IPreviewGeometryConverter previewGeometryConverter)
     {
-        _previewServer = new PreviewServer(geometryPreviewSettings);
+        _previewServer = new PreviewServer2(geometryPreviewSettings, previewGeometryConverter);
 
         this.Visible = true;
 
@@ -32,24 +32,19 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
     {
         if (this.Visible)
         {
-            foreach (var entities in _previewServer.ObjectRegister)
-            {
-                _previewServer.AddTransientEntities(entities);
-            }
+            _previewServer.PopulateServer();
         }
         else
         {
-            foreach (var entities in _previewServer.ObjectRegister)
-            {
-                _previewServer.RemoveTransientEntities(entities);
-            }
+            _previewServer.ClearServer();
         }
     }
 
     /// <inheritdoc />
-    public void AddObject(Guid rhinoObjectId, List<IEntity> entities)
+    public void AddObject(Guid rhinoObjectId, IRhinoConvertibleSet rhinoConvertibleSet)
     {
-        _previewServer.AddObject(rhinoObjectId, entities);
+        _previewServer.AddObject(rhinoObjectId, rhinoConvertibleSet);
+
     }
 
     /// <inheritdoc />

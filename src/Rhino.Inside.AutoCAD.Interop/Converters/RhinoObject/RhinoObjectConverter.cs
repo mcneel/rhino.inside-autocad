@@ -57,7 +57,7 @@ public class RhinoObjectConverter : IRhinoObjectConverter
 
                     foreach (var curve in curves)
                     {
-                        var entity = new EntityWrapper(curve);
+                        var entity = new AutocadEntityWrapper(curve);
 
                         entities.Add(entity);
                     }
@@ -72,7 +72,7 @@ public class RhinoObjectConverter : IRhinoObjectConverter
 
                     var acPoint = new Autodesk.AutoCAD.DatabaseServices.DBPoint(point3d);
 
-                    var entity = new EntityWrapper(acPoint);
+                    var entity = new AutocadEntityWrapper(acPoint);
 
                     entities.Add(entity);
                     return true;
@@ -83,7 +83,7 @@ public class RhinoObjectConverter : IRhinoObjectConverter
 
                     var cadMesh = _geometryConverter.ToAutoCadType(rhinoMesh!);
 
-                    var entity = new EntityWrapper(cadMesh);
+                    var entity = new AutocadEntityWrapper(cadMesh);
 
                     entities.Add(entity);
                     return true;
@@ -94,7 +94,7 @@ public class RhinoObjectConverter : IRhinoObjectConverter
 
                     var cadMesh = _geometryConverter.ToAutoCadType(rhinoMesh!);
 
-                    var entity = new EntityWrapper(cadMesh);
+                    var entity = new AutocadEntityWrapper(cadMesh);
 
                     entities.Add(entity);
                     return true;
@@ -115,7 +115,7 @@ public class RhinoObjectConverter : IRhinoObjectConverter
                     {
                         var cadMesh = _geometryConverter.ToAutoCadType(renderMesh);
 
-                        var entity = new EntityWrapper(cadMesh);
+                        var entity = new AutocadEntityWrapper(cadMesh);
 
                         entities.Add(entity);
                     }
@@ -135,7 +135,7 @@ public class RhinoObjectConverter : IRhinoObjectConverter
 
                         foreach (var solid in cadHatch)
                         {
-                            var entity = new EntityWrapper(solid);
+                            var entity = new AutocadEntityWrapper(solid);
 
                             entities.Add(entity);
                         }

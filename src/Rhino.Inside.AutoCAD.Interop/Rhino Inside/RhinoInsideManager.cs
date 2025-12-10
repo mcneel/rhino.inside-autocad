@@ -9,6 +9,7 @@ public class RhinoInsideManager : IRhinoInsideManager
     private readonly IRhinoObjectConverter _rhinoObjectConvert;
     private readonly IGrasshopperGeometryExtractor _grasshopperGeometryExtractor;
     private readonly IGrasshopperChangeResponder _grasshopperChangeResponder;
+    private readonly IRhinoConvertibleFactory _rhinoConvertibleFactory;
 
     /// <inheritdoc />
     public IRhinoInstance RhinoInstance { get; }
@@ -35,15 +36,20 @@ public class RhinoInsideManager : IRhinoInsideManager
         IAutoCadInstance autoCadInstance)
     {
 
-        var rhinoPreviewSettings = new GeometryPreviewSettings(128,
-            "Rhino.Inside.AutoCAD.Preview.Rhino.Material", 5);
+        var previewGeometryConverter = new PreviewGeometryConverter(autoCadInstance);
 
-        this.RhinoPreviewServer = new RhinoObjectPreviewServer(rhinoPreviewSettings);
+        _rhinoConvertibleFactory = new RhinoConvertibleFactory();
+
+        var rhinoPreviewSettings = new GeometryPreviewSettings(128,
+            "Rhino.Inside.AutoCAD.Preview.Rhino.Material", 4);
+
+        this.RhinoPreviewServer = new RhinoObjectPreviewServer(rhinoPreviewSettings, previewGeometryConverter);
 
         var grasshopperPreviewSettings = new GeometryPreviewSettings(128,
             "Rhino.Inside.AutoCAD.Preview.Grasshopper.Material", 1);
 
-        this.GrasshopperPreviewServer = new GrasshopperObjectPreviewServer(grasshopperPreviewSettings);
+        this.GrasshopperPreviewServer = new GrasshopperObjectPreviewServer(
+            grasshopperPreviewSettings, previewGeometryConverter, _rhinoConvertibleFactory);
 
         this.AutoCadInstance = autoCadInstance;
         autoCadInstance.DocumentCreated += this.AutocadDocumentSwitched;
@@ -66,7 +72,7 @@ public class RhinoInsideManager : IRhinoInsideManager
         _rhinoObjectConvert = new RhinoObjectConverter(GeometryConverter.Instance!);
 
         this.UnitSystemManager = unitsSystemManager;
-        _grasshopperGeometryExtractor = new GrasshopperGeometryExtractor();
+        _grasshopperGeometryExtractor = new GrasshopperGeometryExtractor(_rhinoConvertibleFactory);
         _grasshopperChangeResponder = new GrasshopperChangeResponder();
     }
 
@@ -117,11 +123,7 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         var previewGeometryData = _grasshopperGeometryExtractor.ExtractPreviewGeometry(ghDocumentObject);
 
-        var convertedWireframeEntities = previewGeometryData.GetWireframeEntities();
-
-        var convertedShadedEntities = previewGeometryData.GetShadedEntities();
-
-        this.GrasshopperPreviewServer.AddObject(instanceGuid, convertedWireframeEntities, convertedShadedEntities);
+        this.GrasshopperPreviewServer.AddObject(instanceGuid, previewGeometryData);
 
         this.AutoCadInstance.ActiveDocument?.UpdateScreen();
 
@@ -148,9 +150,11 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         this.RhinoPreviewServer.RemoveObject(rhinoObject.Id);
 
-        if (_rhinoObjectConvert.TryConvert(rhinoObject, out var newEntities))
+        if (_rhinoConvertibleFactory.MakeConvertible(rhinoObject.Geometry, out var rhinoConvertible))
         {
-            this.RhinoPreviewServer.AddObject(rhinoObject.Id, newEntities);
+            var newSet = new RhinoConvertibleSet { rhinoConvertible };
+
+            this.RhinoPreviewServer.AddObject(rhinoObject.Id, newSet);
         }
 
         this.AutoCadInstance.ActiveDocument?.UpdateScreen();

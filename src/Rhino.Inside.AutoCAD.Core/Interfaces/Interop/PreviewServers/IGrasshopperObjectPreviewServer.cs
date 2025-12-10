@@ -21,10 +21,10 @@ public interface IGrasshopperObjectPreviewServer
     void SetMode(GrasshopperPreviewMode previewMode);
 
     /// <summary>
-    /// Adds the provided <paramref name="entities"/> into this <see cref=
+    /// Adds the provided <paramref name="grasshopperPreviewData"/> into this <see cref=
     /// "ITransientManager"/>.
     /// </summary>
-    void AddObject(Guid rhinoObjectId, List<IEntity> wireframeEntities, List<IEntity> shadedEntities);
+    void AddObject(Guid rhinoObjectId, IGrasshopperPreviewData grasshopperPreviewData);
 
     /// <summary>
     /// Removes the provided <paramref name="rhinoObjectId"/> from this <see cref=

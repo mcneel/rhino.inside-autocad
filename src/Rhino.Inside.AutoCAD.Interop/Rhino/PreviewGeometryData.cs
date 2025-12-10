@@ -6,70 +6,60 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="IGrasshopperPreviewData"/>
 public class GrasshopperPreviewData : IGrasshopperPreviewData
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
+    private readonly IRhinoConvertibleFactory _rhinoConvertibleFactory;
 
     /// <inheritdoc />
-    public List<Rhino.Geometry.Curve> Wires { get; }
+    public List<Curve> Wires { get; }
 
     /// <inheritdoc />
-    public List<Rhino.Geometry.Mesh> Meshes { get; }
+    public List<Mesh> Meshes { get; }
 
     /// <inheritdoc />
-    public List<Point3d> Points { get; }
-
-    public List<IEntity> GetWireframeEntities()
-    {
-        var entities = new List<IEntity>();
-
-        foreach (var point in this.Points)
-        {
-            var point3d = _geometryConverter.ToAutoCadType(point);
-
-            var dbPoint = new Autodesk.AutoCAD.DatabaseServices.DBPoint(point3d);
-
-            var entity = new EntityWrapper(dbPoint);
-
-            entities.Add(entity);
-        }
-
-        foreach (var curve in this.Wires)
-        {
-            var cadCurves = _geometryConverter.ToAutoCadType(curve);
-
-            foreach (var cadCurve in cadCurves)
-            {
-                var entity = new EntityWrapper(cadCurve);
-
-                entities.Add(entity);
-            }
-        }
-
-        return entities;
-    }
-
-    public List<IEntity> GetShadedEntities()
-    {
-        var entities = new List<IEntity>();
-
-        foreach (var mesh in this.Meshes)
-        {
-            var cadMesh = _geometryConverter.ToAutoCadType(mesh);
-
-            var entity = new EntityWrapper(cadMesh);
-
-            entities.Add(entity);
-        }
-
-        return entities;
-    }
+    public List<Point> Points { get; }
 
     /// <summary>
     /// Constructs a new empty <see cref="IGrasshopperPreviewData"/> instance.
     /// </summary>
-    public GrasshopperPreviewData()
+    public GrasshopperPreviewData(IRhinoConvertibleFactory rhinoConvertibleFactory)
     {
-        this.Wires = new List<Rhino.Geometry.Curve>();
-        this.Meshes = new List<Rhino.Geometry.Mesh>();
-        this.Points = new List<Rhino.Geometry.Point3d>();
+        _rhinoConvertibleFactory = rhinoConvertibleFactory;
+        this.Wires = new List<Curve>();
+        this.Meshes = new List<Mesh>();
+        this.Points = new List<Point>();
+    }
+
+    public IRhinoConvertibleSet GetShadedObjects()
+    {
+        var shadedSet = new RhinoConvertibleSet();
+        foreach (var mesh in this.Meshes)
+        {
+            if (_rhinoConvertibleFactory.MakeConvertible(mesh, out var result))
+            {
+                shadedSet.Add(result);
+            }
+        }
+        return shadedSet;
+    }
+
+    public IRhinoConvertibleSet GetWireframeObjects()
+    {
+        var wireFrameSet = new RhinoConvertibleSet();
+        foreach (var point3d in this.Points)
+        {
+            if (_rhinoConvertibleFactory.MakeConvertible(point3d, out var result))
+            {
+                wireFrameSet.Add(result);
+            }
+        }
+
+        foreach (var curve in this.Wires)
+        {
+            if (_rhinoConvertibleFactory.MakeConvertible(curve, out var result))
+            {
+                wireFrameSet.Add(result);
+            }
+        }
+
+        return wireFrameSet;
     }
 }

@@ -24,10 +24,10 @@ public interface IRhinoObjectPreviewServer
     void ToggleVisibility();
 
     /// <summary>
-    /// Adds the provided <paramref name="entities"/> into this <see cref=
+    /// Adds the provided <paramref name="rhinoConvertible"/> into this <see cref=
     /// "ITransientManager"/>.
     /// </summary>
-    void AddObject(Guid rhinoObjectId, List<IEntity> entities);
+    void AddObject(Guid rhinoObjectId, IRhinoConvertibleSet rhinoConvertibleSet);
 
     /// <summary>
     /// Removes the provided <paramref name="rhinoObjectId"/> from this <see cref=

@@ -16,7 +16,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="Autocad Tab\Layers\AutocadLayerComponent.cs" />
 	  <None Include="Types\Goo\AutocadObjects\GH_AutocadLayer.cs" />
 	</ItemGroup>
 

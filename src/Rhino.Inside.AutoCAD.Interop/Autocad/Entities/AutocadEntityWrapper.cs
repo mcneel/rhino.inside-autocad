@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <summary>
 /// A class which represents a <see cref="AutoCADEntity"/>.
 /// </summary>
-public class EntityWrapper : DbObjectWrapper, IEntity
+public class AutocadEntityWrapper : DbObjectWrapper, IEntity
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
@@ -21,10 +21,10 @@ public class EntityWrapper : DbObjectWrapper, IEntity
     public string LayerName { get; }
 
     /// <summary>
-    /// Constructs a new <see cref="EntityWrapper"/> based on an
+    /// Constructs a new <see cref="AutocadEntityWrapper"/> based on an
     /// <see cref="Autodesk.AutoCAD.DatabaseServices.Entity"/>.
     /// </summary>
-    public EntityWrapper(AutoCADEntity autoCadEntity) : base(autoCadEntity)
+    public AutocadEntityWrapper(AutoCADEntity autoCadEntity) : base(autoCadEntity)
     {
         this.LayerName = autoCadEntity.Layer;
 

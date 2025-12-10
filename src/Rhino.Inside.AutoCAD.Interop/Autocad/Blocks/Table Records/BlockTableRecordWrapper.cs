@@ -1,4 +1,5 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
+using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
@@ -11,10 +12,17 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </remarks>
 public class BlockTableRecordWrapper : DbObjectWrapper, IBlockTableRecord
 {
+    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
     private readonly BlockTableRecord _blockTableRecord;
 
     /// <inheritdoc />
-    public string Name => _blockTableRecord.Name;
+    public string Name { get; }
+
+    /// <inheritdoc />
+    public Point3d Origin { get; }
+
+    /// <inheritdoc />
+    public IObjectIdCollection ObjectIds { get; }
 
     /// <summary>
     /// Constructs a new <see cref="BlockReferenceWrapper"/>.
@@ -22,6 +30,12 @@ public class BlockTableRecordWrapper : DbObjectWrapper, IBlockTableRecord
     public BlockTableRecordWrapper() : base(new BlockTableRecord())
     {
         _blockTableRecord = (BlockTableRecord)_wrappedValue;
+
+        this.Name = _blockTableRecord.Name;
+
+        this.Origin = _geometryConverter.ToRhinoType(_blockTableRecord.Origin);
+
+        this.ObjectIds = new AutocadObjectIdCollection();
     }
 
     /// <summary>
@@ -29,7 +43,17 @@ public class BlockTableRecordWrapper : DbObjectWrapper, IBlockTableRecord
     /// </summary>
     public BlockTableRecordWrapper(BlockTableRecord blockTableRecord) : base(blockTableRecord)
     {
-        _blockTableRecord = (BlockTableRecord)_wrappedValue;
+        _blockTableRecord = blockTableRecord;
+
+        this.Name = blockTableRecord.Name;
+
+        this.Origin = _geometryConverter.ToRhinoType(blockTableRecord.Origin);
+
+        this.ObjectIds = new AutocadObjectIdCollection();
+        foreach (var objectId in blockTableRecord)
+        {
+            this.ObjectIds.Add(new AutocadObjectId(objectId));
+        }
     }
 
     /// <summary>

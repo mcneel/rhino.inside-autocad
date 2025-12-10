@@ -8,6 +8,16 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="IGrasshopperGeometryExtractor"/>
 public class GrasshopperGeometryExtractor : IGrasshopperGeometryExtractor
 {
+    private readonly IRhinoConvertibleFactory _rhinoConvertibleFactory;
+
+    /// <summary>
+    /// Constructs a new <see cref="IGrasshopperGeometryExtractor"/> instance.
+    /// </summary>
+    public GrasshopperGeometryExtractor(IRhinoConvertibleFactory rhinoConvertibleFactory)
+    {
+        _rhinoConvertibleFactory = rhinoConvertibleFactory;
+    }
+
     /// <summary>
     /// Adds the curves and meshes from a Brep to the preview data.
     /// </summary>
@@ -42,7 +52,7 @@ public class GrasshopperGeometryExtractor : IGrasshopperGeometryExtractor
 
             if (goo is GH_Point point)
             {
-                data.Points.Add(point.Value);
+                data.Points.Add(new Point(point.Value));
                 continue;
             }
 
@@ -116,7 +126,7 @@ public class GrasshopperGeometryExtractor : IGrasshopperGeometryExtractor
     /// <inheritdoc />
     public IGrasshopperPreviewData ExtractPreviewGeometry(IGH_DocumentObject ghDocumentObject)
     {
-        var previewGeometryData = new GrasshopperPreviewData();
+        var previewGeometryData = new GrasshopperPreviewData(_rhinoConvertibleFactory);
 
         if (ghDocumentObject is not IGH_PreviewObject { Hidden: false })
             return previewGeometryData;

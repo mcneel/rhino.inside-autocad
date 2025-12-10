@@ -19,21 +19,17 @@ public interface IGrasshopperPreviewData
     /// <summary>
     /// Gets the collection of meshes representing the preview geometry.
     /// </summary>
-    List<Rhino.Geometry.Point3d> Points { get; }
+    List<Rhino.Geometry.Point> Points { get; }
 
     /// <summary>
-    /// Converts the stored preview wireframe geometry into a list of AutoCAD entities.
+    /// Retrieves the set of shaded objects from the preview data as a
+    /// <see cref="IRhinoConvertibleSet"/>.
     /// </summary>
-    /// <returns>
-    /// A list of entities representing the preview geometry.
-    /// </returns>
-    List<IEntity> GetWireframeEntities();
+    IRhinoConvertibleSet GetShadedObjects();
 
     /// <summary>
-    /// Converts the stored preview shaded geometry into a list of AutoCAD entities.
-    /// </summary>
-    /// <returns>
-    /// A list of entities representing the preview geometry.
-    /// </returns>
-    List<IEntity> GetShadedEntities();
+    /// Retrieves the set of wireframe objects from the preview data as a
+    /// <see cref="IRhinoConvertibleSet"/>.
+    /// </summary
+    IRhinoConvertibleSet GetWireframeObjects();
 }

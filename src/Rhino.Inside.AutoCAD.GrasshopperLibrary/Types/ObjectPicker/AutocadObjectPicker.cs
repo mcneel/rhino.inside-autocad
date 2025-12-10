@@ -60,7 +60,7 @@ public class AutocadObjectPicker : IAutocadObjectPicker
                 var entity = transaction.GetObject(selectedObject.ObjectId,
                     OpenMode.ForRead) as CadEntity;
 
-                var wrappedEntity = new EntityWrapper(entity);
+                var wrappedEntity = new AutocadEntityWrapper(entity);
 
                 entities.Add(wrappedEntity);
             }
@@ -106,7 +106,7 @@ public class AutocadObjectPicker : IAutocadObjectPicker
                 var entity = transaction.GetObject(selectedObject.ObjectId,
                     OpenMode.ForRead) as CadEntity;
 
-                var wrappedEntity = new EntityWrapper(entity);
+                var wrappedEntity = new AutocadEntityWrapper(entity);
 
                 entities.Add(wrappedEntity);
             }
@@ -129,7 +129,7 @@ public class AutocadObjectPicker : IAutocadObjectPicker
                  var cadEntity = transaction.GetObject(objectId.Unwrap(),
                         OpenMode.ForRead) as CadEntity;
 
-                 return new EntityWrapper(cadEntity);
+                 return new AutocadEntityWrapper(cadEntity);
              }
              catch (Exception e)
              {

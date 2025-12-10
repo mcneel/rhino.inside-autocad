@@ -2,10 +2,17 @@
 
 /// <summary>
 /// A repository storing all <see cref="IBlockTableRecord"/>s
-/// in the active <see cref="IDocument"/>.
+/// in the active <see cref="IAutocadDocument"/>.
 /// </summary>
-public interface IBlockTableRecordRepository : IExtendableRepository<IBlockTableRecord>, IEnumerable<IBlockTableRecord>
+public interface IBlockTableRecordRepository :
+    IExtendableRepository<IBlockTableRecord>, IEnumerable<IBlockTableRecord>
 {
+    /// <summary>
+    /// Event raised when the Block table (A table of all <see cref="IBlockTableRecord"/>s
+    /// is modified.
+    /// </summary>
+    event EventHandler? BlockTableModified;
+
     /// <summary>
     /// Register a new <see cref="IBlockTableRecord"/> to the repository.
     /// </summary>

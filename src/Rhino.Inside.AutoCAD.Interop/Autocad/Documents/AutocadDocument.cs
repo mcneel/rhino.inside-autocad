@@ -58,6 +58,9 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     public ILayoutRepository LayoutRepository { get; }
 
     /// <inheritdoc/>
+    public IBlockTableRecordRepository BlockTableRecordRepository { get; }
+
+    /// <inheritdoc/>
     public UnitSystem UnitSystem { get; private set; }
 
     /// <inheritdoc/>
@@ -99,11 +102,13 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
 
         this.UnitSystem = documentUnits;
 
-        this.LayerRepository = new LayerRepository(document);
+        this.LayerRepository = new LayerRepository(this);
 
-        this.LineTypeRepository = new LineTypeRepository(document);
+        this.LineTypeRepository = new LineTypeRepository(this);
 
-        this.LayoutRepository = new LayoutRepository(document);
+        this.LayoutRepository = new LayoutRepository(this);
+
+        this.BlockTableRecordRepository = new BlockTableRecordRepository(this);
 
         _documentChange = new AutocadDocumentChange(this);
     }

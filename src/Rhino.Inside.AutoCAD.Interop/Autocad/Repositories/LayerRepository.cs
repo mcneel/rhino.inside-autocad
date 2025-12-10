@@ -94,6 +94,9 @@ public class LayerRepository : Disposable, ILayerRepository
         LayerTableModified?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>
+    /// Subscribes to the LayerTable Modified event.
+    /// </summary>
     private void SubscribeToModifyEvent()
     {
         var database = _document.Database;
@@ -109,6 +112,9 @@ public class LayerRepository : Disposable, ILayerRepository
         transaction.Commit();
     }
 
+    /// <summary>
+    /// Unsubscribes from the LayerTable Modified event.
+    /// </summary>
     private void UnsubscribeToModifyEvent()
     {
         var database = _document.Database;

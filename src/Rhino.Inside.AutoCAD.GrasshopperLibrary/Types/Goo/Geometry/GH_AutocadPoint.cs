@@ -79,6 +79,6 @@ public class GH_AutocadPoint : GH_AutocadGeometricGoo<AutocadPoint, RhinoPoint>
 
         if (rhinoGeometry == null) return;
 
-        previewData.Points.Add(rhinoGeometry.Location);
+        previewData.Points.Add(new RhinoPoint(rhinoGeometry.Location));
     }
 }

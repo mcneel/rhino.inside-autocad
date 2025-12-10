@@ -21,6 +21,12 @@ public interface IBlockReference : IEntity
     string Name { get; }
 
     /// <summary>
+    /// The <see cref="IObjectId"/> of the <see cref="IBlockTableRecord"/> which
+    /// this <see cref="IBlockReference"/> is an instance of.
+    /// </summary>
+    IObjectId BlockTableRecordId { get; }
+
+    /// <summary>
     /// Adds <see cref="ICustomProperty"/>s to the <see cref="CustomProperties"/>
     /// from the <see cref="ICustomPropertySet"/>.
     /// </summary>
@@ -31,4 +37,9 @@ public interface IBlockReference : IEntity
     /// <see cref="IAutocadDocument"/>.
     /// </summary>
     void CommitCustomProperties();
+
+    /// <summary>
+    /// Gets all the objects contained within this <see cref="IBlockReference"/>.
+    /// </summary>
+    IEntityCollection GetObjects(ITransactionManager transactionManager);
 }

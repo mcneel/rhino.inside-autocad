@@ -25,7 +25,7 @@ where TRhinoType : GeometryBase
     public IObjectId AutocadReferenceId { get; }
 
     /// <inheritdoc />
-    public IDbObject ObjectValue => new EntityWrapper(this.Value);
+    public IDbObject ObjectValue => new AutocadEntityWrapper(this.Value);
 
     /// <summary>
     /// Gets the Rhino geometry equivalent of the AutoCAD curve.

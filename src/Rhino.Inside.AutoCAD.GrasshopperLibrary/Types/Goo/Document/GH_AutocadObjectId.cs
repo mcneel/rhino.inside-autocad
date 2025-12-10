@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD ObjectIds.
 /// </summary>
-public class GH_AutocadId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
+public class GH_AutocadObjectId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
 {
     /// <inheritdoc />
     public IObjectId AutocadReferenceId => this.Value;
@@ -22,27 +22,27 @@ public class GH_AutocadId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
     public override string TypeDescription => "Represents an AutoCAD ObjectId";
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GH_AutocadId"/> class with no value.
+    /// Initializes a new instance of the <see cref="GH_AutocadObjectId"/> class with no value.
     /// </summary>
-    public GH_AutocadId()
+    public GH_AutocadObjectId()
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GH_AutocadId"/> class with the
+    /// Initializes a new instance of the <see cref="GH_AutocadObjectId"/> class with the
     /// specified AutoCAD ObjectId.
     /// </summary>
     /// <param name="objectId">The AutoCAD ObjectId to wrap.</param>
-    public GH_AutocadId(AutocadObjectId objectId) : base(objectId)
+    public GH_AutocadObjectId(AutocadObjectId objectId) : base(objectId)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GH_AutocadId"/> class by copying
+    /// Initializes a new instance of the <see cref="GH_AutocadObjectId"/> class by copying
     /// another instance.
     /// </summary>
     /// <param name="other">The instance to copy.</param>
-    public GH_AutocadId(GH_AutocadId other)
+    public GH_AutocadObjectId(GH_AutocadObjectId other)
     {
         this.Value = other.Value;
     }
@@ -50,7 +50,7 @@ public class GH_AutocadId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
     /// <summary>
     /// Constructs a new <see cref="IObjectId"/> via the interface.
     /// </summary>
-    public GH_AutocadId(IObjectId objectId)
+    public GH_AutocadObjectId(IObjectId objectId)
         : base((objectId as AutocadObjectId)!)
     {
 
@@ -61,13 +61,13 @@ public class GH_AutocadId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
     {
         var clone = this.Value.ShallowClone();
 
-        return new GH_AutocadId(clone);
+        return new GH_AutocadObjectId(clone);
     }
 
     /// <inheritdoc />
     public override bool CastFrom(object source)
     {
-        if (source is GH_AutocadId goo)
+        if (source is GH_AutocadObjectId goo)
         {
             this.Value = goo.Value;
             return true;
@@ -99,9 +99,9 @@ public class GH_AutocadId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
             return true;
         }
 
-        if (typeof(Q).IsAssignableFrom(typeof(GH_AutocadId)))
+        if (typeof(Q).IsAssignableFrom(typeof(GH_AutocadObjectId)))
         {
-            target = (Q)(object)new GH_AutocadId(this.Value);
+            target = (Q)(object)new GH_AutocadObjectId(this.Value);
             return true;
         }
 

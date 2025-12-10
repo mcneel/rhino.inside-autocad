@@ -2,14 +2,18 @@
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Services;
 using System.Collections;
+using CadObjectIdCollection = Autodesk.AutoCAD.DatabaseServices.ObjectIdCollection;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
-///<inheritdoc/>
+/// <inheritdoc cref="IBlockTableRecordRepository"/>
 public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepository
 {
     private readonly IAutocadDocument _document;
     private readonly Dictionary<string, IBlockTableRecord> _blockTableRecords;
+
+    /// <inheritdoc/>
+    public event EventHandler? BlockTableModified;
 
     /// <summary>
     /// Constructs a new <see cref="BlockTableRecordRepository"/>.
@@ -21,6 +25,55 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
         _blockTableRecords = new Dictionary<string, IBlockTableRecord>();
 
         this.Populate();
+
+        this.SubscribeToModifyEvent();
+    }
+
+    /// <summary>
+    /// Subscribes to the LayerTable Modified event.
+    /// </summary>
+    private void SubscribeToModifyEvent()
+    {
+        _ = _document.Transaction(transactionManagerWrapper =>
+        {
+            var transactionManager = transactionManagerWrapper.Unwrap();
+
+            using var blockTable =
+                (BlockTable)transactionManager.GetObject(_document.Database.BlockTableId.Unwrap(),
+                    OpenMode.ForRead);
+
+            blockTable.Modified += this.BlockTable_Modified;
+
+            return true;
+        });
+    }
+
+    /// <summary>
+    /// Unsubscribes from the LayerTable Modified event.
+    /// </summary>
+    private void UnsubscribeToModifyEvent()
+    {
+        _ = _document.Transaction(transactionManagerWrapper =>
+        {
+            var transactionManager = transactionManagerWrapper.Unwrap();
+
+            using var blockTable =
+                (BlockTable)transactionManager.GetObject(_document.Database.BlockTableId.Unwrap(),
+                    OpenMode.ForRead);
+
+            blockTable.Modified -= this.BlockTable_Modified;
+
+            return true;
+        });
+    }
+
+    /// <summary>
+    /// Handles the LayerTable Modified event.
+    /// </summary>
+    private void BlockTable_Modified(object sender, EventArgs e)
+    {
+        this.Populate();
+        BlockTableModified?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -82,7 +135,7 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
                 var externalBlockTableRecord = externalBlockTableRecordWrapper.Unwrap();
 
                 var objectIdCollection =
-                    new ObjectIdCollection { externalBlockTableRecord.Id };
+                    new CadObjectIdCollection { externalBlockTableRecord.Id };
 
                 foreach (var objectId in externalBlockTableRecord)
                 {
@@ -129,6 +182,8 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
 
         if (disposing)
         {
+            this.UnsubscribeToModifyEvent();
+
             foreach (var blockTableRecord in _blockTableRecords.Values)
                 blockTableRecord.Dispose();
 

@@ -7,8 +7,9 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="IGrasshopperObjectPreviewServer"/>
 public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
 {
-    private readonly IPreviewServer _shadedPreviewServer;
-    private readonly IPreviewServer _wireframePreviewServer;
+    private readonly IRhinoConvertibleFactory _rhinoConvertibleFactory;
+    private readonly IPreviewServer2 _shadedPreviewServer;
+    private readonly IPreviewServer2 _wireframePreviewServer;
     private readonly IGrasshopperPreviewButtonManager _buttonManager;
 
     /// <inheritdoc/>
@@ -20,10 +21,12 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     /// <summary>
     /// Constructs a new <see cref="IGrasshopperObjectPreviewServer"/>
     /// </summary>
-    public GrasshopperObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings)
+    public GrasshopperObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings,
+        IPreviewGeometryConverter previewGeometryConverter, IRhinoConvertibleFactory rhinoConvertibleFactory)
     {
-        _shadedPreviewServer = new PreviewServer(geometryPreviewSettings);
-        _wireframePreviewServer = new PreviewServer(geometryPreviewSettings);
+        _rhinoConvertibleFactory = rhinoConvertibleFactory;
+        _shadedPreviewServer = new PreviewServer2(geometryPreviewSettings, previewGeometryConverter);
+        _wireframePreviewServer = new PreviewServer2(geometryPreviewSettings, previewGeometryConverter);
 
         _buttonManager = new GrasshopperPreviewButtonManager();
 
@@ -34,43 +37,21 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     /// <summary>
     /// Updates the transient elements visibility based on the current state.
     /// </summary>
-    private void ClearServer(IPreviewServer server)
-    {
-        foreach (var entities in server.ObjectRegister)
-        {
-            server.RemoveTransientEntities(entities);
-        }
-    }
-
-    /// <summary>
-    /// Updates the transient elements visibility based on the current state.
-    /// </summary>
-    private void PopulateServer(IPreviewServer server)
-    {
-        foreach (var entities in server.ObjectRegister)
-        {
-            server.AddTransientEntities(entities);
-        }
-    }
-
-    /// <summary>
-    /// Updates the transient elements visibility based on the current state.
-    /// </summary>
     private void UpdateTransientElements()
     {
         switch (this.PreviewMode)
         {
             case GrasshopperPreviewMode.Off:
-                this.ClearServer(_wireframePreviewServer);
-                this.ClearServer(_shadedPreviewServer);
+                _wireframePreviewServer.ClearServer();
+                _shadedPreviewServer.ClearServer();
                 break;
             case GrasshopperPreviewMode.Wireframe:
-                this.PopulateServer(_wireframePreviewServer);
-                this.ClearServer(_shadedPreviewServer);
+                _wireframePreviewServer.PopulateServer();
+                _shadedPreviewServer.ClearServer();
                 break;
             case GrasshopperPreviewMode.Shaded:
-                this.PopulateServer(_wireframePreviewServer);
-                this.PopulateServer(_shadedPreviewServer);
+                _wireframePreviewServer.PopulateServer();
+                _shadedPreviewServer.PopulateServer();
                 break;
         }
     }
@@ -86,11 +67,15 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     }
 
     /// <inheritdoc />
-    public void AddObject(Guid rhinoObjectId, List<IEntity> wireframeEntities, List<IEntity> shadedEntities)
+    public void AddObject(Guid rhinoObjectId, IGrasshopperPreviewData grasshopperPreviewData)
     {
-        _shadedPreviewServer.AddObject(rhinoObjectId, shadedEntities);
+        var shadedSet = grasshopperPreviewData.GetShadedObjects();
 
-        _wireframePreviewServer.AddObject(rhinoObjectId, wireframeEntities);
+        var wireFrameSet = grasshopperPreviewData.GetWireframeObjects();
+
+        _shadedPreviewServer.AddObject(rhinoObjectId, shadedSet);
+
+        _wireframePreviewServer.AddObject(rhinoObjectId, wireFrameSet);
 
     }
 
@@ -99,6 +84,5 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     {
         _shadedPreviewServer.RemoveObject(rhinoObjectId);
         _wireframePreviewServer.RemoveObject(rhinoObjectId);
-
     }
 }
