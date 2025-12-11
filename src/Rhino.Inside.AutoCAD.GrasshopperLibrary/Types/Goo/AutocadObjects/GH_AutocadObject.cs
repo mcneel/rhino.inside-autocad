@@ -1,3 +1,4 @@
+using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
@@ -33,11 +34,14 @@ public class GH_AutocadObject : GH_AutocadObjectGoo<DbObjectWrapper>
         this.Value = other.Value;
     }
 
+    /// <inheritdoc />
+    protected override Type GetCadType() => typeof(DBObject);
+
     /// <summary>
     /// Constructs a new <see cref="IDbObject"/> via the interface.
     /// </summary>
     public GH_AutocadObject(IDbObject dbObject)
-        : base((dbObject as AutocadLinetypeTableRecord)!)
+        : base(dbObject as DbObjectWrapper)
     { }
 
     /// <inheritdoc />

@@ -164,6 +164,15 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
         _blockTableRecords.Add(blockTableRecord.Name, blockTableRecord);
     }
 
+    /// <inheritdoc/>
+    public bool TryGetById(IObjectId id, out IBlockTableRecord? blockTableRecord)
+    {
+        blockTableRecord =
+            _blockTableRecords.Values.FirstOrDefault(block => block.Id.IsEqualTo(id));
+
+        return blockTableRecord != null;
+    }
+
     public IEnumerator<IBlockTableRecord> GetEnumerator() => _blockTableRecords.Values.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator()

@@ -45,12 +45,16 @@ public class AutocadObjectId : WrapperBase<CadObjectId>, IObjectId
 
     }
 
-    /// <summary>
-    /// Creates a shallow clone of the <see cref="AutocadObjectId"/>.
-    /// </summary>
+    /// <inheritdoc />
     public IObjectId ShallowClone()
     {
         return new AutocadObjectId(_wrappedValue);
+    }
+
+    /// <inheritdoc />
+    public bool IsEqualTo(IObjectId other)
+    {
+        return this.Value == other.Value;
     }
 
     /// <summary>

@@ -17,4 +17,9 @@ public interface IBlockTableRecordRepository :
     /// Register a new <see cref="IBlockTableRecord"/> to the repository.
     /// </summary>
     void Register(IBlockTableRecord blockTableRecord);
+
+    /// <summary>
+    /// Tries to get a <see cref="IBlockTableRecord"/> by its Id.
+    /// </summary>
+    bool TryGetById(IObjectId id, out IBlockTableRecord? blockTableRecord);
 }

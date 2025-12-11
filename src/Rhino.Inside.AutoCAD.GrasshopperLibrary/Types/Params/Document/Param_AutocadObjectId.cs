@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper parameter for AutoCAD ObjectIds.
 /// </summary>
-public class Param_AutocadId : GH_Param<GH_AutocadObjectId>, IReferenceParam
+public class Param_AutocadObjectId : GH_Param<GH_AutocadObjectId>, IReferenceParam
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new Guid("a3d8f7c2-4b1e-4f9a-8c5d-2e7a9b3c6d4f");
@@ -19,26 +19,26 @@ public class Param_AutocadId : GH_Param<GH_AutocadObjectId>, IReferenceParam
     protected override System.Drawing.Bitmap Icon => Properties.Resources.Param_AutocadId;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Param_AutocadId"/> class with the
+    /// Initializes a new instance of the <see cref="Param_AutocadObjectId"/> class with the
     /// specified instance description.
     /// </summary>
-    public Param_AutocadId(IGH_InstanceDescription tag) : base(tag)
+    public Param_AutocadObjectId(IGH_InstanceDescription tag) : base(tag)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Param_AutocadId"/> class with the
+    /// Initializes a new instance of the <see cref="Param_AutocadObjectId"/> class with the
     /// specified instance description and parameter access type.
     /// </summary>
-    public Param_AutocadId(IGH_InstanceDescription tag, GH_ParamAccess access)
+    public Param_AutocadObjectId(IGH_InstanceDescription tag, GH_ParamAccess access)
         : base(tag, access)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Param_AutocadId"/> class.
+    /// Initializes a new instance of the <see cref="Param_AutocadObjectId"/> class.
     /// </summary>
-    public Param_AutocadId(GH_ParamAccess access)
+    public Param_AutocadObjectId(GH_ParamAccess access)
         : base("AutoCAD ObjectId", "Id",
             "An ObjectId in AutoCAD", "Params", "AutoCAD", access)
     { }

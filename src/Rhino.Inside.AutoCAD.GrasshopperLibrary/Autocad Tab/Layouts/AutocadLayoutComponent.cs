@@ -36,7 +36,7 @@ public class AutocadLayoutComponent : GH_Component
         pManager.AddIntegerParameter("NewTabOrder", "TabOrder",
             "New tab display order", GH_ParamAccess.item);
 
-        pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "NewBlockTableRecordId", "BlockId",
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "NewBlockTableRecordId", "BlockId",
             "New associated block table record ID", GH_ParamAccess.item);
 
         // Make all parameters optional except the first
@@ -51,13 +51,13 @@ public class AutocadLayoutComponent : GH_Component
         pManager.AddTextParameter("Name", "Name",
             "The name of the AutoCAD Layout", GH_ParamAccess.item);
 
-        pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "Id", "Id",
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "Id", "Id",
             "The Id of the AutoCAD Layout", GH_ParamAccess.item);
 
         pManager.AddIntegerParameter("TabOrder", "TabOrder",
             "The tab display order", GH_ParamAccess.item);
 
-        pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "BlockTableRecordId", "BlockId",
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "BlockTableRecordId", "BlockId",
             "The associated block table record ID", GH_ParamAccess.item);
     }
 

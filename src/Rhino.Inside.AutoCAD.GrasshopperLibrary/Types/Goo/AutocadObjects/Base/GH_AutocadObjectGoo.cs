@@ -20,7 +20,7 @@ where TWrapperType : IDbObject
     public override bool IsValid => this.Value != null && this.Value.IsValid;
 
     /// <inheritdoc />
-    public override string TypeName => typeof(TWrapperType).Name;
+    public override string TypeName => this.GetCadType().Name;
 
     /// <inheritdoc />
     public override string TypeDescription => $"Represents an AutoCAD {this.TypeName}";
@@ -42,6 +42,13 @@ where TWrapperType : IDbObject
     }
 
     /// <summary>
+    /// Returns the Type of AutoCAD object wrapped the Wrapper of this Goo.
+    /// e.g. for GH_AutocadBlockReference it would return typeof(BlockReference)
+    /// </summary>
+    /// <returns></returns>
+    protected abstract Type GetCadType();
+
+    /// <summary>
     /// News up a new <see cref="IGH_Goo"/> instance wrapping the specified
     /// <see cref="IDbObject"/>
     /// </summary>
@@ -60,10 +67,27 @@ where TWrapperType : IDbObject
     {
         var converter = new GooConverter();
 
-        if (converter.TryConvertFromGoo(source, out GH_AutocadObjectGoo<TWrapperType> target))
+        if (converter.TryConvertFromGoo(source, out GH_AutocadObjectGoo<TWrapperType> gooTarget))
         {
-            this.Value = target.Value;
+            this.Value = gooTarget.Value;
             return true;
+        }
+
+        if (converter.TryConvertFromGoo(source, out TWrapperType target))
+        {
+            this.Value = target;
+            return true;
+        }
+
+        if (converter.TryConvertFromGoo(source, out GH_AutocadObject genericObject))
+        {
+            if (genericObject.Value.Type == this.GetCadType())
+            {
+                var newWrapper = (GH_AutocadObjectGoo<TWrapperType>)this.CreateInstance(genericObject.Value);
+
+                this.Value = newWrapper.Value;
+                return true;
+            }
         }
 
         return false;

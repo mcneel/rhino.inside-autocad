@@ -1,3 +1,4 @@
+using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
@@ -42,8 +43,15 @@ public class GH_AutocadBlockTableRecord : GH_AutocadObjectGoo<BlockTableRecordWr
     }
 
     /// <inheritdoc />
+    protected override Type GetCadType() => typeof(BlockTableRecord);
+
+    /// <inheritdoc />
     protected override IGH_Goo CreateInstance(IDbObject dbObject)
     {
-        return new GH_AutocadObject(dbObject);
+        var unwrapped = dbObject.UnwrapObject();
+
+        var newWrapper = new BlockTableRecordWrapper(unwrapped as BlockTableRecord);
+
+        return new GH_AutocadBlockTableRecord(newWrapper);
     }
 }

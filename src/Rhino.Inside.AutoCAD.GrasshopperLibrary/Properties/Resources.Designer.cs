@@ -93,6 +93,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap AutocadExtractBlockGeometryComponent {
+            get {
+                object obj = ResourceManager.GetObject("AutocadExtractBlockGeometryComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap AutocadLayerComponent {
             get {
                 object obj = ResourceManager.GetObject("AutocadLayerComponent", resourceCulture);
@@ -236,6 +246,26 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
         internal static System.Drawing.Bitmap CreateAutocadLineTypeComponent {
             get {
                 object obj = ResourceManager.GetObject("CreateAutocadLineTypeComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap GetAutocadBlockReferenceObjectsComponent {
+            get {
+                object obj = ResourceManager.GetObject("GetAutocadBlockReferenceObjectsComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap GetAutocadBlockReferencesComponent {
+            get {
+                object obj = ResourceManager.GetObject("GetAutocadBlockReferencesComponent", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

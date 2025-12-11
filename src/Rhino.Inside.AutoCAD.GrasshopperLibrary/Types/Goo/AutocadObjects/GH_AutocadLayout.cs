@@ -1,3 +1,4 @@
+using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
@@ -41,9 +42,17 @@ public class GH_AutocadLayout : GH_AutocadObjectGoo<AutocadLayoutWrapper>
     {
 
     }
+
+    /// <inheritdoc />
+    protected override Type GetCadType() => typeof(Layout);
+
     /// <inheritdoc />
     protected override IGH_Goo CreateInstance(IDbObject dbObject)
     {
-        return new GH_AutocadObject(dbObject);
+        var unwrapped = dbObject.UnwrapObject();
+
+        var newWrapper = new AutocadLayoutWrapper(unwrapped as Layout);
+
+        return new GH_AutocadLayout(newWrapper);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Grasshopper.Kernel.Types;
+﻿using Autodesk.AutoCAD.DatabaseServices;
+using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 
@@ -43,8 +44,15 @@ public class GH_AutocadLayer : GH_AutocadObjectGoo<AutocadLayerTableRecordWrappe
     }
 
     /// <inheritdoc />
+    protected override Type GetCadType() => typeof(LayerTableRecord);
+
+    /// <inheritdoc />
     protected override IGH_Goo CreateInstance(IDbObject dbObject)
     {
-        return new GH_AutocadObject(dbObject);
+        var unwrapped = dbObject.UnwrapObject();
+
+        var newWrapper = new AutocadLayerTableRecordWrapper(unwrapped as LayerTableRecord);
+
+        return new GH_AutocadLayer(newWrapper);
     }
 }

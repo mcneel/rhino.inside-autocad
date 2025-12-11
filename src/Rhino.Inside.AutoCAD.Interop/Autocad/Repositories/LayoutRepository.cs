@@ -10,12 +10,12 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class LayoutRepository : Disposable, ILayoutRepository
 {
     private readonly Dictionary<string, IAutocadLayout> _layouts = new();
-    private readonly Document _document;
+    private readonly IAutocadDocument _document;
 
     /// <summary>
     /// Constructs a new <see cref="LayoutRepository"/>.
     /// </summary>
-    public LayoutRepository(Document document)
+    public LayoutRepository(IAutocadDocument document)
     {
         _document = document;
 
@@ -26,17 +26,17 @@ public class LayoutRepository : Disposable, ILayoutRepository
 
     private void SubscribeToModifyEvent()
     {
-        var database = _document.Database;
+        _ = _document.Transaction(transactionManagerWrapper =>
+        {
+            var transactionManager = transactionManagerWrapper.Unwrap();
 
-        using var transactionManager = database.TransactionManager;
+            using var layoutDictionary = (DBDictionary)transactionManager.GetObject(
+                _document.Database.LayoutDictionaryId.Unwrap(), OpenMode.ForRead);
 
-        using var transaction = transactionManager.StartTransaction();
+            layoutDictionary.Modified += this.LayoutTable_Modified;
 
-        using var layerTable = (DBDictionary)transactionManager.GetObject(database.LayoutDictionaryId, OpenMode.ForRead);
-
-        layerTable.Modified += this.LayoutTable_Modified;
-
-        transaction.Commit();
+            return true;
+        });
     }
 
     /// <summary>
@@ -49,17 +49,17 @@ public class LayoutRepository : Disposable, ILayoutRepository
 
     private void UnsubscribeToModifyEvent()
     {
-        var database = _document.Database;
+        _ = _document.Transaction(transactionManagerWrapper =>
+        {
+            var transactionManager = transactionManagerWrapper.Unwrap();
 
-        using var transactionManager = database.TransactionManager;
+            using var layoutDictionary = (DBDictionary)transactionManager.GetObject(
+                _document.Database.LayoutDictionaryId.Unwrap(), OpenMode.ForRead);
 
-        using var transaction = transactionManager.StartTransaction();
+            layoutDictionary.Modified -= this.LayoutTable_Modified;
 
-        using var layerTable = (DBDictionary)transactionManager.GetObject(database.LayoutDictionaryId, OpenMode.ForRead);
-
-        layerTable.Modified -= this.LayoutTable_Modified;
-
-        transaction.Commit();
+            return true;
+        });
     }
 
     ///<inheritdoc />
@@ -71,64 +71,59 @@ public class LayoutRepository : Disposable, ILayoutRepository
     {
         _layouts.Clear();
 
-        var database = _document.Database;
-
-        using var transactionManager = database.TransactionManager;
-
-        using var transaction = transactionManager.StartTransaction();
-
-        using var layouts = (DBDictionary)transactionManager
-            .GetObject(database.LayoutDictionaryId, OpenMode.ForRead);
-
-        foreach (var entity in layouts)
+        _ = _document.Transaction(transactionManagerWrapper =>
         {
-            var layout = (Layout)entity.Value.GetObject(OpenMode.ForRead)!;
+            var transactionManager = transactionManagerWrapper.Unwrap();
 
-            var layoutName = layout.LayoutName;
+            using var layouts = (DBDictionary)transactionManager
+                .GetObject(_document.Database.LayoutDictionaryId.Unwrap(), OpenMode.ForRead);
 
-            var layoutWrapper = new AutocadLayoutWrapper(layout);
+            foreach (var entity in layouts)
+            {
+                var layout = (Layout)entity.Value.GetObject(OpenMode.ForRead)!;
 
-            _layouts.Add(layoutName, layoutWrapper);
-        }
+                var layoutName = layout.LayoutName;
 
-        transaction.Commit();
+                var layoutWrapper = new AutocadLayoutWrapper(layout);
 
+                _layouts.Add(layoutName, layoutWrapper);
+            }
+
+            return true;
+        });
     }
 
     /// <summary>
-    /// Creates a new layer in the active document and returns the <see cref="IAutocadLayout"/>. 
+    /// Creates a new layer in the active document and returns the <see cref="IAutocadLayout"/>.
     /// </summary>
     private IAutocadLayout CreateLayout(string name)
     {
-        using var documentLock = _document.LockDocument();
+        using var documentLock = _document.Unwrap().LockDocument();
 
         this.UnsubscribeToModifyEvent();
 
-        var database = _document.Database;
-
-        using var transactionManager = database.TransactionManager;
-
-        using var transaction = transactionManager.StartTransaction();
-
-        var layout = new Layout()
+        var layoutWrapper = _document.Transaction(transactionManagerWrapper =>
         {
-            LayoutName = name
-        };
+            var transactionManager = transactionManagerWrapper.Unwrap();
 
-        using var layoutDictionary = (DBDictionary)transactionManager.GetObject(database.LayoutDictionaryId, OpenMode.ForWrite);
+            var layout = new Layout()
+            {
+                LayoutName = name
+            };
 
-        layoutDictionary[name] = layout;
+            using var layoutDictionary = (DBDictionary)transactionManager.GetObject(
+                _document.Database.LayoutDictionaryId.Unwrap(), OpenMode.ForWrite);
 
-        transactionManager.AddNewlyCreatedDBObject(layout, true);
+            layoutDictionary[name] = layout;
 
-        var layerWrapper = new AutocadLayoutWrapper(layout);
+            transactionManager.AddNewlyCreatedDBObject(layout, true);
 
-        transaction.Commit();
+            return new AutocadLayoutWrapper(layout);
+        });
 
         this.SubscribeToModifyEvent();
 
-        return layerWrapper;
-
+        return layoutWrapper;
     }
 
     /// <inheritdoc/>

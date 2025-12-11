@@ -93,11 +93,11 @@ public class BlockReferenceWrapper : AutocadEntityWrapper, IBlockReference
 
         var transaction = transactionManager.Unwrap();
 
-        var blockDef = transaction.GetObject(blockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+        var blockDefinition = transaction.GetObject(blockTableRecord, OpenMode.ForRead) as BlockTableRecord;
 
         var transform = _blockReference.BlockTransform;
 
-        foreach (var entityId in blockDef)
+        foreach (var entityId in blockDefinition)
         {
             var entity = transaction.GetObject(entityId, OpenMode.ForRead) as Entity;
 

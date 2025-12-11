@@ -26,8 +26,8 @@ public class Param_AutocadBlockReference : GH_PersistentParam<GH_AutocadBlockRef
     /// Initializes a new instance of the <see cref="Param_AutocadCurve"/> class.
     /// </summary>
     public Param_AutocadBlockReference()
-        : base(new GH_InstanceDescription("AutoCAD Block Instance", "BlockInst",
-            "A Block Instance in AutoCAD", "Params", "AutoCAD"))
+        : base(new GH_InstanceDescription("AutoCAD Block Reference", "BlockRef",
+            "A Block Reference in AutoCAD", "Params", "AutoCAD"))
     { }
 
     /// <inheritdoc />

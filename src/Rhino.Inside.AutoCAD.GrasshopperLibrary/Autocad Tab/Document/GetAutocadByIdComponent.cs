@@ -35,7 +35,7 @@ public class GetByAutocadIdComponent : GH_Component, IReferenceComponent
         pManager.AddParameter(new Param_AutocadDocument(GH_ParamAccess.item), "Document",
             "Doc", "An AutoCAD Document", GH_ParamAccess.item);
 
-        pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "ObjectId",
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "ObjectId",
             "Id", "An AutoCAD ObjectId", GH_ParamAccess.item);
     }
 

@@ -48,10 +48,10 @@ public class CreateAutocadLayerComponent : GH_Component
         pManager.AddTextParameter("Name", "Name",
             "The name of the AutoCAD Layer.", GH_ParamAccess.item);
 
-        pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "Id", "Id",
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "Id", "Id",
             "The Id of the AutoCAD Layer.", GH_ParamAccess.item);
 
-        pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "LinePatternId", "LinePatternId",
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "LinePatternId", "LinePatternId",
             "The Id of Line Patten of the AutoCAD Layer.", GH_ParamAccess.item);
 
         pManager.AddColourParameter("Colour", "Colour",

@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="ILineTypeRepository"/>
 public class LineTypeRepository : Disposable, ILineTypeRepository
 {
-    private readonly Document _document;
+    private readonly IAutocadDocument _document;
     private bool _disposed;
 
     private readonly Dictionary<IObjectId, IAutocadLinetypeTableRecord> _linePatterns;
@@ -18,7 +18,7 @@ public class LineTypeRepository : Disposable, ILineTypeRepository
     /// <summary>
     /// Constructs a new <see cref="LineTypeRepository"/>.
     /// </summary>
-    public LineTypeRepository(Document document)
+    public LineTypeRepository(IAutocadDocument document)
     {
         _document = document;
 
@@ -46,32 +46,32 @@ public class LineTypeRepository : Disposable, ILineTypeRepository
 
     private void SubscribeToModifyEvent()
     {
-        var database = _document.Database;
+        _ = _document.Transaction(transactionManagerWrapper =>
+        {
+            var transactionManager = transactionManagerWrapper.Unwrap();
 
-        using var transactionManager = database.TransactionManager;
+            using var linetypeTable = (LinetypeTable)transactionManager.GetObject(
+                _document.Database.LinetypeTableId.Unwrap(), OpenMode.ForRead);
 
-        using var transaction = transactionManager.StartTransaction();
+            linetypeTable.Modified += this.LineTypeTable_Modified;
 
-        using var layerTable = (LayerTable)transactionManager.GetObject(database.LayerTableId, OpenMode.ForRead);
-
-        layerTable.Modified += this.LineTypeTable_Modified;
-
-        transaction.Commit();
+            return true;
+        });
     }
 
     private void UnsubscribeToModifyEvent()
     {
-        var database = _document.Database;
+        _ = _document.Transaction(transactionManagerWrapper =>
+        {
+            var transactionManager = transactionManagerWrapper.Unwrap();
 
-        using var transactionManager = database.TransactionManager;
+            using var linetypeTable = (LinetypeTable)transactionManager.GetObject(
+                _document.Database.LinetypeTableId.Unwrap(), OpenMode.ForRead);
 
-        using var transaction = transactionManager.StartTransaction();
+            linetypeTable.Modified -= this.LineTypeTable_Modified;
 
-        using var layerTable = (LayerTable)transactionManager.GetObject(database.LayerTableId, OpenMode.ForRead);
-
-        layerTable.Modified -= this.LineTypeTable_Modified;
-
-        transaction.Commit();
+            return true;
+        });
     }
 
     /// <summary>
@@ -82,24 +82,24 @@ public class LineTypeRepository : Disposable, ILineTypeRepository
     {
         _linePatterns.Clear();
 
-        var database = _document.Database;
-
-        using var transactionManager = database.TransactionManager;
-
-        using var transaction = transactionManager.StartTransaction();
-
-        using var lineTypeTable = (LinetypeTable)transactionManager.GetObject(database.LinetypeTableId, OpenMode.ForRead);
-
-        foreach (var lineTypeRecordId in lineTypeTable)
+        _ = _document.Transaction(transactionManagerWrapper =>
         {
-            var linetypeTableRecord = (LinetypeTableRecord)transactionManager.GetObject(lineTypeRecordId, OpenMode.ForRead);
+            var transactionManager = transactionManagerWrapper.Unwrap();
 
-            var linePattern = new AutocadLinetypeTableRecord(linetypeTableRecord);
+            using var lineTypeTable = (LinetypeTable)transactionManager.GetObject(
+                _document.Database.LinetypeTableId.Unwrap(), OpenMode.ForRead);
 
-            _linePatterns.Add(linePattern.Id, linePattern);
-        }
+            foreach (var lineTypeRecordId in lineTypeTable)
+            {
+                var linetypeTableRecord = (LinetypeTableRecord)transactionManager.GetObject(lineTypeRecordId, OpenMode.ForRead);
 
-        transaction.Commit();
+                var linePattern = new AutocadLinetypeTableRecord(linetypeTableRecord);
+
+                _linePatterns.Add(linePattern.Id, linePattern);
+            }
+
+            return true;
+        });
     }
 
     /// <summary>
@@ -107,36 +107,34 @@ public class LineTypeRepository : Disposable, ILineTypeRepository
     /// </summary>
     private IAutocadLinetypeTableRecord CreateLineType(string name, double patternLength, int numberOfDashes, bool scaleToFit)
     {
-        using var documentLock = _document.LockDocument();
+        using var documentLock = _document.Unwrap().LockDocument();
 
         this.UnsubscribeToModifyEvent();
 
-        var database = _document.Database;
-
-        using var transactionManager = database.TransactionManager;
-
-        using var transaction = transactionManager.StartTransaction();
-
-        var linetypeTableRecord = new LinetypeTableRecord()
+        var lineTypeWrapper = _document.Transaction(transactionManagerWrapper =>
         {
-            Name = name,
-            PatternLength = patternLength,
-            NumDashes = numberOfDashes,
-            IsScaledToFit = scaleToFit,
-        };
+            var transactionManager = transactionManagerWrapper.Unwrap();
 
-        // Set the dash pattern array
-        this.SetSimpleDashPattern(linetypeTableRecord, patternLength, numberOfDashes);
+            var linetypeTableRecord = new LinetypeTableRecord()
+            {
+                Name = name,
+                PatternLength = patternLength,
+                NumDashes = numberOfDashes,
+                IsScaledToFit = scaleToFit,
+            };
 
-        using var linetypeTable = (LinetypeTable)transactionManager.GetObject(database.LinetypeTableId, OpenMode.ForWrite);
+            // Set the dash pattern array
+            this.SetSimpleDashPattern(linetypeTableRecord, patternLength, numberOfDashes);
 
-        linetypeTable.Add(linetypeTableRecord);
+            using var linetypeTable = (LinetypeTable)transactionManager.GetObject(
+                _document.Database.LinetypeTableId.Unwrap(), OpenMode.ForWrite);
 
-        transactionManager.AddNewlyCreatedDBObject(linetypeTableRecord, true);
+            linetypeTable.Add(linetypeTableRecord);
 
-        var lineTypeWrapper = new AutocadLinetypeTableRecord(linetypeTableRecord);
+            transactionManager.AddNewlyCreatedDBObject(linetypeTableRecord, true);
 
-        transaction.Commit();
+            return new AutocadLinetypeTableRecord(linetypeTableRecord);
+        });
 
         this.SubscribeToModifyEvent();
 

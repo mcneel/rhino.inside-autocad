@@ -1,5 +1,4 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
-using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
@@ -12,14 +11,10 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </remarks>
 public class BlockTableRecordWrapper : DbObjectWrapper, IBlockTableRecord
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
     private readonly BlockTableRecord _blockTableRecord;
 
     /// <inheritdoc />
     public string Name { get; }
-
-    /// <inheritdoc />
-    public Point3d Origin { get; }
 
     /// <inheritdoc />
     public IObjectIdCollection ObjectIds { get; }
@@ -33,8 +28,6 @@ public class BlockTableRecordWrapper : DbObjectWrapper, IBlockTableRecord
 
         this.Name = _blockTableRecord.Name;
 
-        this.Origin = _geometryConverter.ToRhinoType(_blockTableRecord.Origin);
-
         this.ObjectIds = new AutocadObjectIdCollection();
     }
 
@@ -46,8 +39,6 @@ public class BlockTableRecordWrapper : DbObjectWrapper, IBlockTableRecord
         _blockTableRecord = blockTableRecord;
 
         this.Name = blockTableRecord.Name;
-
-        this.Origin = _geometryConverter.ToRhinoType(blockTableRecord.Origin);
 
         this.ObjectIds = new AutocadObjectIdCollection();
         foreach (var objectId in blockTableRecord)
@@ -62,5 +53,38 @@ public class BlockTableRecordWrapper : DbObjectWrapper, IBlockTableRecord
     protected override bool Validate()
     {
         return base.Validate() && _blockTableRecord is { IsDisposed: false, IsUnloaded: false };
+    }
+
+    /// <inheritdoc />
+    public IEntityCollection GetObjects(ITransactionManager transactionManager)
+    {
+        var entityCollection = new EntityCollection();
+
+        var transaction = transactionManager.Unwrap();
+
+        var blockDefinition = transaction.GetObject(_blockTableRecord.Id, OpenMode.ForRead) as BlockTableRecord;
+
+        foreach (var entityId in blockDefinition)
+        {
+            var entity = transaction.GetObject(entityId, OpenMode.ForRead) as Entity;
+
+            if (entity is BlockReference blockReference)
+            {
+                var wrapper = new BlockReferenceWrapper(blockReference);
+
+                var nestedBlockReferences = wrapper.GetObjects(transactionManager);
+
+                foreach (var nestedEntity in nestedBlockReferences)
+                {
+                    entityCollection.Add(nestedEntity);
+                }
+                continue;
+            }
+
+            entityCollection.Add(new AutocadEntityWrapper(entity));
+
+        }
+
+        return entityCollection;
     }
 }

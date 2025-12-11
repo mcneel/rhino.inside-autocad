@@ -31,7 +31,7 @@ public class AutocadObjectIdComponent : GH_Component
     /// <inheritdoc />
     protected override void RegisterInputParams(GH_InputParamManager pManager)
     {
-        pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "ObjectId",
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "ObjectId",
             "Id", "An AutoCAD ObjectId", GH_ParamAccess.item);
     }
 

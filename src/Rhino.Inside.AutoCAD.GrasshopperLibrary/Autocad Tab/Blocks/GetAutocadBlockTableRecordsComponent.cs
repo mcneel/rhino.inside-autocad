@@ -11,17 +11,18 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 public class GetAutocadBlockTableRecordsComponent : GH_Component, IReferenceComponent
 {
     /// <inheritdoc />
-    public override Guid ComponentGuid => new("41c4ed14-3a97-4812-94bc-4950bca8be7d");
+    public override Guid ComponentGuid => new("feb2beb6-7414-43e5-941a-d50f26a57ab7");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.GetAutocadBlockTableRecordsComponent;
+    protected override System.Drawing.Bitmap Icon =>
+        Properties.Resources.GetAutocadBlockTableRecordsComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetAutocadBlockTableRecordsComponent"/> class.
     /// </summary>
     public GetAutocadBlockTableRecordsComponent()
         : base("GetAutoCadBlockTableRecords", "GetBlockTableRecords",
-            "Returns the list of all the AutoCAD layer in the document",
+            "Returns the list of all the AutoCAD Bloc1k Table Records in the document",
             "AutoCAD", "Blocks")
     {
     }
@@ -36,7 +37,8 @@ public class GetAutocadBlockTableRecordsComponent : GH_Component, IReferenceComp
     /// <inheritdoc />
     protected override void RegisterOutputParams(GH_OutputParamManager pManager)
     {
-        pManager.AddParameter(new Param_AutocadBlockTableRecord(GH_ParamAccess.list), "BlockTableRecords", "BlockTableRecords", "The AutoCAD BlockTableRecords",
+        pManager.AddParameter(new Param_AutocadBlockTableRecord(GH_ParamAccess.list),
+            "BlockTableRecords", "BlockTableRecords", "The AutoCAD BlockTableRecords",
             GH_ParamAccess.list);
     }
 
@@ -51,7 +53,8 @@ public class GetAutocadBlockTableRecordsComponent : GH_Component, IReferenceComp
         var blockTableRecordsRepository = autocadDocument.BlockTableRecordRepository;
 
         var gooBlockTableRecords = blockTableRecordsRepository
-            .Select(autocadLayerTableRecord => new GH_AutocadBlockTableRecord(autocadLayerTableRecord))
+            .Select(autocadLayerTableRecord =>
+                new GH_AutocadBlockTableRecord(autocadLayerTableRecord))
             .ToList();
 
         DA.SetDataList(0, gooBlockTableRecords);

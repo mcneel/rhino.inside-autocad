@@ -1,3 +1,4 @@
+using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
@@ -34,7 +35,7 @@ public class GH_AutocadLineType : GH_AutocadObjectGoo<AutocadLinetypeTableRecord
     }
 
     /// <summary>
-    /// Constructs a new <see cref="ILinePattern"/> via the interface.
+    /// Constructs a new <see cref="IAutocadLinetypeTableRecord"/> via the interface.
     /// </summary>
     public GH_AutocadLineType(IAutocadLinetypeTableRecord linetypeTableRecord)
         : base((linetypeTableRecord as AutocadLinetypeTableRecord)!)
@@ -43,8 +44,15 @@ public class GH_AutocadLineType : GH_AutocadObjectGoo<AutocadLinetypeTableRecord
     }
 
     /// <inheritdoc />
+    protected override Type GetCadType() => typeof(LinetypeTableRecord);
+
+    /// <inheritdoc />
     protected override IGH_Goo CreateInstance(IDbObject dbObject)
     {
-        return new GH_AutocadObject(dbObject);
+        var unwrapped = dbObject.UnwrapObject();
+
+        var newWrapper = new AutocadLinetypeTableRecord(unwrapped as LinetypeTableRecord);
+
+        return new GH_AutocadLineType(newWrapper);
     }
 }

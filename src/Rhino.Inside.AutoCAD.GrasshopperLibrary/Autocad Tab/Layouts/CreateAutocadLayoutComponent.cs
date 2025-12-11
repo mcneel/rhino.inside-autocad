@@ -40,13 +40,13 @@ public class CreateAutocadLayoutComponent : GH_Component
         pManager.AddTextParameter("Name", "Name",
             "The name of the AutoCAD Layout", GH_ParamAccess.item);
 
-        pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "Id", "Id",
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "Id", "Id",
             "The Id of the AutoCAD Layout", GH_ParamAccess.item);
 
         pManager.AddIntegerParameter("TabOrder", "TabOrder",
             "The tab display order", GH_ParamAccess.item);
 
-        pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "BlockTableRecordId", "BlockId",
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "BlockTableRecordId", "BlockId",
             "The associated block table record ID", GH_ParamAccess.item);
     }
 

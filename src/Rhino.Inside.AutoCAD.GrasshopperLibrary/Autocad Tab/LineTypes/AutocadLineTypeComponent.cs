@@ -37,7 +37,7 @@ public class AutocadLineTypeComponent : GH_Component
         pManager.AddTextParameter("Name", "Name",
             "The name of the AutoCAD Line Pattern.", GH_ParamAccess.item);
 
-        pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "Id", "Id",
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "Id", "Id",
             "The Id of the AutoCAD Line Pattern.", GH_ParamAccess.item);
 
     }

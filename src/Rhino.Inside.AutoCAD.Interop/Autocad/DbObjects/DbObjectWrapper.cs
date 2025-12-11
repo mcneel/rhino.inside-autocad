@@ -9,13 +9,19 @@ public class DbObjectWrapper : WrapperDisposableBase<DBObject>, IDbObject
     ///<inheritdoc />
     public IObjectId Id => this.GetObjectId();
 
+    ///<inheritdoc />
+    public Type Type { get; }
+
     /// <inheritdoc/>
     public bool IsValid => this.Validate();
 
     /// <summary>
     /// Constructs a new <see cref="DbObjectWrapper"/>.
     /// </summary>
-    public DbObjectWrapper(DBObject value) : base(value) { }
+    public DbObjectWrapper(DBObject value) : base(value)
+    {
+        this.Type = value.GetType();
+    }
 
     /// <summary>
     /// Returns the current <see cref="IObjectId"/> of the <see cref="IDbObject"/>. In 

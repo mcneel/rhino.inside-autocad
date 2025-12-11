@@ -26,4 +26,9 @@ public interface IObjectId
     /// Creates a shallow clone of the <see cref="IObjectId"/>.
     /// </summary>
     IObjectId ShallowClone();
+
+    /// <summary>
+    /// Determines whether the current <see cref="IObjectId"/> is equal to another <see cref="IObjectId"/>.
+    /// </summary>
+    bool IsEqualTo(IObjectId other);
 }

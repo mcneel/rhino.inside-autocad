@@ -16,6 +16,12 @@ public class DatabaseWrapper : WrapperDisposableBase<Database>, IDatabase
     public IObjectId LinetypeTableId { get; }
 
     /// <inheritdoc/>
+    public IObjectId LayerTableId { get; }
+
+    /// <inheritdoc/>
+    public IObjectId LayoutDictionaryId { get; }
+
+    /// <inheritdoc/>
     public IObjectId ByLayerLineTypeId { get; }
 
     /// <summary>
@@ -27,6 +33,10 @@ public class DatabaseWrapper : WrapperDisposableBase<Database>, IDatabase
         this.BlockTableId = new AutocadObjectId(database.BlockTableId);
 
         this.LinetypeTableId = new AutocadObjectId(database.LinetypeTableId);
+
+        this.LayerTableId = new AutocadObjectId(database.LayerTableId);
+
+        this.LayoutDictionaryId = new AutocadObjectId(database.LayoutDictionaryId);
 
         this.ByLayerLineTypeId = new AutocadObjectId(database.ByLayerLinetype);
     }

@@ -1,3 +1,4 @@
+using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
@@ -42,8 +43,16 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
     }
 
     /// <inheritdoc />
+    protected override Type GetCadType() => typeof(BlockReference);
+
+
+    /// <inheritdoc />
     protected override IGH_Goo CreateInstance(IDbObject dbObject)
     {
-        return new GH_AutocadObject(dbObject);
+        var unwrapped = dbObject.UnwrapObject();
+
+        var newWrapper = new BlockReferenceWrapper(unwrapped as BlockReference);
+
+        return new GH_AutocadBlockReference(newWrapper);
     }
 }
