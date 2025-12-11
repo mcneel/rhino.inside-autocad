@@ -8,8 +8,8 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
 {
     private readonly IRhinoConvertibleFactory _rhinoConvertibleFactory;
-    private readonly IPreviewServer2 _shadedPreviewServer;
-    private readonly IPreviewServer2 _wireframePreviewServer;
+    private readonly IPreviewServer _shadedPreviewServer;
+    private readonly IPreviewServer _wireframePreviewServer;
     private readonly IGrasshopperPreviewButtonManager _buttonManager;
 
     /// <inheritdoc/>
@@ -25,8 +25,8 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
         IPreviewGeometryConverter previewGeometryConverter, IRhinoConvertibleFactory rhinoConvertibleFactory)
     {
         _rhinoConvertibleFactory = rhinoConvertibleFactory;
-        _shadedPreviewServer = new PreviewServer2(geometryPreviewSettings, previewGeometryConverter);
-        _wireframePreviewServer = new PreviewServer2(geometryPreviewSettings, previewGeometryConverter);
+        _shadedPreviewServer = new PreviewServer(geometryPreviewSettings, previewGeometryConverter);
+        _wireframePreviewServer = new PreviewServer(geometryPreviewSettings, previewGeometryConverter);
 
         _buttonManager = new GrasshopperPreviewButtonManager();
 

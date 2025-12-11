@@ -17,6 +17,8 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
     /// <inheritdoc />
     public List<Point> Points { get; }
 
+    public List<TextEntity> Texts { get; }
+
     /// <summary>
     /// Constructs a new empty <see cref="IGrasshopperPreviewData"/> instance.
     /// </summary>
@@ -26,6 +28,7 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
         this.Wires = new List<Curve>();
         this.Meshes = new List<Mesh>();
         this.Points = new List<Point>();
+        this.Texts = new List<TextEntity>();
     }
 
     public IRhinoConvertibleSet GetShadedObjects()
@@ -55,6 +58,14 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
         foreach (var curve in this.Wires)
         {
             if (_rhinoConvertibleFactory.MakeConvertible(curve, out var result))
+            {
+                wireFrameSet.Add(result);
+            }
+        }
+
+        foreach (var text in this.Texts)
+        {
+            if (_rhinoConvertibleFactory.MakeConvertible(text, out var result))
             {
                 wireFrameSet.Add(result);
             }

@@ -20,10 +20,10 @@ where TWrapperType : IDbObject
     public override bool IsValid => this.Value != null && this.Value.IsValid;
 
     /// <inheritdoc />
-    public override string TypeName => this.GetCadType().Name;
+    public override string TypeName => $"AutoCAD {this.GetCadType().Name}";
 
     /// <inheritdoc />
-    public override string TypeDescription => $"Represents an AutoCAD {this.TypeName}";
+    public override string TypeDescription => $"Represents an {this.TypeName}";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadObject"/> class with no value.
@@ -123,8 +123,8 @@ where TWrapperType : IDbObject
     public override string ToString()
     {
         if (this.Value == null)
-            return $"Null Autocad {this.TypeName}";
+            return $"Null {this.TypeName}";
 
-        return $"Autocad {this.TypeName} [Id: {this.Value.Id.ToString()} ]";
+        return $"{this.TypeName} [Id: {this.Value.Id.ToString()} ]";
     }
 }

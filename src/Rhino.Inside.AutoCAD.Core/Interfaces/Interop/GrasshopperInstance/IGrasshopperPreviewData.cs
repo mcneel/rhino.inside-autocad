@@ -21,6 +21,12 @@ public interface IGrasshopperPreviewData
     /// </summary>
     List<Rhino.Geometry.Point> Points { get; }
 
+
+    /// <summary>
+    /// Gets the collection of text representing the preview geometry.
+    /// </summary>
+    List<Rhino.Geometry.TextEntity> Texts { get; }
+
     /// <summary>
     /// Retrieves the set of shaded objects from the preview data as a
     /// <see cref="IRhinoConvertibleSet"/>.

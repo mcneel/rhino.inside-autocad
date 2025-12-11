@@ -69,6 +69,16 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
     /// <returns>The wrapped entity as a Grasshopper Goo object.</returns>
     protected abstract TGoo WrapEntity(TEntity entity);
 
+    /// <summary>
+    /// Gives the opportunity to convert a support object into the desired TGoo type
+    /// during selection.
+    /// </summary>
+    protected virtual bool ConvertSupportObject(IEntity entity, out TGoo supportedGoo)
+    {
+        supportedGoo = null;
+        return false;
+    }
+
     /// <inheritdoc />
     protected override GH_GetterResult Prompt_Singular(ref TGoo value)
     {
@@ -80,9 +90,16 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
 
         var entity = picker.PickObject(selectionFilter, this.SingularPromptMessage);
 
-        if (entity.Unwrap() is TEntity typedEntity)
+        if (entity?.Unwrap() is TEntity typedEntity)
         {
             value = this.WrapEntity(typedEntity);
+
+            return GH_GetterResult.success;
+        }
+
+        if (this.ConvertSupportObject(entity, out var supportedGoo))
+        {
+            value = supportedGoo;
 
             return GH_GetterResult.success;
         }
@@ -102,13 +119,16 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
 
         var entities = picker.PickObjects(selectionFilter, this.PluralPromptMessage);
 
+        var newValues = new List<TGoo>();
         foreach (var entity in entities)
         {
-            if (entity is TEntity typedEntity)
+            if (entity?.Unwrap() is TEntity typedEntity)
             {
-                values.Add(this.WrapEntity(typedEntity));
+                newValues.Add(this.WrapEntity(typedEntity));
             }
         }
+
+        values = newValues;
 
         return GH_GetterResult.success;
     }

@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class AutocadLayerTableRecordWrapper : DbObjectWrapper, IAutocadLayerTableRecord
 {
     private readonly LayerTableRecord _layerTableRecord;
-    private readonly InternalColorConverter _internalColorConverter = InternalColorConverter.Instance!;
+    private readonly AutocadColorConverter _autocadColorConverter = AutocadColorConverter.Instance!;
 
     /// <inheritdoc/>
     public IColor Color { get; }
@@ -32,7 +32,7 @@ public class AutocadLayerTableRecordWrapper : DbObjectWrapper, IAutocadLayerTabl
 
         this.LinePattenId = new AutocadObjectId(layerTableRecord.LinetypeObjectId);
 
-        this.Color = _internalColorConverter.Convert(layerTableRecord.Color);
+        this.Color = _autocadColorConverter.Convert(layerTableRecord.Color);
 
     }
 

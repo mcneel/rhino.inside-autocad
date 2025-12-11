@@ -25,7 +25,7 @@ public class CreateAutocadBlockReferenceComponent : GH_Component
     /// Initializes a new instance of the <see cref="CreateAutocadBlockReferenceComponent"/> class.
     /// </summary>
     public CreateAutocadBlockReferenceComponent()
-        : base("CreateAutocadBlockReference", "AddBlockRef",
+        : base("Create AutoCAD Block Reference", "BlkRef",
             "Creates AutoCAD Block Reference(s) to a document at the specified insertion point(s). The Block is created on memory to add to the Autocad Document use the Autocad Bake Component",
             "AutoCAD", "Blocks")
     {

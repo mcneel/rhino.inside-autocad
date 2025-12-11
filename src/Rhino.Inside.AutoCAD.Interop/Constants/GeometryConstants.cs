@@ -20,4 +20,15 @@ public class GeometryConstants
     /// </summary>
     public const double ZeroTolerance = 0.0001;
 
+    /// <summary>
+    /// The tolerance in radians which can be used to compare two angles for
+    /// equality. Differences below this threshold are considered equal.  
+    /// </summary>
+    public const double RadianAngleTolerance = 0.0008726646;
+
+    /// <summary>
+    /// Absolute zero value.
+    /// </summary>
+    public const double AbsoluteZeroValue = 0d;
+
 }

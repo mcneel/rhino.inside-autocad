@@ -18,7 +18,7 @@ public class AutocadLineTypeComponent : GH_Component
     /// Initializes a new instance of the <see cref="AutocadLineTypeComponent"/> class.
     /// </summary>
     public AutocadLineTypeComponent()
-        : base("AutocadLineType", "LineType",
+        : base("AutoCAD Line Type", "LType",
             "Gets Information from an AutoCAD Line Type Pattern",
             "AutoCAD", "LineTypes")
     {

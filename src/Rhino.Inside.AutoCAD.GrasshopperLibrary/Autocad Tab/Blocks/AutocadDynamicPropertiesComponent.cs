@@ -18,7 +18,7 @@ public class AutocadDynamicPropertiesComponent : GH_Component
     /// Initializes a new instance of the <see cref="AutocadDynamicPropertiesComponent"/> class.
     /// </summary>
     public AutocadDynamicPropertiesComponent()
-        : base("Dynamic Block Property", "DynProp",
+        : base("Dynamic Block Property", "DynPrp",
             "Gets information from an AutoCAD Dynamic Block Reference Property",
             "AutoCAD", "Blocks")
     {

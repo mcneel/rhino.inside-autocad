@@ -50,6 +50,12 @@ public class GrasshopperGeometryExtractor : IGrasshopperGeometryExtractor
                 continue;
             }
 
+            if (goo is GH_TextEntity textEntity)
+            {
+                data.Texts.Add(textEntity.Value);
+                continue;
+            }
+
             if (goo is GH_Point point)
             {
                 data.Points.Add(new Point(point.Value));

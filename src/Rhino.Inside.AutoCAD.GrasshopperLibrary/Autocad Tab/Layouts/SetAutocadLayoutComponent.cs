@@ -18,7 +18,7 @@ public class SetAutocadLayoutComponent : GH_Component
     /// Initializes a new instance of the <see cref="SetAutocadLayoutComponent"/> class.
     /// </summary>
     public SetAutocadLayoutComponent()
-        : base("SetAutocadLayout", "SetLayout",
+        : base("Set AutoCAD Layout", "SetLay",
             "Sets properties for an AutoCAD Layout",
             "AutoCAD", "Layouts")
     {

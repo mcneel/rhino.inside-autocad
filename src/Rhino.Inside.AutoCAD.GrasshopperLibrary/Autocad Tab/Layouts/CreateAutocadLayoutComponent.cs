@@ -18,7 +18,7 @@ public class CreateAutocadLayoutComponent : GH_Component
     /// Initializes a new instance of the <see cref="CreateAutocadLayoutComponent"/> class.
     /// </summary>
     public CreateAutocadLayoutComponent()
-        : base("CreateAutocadLayout", "CreateLayout",
+        : base("Create AutoCAD Layout", "AddLay",
             "Creates a new AutoCAD Layout",
             "AutoCAD", "Layouts")
     {

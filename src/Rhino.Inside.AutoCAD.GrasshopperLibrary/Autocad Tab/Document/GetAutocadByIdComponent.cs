@@ -23,7 +23,7 @@ public class GetByAutocadIdComponent : GH_Component, IReferenceComponent
     /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
     /// </summary>
     public GetByAutocadIdComponent()
-        : base("GetById", "GetId",
+        : base("Get By Id", "ById",
             "Returns the the AutoCAD object which matches the id",
             "AutoCAD", "Document")
     {

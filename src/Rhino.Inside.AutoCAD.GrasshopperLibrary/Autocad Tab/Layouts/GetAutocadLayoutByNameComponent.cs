@@ -20,7 +20,7 @@ public class GetAutocadLayoutByNameComponent : GH_Component, IReferenceComponent
     /// Initializes a new instance of the <see cref="GetAutocadLayoutByNameComponent"/> class.
     /// </summary>
     public GetAutocadLayoutByNameComponent()
-        : base("GetAutoCadLayoutByName", "GetLayout",
+        : base("Get AutoCAD Layout By Name", "Lay",
             "Returns the AutoCAD layout which matches the name",
             "AutoCAD", "Layouts")
     {

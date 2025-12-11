@@ -11,12 +11,12 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class AutocadColorConverter
 {
     /// <summary>
-    /// Returns the <see cref="AutocadColorConverter"/> singleton.
+    /// Returns the <see cref="Rhino.Inside.AutoCAD.Interop.AutocadColorConverter"/> singleton.
     /// </summary>
     public static AutocadColorConverter Instance { get; }
 
     /// <summary>
-    /// Static constructor that initializes the <see cref="AutocadColorConverter"/> singleton.
+    /// Static constructor that initializes the <see cref="Rhino.Inside.AutoCAD.Interop.AutocadColorConverter"/> singleton.
     /// </summary>
     static AutocadColorConverter()
     {
@@ -24,7 +24,7 @@ public class AutocadColorConverter
     }
 
     /// <summary>
-    /// Constructs a singleton instance of the <see cref="AutocadColorConverter"/>.
+    /// Constructs a singleton instance of the <see cref="Rhino.Inside.AutoCAD.Interop.AutocadColorConverter"/>.
     /// </summary>
     private AutocadColorConverter() { }
 

@@ -21,7 +21,7 @@ public class ConvertFromAutoCadMeshComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertFromAutoCadMeshComponent"/> class.
     /// </summary>
     public ConvertFromAutoCadMeshComponent()
-        : base("FromAutoCadMesh", "FromCadMesh",
+        : base("From AutoCAD Mesh", "FrMsh",
             "Converts an AutoCAD PolyFaceMesh to a Rhino mesh",
             "AutoCAD", "Convert")
     {

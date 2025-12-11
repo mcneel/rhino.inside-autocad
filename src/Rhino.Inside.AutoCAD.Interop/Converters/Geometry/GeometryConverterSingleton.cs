@@ -1,4 +1,5 @@
-﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Autodesk.AutoCAD.DatabaseServices;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -15,6 +16,10 @@ public partial class GeometryConverter
     private readonly double _fitTolerance = GeometryConstants.FitTolerance;
     private readonly double _midPointParam = GeometryConstants.NormalizedMidLength;
     private readonly double _zeroTolerance = GeometryConstants.ZeroTolerance;
+    private readonly double _zeroAngleTolerance = GeometryConstants.RadianAngleTolerance;
+    private readonly double _zeroWidth = GeometryConstants.AbsoluteZeroValue;
+    private readonly HatchLoopTypes _externalType = HatchLoopTypes.External;
+    private readonly HatchLoopTypes _outermostType = HatchLoopTypes.Outermost;
 
     /// <summary>
     /// Returns the <see cref="GeometryConverter"/> singleton.

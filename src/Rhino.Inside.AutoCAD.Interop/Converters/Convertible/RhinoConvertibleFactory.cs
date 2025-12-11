@@ -50,6 +50,19 @@ public class RhinoConvertibleFactory : IRhinoConvertibleFactory
                     result = new RhinoConvertibleBrep(brep);
                     return true;
                 }
+            case ObjectType.Annotation:
+                {
+                    var annotation = rhinoGeometry as AnnotationBase;
+
+                    if (annotation is TextEntity textEntity)
+                    {
+                        result = new RhinoConvertibleText(textEntity);
+                        return true;
+                    }
+                    result = null;
+                    return false;
+
+                }
             default:
                 {
                     result = null;

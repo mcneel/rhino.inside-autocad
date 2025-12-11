@@ -58,9 +58,11 @@ public class AutocadBakeComponent : GH_Component
         if (obj is Grasshopper.Kernel.Types.IGH_Goo goo)
         {
             var valueProperty = goo.GetType().GetProperty("Value");
+
             if (valueProperty != null)
             {
                 var value = valueProperty.GetValue(goo);
+
                 if (value is IAutocadBakeable valueBakeable)
                     return valueBakeable;
             }

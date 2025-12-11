@@ -33,6 +33,11 @@
 	</ItemGroup>
 
 
+	<ItemGroup>
+	  <Folder Include="Interfaces\Interop\Text\" />
+	</ItemGroup>
+
+
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;" />
 	</Target>

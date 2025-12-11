@@ -5,7 +5,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="IRhinoObjectPreviewServer"/>
 public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
 {
-    private readonly IPreviewServer2 _previewServer;
+    private readonly IPreviewServer _previewServer;
 
     public IGeometryPreviewSettings Settings { get; }
 
@@ -18,7 +18,7 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
     public RhinoObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings,
         IPreviewGeometryConverter previewGeometryConverter)
     {
-        _previewServer = new PreviewServer2(geometryPreviewSettings, previewGeometryConverter);
+        _previewServer = new PreviewServer(geometryPreviewSettings, previewGeometryConverter);
 
         this.Visible = true;
 

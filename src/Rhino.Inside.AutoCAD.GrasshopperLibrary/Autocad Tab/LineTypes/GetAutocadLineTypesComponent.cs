@@ -20,7 +20,7 @@ public class GetAutocadLineTypesComponent : GH_Component, IReferenceComponent
     /// Initializes a new instance of the <see cref="GetAutocadLineTypesComponent"/> class.
     /// </summary>
     public GetAutocadLineTypesComponent()
-        : base("GetAutoCadLineTypes", "GetLineTypes",
+        : base("Get AutoCAD Line Types", "LTypes",
             "Returns the list of all the AutoCAD linetypes in the document",
             "AutoCAD", "LineTypes")
     {

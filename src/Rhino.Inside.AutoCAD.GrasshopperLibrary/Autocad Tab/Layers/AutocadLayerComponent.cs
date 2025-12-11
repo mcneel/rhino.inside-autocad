@@ -20,7 +20,7 @@ public class AutocadLayerComponent : GH_Component
     /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
     /// </summary>
     public AutocadLayerComponent()
-        : base("AutoCadLayer", "Layer",
+        : base("AutoCAD Layer", "Lyr",
             "Gets Information from an AutoCAD Layer",
             "AutoCAD", "Layers")
     {

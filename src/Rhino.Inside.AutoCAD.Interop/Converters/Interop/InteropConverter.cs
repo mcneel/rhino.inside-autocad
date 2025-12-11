@@ -6,7 +6,6 @@ using CadDbObject = Autodesk.AutoCAD.DatabaseServices.DBObject;
 using CadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
 using CadLayer = Autodesk.AutoCAD.DatabaseServices.LayerTableRecord;
 using CadObjectId = Autodesk.AutoCAD.DatabaseServices.ObjectId;
-using Hatch = Autodesk.AutoCAD.DatabaseServices.Hatch;
 using TransactionManager = Autodesk.AutoCAD.DatabaseServices.TransactionManager;
 
 namespace Rhino.Inside.AutoCAD.Interop;
@@ -78,26 +77,6 @@ public static class InteropConverter
         var objectIdWrapper = (WrapperDisposableBase<TransactionManager>)transactionManager;
 
         return objectIdWrapper.Internal;
-    }
-
-    /// <summary>
-    /// Unwraps the <see cref="IHatch"/> and returns the AutoCAD <see cref="Autodesk.AutoCAD.DatabaseServices.Hatch"/>.
-    /// </summary>
-    public static Hatch Unwrap(this IHatch hatch)
-    {
-        var hatchWrapper = (WrapperDisposableBase<CadDbObject>)hatch;
-
-        return (Hatch)hatchWrapper.Internal;
-    }
-
-    /// <summary>
-    /// Unwraps the <see cref="IHatchLoop"/> and returns the AutoCAD <see cref="HatchLoop"/>.
-    /// </summary>
-    public static HatchLoop Unwrap(this IHatchLoop hatchLoop)
-    {
-        var hatchLoopWrapper = (WrapperBase<HatchLoop>)hatchLoop;
-
-        return hatchLoopWrapper.Internal;
     }
 
     /// <summary>

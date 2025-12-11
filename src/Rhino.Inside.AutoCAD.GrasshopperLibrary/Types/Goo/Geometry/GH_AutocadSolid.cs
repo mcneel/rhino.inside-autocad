@@ -97,4 +97,3 @@ public class GH_AutocadSolid : GH_AutocadGeometricGoo<AutocadSolid, RhinoBrep>
         }
     }
 }
-

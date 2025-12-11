@@ -1,6 +1,7 @@
 ﻿using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
+using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using CadArc = Autodesk.AutoCAD.DatabaseServices.Arc;
 using CadCircle = Autodesk.AutoCAD.DatabaseServices.Circle;
@@ -9,6 +10,7 @@ using CadDBPoint = Autodesk.AutoCAD.DatabaseServices.DBPoint;
 using CadEllipse = Autodesk.AutoCAD.DatabaseServices.Ellipse;
 using CadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
 using CadExtents3d = Autodesk.AutoCAD.DatabaseServices.Extents3d;
+using CadHatch = Autodesk.AutoCAD.DatabaseServices.Hatch;
 using CadLine = Autodesk.AutoCAD.DatabaseServices.Line;
 using CadNurbsSurface = Autodesk.AutoCAD.DatabaseServices.NurbSurface;
 using CadObjectId = Autodesk.AutoCAD.DatabaseServices.ObjectId;
@@ -28,6 +30,7 @@ using RhinoBrep = Rhino.Geometry.Brep;
 using RhinoCircle = Rhino.Geometry.Circle;
 using RhinoCurve = Rhino.Geometry.Curve;
 using RhinoEllipse = Rhino.Geometry.Ellipse;
+using RhinoHatch = Rhino.Geometry.Hatch;
 using RhinoInterval = Rhino.Geometry.Interval;
 using RhinoLineCurve = Rhino.Geometry.LineCurve;
 using RhinoMesh = Rhino.Geometry.Mesh;
@@ -799,5 +802,192 @@ public partial class GeometryConverter
 
         return converted.ToArray();
 
+    }
+    /// <summary>
+    /// Creates a new <see cref="Autodesk.AutoCAD.DatabaseServices.Polyline"/> from the provide <paramref name=
+    /// "bulgeVertexCollection"/> iterating vertices and adding them to the <see
+    /// cref="Autodesk.AutoCAD.DatabaseServices.Polyline"/>.
+    /// </summary>
+    private CadPolyline CreatePolyline(BulgeVertexCollection bulgeVertexCollection)
+    {
+        var polyline = new CadPolyline();
+
+        for (var index = 0; index < bulgeVertexCollection.Count; index++)
+        {
+            var vertex = bulgeVertexCollection[index];
+
+            polyline.AddVertexAt(index, vertex.Vertex, vertex.Bulge, _zeroWidth, _zeroWidth);
+        }
+
+        return polyline;
+    }
+
+    /// <summary>
+    /// Returns a <see cref="RhinoPolyCurve"/> from a <paramref name="bulgeVertexCollection"/>.
+    /// First, a <see cref="Polyline"/> is created from the <paramref name=
+    /// "bulgeVertexCollection"/> then iterating over segments of the <see cref=
+    /// "Polyline"/> it creates <see cref="RhinoLineCurve"/> or <see cref="RhinoArcCurve"/> and
+    /// appends them to the <see cref="RhinoPolyCurve"/>.
+    /// </summary>
+    private RhinoPolyCurve PolyCurveFromVertices(BulgeVertexCollection bulgeVertexCollection)
+    {
+        var polyline = this.CreatePolyline(bulgeVertexCollection);
+
+        var polyCurve = new RhinoPolyCurve();
+        for (var index = 0; index < polyline.NumberOfVertices; index++)
+        {
+            var segmentType = polyline.GetSegmentType(index);
+
+            switch (segmentType)
+            {
+                case SegmentType.Line:
+                    {
+                        var lineSegment2d = polyline.GetLineSegment2dAt(index);
+
+                        var lineCurve = this.ToRhinoType(lineSegment2d);
+
+                        polyCurve.Append(lineCurve);
+
+                        break;
+                    }
+                case SegmentType.Arc:
+                    {
+                        var arcSegment2d = polyline.GetArcSegment2dAt(index);
+
+                        var arcCurve = this.ToRhinoType(arcSegment2d);
+
+                        polyCurve.Append(arcCurve);
+
+                        break;
+                    }
+                default: continue;
+            }
+        }
+
+        return polyCurve;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="Curve2dCollection"/> to a <see cref="RhinoPolyCurve"/>.
+    /// </summary>
+    public RhinoPolyCurve ToRhinoType(Curve2dCollection cadCurveCollection)
+    {
+        var rhinoPolyCurve = new RhinoPolyCurve();
+
+        foreach (var curve2d in cadCurveCollection.OfType<Curve2d>())
+        {
+            var internalCurve = this.ToRhinoType(curve2d);
+
+            rhinoPolyCurve.Append(internalCurve);
+        }
+
+        return rhinoPolyCurve;
+
+    }
+
+    /// <summary>
+    /// Converts a <see cref="HatchLoop"/> to a <see cref="RhinoPolyCurve"/>.
+    /// </summary>
+    public RhinoPolyCurve ToRhinoType(HatchLoop cadHatchLoop)
+    {
+        var loopCurves = cadHatchLoop.Curves;
+
+        var isPolyLine = cadHatchLoop.IsPolyline;
+
+        return isPolyLine
+            ? this.PolyCurveFromVertices(cadHatchLoop.Polyline)
+            : this.ToRhinoType(loopCurves);
+    }
+
+    /// <summary>
+    /// Converts a <see cref="CadHatch"/> to a <see cref="RhinoHatch"/>.
+    /// </summary>
+    public RhinoHatch ToRhinoType(CadHatch cadHatch)
+    {
+        var cadPlane = cadHatch.GetPlane();
+
+        var scale = _unitSystemManager.ToRhinoLength(cadHatch.PatternScale);
+
+        var rotation = cadHatch.PatternAngle;
+
+        //TODO: Support Hatch pattens
+        var pattenIndex = 1;
+
+        var hatchPlane = this.ToRhinoType(cadPlane);
+
+        var rhinoLoops = new List<RhinoPolyCurve>();
+        for (var i = 0; i < cadHatch.NumberOfLoops; i++)
+        {
+            var hatchLoop = cadHatch.GetLoopAt(i);
+
+            var loopType = hatchLoop.LoopType;
+
+            if ((loopType & _externalType) != _externalType &&
+                (loopType & _outermostType) != _outermostType) continue;
+
+            var loop = this.ToRhinoType(hatchLoop);
+
+            rhinoLoops.Add(loop);
+        }
+
+        return RhinoHatch.Create(hatchPlane, rhinoLoops.FirstOrDefault(), rhinoLoops.Skip(1),
+              pattenIndex, rotation, scale);
+    }
+
+    /// <summary>
+    /// Converts a <see cref="CadHatch"/> to a <see cref="RhinoHatch"/>.
+    /// </summary>
+    public CadHatch ToRhinoType(RhinoHatch rhinoHatch, ITransactionManager transactionManager)
+    {
+        var scale = _unitSystemManager.ToAutoCadLength(rhinoHatch.PatternScale);
+
+        var rotation = rhinoHatch.PatternRotation;
+
+        //TODO: Support Hatch pattens/Styles
+
+        var cadHatch = new CadHatch()
+        {
+            PatternAngle = rotation,
+            PatternScale = scale,
+            Origin = this.ToAutoCadType2d(rhinoHatch.BasePoint)
+
+        };
+
+        var outerCurves = rhinoHatch.Get3dCurves(true);
+
+        var outerCurve = new PolyCurve();
+        foreach (var curve in outerCurves)
+        {
+            outerCurve.Append(curve);
+        }
+
+        var curve2ds = new Curve2dCollection();
+        var edgeTypes = new IntegerCollection();
+
+        var curves = this.ToAutoCadType2d(outerCurve);
+
+        foreach (var curve in curves)
+        {
+
+            curve2ds.Add(curve);
+            edgeTypes.Add(1);
+        }
+
+        foreach (var innerCurve in rhinoHatch.Get3dCurves(false))
+        {
+            var innerLoop = this.ToAutoCadType2d(innerCurve);
+
+            foreach (var curve in innerLoop)
+            {
+                curve2ds.Add(curve);
+                edgeTypes.Add(1);
+            }
+        }
+
+        cadHatch.AppendLoop(HatchLoopTypes.External, curve2ds, edgeTypes);
+
+        cadHatch.EvaluateHatch(true);
+
+        return cadHatch;
     }
 }

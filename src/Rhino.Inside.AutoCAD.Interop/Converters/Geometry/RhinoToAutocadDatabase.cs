@@ -6,9 +6,7 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 using CadArc = Autodesk.AutoCAD.DatabaseServices.Arc;
 using CadCircle = Autodesk.AutoCAD.DatabaseServices.Circle;
 using CadCircularArc3d = Autodesk.AutoCAD.Geometry.CircularArc3d;
-using CadCompositeCurve3d = Autodesk.AutoCAD.Geometry.CompositeCurve3d;
 using CadCurve = Autodesk.AutoCAD.DatabaseServices.Curve;
-using CadCurve3d = Autodesk.AutoCAD.Geometry.Curve3d;
 using CadDBPoint = Autodesk.AutoCAD.DatabaseServices.DBPoint;
 using CadEllipse = Autodesk.AutoCAD.DatabaseServices.Ellipse;
 using CadLine = Autodesk.AutoCAD.DatabaseServices.Line;
@@ -87,29 +85,60 @@ public partial class GeometryConverter
     }
 
     /// <summary>
-    /// Converts the given <see cref="RhinoCurve"/> into a single composite curve. This
-    /// method provide a second processing step after the ToAutoCadType where each curve
-    /// in the converted list is appended into a single geometric composite curve.
-    /// CreateFromGeCurve can fail in many cases so this method should be used with caution.
-    /// Where possible, use the list of curves returned by <see cref="ToAutoCadType(RhinoCurve)"/>
+    /// Converts the given <see cref="RhinoCurve"/> to a list of AutoCAD
+    /// <see cref="Geometry.Curve"/>s. Typically, the list contains one <see cref="Geometry.Curve"/>
+    /// if successful, however it can contain more if the <see cref="RhinoPolyCurve"/>
+    /// is converted. It is the <see cref="RhinoPolyCurve"/> conversion which drives
+    /// the need to return a list as AutoCAD does not have a direct equivalent.
+    /// </summary>
+    public IList<Autodesk.AutoCAD.Geometry.Curve2d> ToAutoCadType2d(RhinoCurve curve)
+    {
+        switch (curve)
+        {
+            case RhinoLineCurve line:
+                return [this.ToAutoCadType2d(line)];
+
+            case RhinoArcCurve arc:
+                {
+                    if (arc.IsCompleteCircle == false)
+                        return [this.ToAutoCadType2d(arc)];
+
+                    var circle = new RhinoCircle(arc.Arc);
+
+                    return [this.ToAutoCadType2d(circle)];
+                }
+
+            case RhinoNurbsCurve nurbsCurve:
+                return [this.ToAutoCadType2d(nurbsCurve)];
+
+            case RhinoPolyLineCurve polyLineCurve:
+                return [this.ToAutoCadType2d(polyLineCurve)];
+
+            case RhinoPolyCurve polyCurve:
+                return this.ToAutoCadType2d(polyCurve);
+
+            default:
+                return [];
+        }
+    }
+
+    /// <summary>
+    /// Converts the given <see cref="RhinoCurve"/> into a single curve. If the
+    /// conversion would have result in multiple curves (for example a <see cref="RhinoPolyCurve"/>)
+    /// then it is converted to a single <see cref="RhinoNurbsCurve"/> first. This will produce
+    /// a single AutoCAD curve, but may result in loss of fidelity.  Where possible, use the list
+    /// of curves returned by <see cref="ToAutoCadType(RhinoCurve)"/>
     /// </summary>
     public CadCurve ToAutoCadSingleCurve(RhinoCurve curve)
     {
-        var listCurves = this.ToAutoCadType(curve);
+        var single = curve is RhinoPolyCurve ? curve.ToNurbsCurve() : curve;
 
-        var curve3ds = new CadCurve3d[listCurves.Count];
-        for (var index = 0; index < listCurves.Count; index++)
-        {
-            var convertedCurve = listCurves[index];
+        var listCurves = this.ToAutoCadType(single);
 
-            var curve3d = convertedCurve.GetGeCurve();
+        if (listCurves.Count == 1)
+            return listCurves[0];
 
-            curve3ds[index] = curve3d;
-        }
-
-        var compositeCurve = new CadCompositeCurve3d(curve3ds);
-
-        return CadCurve.CreateFromGeCurve(compositeCurve);
+        throw new System.Exception("Cannot convert Rhino curve to single AutoCAD curve.");
     }
 
     /// <summary>
@@ -122,6 +151,18 @@ public partial class GeometryConverter
         var endPoint = this.ToAutoCadType(line.PointAtEnd);
 
         return new CadLine(startPoint, endPoint);
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RhinoLineCurve"/> to a <see cref="LineSegment2d"/>.
+    /// </summary>
+    public LineSegment2d ToAutoCadType2d(RhinoLineCurve line)
+    {
+        var startPoint = this.ToAutoCadType2d(line.PointAtStart);
+
+        var endPoint = this.ToAutoCadType2d(line.PointAtEnd);
+
+        return new LineSegment2d(startPoint, endPoint);
     }
 
     /// <summary>
@@ -155,6 +196,26 @@ public partial class GeometryConverter
         spline.UpdateFitData();
 
         return spline;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RhinoNurbsCurve"/> to a <see cref="CadSpline"/>.
+    /// </summary>
+    public NurbCurve2d ToAutoCadType2d(RhinoNurbsCurve nurbsCurve)
+    {
+        var plane = Rhino.Geometry.Plane.WorldXY;
+
+        var flatCurve = RhinoCurve.ProjectToPlane(nurbsCurve, plane).ToNurbsCurve();
+
+        var fitPoints = new Point2dCollection();
+        foreach (var rhinoPoint in flatCurve.Points)
+        {
+            var cadPoint = this.ToAutoCadType2d(rhinoPoint.Location);
+            fitPoints.Add(cadPoint);
+        }
+
+        return new NurbCurve2d(fitPoints);
+
     }
 
     /// <summary>
@@ -221,6 +282,22 @@ public partial class GeometryConverter
     }
 
     /// <summary>
+    /// Converts a <see cref="RhinoArcCurve"/> to a <see cref="CircularArc2d"/>.
+    /// </summary>
+    public CircularArc2d ToAutoCadType2d(RhinoArcCurve arcCurve)
+    {
+        var midPoint = arcCurve.PointAtNormalizedLength(_midPointParam);
+
+        var startPoint = this.ToAutoCadType2d(arcCurve.PointAtStart);
+        var endPoint = this.ToAutoCadType2d(arcCurve.PointAtEnd);
+        var pointOnArc = this.ToAutoCadType2d(midPoint);
+
+        var circularArc = new CircularArc2d(startPoint, pointOnArc, endPoint);
+
+        return circularArc;
+    }
+
+    /// <summary>
     /// Converts a <see cref="RhinoCircle"/> to a <see cref="CadCircle"/>.
     /// </summary>
     public CadCircle ToAutoCadType(RhinoCircle circle)
@@ -233,6 +310,20 @@ public partial class GeometryConverter
 
         var cadCircle =
             new Autodesk.AutoCAD.DatabaseServices.Circle(center, normal, radius);
+
+        return cadCircle;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RhinoCircle"/> to a <see cref="CadCircle"/>.
+    /// </summary>
+    public CircularArc2d ToAutoCadType2d(RhinoCircle circle)
+    {
+        var center = this.ToAutoCadType2d(circle.Center);
+
+        var radius = _unitSystemManager.ToRhinoLength(circle.Radius);
+
+        var cadCircle = new Autodesk.AutoCAD.Geometry.CircularArc2d(center, radius);
 
         return cadCircle;
     }
@@ -256,6 +347,27 @@ public partial class GeometryConverter
 
         return new CadPolyline3d(Poly3dType.SimplePoly, pointCollection,
             polyLineCurve.IsClosed);
+
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RhinoPolyCurve"/> to a <see cref="CadPolyline3d"/>.
+    /// </summary>
+    public PolylineCurve2d ToAutoCadType2d(RhinoPolyLineCurve polyLineCurve)
+    {
+        var pointCount = polyLineCurve.PointCount;
+
+        var pointCollection = new Point2dCollection();
+        for (var j = 0; j < pointCount; j++)
+        {
+            var rhinoPoint = polyLineCurve.Point(j);
+
+            var cadPoint = this.ToAutoCadType2d(rhinoPoint);
+
+            pointCollection.Add(cadPoint);
+        }
+
+        return new PolylineCurve2d(pointCollection);
 
     }
 

@@ -18,7 +18,7 @@ public class GetAutocadDocumentsComponent : GH_Component
     /// Initializes a new instance of the <see cref="GetAutocadDocumentsComponent"/> class.
     /// </summary>
     public GetAutocadDocumentsComponent()
-        : base("GetAutoCadDocuments", "GetDocs",
+        : base("Get AutoCAD Documents", "Docs",
             "Returns the AutoCAD document current open",
             "AutoCAD", "Document")
     {

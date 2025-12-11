@@ -20,7 +20,7 @@ public class GetAutocadLayerByNameComponent : GH_Component, IReferenceComponent
     /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
     /// </summary>
     public GetAutocadLayerByNameComponent()
-        : base("GetAutoCadLayerByName", "GetLayer",
+        : base("Get AutoCAD Layer By Name", "Lyr",
             "Returns the the AutoCAD layer which matches the name",
             "AutoCAD", "Layers")
     {

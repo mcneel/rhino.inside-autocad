@@ -12,7 +12,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// </summary>
 public abstract class GH_AutocadGeometricGoo<TWrapperType, TRhinoType>
     : GH_GeometricGoo<TWrapperType>, IGH_AutocadReferenceObject,
-        IGH_PreviewData, IGH_AutocadGeometryPreview
+        IGH_PreviewData, IGH_AutocadGeometryPreview, IAutocadBakeable
 where TWrapperType : Entity
 where TRhinoType : GeometryBase
 {
@@ -20,6 +20,7 @@ where TRhinoType : GeometryBase
     /// The geometry converter instance.s
     /// </summary>
     protected readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
+    private readonly AutocadColorConverter _colorConverter = AutocadColorConverter.Instance!;
 
     /// <inheritdoc />
     public IObjectId AutocadReferenceId { get; }
@@ -67,10 +68,10 @@ where TRhinoType : GeometryBase
     public override bool IsValid => this.Value != null;
 
     /// <inheritdoc />
-    public override string TypeName => typeof(TWrapperType).Name;
+    public override string TypeName => $"AutoCAD {typeof(TWrapperType).Name}";
 
     /// <inheritdoc />
-    public override string TypeDescription => $"Represents an AutoCAD {this.TypeName}";
+    public override string TypeDescription => $"Represents an {this.TypeName}";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadObject"/> class with no value.
@@ -247,12 +248,57 @@ where TRhinoType : GeometryBase
         }
     }
 
+    /// <summary>
+    /// Applies the given settings to the block reference.
+    /// </summary>
+    private void ApplySettings(IBakeSettings? settings, Entity entity)
+    {
+        if (settings is null) return;
+
+        if (settings.Layer != null)
+            entity.LayerId = settings.Layer.Id.Unwrap();
+
+        if (settings?.LineType != null)
+            entity.LinetypeId = settings.LineType.Id.Unwrap();
+
+        if (settings?.Color != null)
+        {
+            var color = settings.Color;
+            entity.Color = _colorConverter.ToCadColor(color);
+        }
+    }
+
+    /// <inheritdoc />
+    public IObjectId BakeToAutocad(ITransactionManager transactionManager, IBakeSettings? settings = null)
+    {
+        if (this.Value == null)
+            throw new InvalidOperationException("Cannot bake a null block reference");
+
+        var transaction = transactionManager.Unwrap();
+
+        var modelSpace = transactionManager.GetModelSpaceBlockTableRecord(openForWrite: true);
+
+        var modelSpaceRecord = modelSpace.Unwrap();
+
+        var source = this.Value;
+
+        var blockReference = (Entity)source.Clone();
+
+        this.ApplySettings(settings, blockReference);
+
+        var objectId = modelSpaceRecord.AppendEntity(blockReference);
+
+        transaction.AddNewlyCreatedDBObject(blockReference, true);
+
+        return new AutocadObjectId(objectId);
+    }
+
     /// <inheritdoc />
     public override string ToString()
     {
         if (this.Value == null)
-            return $"Null Autocad {this.TypeName}";
+            return $"Null {this.TypeName}";
 
-        return $"Autocad {this.TypeName} [Type: {this.Value.GetType().Name.ToString()}, Id: {this.AutocadReferenceId.Value.ToString()} ]";
+        return $"{this.TypeName} [Type: {this.Value.GetType().Name.ToString()}, Id: {this.AutocadReferenceId.Value.ToString()} ]";
     }
 }

@@ -26,7 +26,7 @@ public class AutocadExtractBlockGeometryComponent : GH_Component
     /// Initializes a new instance of the <see cref="AutocadExtractBlockGeometryComponent"/> class.
     /// </summary>
     public AutocadExtractBlockGeometryComponent()
-        : base("AutocadExtractBlockGeometry", "ExtractBlockGeometry",
+        : base("Extract Block Geometry", "ExtBlk",
             "Extracts the geometry from an AutoCAD Block Table Record or Block Reference",
             "AutoCAD", "Blocks")
     {

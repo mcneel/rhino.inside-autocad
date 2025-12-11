@@ -3,7 +3,8 @@
     "allow": [
       "Bash(dotnet --version:*)",
       "Bash(test:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

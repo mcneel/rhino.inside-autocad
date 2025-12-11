@@ -19,7 +19,7 @@ public class AutocadBakeSettingsComponent : GH_Component
     /// Initializes a new instance of the <see cref="AutocadBakeSettingsComponent"/> class.
     /// </summary>
     public AutocadBakeSettingsComponent()
-        : base("AutoCAD Bake Settings", "BakeSettings",
+        : base("AutoCAD Bake Settings", "BkSet",
             "Creates bake settings for AutoCAD objects",
             "AutoCAD", "Baking")
     {

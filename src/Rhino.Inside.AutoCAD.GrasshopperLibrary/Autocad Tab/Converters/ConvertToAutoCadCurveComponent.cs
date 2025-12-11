@@ -21,7 +21,7 @@ public class ConvertToAutoCadCurveComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertToAutoCadCurveComponent"/> class.
     /// </summary>
     public ConvertToAutoCadCurveComponent()
-        : base("ToAutoCadCurve", "ToCadCurve",
+        : base("To AutoCAD Curve", "ToCrv",
             "Converts a Rhino Curve to AutoCAD curve",
             "AutoCAD", "Convert")
     {

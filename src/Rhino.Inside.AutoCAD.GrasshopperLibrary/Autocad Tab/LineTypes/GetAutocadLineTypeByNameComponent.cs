@@ -20,7 +20,7 @@ public class GetAutocadLineTypeByNameComponent : GH_Component, IReferenceCompone
     /// Initializes a new instance of the <see cref="GetAutocadLineTypeByNameComponent"/> class.
     /// </summary>
     public GetAutocadLineTypeByNameComponent()
-        : base("GetAutoCadLineTypeByName", "GetLineType",
+        : base("Get AutoCAD Line Type By Name", "LType",
             "Returns the AutoCAD linetype which matches the name",
             "AutoCAD", "LineTypes")
     {
