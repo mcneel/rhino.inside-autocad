@@ -9,7 +9,7 @@ public class BlockReferenceWrapper : AutocadEntityWrapper, IBlockReference
     private readonly BlockReference _blockReference;
 
     /// <inheritdoc />
-    public ICustomPropertySet CustomProperties { get; }
+    public IDynamicPropertySet DynamicProperties { get; }
 
     /// <inheritdoc />
     public double Rotation => _blockReference.Rotation;
@@ -31,59 +31,37 @@ public class BlockReferenceWrapper : AutocadEntityWrapper, IBlockReference
 
         this.BlockTableRecordId = new AutocadObjectId(blockReference.BlockTableRecord);
 
-        this.CustomProperties = new CustomPropertySet();
+        this.DynamicProperties = this.PopulateDynamicProperties(blockReference);
     }
 
     /// <summary>
     /// Obtains the <see cref="DynamicBlockReferenceProperty"/>s of the provided 
     /// <see cref="BlockReference"/>.
     /// </summary>
-    private IDictionary<string, DynamicBlockReferenceProperty> DynamicBlockReferenceProperties(BlockReference blockReference)
+    private IDynamicPropertySet PopulateDynamicProperties(BlockReference blockReference)
     {
-        var blockReferenceProperties = new Dictionary<string, DynamicBlockReferenceProperty>();
+        var blockReferenceProperties = new DynamicPropertySet();
 
         foreach (DynamicBlockReferenceProperty dynamicProperty in blockReference.DynamicBlockReferencePropertyCollection)
         {
-            if (dynamicProperty.ReadOnly) continue;
+            var wrapped = new DynamicBlockReferencePropertyWrapper(dynamicProperty);
 
-            blockReferenceProperties[dynamicProperty.PropertyName] = dynamicProperty;
+            blockReferenceProperties.Add(wrapped);
         }
 
         return blockReferenceProperties;
     }
 
     /// <inheritdoc />
-    public void AddCustomProperties(ICustomPropertySet customProperties)
+    public void AddCustomProperties(IDynamicPropertySet dynamicProperties)
     {
-        foreach (var customProperty in customProperties)
+        foreach (var customProperty in dynamicProperties)
         {
-            this.CustomProperties.Add(customProperty);
+            this.DynamicProperties.Add(customProperty);
         }
     }
 
     /// <inheritdoc />
-    public void CommitCustomProperties()
-    {
-        var blockReferenceProperties = this.DynamicBlockReferenceProperties(_blockReference);
-
-        foreach (var property in this.CustomProperties)
-        {
-            var propertyName = property.Name.Name;
-
-            var propertyValue = property.Value.Value;
-
-            if (blockReferenceProperties.TryGetValue(propertyName, out var dynamicProperty) == false) continue;
-
-            var type = dynamicProperty.Value.GetType();
-
-            var convertedValue = Convert.ChangeType(propertyValue, type);
-
-            if (convertedValue == null) continue;
-
-            dynamicProperty.Value = convertedValue;
-        }
-    }
-
     public IEntityCollection GetObjects(ITransactionManager transactionManager)
     {
         var entityCollection = new EntityCollection();

@@ -63,6 +63,36 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap AddAutocadBlockReferenceComponent {
+            get {
+                object obj = ResourceManager.GetObject("AddAutocadBlockReferenceComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap AutocadBakeComponent {
+            get {
+                object obj = ResourceManager.GetObject("AutocadBakeComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap AutocadBakeSettingsComponent {
+            get {
+                object obj = ResourceManager.GetObject("AutocadBakeSettingsComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap AutocadBlockComponent {
             get {
                 object obj = ResourceManager.GetObject("AutocadBlockComponent", resourceCulture);
@@ -86,6 +116,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
         internal static System.Drawing.Bitmap AutocadDocumentsInfo {
             get {
                 object obj = ResourceManager.GetObject("AutocadDocumentsInfo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap AutocadDynamicPropertiesComponent {
+            get {
+                object obj = ResourceManager.GetObject("AutocadDynamicPropertiesComponent", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -426,6 +466,26 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
         internal static System.Drawing.Bitmap Param_AutocadSolid {
             get {
                 object obj = ResourceManager.GetObject("Param_AutocadSolid", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Param_BakeSettings {
+            get {
+                object obj = ResourceManager.GetObject("Param_BakeSettings", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap SetAutocadDynamicPropertiesComponent {
+            get {
+                object obj = ResourceManager.GetObject("SetAutocadDynamicPropertiesComponent", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

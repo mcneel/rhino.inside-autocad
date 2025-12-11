@@ -1,5 +1,4 @@
-﻿using Autodesk.AutoCAD.ApplicationServices;
-using Autodesk.AutoCAD.DatabaseServices;
+﻿using Autodesk.AutoCAD.DatabaseServices;
 using NaturalSort.Extension;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Services;
@@ -13,7 +12,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class LayerRepository : Disposable, ILayerRepository
 {
-    private readonly InternalColorConverter _internalColorConverter = InternalColorConverter.Instance;
+    private readonly AutocadColorConverter _autocadColorConverter = AutocadColorConverter.Instance;
     private readonly string _defaultLayerName = InteropConstants.DefaultLayerName;
     private readonly SortedDictionary<string, IAutocadLayerTableRecord> _layers;
 
@@ -57,7 +56,7 @@ public class LayerRepository : Disposable, ILayerRepository
             var layerTableRecord = new LayerTableRecord
             {
                 Name = name,
-                Color = _internalColorConverter.ToCadColor(color)
+                Color = _autocadColorConverter.ToCadColor(color)
             };
 
             using var layerTable = (LayerTable)transactionManager.GetObject(
