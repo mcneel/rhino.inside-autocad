@@ -15,6 +15,9 @@ public class ConvertFromAutoCadSolidComponent : GH_Component
     public override Guid ComponentGuid => new("9e2f4a6b-8c1d-5e7f-3a9b-6c8d2e5f9a1b");
 
     /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.primary;
+
+    /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertFromAutoCadSolidComponent;
 
     /// <summary>

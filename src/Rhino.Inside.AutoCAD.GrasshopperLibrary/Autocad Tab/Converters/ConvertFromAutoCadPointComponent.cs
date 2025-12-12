@@ -15,6 +15,9 @@ public class ConvertFromAutoCadPointComponent : GH_Component
     public override Guid ComponentGuid => new("6d8e1f2a-5b7c-4d9e-2f3a-7b9c5d1e8f4a");
 
     /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.primary;
+
+    /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertFromAutoCadPointComponent;
 
     /// <summary>

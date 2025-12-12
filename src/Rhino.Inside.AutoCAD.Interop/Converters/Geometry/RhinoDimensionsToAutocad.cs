@@ -13,6 +13,7 @@ using RhinoLeader = Rhino.Geometry.Leader;
 using RhinoLinearDimension = Rhino.Geometry.LinearDimension;
 using RhinoOrdinateDimension = Rhino.Geometry.OrdinateDimension;
 using RhinoRadialDimension = Rhino.Geometry.RadialDimension;
+using RhinoDimension = Rhino.Geometry.Dimension;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -21,6 +22,21 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public partial class GeometryConverter
 {
+    /// <summary>
+    /// Converts any Rhino <see cref="RhinoDimension"/> to the appropriate AutoCAD dimension type.
+    /// </summary>
+    public CadDimension? ToAutoCadType(RhinoDimension rhinoDimension)
+    {
+        return rhinoDimension switch
+        {
+            RhinoLinearDimension linear => ToAutoCadType(linear),
+            RhinoAngularDimension angular => ToAutoCadType(angular),
+            RhinoRadialDimension radial => ToAutoCadType(radial),
+            RhinoOrdinateDimension ordinate => ToAutoCadType(ordinate),
+            _ => null
+        };
+    }
+
     /// <summary>
     /// Converts a <see cref="RhinoLinearDimension"/> to a <see cref="CadRotatedDimension"/> or <see cref="CadAlignedDimension"/>.
     /// </summary>

@@ -28,6 +28,16 @@ public interface IGrasshopperPreviewData
     List<Rhino.Geometry.TextEntity> Texts { get; }
 
     /// <summary>
+    /// Gets the collection of dimensions representing the preview geometry.
+    /// </summary>
+    List<Rhino.Geometry.Dimension> Dimensions { get; }
+
+    /// <summary>
+    /// Gets the collection of leaders representing the preview geometry.
+    /// </summary>
+    List<Rhino.Geometry.Leader> Leaders { get; }
+
+    /// <summary>
     /// Retrieves the set of shaded objects from the preview data as a
     /// <see cref="IRhinoConvertibleSet"/>.
     /// </summary>

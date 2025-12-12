@@ -13,6 +13,7 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -22,6 +23,7 @@
 	<ItemGroup>
 		<PackageReference Include="NaturalSort.Extension" />
 		<PackageReference Include="MaterialDesignThemes" />
+		<PackageReference Include="System.Resources.Extensions" />
 		<PackageReference Include="RhinoCommon">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>

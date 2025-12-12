@@ -15,6 +15,9 @@ public class ConvertToAutoCadHatchComponent : GH_Component
     public override Guid ComponentGuid => new("38d9b037-b0ce-41cb-abe8-b8dc4bbba9af");
 
     /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.tertiary;
+
+    /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertToAutoCadHatchComponent;
 
     /// <summary>

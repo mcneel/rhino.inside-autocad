@@ -1,4 +1,5 @@
 using Autodesk.AutoCAD.DatabaseServices;
+using CadDimension = Autodesk.AutoCAD.DatabaseServices.Dimension;
 using CadAlignedDimension = Autodesk.AutoCAD.DatabaseServices.AlignedDimension;
 using CadArcDimension = Autodesk.AutoCAD.DatabaseServices.ArcDimension;
 using CadDiametricDimension = Autodesk.AutoCAD.DatabaseServices.DiametricDimension;
@@ -19,6 +20,7 @@ using RhinoOrdinateDimension = Rhino.Geometry.OrdinateDimension;
 using RhinoPlane = Rhino.Geometry.Plane;
 using RhinoPoint3d = Rhino.Geometry.Point3d;
 using RhinoRadialDimension = Rhino.Geometry.RadialDimension;
+using RhinoDimension = Rhino.Geometry.Dimension;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -27,6 +29,25 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public partial class GeometryConverter
 {
+    /// <summary>
+    /// Converts any AutoCAD <see cref="CadDimension"/> to the appropriate Rhino dimension type.
+    /// </summary>
+    public RhinoDimension? ToRhinoType(CadDimension cadDimension)
+    {
+        return cadDimension switch
+        {
+            CadRotatedDimension rotated => ToRhinoType(rotated),
+            CadAlignedDimension aligned => ToRhinoType(aligned),
+            CadLineAngularDimension2 lineAngular => ToRhinoType(lineAngular),
+            CadPoint3AngularDimension point3Angular => ToRhinoType(point3Angular),
+            CadArcDimension arcDim => ToRhinoType(arcDim),
+            CadRadialDimension radial => ToRhinoType(radial),
+            CadDiametricDimension diametric => ToRhinoType(diametric),
+            CadOrdinateDimension ordinate => ToRhinoType(ordinate),
+            _ => null
+        };
+    }
+
     /// <summary>
     /// Converts a <see cref="CadRotatedDimension"/> to a <see cref="RhinoLinearDimension"/>.
     /// </summary>

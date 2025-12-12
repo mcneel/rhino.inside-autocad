@@ -569,5 +569,65 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Param_AutocadDimension {
+            get {
+                object obj = ResourceManager.GetObject("Param_AutocadDimension", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ConvertFromAutoCadDimensionComponent {
+            get {
+                object obj = ResourceManager.GetObject("ConvertFromAutoCadDimensionComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ConvertToAutoCadDimensionComponent {
+            get {
+                object obj = ResourceManager.GetObject("ConvertToAutoCadDimensionComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Param_AutocadLeader {
+            get {
+                object obj = ResourceManager.GetObject("Param_AutocadLeader", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ConvertFromAutoCadLeaderComponent {
+            get {
+                object obj = ResourceManager.GetObject("ConvertFromAutoCadLeaderComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ConvertToAutoCadLeaderComponent {
+            get {
+                object obj = ResourceManager.GetObject("ConvertToAutoCadLeaderComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

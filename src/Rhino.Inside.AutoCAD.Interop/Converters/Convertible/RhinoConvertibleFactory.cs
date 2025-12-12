@@ -59,6 +59,16 @@ public class RhinoConvertibleFactory : IRhinoConvertibleFactory
                         result = new RhinoConvertibleText(textEntity);
                         return true;
                     }
+                    if (annotation is Dimension dimension)
+                    {
+                        result = new RhinoConvertibleDimension(dimension);
+                        return true;
+                    }
+                    if (annotation is Leader leader)
+                    {
+                        result = new RhinoConvertibleLeader(leader);
+                        return true;
+                    }
                     result = null;
                     return false;
 

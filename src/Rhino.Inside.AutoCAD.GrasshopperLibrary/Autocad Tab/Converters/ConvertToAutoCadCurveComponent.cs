@@ -15,6 +15,9 @@ public class ConvertToAutoCadCurveComponent : GH_Component
     public override Guid ComponentGuid => new("12345678-1234-1234-1234-123456789ABC");
 
     /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.tertiary;
+
+    /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertToAutoCadCurveComponent;
 
     /// <summary>

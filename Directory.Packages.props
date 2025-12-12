@@ -24,6 +24,7 @@
     <PackageVersion Include="MaterialDesignThemes" Version="4.9.0" />
     <!-- Infrastrucure -->
     <PackageVersion Include="NaturalSort.Extension" Version="4.3.0" />
+    <PackageVersion Include="System.Resources.Extensions" Version="9.0.0" />
     <PackageVersion Include="FluentValidation" Version="11.9.1" />
     <PackageVersion Include="Microsoft.Web.WebView2" Version="1.0.3590-prerelease" />
     <!-- Text.JSON nuget -->

@@ -15,6 +15,9 @@ public class ConvertToAutoCadTextComponent : GH_Component
     public override Guid ComponentGuid => new("cd3fae72-b5de-4cc2-b6b3-b11281345624");
 
     /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.quarternary;
+
+    /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertToAutoCadTextComponent;
 
     /// <summary>

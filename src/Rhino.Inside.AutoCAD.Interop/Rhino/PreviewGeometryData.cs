@@ -19,6 +19,12 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
 
     public List<TextEntity> Texts { get; }
 
+    /// <inheritdoc />
+    public List<Dimension> Dimensions { get; }
+
+    /// <inheritdoc />
+    public List<Leader> Leaders { get; }
+
     /// <summary>
     /// Constructs a new empty <see cref="IGrasshopperPreviewData"/> instance.
     /// </summary>
@@ -29,6 +35,8 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
         this.Meshes = new List<Mesh>();
         this.Points = new List<Point>();
         this.Texts = new List<TextEntity>();
+        this.Dimensions = new List<Dimension>();
+        this.Leaders = new List<Leader>();
     }
 
     public IRhinoConvertibleSet GetShadedObjects()
@@ -66,6 +74,22 @@ public class GrasshopperPreviewData : IGrasshopperPreviewData
         foreach (var text in this.Texts)
         {
             if (_rhinoConvertibleFactory.MakeConvertible(text, out var result))
+            {
+                wireFrameSet.Add(result);
+            }
+        }
+
+        foreach (var dimension in this.Dimensions)
+        {
+            if (_rhinoConvertibleFactory.MakeConvertible(dimension, out var result))
+            {
+                wireFrameSet.Add(result);
+            }
+        }
+
+        foreach (var leader in this.Leaders)
+        {
+            if (_rhinoConvertibleFactory.MakeConvertible(leader, out var result))
             {
                 wireFrameSet.Add(result);
             }

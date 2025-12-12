@@ -15,6 +15,9 @@ public class ConvertToAutoCadMeshComponent : GH_Component
     public override Guid ComponentGuid => new("7f3e9a2b-5c1d-4e8f-9b2a-3d6c8e4f1a7b");
 
     /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.tertiary;
+
+    /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertToAutoCadMeshComponent;
 
     /// <summary>
