@@ -175,4 +175,23 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         }
     }
+
+    /// <inheritdoc />
+    public void Shutdown()
+    {
+        this.AutoCadInstance.DocumentCreated -= this.AutocadDocumentSwitched;
+        this.AutoCadInstance.UnitsChanged -= this.UpdateUnitSystem;
+        this.AutoCadInstance.DocumentChanged -= this.AutocadDocumentChange;
+        this.AutoCadInstance.Shutdown();
+
+        this.GrasshopperInstance.OnPreviewExpired -= this.UpdateGrasshopperPreview;
+        this.GrasshopperInstance.OnObjectRemoved -= this.OnGrasshopperObjectRemoved;
+        this.GrasshopperInstance.Shutdown();
+
+        this.RhinoInstance.DocumentCreated -= this.UpdateUnitSystem;
+        this.RhinoInstance.UnitsChanged -= this.UpdateUnitSystem;
+        this.RhinoInstance.ObjectModifiedOrAppended -= this.RhinoObjectModifiedOrAppended;
+        this.RhinoInstance.ObjectRemoved -= this.RhinoObjectRemoved;
+        this.RhinoInstance.Shutdown();
+    }
 }

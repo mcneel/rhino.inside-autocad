@@ -29,12 +29,6 @@ public class AutocadLayoutWrapper : DbObjectWrapper, IAutocadLayout
     }
 
     ///<inheritdoc />
-    public IObjectIdTag GetTag()
-    {
-        return ObjectIdTag.CreateExisting(this.Id.Value);
-    }
-
-    ///<inheritdoc />
     public IAutocadLayout ShallowClone()
     {
         return new AutocadLayoutWrapper(_layout);

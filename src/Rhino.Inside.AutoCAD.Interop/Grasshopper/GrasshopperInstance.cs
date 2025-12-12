@@ -2,6 +2,7 @@
 using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.UI;
 using System.Reflection;
 
 namespace Rhino.Inside.AutoCAD.Interop;
@@ -312,7 +313,26 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// </summary>
     public void Shutdown()
     {
+        if (this.ActiveDoc != null && this.ActiveDoc.IsModified)
+        {
+            if (Rhino.UI.Dialogs.ShowMessage("Save changes to Grasshopper Document",
+                     "Grasshopper Save Changes", ShowMessageButton.YesNo,
+                     ShowMessageIcon.Warning) == ShowMessageResult.Yes)
+            {
+                var ghDocumentIo = new GH_DocumentIO(this.ActiveDoc);
+                if (!string.IsNullOrEmpty(this.ActiveDoc.FilePath))
+                {
+                    ghDocumentIo.Save();
+                }
+                else
+                {
+                    ghDocumentIo.SaveAs();
+                }
+            }
+        }
+
         this.RemoveDocumentSubscriptions();
+
         this.ActiveDoc?.Dispose();
 
         Grasshopper.Instances.CanvasCreated -= this.OnCanvasCreated;

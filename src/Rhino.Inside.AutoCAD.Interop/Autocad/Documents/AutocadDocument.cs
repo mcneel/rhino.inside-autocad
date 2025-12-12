@@ -25,8 +25,8 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     private readonly IDocumentCloseAction _documentCloseAction;
     private readonly Dispatcher _dispatcher;
 
-    private const GroupCodeValue _applicationNameKey = DataTagKeys.ApplicationNameKey;
-    private const GroupCodeValue _documentIdKey = DataTagKeys.DocumentIdKey;
+    private const short _applicationNameKey = XRecordKeys.ApplicationNameKey;
+    private const short _documentIdKey = XRecordKeys.DocumentIdKey;
 
     /// <summary>
     /// Used as a flag for document changed events. Used to defer the invocation of the

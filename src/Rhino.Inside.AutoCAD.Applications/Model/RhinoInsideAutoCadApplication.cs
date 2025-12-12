@@ -91,6 +91,8 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
     {
         try
         {
+            this.RhinoInsideManager?.Shutdown();
+
             this.Bootstrapper?.AssemblyManager.ShutDown();
 
             RhinoCoreExtension.Instance.Shutdown();

@@ -17,8 +17,6 @@ public class AutoCadInstance : IAutoCadInstance
     private readonly string _readOnlyNotSupported = MessageConstants.ReadOnlyNotSupported;
     private readonly string _fileUnitsNotSupported = MessageConstants.FileUnitsNotSupported;
 
-    private bool _documentClosing;
-
     /// <inheritdoc/>
     public event EventHandler? DocumentCreated;
 
@@ -27,9 +25,6 @@ public class AutoCadInstance : IAutoCadInstance
 
     /// <inheritdoc/>
     public event EventHandler<IAutocadDocumentChangeEventArgs>? DocumentChanged;
-
-    /// <inheritdoc/>
-    public event EventHandler? DocumentClosingOrActivated;
 
     /// <inheritdoc/>
     public IValidationLogger ValidationLogger { get; }
@@ -130,9 +125,6 @@ public class AutoCadInstance : IAutoCadInstance
     /// </summary>
     protected void OnDocumentActivated(object sender, DocumentCollectionEventArgs e)
     {
-        if (_documentClosing == false)
-            this.OnDocumentClosingOrChanged(EventArgs.Empty);
-
         var document = e.Document;
 
         if (document != null)
@@ -157,11 +149,6 @@ public class AutoCadInstance : IAutoCadInstance
     /// </summary>
     protected void OnDocumentClosing(object sender, DocumentBeginCloseEventArgs e)
     {
-        //TODO: I dont think is needed as we have the Terminate method in the extension
-        //  e.Veto();
-
-        _documentClosing = true;
-
         var document = sender as Document;
         var autoCadDocument = this.Documents.FirstOrDefault(d => d.Unwrap() == document);
         if (autoCadDocument != null)
@@ -169,8 +156,6 @@ public class AutoCadInstance : IAutoCadInstance
             document!.BeginDocumentClose -= this.OnDocumentClosing;
             this.Documents.Remove(autoCadDocument);
         }
-
-        this.OnDocumentClosingOrChanged(EventArgs.Empty);
     }
 
     /// <summary>
@@ -206,46 +191,20 @@ public class AutoCadInstance : IAutoCadInstance
         }
     }
 
-    /// <summary>
-    /// Event handler which raises the <see cref="DocumentClosingOrActivated"/> event.
-    /// </summary>
-    protected virtual void OnDocumentClosingOrChanged(EventArgs e)
-    {
-        DocumentClosingOrActivated?.Invoke(this, e);
-    }
-
-    /// <inheritdoc/>
-    protected void RestartTasks()
-    {
-        _documentManager!.DocumentActivated -= this.OnDocumentActivated;
-
-        foreach (var autoCadDocument in this.Documents)
-        {
-            this.UnsubscribeToDocumentEvents(autoCadDocument);
-
-        }
-
-        //  this.TagDatabaseManager!.CommitAll();
-        //   this.DataTagDatabaseManager!.CommitAll();
-    }
 
     /// <inheritdoc/>
     public void Shutdown()
     {
+        _documentManager!.DocumentActivated -= this.OnDocumentActivated;
+
         if (this.Documents.Any())
         {
-            _documentManager!.DocumentActivated -= this.OnDocumentActivated;
-
             foreach (var autoCadDocument in this.Documents)
             {
                 this.UnsubscribeToDocumentEvents(autoCadDocument);
 
                 autoCadDocument.Close();
             }
-
-            // this.TagDatabaseManager?.CommitAll();
-            // this.DataTagDatabaseManager?.CommitAll();
-
         }
     }
 }
