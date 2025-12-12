@@ -12,7 +12,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 public class Param_AutocadText : Param_AutocadObjectBase<GH_AutocadText, CadMText>
 {
     /// <inheritdoc />
-    public override GH_Exposure Exposure => GH_Exposure.primary;
+    public override GH_Exposure Exposure => GH_Exposure.tertiary;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new Guid("8d029bfd-f9fa-4c15-b849-9212a2b338e1");
@@ -33,7 +33,6 @@ public class Param_AutocadText : Param_AutocadObjectBase<GH_AutocadText, CadMTex
         : base("AutoCAD Text", "Text",
             "A Text Object in AutoCAD", "Params", "AutoCAD")
     { }
-
 
     /// <summary>
     /// Converts a DBText to an MText.
@@ -63,14 +62,11 @@ public class Param_AutocadText : Param_AutocadObjectBase<GH_AutocadText, CadMTex
         return mText;
     }
 
-
     /// <inheritdoc />
     protected override IFilter CreateSelectionFilter() => new TextFilter();
 
     /// <inheritdoc />
     protected override GH_AutocadText WrapEntity(CadMText entity) => new GH_AutocadText(entity);
-
-
 
     /// <inheritdoc />
     protected override bool ConvertSupportObject(IEntity entity, out GH_AutocadText supportedGoo)

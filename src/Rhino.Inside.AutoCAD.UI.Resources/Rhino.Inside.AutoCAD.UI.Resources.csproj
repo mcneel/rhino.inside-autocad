@@ -18,6 +18,7 @@
 
 	<ItemGroup>
 		<None Remove="Resources\BimorphLogo.png" />
+		<None Remove="Resources\RhinoInsideLogo.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -54,6 +55,7 @@
 
 	<ItemGroup>
 		<Resource Include="Resources\BimorphLogo.png" />
+		<Resource Include="Resources\RhinoInsideLogo.png" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

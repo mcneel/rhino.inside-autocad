@@ -65,9 +65,7 @@ public class BlockReferenceWrapper : AutocadEntityWrapper, IBlockReference
     public IEntityCollection GetObjects(ITransactionManager transactionManager)
     {
         var entityCollection = new EntityCollection();
-        var blockTableRecord = _blockReference.IsDynamicBlock
-            ? _blockReference.AnonymousBlockTableRecord
-            : _blockReference.BlockTableRecord;
+        var blockTableRecord = _blockReference.AnonymousBlockTableRecord;
 
         var transaction = transactionManager.Unwrap();
 
@@ -78,6 +76,9 @@ public class BlockReferenceWrapper : AutocadEntityWrapper, IBlockReference
         foreach (var entityId in blockDefinition)
         {
             var entity = transaction.GetObject(entityId, OpenMode.ForRead) as Entity;
+
+            if (entity.Visible == false)
+                continue;
 
             var entityClone = entity.Clone() as Entity;
             entityClone.TransformBy(transform);

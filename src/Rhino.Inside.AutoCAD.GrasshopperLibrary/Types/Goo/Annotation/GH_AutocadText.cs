@@ -63,7 +63,7 @@ public class GH_AutocadText : GH_AutocadGeometricGoo<AutocadText, TextEntity>
     /// <inheritdoc />
     protected override void DrawViewportGeometryWires(GH_PreviewWireArgs args)
     {
-        args.Pipeline.DrawText(this.RhinoGeometry, args.Color);
+        args.Pipeline.DrawText(this.RhinoGeometry, args.Color, this.RhinoGeometry.DimensionScale);
     }
 
     /// <inheritdoc />

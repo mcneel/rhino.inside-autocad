@@ -198,6 +198,7 @@
         <StackPanel Grid.Row="6"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
                     Margin="0,8,0,8"
                     Opacity="0.43">
             <TextBlock Text="Developed in collaboration with"
@@ -227,8 +228,9 @@
                 Style="{StaticResource MaterialDesignOutlinedButton}"
                 Content="Close"
                 BorderThickness="2"
-                Margin="0,24,10,23"
+                Margin="0,0,10,0"
                 HorizontalAlignment="Right"
+                VerticalAlignment="Center"
                 Visibility="{Binding ButtonVisibility}"
                 BorderBrush="{StaticResource WarningColorBrush}"
                 Foreground="{StaticResource WarningColorBrush}"
