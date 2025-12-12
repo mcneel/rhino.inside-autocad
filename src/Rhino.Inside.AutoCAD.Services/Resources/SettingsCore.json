@@ -4,7 +4,7 @@
         "Debug": "Update"
     },
     "LoadingScreenConstants": {
-        "Copyright": "Bimorph Applications. Copyright",
+        "Copyright": "Rhino.Inside.Autocad Copyright",
         "VersionPrefix": "Software version",
         "FailedServiceMessage": "UNHANDLED EXCEPTION: Send your CAD file & error log found in [AppData\\Roaming\\Bimorph\\Logs] to support@bimorph.com"
     }

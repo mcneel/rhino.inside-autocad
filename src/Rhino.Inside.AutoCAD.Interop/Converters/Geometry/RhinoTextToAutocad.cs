@@ -52,67 +52,110 @@ public partial class GeometryConverter
         var currentFormat = new FormatState();
         var baseFontName = rhinoText.DimensionStyle?.Font?.FamilyName ?? "Arial";
 
-        // Remove RTF header wrapper - extract content between {\rtf1 ... }
-        var rtfContent = richText;
-        if (rtfContent.StartsWith("{\\rtf1", StringComparison.Ordinal))
+        // Font table: maps font index (0, 1, 2...) to font name
+        var fontTable = new Dictionary<int, string>();
+
+        // Parse font table from RTF
+        var fontTableMatch = Regex.Match(richText, @"\{\\fonttbl((?:\{[^}]+\})+)\}");
+        if (fontTableMatch.Success)
         {
-            // Find the matching closing brace
-            var depth = 0;
-            var startIndex = 0;
-            for (var i = 0; i < rtfContent.Length; i++)
+            var fontEntries = Regex.Matches(fontTableMatch.Groups[1].Value, @"\{\\f(\d+)\s*([^;}]+);?\}");
+            foreach (Match entry in fontEntries)
             {
-                if (rtfContent[i] == '{')
+                if (int.TryParse(entry.Groups[1].Value, out var fontIndex))
                 {
-                    if (depth == 0) startIndex = i + 1;
-                    depth++;
-                }
-                else if (rtfContent[i] == '}')
-                {
-                    depth--;
-                    if (depth == 0)
-                    {
-                        rtfContent = rtfContent.Substring(startIndex, i - startIndex);
-                        break;
-                    }
+                    var fontName = entry.Groups[2].Value.Trim();
+                    // Handle font names that might have additional RTF codes like \fnil
+                    fontName = Regex.Replace(fontName, @"\\[a-z]+\s*", "").Trim();
+                    if (!string.IsNullOrEmpty(fontName))
+                        fontTable[fontIndex] = fontName;
                 }
             }
         }
 
-        // Skip past {\rtf1 header to actual content
-        var headerMatch = Regex.Match(rtfContent, @"^\\rtf1\s*");
-        if (headerMatch.Success)
-            rtfContent = rtfContent.Substring(headerMatch.Length);
+        // Remove RTF header and font table, get to actual content
+        // Pattern: {\rtf1\deff0{\fonttbl...}...actual content...}
+        var rtfContent = richText;
+
+        // Remove outer braces
+        if (rtfContent.StartsWith("{") && rtfContent.EndsWith("}"))
+            rtfContent = rtfContent.Substring(1, rtfContent.Length - 2);
+
+        // Remove \rtf1 and \deff# headers
+        rtfContent = Regex.Replace(rtfContent, @"^\\rtf\d*\s*", "");
+        rtfContent = Regex.Replace(rtfContent, @"^\\deff\d+\s*", "");
+
+        // Remove font table
+        rtfContent = Regex.Replace(rtfContent, @"\{\\fonttbl(?:\{[^}]+\})+\}", "");
+
+        // Remove color table if present
+        rtfContent = Regex.Replace(rtfContent, @"\{\\colortbl[^}]*\}", "");
+
+        // Track if we're inside a group that should be skipped (like stylesheet)
+        var skipGroupDepth = 0;
 
         var index = 0;
         while (index < rtfContent.Length)
         {
             var c = rtfContent[index];
 
+            if (skipGroupDepth > 0)
+            {
+                // We're inside a group to skip
+                if (c == '{')
+                    skipGroupDepth++;
+                else if (c == '}')
+                    skipGroupDepth--;
+                index++;
+                continue;
+            }
+
             if (c == '\\' && index + 1 < rtfContent.Length)
             {
                 // Parse RTF control word
                 var controlWord = this.ParseRtfControlWord(rtfContent, ref index);
+                var lowerWord = controlWord.ToLowerInvariant();
 
-                switch (controlWord.ToLowerInvariant())
+                // Check for font reference \f# (e.g., \f0, \f1)
+                if (lowerWord.StartsWith("f") && lowerWord.Length > 1 && char.IsDigit(lowerWord[1]))
+                {
+                    if (int.TryParse(lowerWord.Substring(1), out var fontIndex) && fontTable.TryGetValue(fontIndex, out var fontName))
+                    {
+                        currentFormat.FontName = fontName;
+                        // Output MText font change
+                        result.Append($"\\f{fontName}|b{(currentFormat.Bold ? "1" : "0")}|i{(currentFormat.Italic ? "1" : "0")};");
+                    }
+                    continue;
+                }
+
+                // Check for font size \fs# - skip it
+                if (lowerWord.StartsWith("fs") && lowerWord.Length > 2)
+                    continue;
+
+                switch (lowerWord)
                 {
                     case "b":
                         currentFormat.Bold = true;
-                        result.Append($"\\F{baseFontName}|b1|i{(currentFormat.Italic ? "1" : "0")}|c0|p0;");
+                        var boldFont = currentFormat.FontName ?? baseFontName;
+                        result.Append($"\\f{boldFont}|b1|i{(currentFormat.Italic ? "1" : "0")};");
                         break;
 
                     case "b0":
                         currentFormat.Bold = false;
-                        result.Append($"\\F{baseFontName}|b0|i{(currentFormat.Italic ? "1" : "0")}|c0|p0;");
+                        var unboldFont = currentFormat.FontName ?? baseFontName;
+                        result.Append($"\\f{unboldFont}|b0|i{(currentFormat.Italic ? "1" : "0")};");
                         break;
 
                     case "i":
                         currentFormat.Italic = true;
-                        result.Append($"\\F{baseFontName}|b{(currentFormat.Bold ? "1" : "0")}|i1|c0|p0;");
+                        var italicFont = currentFormat.FontName ?? baseFontName;
+                        result.Append($"\\f{italicFont}|b{(currentFormat.Bold ? "1" : "0")}|i1;");
                         break;
 
                     case "i0":
                         currentFormat.Italic = false;
-                        result.Append($"\\F{baseFontName}|b{(currentFormat.Bold ? "1" : "0")}|i0|c0|p0;");
+                        var unitalicFont = currentFormat.FontName ?? baseFontName;
+                        result.Append($"\\f{unitalicFont}|b{(currentFormat.Bold ? "1" : "0")}|i0;");
                         break;
 
                     case "ul":
@@ -141,24 +184,46 @@ public partial class GeometryConverter
                         result.Append("\\}");
                         break;
 
+                    case "stylesheet":
+                    case "info":
+                    case "fonttbl":
+                    case "colortbl":
+                        // Skip these groups entirely - they should have been removed but just in case
+                        skipGroupDepth = 1;
+                        break;
+
                     default:
-                        // Skip unknown control words
+                        // Skip unknown control words (like \deff0, \fs23, etc.)
                         break;
                 }
             }
             else if (c == '{')
             {
-                // Push current format state
+                // Push current format state - but don't output braces for MText
+                // MText uses braces differently than RTF
                 formatStack.Push(currentFormat.Clone());
-                result.Append('{');
                 index++;
             }
             else if (c == '}')
             {
                 // Pop format state
                 if (formatStack.Count > 0)
+                {
+                    var previousFormat = currentFormat;
                     currentFormat = formatStack.Pop();
-                result.Append('}');
+
+                    // If format changed, output the restored format
+                    if (previousFormat.FontName != currentFormat.FontName ||
+                        previousFormat.Bold != currentFormat.Bold ||
+                        previousFormat.Italic != currentFormat.Italic)
+                    {
+                        var restoredFont = currentFormat.FontName ?? baseFontName;
+                        result.Append($"\\f{restoredFont}|b{(currentFormat.Bold ? "1" : "0")}|i{(currentFormat.Italic ? "1" : "0")};");
+                    }
+
+                    if (previousFormat.Underline && !currentFormat.Underline)
+                        result.Append("\\l");
+                }
                 index++;
             }
             else if (c == '\r' || c == '\n')
@@ -240,10 +305,10 @@ public partial class GeometryConverter
         var content = this.ConvertRichTextToMText(rhinoText);
         mtext.Contents = content;
 
-        mtext.Height = _unitSystemManager.ToAutoCadLength(rhinoText.TextHeight * rhinoText.DimensionScale);
+        mtext.TextHeight = _unitSystemManager.ToAutoCadLength(rhinoText.TextHeight * rhinoText.DimensionScale);
 
         if (rhinoText.FormatWidth > 0)
-            mtext.Width = _unitSystemManager.ToAutoCadLength(rhinoText.FormatWidth);
+            mtext.Width = _unitSystemManager.ToAutoCadLength(rhinoText.FormatWidth * rhinoText.DimensionScale);
 
         mtext.Location = this.ToAutoCadType(rhinoText.Plane.Origin);
 

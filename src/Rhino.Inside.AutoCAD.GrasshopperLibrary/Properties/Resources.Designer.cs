@@ -259,7 +259,47 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ConvertFromAutoCadHatchComponent {
+            get {
+                object obj = ResourceManager.GetObject("ConvertFromAutoCadHatchComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ConvertToAutoCadHatchComponent {
+            get {
+                object obj = ResourceManager.GetObject("ConvertToAutoCadHatchComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ConvertFromAutoCadTextComponent {
+            get {
+                object obj = ResourceManager.GetObject("ConvertFromAutoCadTextComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ConvertToAutoCadTextComponent {
+            get {
+                object obj = ResourceManager.GetObject("ConvertToAutoCadTextComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
@@ -429,7 +469,17 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Param_AutocadHatch {
+            get {
+                object obj = ResourceManager.GetObject("Param_AutocadHatch", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
