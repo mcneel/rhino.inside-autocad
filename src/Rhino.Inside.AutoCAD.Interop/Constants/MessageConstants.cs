@@ -41,4 +41,8 @@ public class MessageConstants
     /// </summary>
     public const string GrasshopperInitializationFailed = "Failed to initialize Grasshopper";
 
+    /// <summary>
+    /// An error message when the GH_AutocadGeometricGoo type cannot be found.
+    /// </summary>
+    public const string GooBaseTypeNotFound = "GH_AutocadGeometricGoo type not found. Ensure Rhino.Inside.Autocad.GrasshopperLibrary is loaded.";
 }

@@ -11,7 +11,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// </summary>
 public class AutocadExtractBlockGeometryComponent : GH_Component
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
+    private readonly GooTypeRegistry _gooConverterRegister = GooTypeRegistry.Instance!;
 
     /// <inheritdoc />
     public override GH_Exposure Exposure => GH_Exposure.secondary;
@@ -65,9 +65,16 @@ public class AutocadExtractBlockGeometryComponent : GH_Component
 
         transaction.Commit();
 
-        var converter = new GooConverter();
+        var blockObject = new List<IGH_GeometricGoo>();
 
-        return objects.Select(entity => converter.ToGeometricGoo(entity));
+        foreach (var entityObject in objects)
+        {
+            var goo = _gooConverterRegister.CreateGoo(entityObject);
+
+            blockObject.Add(goo);
+        }
+
+        return blockObject;
     }
 
     /// <inheritdoc />

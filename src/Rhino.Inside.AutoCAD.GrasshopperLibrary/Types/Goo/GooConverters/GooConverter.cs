@@ -1,10 +1,4 @@
-﻿using Grasshopper.Kernel.Types;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.Interop;
-using AutocadCurve = Autodesk.AutoCAD.DatabaseServices.Curve;
-using AutocadMesh = Autodesk.AutoCAD.DatabaseServices.PolyFaceMesh;
-using AutocadPoint = Autodesk.AutoCAD.DatabaseServices.DBPoint;
-using AutocadSolid = Autodesk.AutoCAD.DatabaseServices.Solid3d;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -84,25 +78,5 @@ public class GooConverter
 
         target = null;
         return false;
-    }
-
-    /// <summary>
-    /// A converter which converts AutoCAD entities to their corresponding Grasshopper Goo types.
-    /// </summary>
-    public IGH_GeometricGoo? ToGeometricGoo(IEntity autocadEntity)
-    {
-        switch (autocadEntity.Unwrap())
-        {
-            case AutocadCurve curve:
-                return new GH_AutocadCurve(curve);
-            case AutocadMesh mesh:
-                return new GH_AutocadMesh(mesh);
-            case AutocadPoint point:
-                return new GH_AutocadPoint(point);
-            case AutocadSolid solid:
-                return new GH_AutocadSolid(solid);
-
-            default: return null;
-        }
     }
 }

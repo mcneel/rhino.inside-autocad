@@ -40,4 +40,9 @@ public class InteropConstants
     /// The file name of the Grasshopper library DLL.
     /// </summary>
     public const string GrasshopperLibraryFileName = "Rhino.Inside.AutoCAD.GrasshopperLibrary.dll";
+
+    /// <summary>
+    /// The fully qualified type name for the GH_AutocadGeometricGoo generic base type.
+    /// </summary>
+    public const string GooBaseTypeName = "Rhino.Inside.AutoCAD.GrasshopperLibrary.GH_AutocadGeometricGoo`2, Rhino.Inside.AutoCAD.GrasshopperLibrary";
 }

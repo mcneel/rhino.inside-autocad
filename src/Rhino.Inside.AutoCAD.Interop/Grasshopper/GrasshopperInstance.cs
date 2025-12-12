@@ -105,6 +105,8 @@ public class GrasshopperInstance : IGrasshopperInstance
         {
             this.LoadGrasshopperLibrary();
 
+            GooTypeRegistry.Initialize();
+
             Grasshopper.Instances.CanvasCreated += this.OnCanvasCreated;
         }
         catch
