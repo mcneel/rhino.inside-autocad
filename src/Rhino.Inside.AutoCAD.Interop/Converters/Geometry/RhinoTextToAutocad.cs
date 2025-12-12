@@ -50,6 +50,7 @@ public partial class GeometryConverter
         var result = new StringBuilder();
         var formatStack = new Stack<FormatState>();
         var currentFormat = new FormatState();
+        var baseFontName = rhinoText.DimensionStyle?.Font?.FamilyName ?? "Arial";
 
         // Remove RTF header wrapper - extract content between {\rtf1 ... }
         var rtfContent = richText;
@@ -96,22 +97,22 @@ public partial class GeometryConverter
                 {
                     case "b":
                         currentFormat.Bold = true;
-                        result.Append($"\\fArial|b1|i{(currentFormat.Italic ? "1" : "0")};");
+                        result.Append($"\\F{baseFontName}|b1|i{(currentFormat.Italic ? "1" : "0")}|c0|p0;");
                         break;
 
                     case "b0":
                         currentFormat.Bold = false;
-                        result.Append($"\\fArial|b0|i{(currentFormat.Italic ? "1" : "0")};");
+                        result.Append($"\\F{baseFontName}|b0|i{(currentFormat.Italic ? "1" : "0")}|c0|p0;");
                         break;
 
                     case "i":
                         currentFormat.Italic = true;
-                        result.Append($"\\fArial|b{(currentFormat.Bold ? "1" : "0")}|i1;");
+                        result.Append($"\\F{baseFontName}|b{(currentFormat.Bold ? "1" : "0")}|i1|c0|p0;");
                         break;
 
                     case "i0":
                         currentFormat.Italic = false;
-                        result.Append($"\\fArial|b{(currentFormat.Bold ? "1" : "0")}|i0;");
+                        result.Append($"\\F{baseFontName}|b{(currentFormat.Bold ? "1" : "0")}|i0|c0|p0;");
                         break;
 
                     case "ul":
@@ -179,9 +180,15 @@ public partial class GeometryConverter
     /// <summary>
     /// Parses an RTF control word starting at the current index.
     /// </summary>
-    /// <param name="content">The RTF content string.</param>
-    /// <param name="index">The current position (should be at backslash). Updated to after the control word.</param>
-    /// <returns>The control word without the leading backslash.</returns>
+    /// <param name="content">
+    /// The RTF content string.
+    /// </param>
+    /// <param name="index">
+    /// The current position (should be at backslash). Updated to after the control word.
+    /// </param>
+    /// <returns>
+    /// The control word without the leading backslash.
+    /// </returns>
     private string ParseRtfControlWord(string content, ref int index)
     {
         // Skip the backslash
@@ -230,29 +237,21 @@ public partial class GeometryConverter
     {
         var mtext = new MText();
 
-        // Convert text content (with rich text formatting if available)
         var content = this.ConvertRichTextToMText(rhinoText);
         mtext.Contents = content;
 
-        // Set text height (with unit conversion)
-        mtext.Height = _unitSystemManager.ToAutoCadLength(rhinoText.TextHeight);
+        mtext.Height = _unitSystemManager.ToAutoCadLength(rhinoText.TextHeight * rhinoText.DimensionScale);
 
-        // Set text width if specified
         if (rhinoText.FormatWidth > 0)
             mtext.Width = _unitSystemManager.ToAutoCadLength(rhinoText.FormatWidth);
 
-        // Set location from plane origin
         mtext.Location = this.ToAutoCadType(rhinoText.Plane.Origin);
 
-        // Set normal from plane Z-axis
         mtext.Normal = this.ToAutoCadType(rhinoText.Plane.ZAxis);
 
-        // Calculate rotation from plane orientation
-        // The rotation is the angle of the X-axis in the XY plane
         var xAxis = rhinoText.Plane.XAxis;
         mtext.Rotation = Math.Atan2(xAxis.Y, xAxis.X);
 
-        // Set attachment point (justification)
         mtext.Attachment = this.ConvertJustification(rhinoText.Justification);
 
         return mtext;

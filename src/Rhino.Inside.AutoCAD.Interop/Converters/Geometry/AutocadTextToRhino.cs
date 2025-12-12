@@ -374,7 +374,7 @@ public partial class GeometryConverter
         else
             rhinoText.PlainText = plainText;
 
-        rhinoText.TextHeight = cadText.Height;
+        rhinoText.TextHeight = cadText.Height / RhinoDoc.ActiveDoc.ModelSpaceTextScale;
 
         if (cadText.Width > 0)
             rhinoText.FormatWidth = cadText.Width;
