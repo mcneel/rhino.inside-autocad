@@ -35,9 +35,7 @@ public class LayerRepository : Disposable, ILayerRepository
 
         _layers = new SortedDictionary<string, IAutocadLayerTableRecord>(comparer);
 
-        this.SubscribeToModifyEvent();
-
-        this.Populate();
+        this.Repopulate();
     }
 
     /// <summary>
@@ -47,83 +45,36 @@ public class LayerRepository : Disposable, ILayerRepository
     {
         using var documentLock = _document.Unwrap().LockDocument();
 
-        this.UnsubscribeToModifyEvent();
-
         var layerWrapper = _document.Transaction(transactionManagerWrapper =>
-        {
-            var transactionManager = transactionManagerWrapper.Unwrap();
+         {
+             var transactionManager = transactionManagerWrapper.Unwrap();
 
-            var layerTableRecord = new LayerTableRecord
-            {
-                Name = name,
-                Color = _autocadColorConverter.ToCadColor(color)
-            };
+             var layerTableRecord = new LayerTableRecord
+             {
+                 Name = name,
+                 Color = _autocadColorConverter.ToCadColor(color)
+             };
 
-            using var layerTable = (LayerTable)transactionManager.GetObject(
-                _document.Database.LayerTableId.Unwrap(), OpenMode.ForWrite);
+             using var layerTable = (LayerTable)transactionManager.GetObject(
+                 _document.Database.LayerTableId.Unwrap(), OpenMode.ForWrite);
 
-            layerTable.Add(layerTableRecord);
+             layerTable.Add(layerTableRecord);
 
-            transactionManager.AddNewlyCreatedDBObject(layerTableRecord, true);
+             transactionManager.AddNewlyCreatedDBObject(layerTableRecord, true);
 
-            return new AutocadLayerTableRecordWrapper(layerTableRecord);
-        });
+             return new AutocadLayerTableRecordWrapper(layerTableRecord);
+         });
 
-        this.SubscribeToModifyEvent();
 
         return layerWrapper;
     }
 
-    /// <summary>
-    /// Handles the LayerTable Modified event.
-    /// </summary>
-    private void LayerTable_Modified(object sender, EventArgs e)
-    {
-        this.Populate();
-        LayerTableModified?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>
-    /// Subscribes to the LayerTable Modified event.
-    /// </summary>
-    private void SubscribeToModifyEvent()
-    {
-        _ = _document.Transaction(transactionManagerWrapper =>
-        {
-            var transactionManager = transactionManagerWrapper.Unwrap();
-
-            using var layerTable = (LayerTable)transactionManager.GetObject(
-                _document.Database.LayerTableId.Unwrap(), OpenMode.ForRead);
-
-            layerTable.Modified += this.LayerTable_Modified;
-
-            return true;
-        });
-    }
-
-    /// <summary>
-    /// Unsubscribes from the LayerTable Modified event.
-    /// </summary>
-    private void UnsubscribeToModifyEvent()
-    {
-        _ = _document.Transaction(transactionManagerWrapper =>
-        {
-            var transactionManager = transactionManagerWrapper.Unwrap();
-
-            using var layerTable = (LayerTable)transactionManager.GetObject(
-                _document.Database.LayerTableId.Unwrap(), OpenMode.ForRead);
-
-            layerTable.Modified -= this.LayerTable_Modified;
-
-            return true;
-        });
-    }
 
     /// <summary>
     /// Populates this <see cref="ILayerRepository"/> with <see cref="IAutocadLayerTableRecord"/>s
     /// from the active <see cref="IAutocadDocument"/>.
     /// </summary>
-    private void Populate()
+    public void Repopulate()
     {
         _layers.Clear();
 
@@ -236,9 +187,6 @@ public class LayerRepository : Disposable, ILayerRepository
 
         if (disposing)
         {
-
-            this.UnsubscribeToModifyEvent();
-
             foreach (var layer in _layers.Values)
                 layer.Dispose();
 

@@ -299,6 +299,10 @@ where TRhinoType : GeometryBase
         if (this.Value == null)
             return $"Null {this.TypeName}";
 
-        return $"{this.TypeName} [Type: {this.Value.GetType().Name.ToString()}, Id: {this.AutocadReferenceId.Value.ToString()} ]";
+        var idSuffix = this.AutocadReferenceId.IsValid
+            ? this.AutocadReferenceId.Value.ToString()
+            : "Invalid or Not in Database";
+
+        return $"{this.TypeName} [Type: {this.Value.GetType().Name.ToString()}, Id: {idSuffix} ]";
     }
 }

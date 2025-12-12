@@ -48,7 +48,7 @@ public class Param_AutocadBlockTableRecord : GH_Param<GH_AutocadBlockTableRecord
     {
         foreach (var block in m_data.AllData(true).OfType<GH_AutocadBlockTableRecord>())
         {
-            if (change.DoesAffectObject(block.Value.Id))
+            if (change.DoesEffectObject(block.Value.Id))
                 return true;
         }
 

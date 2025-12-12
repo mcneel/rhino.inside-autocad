@@ -36,8 +36,8 @@ public partial class GeometryConverter
     {
         return cadDimension switch
         {
-            CadRotatedDimension rotated => ToRhinoType(rotated),
             CadAlignedDimension aligned => ToRhinoType(aligned),
+            CadRotatedDimension rotated => ToRhinoType(rotated),
             CadLineAngularDimension2 lineAngular => ToRhinoType(lineAngular),
             CadPoint3AngularDimension point3Angular => ToRhinoType(point3Angular),
             CadArcDimension arcDim => ToRhinoType(arcDim),
@@ -72,6 +72,9 @@ public partial class GeometryConverter
             dimLinePoint,
             cadDimension.Rotation);
 
+        if (dimension != null)
+            dimension.DimensionScale = 1.0;
+
         return dimension;
     }
 
@@ -87,7 +90,8 @@ public partial class GeometryConverter
         var normal = this.ToRhinoType(cadDimension.Normal);
         var plane = new RhinoPlane(xLine1Point, normal);
 
-        var horizontal = plane.XAxis;
+        var horizontal = xLine2Point - xLine1Point;
+        horizontal.Unitize();
 
         var dimension = RhinoLinearDimension.Create(
             RhinoAnnotationType.Aligned,
@@ -98,6 +102,9 @@ public partial class GeometryConverter
             xLine2Point,
             dimLinePoint,
             0.0);
+
+        if (dimension != null)
+            dimension.DimensionScale = 1.0;
 
         return dimension;
     }
@@ -127,6 +134,9 @@ public partial class GeometryConverter
             xLine2End,
             arcPoint);
 
+        if (dimension != null)
+            dimension.DimensionScale = 1.0;
+
         return dimension;
     }
 
@@ -153,6 +163,9 @@ public partial class GeometryConverter
             xLine1Point,
             xLine2Point,
             arcPoint);
+
+        if (dimension != null)
+            dimension.DimensionScale = 1.0;
 
         return dimension;
     }
@@ -184,6 +197,9 @@ public partial class GeometryConverter
             xLine2Point,
             arcPoint);
 
+        if (dimension != null)
+            dimension.DimensionScale = 1.0;
+
         return dimension;
     }
 
@@ -205,6 +221,9 @@ public partial class GeometryConverter
             center,
             chordPoint,
             chordPoint);
+
+        if (dimension != null)
+            dimension.DimensionScale = 1.0;
 
         return dimension;
     }
@@ -236,6 +255,9 @@ public partial class GeometryConverter
             chordPoint,
             chordPoint);
 
+        if (dimension != null)
+            dimension.DimensionScale = 1.0;
+
         return dimension;
     }
 
@@ -265,6 +287,9 @@ public partial class GeometryConverter
             0.0,
             0.0);
 
+        if (dimension != null)
+            dimension.DimensionScale = 1.0;
+
         return dimension;
     }
 
@@ -292,6 +317,9 @@ public partial class GeometryConverter
             plane,
             RhinoDoc.ActiveDoc.DimStyles.Current,
             vertices.ToArray());
+
+        if (dimension != null)
+            dimension.DimensionScale = 1.0;
 
         return dimension;
     }
@@ -339,6 +367,9 @@ public partial class GeometryConverter
             RhinoDoc.ActiveDoc.DimStyles.Current,
             vertices.ToArray());
 
+        if (dimension != null)
+            dimension.DimensionScale = 1.0;
+
         return dimension;
     }
 
@@ -359,6 +390,9 @@ public partial class GeometryConverter
             plane,
             position,
             1.0);
+
+        if (centermark != null)
+            centermark.DimensionScale = 1.0;
 
         return centermark;
     }

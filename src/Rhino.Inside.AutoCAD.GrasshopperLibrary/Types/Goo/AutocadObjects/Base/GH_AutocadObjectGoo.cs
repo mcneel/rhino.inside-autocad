@@ -125,6 +125,10 @@ where TWrapperType : IDbObject
         if (this.Value == null)
             return $"Null {this.TypeName}";
 
-        return $"{this.TypeName} [Id: {this.Value.Id.ToString()} ]";
+        var idSuffix = this.Value.Id.IsValid
+            ? this.Value.Id.ToString()
+            : "Invalid or Not in Database";
+
+        return $"{this.TypeName} [Id: {idSuffix} ]";
     }
 }

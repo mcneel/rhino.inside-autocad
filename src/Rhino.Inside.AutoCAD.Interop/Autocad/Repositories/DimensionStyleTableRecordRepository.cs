@@ -17,7 +17,7 @@ public class DimensionStyleTableRecordRepository : Disposable, IDimensionStyleTa
     {
         _document = document;
 
-        this.Update();
+        this.Repopulate();
     }
 
     ///<inheritdoc />
@@ -27,7 +27,7 @@ public class DimensionStyleTableRecordRepository : Disposable, IDimensionStyleTa
     /// <summary>
     /// Updates this repository.
     /// </summary>
-    private void Update()
+    public void Repopulate()
     {
         _dimStyleTableRecords.Clear();
 

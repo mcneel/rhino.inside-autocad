@@ -1,5 +1,4 @@
-﻿using Autodesk.AutoCAD.ApplicationServices;
-using Autodesk.AutoCAD.DatabaseServices;
+﻿using Autodesk.AutoCAD.DatabaseServices;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Services;
 using System.Collections;
@@ -10,7 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class LineTypeRepository : Disposable, ILineTypeRepository
 {
     private readonly IAutocadDocument _document;
-    private bool _disposed;
 
     private readonly Dictionary<IObjectId, IAutocadLinetypeTableRecord> _linePatterns;
     private readonly IAutocadLinetypeTableRecord _continuousLinetypeTableRecord;
@@ -26,59 +24,20 @@ public class LineTypeRepository : Disposable, ILineTypeRepository
             new Dictionary<IObjectId, IAutocadLinetypeTableRecord>(
                 new ObjectIdEqualityComparer());
 
-        this.Populate();
+        this.Repopulate();
 
         var continuousLineTypeName = ReservedStringEnumType.Continuous.ToString();
 
         _continuousLinetypeTableRecord = _linePatterns.Values.First(linePattern =>
             linePattern.Name.Equals(continuousLineTypeName, StringComparison.OrdinalIgnoreCase));
 
-        this.SubscribeToModifyEvent();
-    }
-
-    /// <summary>
-    /// Handles the LayerTable Modified event.
-    /// </summary>
-    private void LineTypeTable_Modified(object sender, EventArgs e)
-    {
-        this.Populate();
-    }
-
-    private void SubscribeToModifyEvent()
-    {
-        _ = _document.Transaction(transactionManagerWrapper =>
-        {
-            var transactionManager = transactionManagerWrapper.Unwrap();
-
-            using var linetypeTable = (LinetypeTable)transactionManager.GetObject(
-                _document.Database.LinetypeTableId.Unwrap(), OpenMode.ForRead);
-
-            linetypeTable.Modified += this.LineTypeTable_Modified;
-
-            return true;
-        });
-    }
-
-    private void UnsubscribeToModifyEvent()
-    {
-        _ = _document.Transaction(transactionManagerWrapper =>
-        {
-            var transactionManager = transactionManagerWrapper.Unwrap();
-
-            using var linetypeTable = (LinetypeTable)transactionManager.GetObject(
-                _document.Database.LinetypeTableId.Unwrap(), OpenMode.ForRead);
-
-            linetypeTable.Modified -= this.LineTypeTable_Modified;
-
-            return true;
-        });
     }
 
     /// <summary>
     /// Populates this <see cref="ILineTypeRepository"/> with <see cref="IAutocadLinetypeTableRecord"/>s
     /// from the active <see cref="IAutocadDocument"/>.
     /// </summary>
-    private void Populate()
+    public void Repopulate()
     {
         _linePatterns.Clear();
 
@@ -109,8 +68,6 @@ public class LineTypeRepository : Disposable, ILineTypeRepository
     {
         using var documentLock = _document.Unwrap().LockDocument();
 
-        this.UnsubscribeToModifyEvent();
-
         var lineTypeWrapper = _document.Transaction(transactionManagerWrapper =>
         {
             var transactionManager = transactionManagerWrapper.Unwrap();
@@ -135,8 +92,6 @@ public class LineTypeRepository : Disposable, ILineTypeRepository
 
             return new AutocadLinetypeTableRecord(linetypeTableRecord);
         });
-
-        this.SubscribeToModifyEvent();
 
         return lineTypeWrapper;
     }
@@ -194,7 +149,6 @@ public class LineTypeRepository : Disposable, ILineTypeRepository
         if (disposing)
         {
             _continuousLinetypeTableRecord.Dispose();
-            this.UnsubscribeToModifyEvent();
 
             foreach (var linePattern in _linePatterns.Values)
             {

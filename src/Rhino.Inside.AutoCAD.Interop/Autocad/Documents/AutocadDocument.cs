@@ -3,6 +3,10 @@ using Autodesk.AutoCAD.DatabaseServices;
 using Rhino.Inside.AutoCAD.Core;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using System.Windows.Threading;
+using CadBlockTableRecord = Autodesk.AutoCAD.DatabaseServices.BlockTableRecord;
+using CadLayer = Autodesk.AutoCAD.DatabaseServices.LayerTableRecord;
+using CadLayout = Autodesk.AutoCAD.DatabaseServices.Layout;
+using CadLineType = Autodesk.AutoCAD.DatabaseServices.LinetypeTableRecord;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -233,8 +237,29 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
 
         if (_documentChange.HasChanges)
         {
+            this.CheckRepositories();
+
             this.TriggerDocumentChanged();
         }
+    }
+
+    /// <summary>
+    /// Checks the repositories to see if they need to be updated based on the
+    /// current <see cref="_documentChange"/>.
+    /// </summary>
+    private void CheckRepositories()
+    {
+        if (_documentChange.DoesEffectType(typeof(CadLayer)))
+            this.LayerRepository.Repopulate();
+
+        if (_documentChange.DoesEffectType(typeof(CadLayout)))
+            this.LayoutRepository.Repopulate();
+
+        if (_documentChange.DoesEffectType(typeof(CadLineType)))
+            this.LineTypeRepository.Repopulate();
+
+        if (_documentChange.DoesEffectType(typeof(CadBlockTableRecord)))
+            this.BlockTableRecordRepository.Repopulate();
     }
 
     /// <summary>

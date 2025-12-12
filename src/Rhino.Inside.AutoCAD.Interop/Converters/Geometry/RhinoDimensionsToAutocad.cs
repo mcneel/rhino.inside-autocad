@@ -56,6 +56,9 @@ public partial class GeometryConverter
         var xLine2Point = this.ToAutoCadType(ext2_3d);
         var dimLinePoint = this.ToAutoCadType(dimPt_3d);
 
+        var textHeight = rhinoDimension.DimensionStyle?.TextHeight ?? 2.5;
+        var dimtxt = _unitSystemManager.ToAutoCadLength(textHeight * rhinoDimension.DimensionScale);
+
         if (rhinoDimension.Aligned)
         {
             var alignedDim = new CadAlignedDimension(
@@ -66,6 +69,7 @@ public partial class GeometryConverter
                 ObjectId.Null);
 
             alignedDim.Normal = this.ToAutoCadType(plane.ZAxis);
+            alignedDim.Dimtxt = dimtxt;
 
             return alignedDim;
         }
@@ -83,6 +87,7 @@ public partial class GeometryConverter
                 ObjectId.Null);
 
             rotatedDim.Normal = this.ToAutoCadType(plane.ZAxis);
+            rotatedDim.Dimtxt = dimtxt;
 
             return rotatedDim;
         }
@@ -122,6 +127,9 @@ public partial class GeometryConverter
 
         angularDim.Normal = this.ToAutoCadType(plane.ZAxis);
 
+        var textHeight = rhinoDimension.DimensionStyle?.TextHeight ?? 2.5;
+        angularDim.Dimtxt = _unitSystemManager.ToAutoCadLength(textHeight * rhinoDimension.DimensionScale);
+
         return angularDim;
     }
 
@@ -143,6 +151,9 @@ public partial class GeometryConverter
         var center = this.ToAutoCadType(center3d);
         var chordPoint = this.ToAutoCadType(radius3d);
 
+        var textHeight = rhinoDimension.DimensionStyle?.TextHeight ?? 2.5;
+        var dimtxt = _unitSystemManager.ToAutoCadLength(textHeight * rhinoDimension.DimensionScale);
+
         if (rhinoDimension.IsDiameterDimension)
         {
             var farChordPoint = this.ToAutoCadType(
@@ -156,6 +167,7 @@ public partial class GeometryConverter
                 ObjectId.Null);
 
             diametricDim.Normal = this.ToAutoCadType(plane.ZAxis);
+            diametricDim.Dimtxt = dimtxt;
 
             return diametricDim;
         }
@@ -169,6 +181,7 @@ public partial class GeometryConverter
                 ObjectId.Null);
 
             radialDim.Normal = this.ToAutoCadType(plane.ZAxis);
+            radialDim.Dimtxt = dimtxt;
 
             return radialDim;
         }
@@ -202,6 +215,9 @@ public partial class GeometryConverter
 
         ordinateDim.Origin = this.ToAutoCadType(basePt);
         ordinateDim.Normal = this.ToAutoCadType(plane.ZAxis);
+
+        var textHeight = rhinoDimension.DimensionStyle?.TextHeight ?? 2.5;
+        ordinateDim.Dimtxt = _unitSystemManager.ToAutoCadLength(textHeight * rhinoDimension.DimensionScale);
 
         return ordinateDim;
     }
@@ -245,9 +261,12 @@ public partial class GeometryConverter
 
         mleader.ContentType = ContentType.MTextContent;
 
+        var textHeight = rhinoLeader.DimensionStyle?.TextHeight ?? 2.5;
+
         var mtext = new MText();
         mtext.Contents = rhinoLeader.PlainText ?? string.Empty;
         mtext.Location = this.ToAutoCadType(plane.PointAt(points2d[points2d.Length - 1].X, points2d[points2d.Length - 1].Y));
+        mtext.TextHeight = _unitSystemManager.ToAutoCadLength(textHeight * rhinoLeader.DimensionScale);
         mleader.MText = mtext;
 
         return mleader;

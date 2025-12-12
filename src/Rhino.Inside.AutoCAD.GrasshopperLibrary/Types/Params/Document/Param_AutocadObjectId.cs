@@ -48,7 +48,7 @@ public class Param_AutocadObjectId : GH_Param<GH_AutocadObjectId>, IReferencePar
     {
         foreach (var autocadId in m_data.AllData(true).OfType<GH_AutocadObjectId>())
         {
-            if (change.DoesAffectObject(autocadId.Value))
+            if (change.DoesEffectObject(autocadId.Value))
                 return true;
         }
 

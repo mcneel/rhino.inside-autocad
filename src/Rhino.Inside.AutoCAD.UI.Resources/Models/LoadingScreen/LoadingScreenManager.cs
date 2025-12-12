@@ -217,6 +217,12 @@ public class LoadingScreenManager : ILoadingScreenManager
     {
         _LoadingScreenViewModel?.Dispose();
 
+        // Wait for dispatcher to be ready if thread was started
+        if (_newWindowThread != null && _newWindowThread.IsAlive)
+        {
+            WaitForDispatcherReady();
+        }
+
         _dispatcher?.Invoke(() =>
         {
             _LoadingScreenWindow?.Close();

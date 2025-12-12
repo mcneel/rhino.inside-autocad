@@ -24,56 +24,7 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
 
         _blockTableRecords = new Dictionary<string, IBlockTableRecord>();
 
-        this.Populate();
-
-        this.SubscribeToModifyEvent();
-    }
-
-    /// <summary>
-    /// Subscribes to the LayerTable Modified event.
-    /// </summary>
-    private void SubscribeToModifyEvent()
-    {
-        _ = _document.Transaction(transactionManagerWrapper =>
-        {
-            var transactionManager = transactionManagerWrapper.Unwrap();
-
-            using var blockTable =
-                (BlockTable)transactionManager.GetObject(_document.Database.BlockTableId.Unwrap(),
-                    OpenMode.ForRead);
-
-            blockTable.Modified += this.BlockTable_Modified;
-
-            return true;
-        });
-    }
-
-    /// <summary>
-    /// Unsubscribes from the LayerTable Modified event.
-    /// </summary>
-    private void UnsubscribeToModifyEvent()
-    {
-        _ = _document.Transaction(transactionManagerWrapper =>
-        {
-            var transactionManager = transactionManagerWrapper.Unwrap();
-
-            using var blockTable =
-                (BlockTable)transactionManager.GetObject(_document.Database.BlockTableId.Unwrap(),
-                    OpenMode.ForRead);
-
-            blockTable.Modified -= this.BlockTable_Modified;
-
-            return true;
-        });
-    }
-
-    /// <summary>
-    /// Handles the LayerTable Modified event.
-    /// </summary>
-    private void BlockTable_Modified(object sender, EventArgs e)
-    {
-        this.Populate();
-        BlockTableModified?.Invoke(this, EventArgs.Empty);
+        this.Repopulate();
     }
 
     /// <summary>
@@ -94,7 +45,7 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
     /// Populates this <see cref="IBlockTableRecordRepository"/> with <see cref="IBlockTableRecord"/>s
     /// from the active <see cref="IAutocadDocument"/>.
     /// </summary>
-    private void Populate()
+    public void Repopulate()
     {
         this.Clear();
 
@@ -150,7 +101,7 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
                 return true;
             });
 
-            this.Populate();
+            this.Repopulate();
         }
 
         return this.TryGetByName(blockName, out blockTableRecord);
@@ -191,8 +142,6 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
 
         if (disposing)
         {
-            this.UnsubscribeToModifyEvent();
-
             foreach (var blockTableRecord in _blockTableRecords.Values)
                 blockTableRecord.Dispose();
 

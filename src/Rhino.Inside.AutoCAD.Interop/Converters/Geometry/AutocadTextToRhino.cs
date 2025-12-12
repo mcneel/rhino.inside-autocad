@@ -374,12 +374,12 @@ public partial class GeometryConverter
         else
             rhinoText.PlainText = plainText;
 
-        rhinoText.TextHeight = cadText.TextHeight;
+        rhinoText.TextHeight = _unitSystemManager.ToRhinoLength(cadText.TextHeight);
 
-        rhinoText.DimensionScale = RhinoDoc.ActiveDoc.DimStyles.Current.DimensionScale;
+        rhinoText.DimensionScale = 1.0;
 
         if (cadText.Width > 0)
-            rhinoText.FormatWidth = cadText.Width;
+            rhinoText.FormatWidth = _unitSystemManager.ToRhinoLength(cadText.Width);
 
         var origin = this.ToRhinoType(cadText.Location);
 

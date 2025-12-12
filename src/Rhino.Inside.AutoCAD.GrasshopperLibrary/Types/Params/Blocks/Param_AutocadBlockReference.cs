@@ -84,10 +84,10 @@ public class Param_AutocadBlockReference : GH_PersistentParam<GH_AutocadBlockRef
 
         foreach (var blockRef in m_data.AllData(true).OfType<GH_AutocadBlockReference>())
         {
-            if (change.DoesAffectObject(blockRef.Value.Id))
+            if (change.DoesEffectObject(blockRef.Value.Id))
                 return true;
 
-            if (change.DoesAffectObject(blockRef.Value.BlockTableRecordId))
+            if (change.DoesEffectObject(blockRef.Value.BlockTableRecordId))
                 return true;
         }
 

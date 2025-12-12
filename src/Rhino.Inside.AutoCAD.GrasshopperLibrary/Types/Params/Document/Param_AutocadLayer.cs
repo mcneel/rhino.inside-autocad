@@ -49,7 +49,7 @@ public class Param_AutocadLayer : GH_Param<GH_AutocadLayer>, IReferenceParam
 
         foreach (var autocadId in m_data.AllData(true).OfType<GH_AutocadLayer>())
         {
-            if (change.DoesAffectObject(autocadId.Value.Id))
+            if (change.DoesEffectObject(autocadId.Value.Id))
                 return true;
         }
 

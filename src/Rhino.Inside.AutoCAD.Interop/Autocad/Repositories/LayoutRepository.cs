@@ -1,5 +1,4 @@
-﻿using Autodesk.AutoCAD.ApplicationServices;
-using Autodesk.AutoCAD.DatabaseServices;
+﻿using Autodesk.AutoCAD.DatabaseServices;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Services;
 using System.Collections;
@@ -19,47 +18,7 @@ public class LayoutRepository : Disposable, ILayoutRepository
     {
         _document = document;
 
-        this.Populate();
-
-        this.SubscribeToModifyEvent();
-    }
-
-    private void SubscribeToModifyEvent()
-    {
-        _ = _document.Transaction(transactionManagerWrapper =>
-        {
-            var transactionManager = transactionManagerWrapper.Unwrap();
-
-            using var layoutDictionary = (DBDictionary)transactionManager.GetObject(
-                _document.Database.LayoutDictionaryId.Unwrap(), OpenMode.ForRead);
-
-            layoutDictionary.Modified += this.LayoutTable_Modified;
-
-            return true;
-        });
-    }
-
-    /// <summary>
-    /// Handles the LayoutTable Modified event.
-    /// </summary>
-    private void LayoutTable_Modified(object sender, EventArgs e)
-    {
-        this.Populate();
-    }
-
-    private void UnsubscribeToModifyEvent()
-    {
-        _ = _document.Transaction(transactionManagerWrapper =>
-        {
-            var transactionManager = transactionManagerWrapper.Unwrap();
-
-            using var layoutDictionary = (DBDictionary)transactionManager.GetObject(
-                _document.Database.LayoutDictionaryId.Unwrap(), OpenMode.ForRead);
-
-            layoutDictionary.Modified -= this.LayoutTable_Modified;
-
-            return true;
-        });
+        this.Repopulate();
     }
 
     ///<inheritdoc />
@@ -67,7 +26,7 @@ public class LayoutRepository : Disposable, ILayoutRepository
         _layouts.TryGetValue(name, out layout);
 
     ///<inheritdoc />
-    public void Populate()
+    public void Repopulate()
     {
         _layouts.Clear();
 
@@ -100,8 +59,6 @@ public class LayoutRepository : Disposable, ILayoutRepository
     {
         using var documentLock = _document.Unwrap().LockDocument();
 
-        this.UnsubscribeToModifyEvent();
-
         var layoutWrapper = _document.Transaction(transactionManagerWrapper =>
         {
             var transactionManager = transactionManagerWrapper.Unwrap();
@@ -120,8 +77,6 @@ public class LayoutRepository : Disposable, ILayoutRepository
 
             return new AutocadLayoutWrapper(layout);
         });
-
-        this.SubscribeToModifyEvent();
 
         return layoutWrapper;
     }
@@ -158,8 +113,6 @@ public class LayoutRepository : Disposable, ILayoutRepository
 
         if (disposing)
         {
-            this.UnsubscribeToModifyEvent();
-
             foreach (var layer in _layouts.Values)
                 layer.Dispose();
 
