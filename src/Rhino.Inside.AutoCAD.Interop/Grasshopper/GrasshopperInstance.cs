@@ -29,6 +29,9 @@ public class GrasshopperInstance : IGrasshopperInstance
     public GH_Document? ActiveDoc { get; private set; }
 
     /// <inheritdoc />
+    public Version? ApplicationVersion { get; private set; }
+
+    /// <inheritdoc />
     public bool IsEnabled => Grasshopper.Kernel.GH_Document.EnableSolutions;
 
     /// <summary>
@@ -40,7 +43,6 @@ public class GrasshopperInstance : IGrasshopperInstance
     public GrasshopperInstance(IApplicationDirectories applicationDirectories)
     {
         _applicationDirectories = applicationDirectories;
-
     }
 
     /// <summary>
@@ -109,6 +111,7 @@ public class GrasshopperInstance : IGrasshopperInstance
             GooTypeRegistry.Initialize();
 
             Grasshopper.Instances.CanvasCreated += this.OnCanvasCreated;
+            this.ApplicationVersion = new Version(Grasshopper.Versioning.Version.ToString());
         }
         catch
         {

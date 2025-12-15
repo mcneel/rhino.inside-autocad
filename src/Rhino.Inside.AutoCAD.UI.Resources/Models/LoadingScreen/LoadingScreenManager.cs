@@ -17,11 +17,11 @@ public class LoadingScreenManager : ILoadingScreenManager
 
     private readonly ILoggerService _logger = LoggerService.Instance;
 
-    private readonly ILoadingScreenConstants _LoadingScreenConstants;
+    private readonly ILoadingScreenConstants _loadingScreenConstants;
     private readonly IVersionLog _versionLog;
 
-    private LoadingScreenWindow? _LoadingScreenWindow;
-    private LoadingScreenViewModel? _LoadingScreenViewModel;
+    private LoadingScreenWindow? _loadingScreenWindow;
+    private LoadingScreenViewModel? _loadingScreenViewModel;
 
     private Dispatcher? _dispatcher;
     private Thread? _newWindowThread;
@@ -36,7 +36,7 @@ public class LoadingScreenManager : ILoadingScreenManager
     /// </summary>
     public LoadingScreenManager(IRhinoInsideAutoCadApplication application)
     {
-        _LoadingScreenConstants = application.SettingsManager.Core.LoadingScreenConstants;
+        _loadingScreenConstants = application.SettingsManager.Core.LoadingScreenConstants;
 
         _versionLog = application.Bootstrapper.VersionLog;
     }
@@ -86,7 +86,7 @@ public class LoadingScreenManager : ILoadingScreenManager
     {
         // Add assembly resolver for WPF pack URIs
         // This is necessary because WPF's pack URI resolver can't find the assembly in the new thread context
-        AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+        AppDomain.CurrentDomain.AssemblyResolve += this.CurrentDomain_AssemblyResolve;
 
         try
         {
@@ -94,14 +94,14 @@ public class LoadingScreenManager : ILoadingScreenManager
 
             lock (_initLock)
             {
-                _LoadingScreenViewModel = new LoadingScreenViewModel(_LoadingScreenConstants, _versionLog);
+                _loadingScreenViewModel = new LoadingScreenViewModel(_loadingScreenConstants, _versionLog);
 
-                _LoadingScreenWindow = new LoadingScreenWindow(_LoadingScreenViewModel!)
+                _loadingScreenWindow = new LoadingScreenWindow(_loadingScreenViewModel!)
                 {
                     Topmost = true
                 };
 
-                _LoadingScreenWindow.Show();
+                _loadingScreenWindow.Show();
 
                 _isDispatcherReady = true;
 
@@ -119,7 +119,7 @@ public class LoadingScreenManager : ILoadingScreenManager
         finally
         {
             // Remove the assembly resolver
-            AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
+            AppDomain.CurrentDomain.AssemblyResolve -= this.CurrentDomain_AssemblyResolve;
         }
     }
 
@@ -131,7 +131,7 @@ public class LoadingScreenManager : ILoadingScreenManager
     {
         _dispatcher?.Invoke(() =>
         {
-            _LoadingScreenViewModel?.SetToFailedState(message);
+            _loadingScreenViewModel?.SetToFailedState(message);
         });
     }
 
@@ -149,29 +149,6 @@ public class LoadingScreenManager : ILoadingScreenManager
         }
     }
 
-    // Protected implementation of Dispose pattern.
-    protected virtual void Dispose(bool disposing)
-    {
-        if (_disposed)
-            return;
-
-        if (disposing)
-        {
-            this.Close();
-        }
-
-        _disposed = true;
-    }
-
-    /// <summary>
-    /// Public implementation of Dispose pattern callable by consumers.
-    /// </summary>
-    public void Dispose()
-    {
-        this.Dispose(true);
-
-        GC.SuppressFinalize(this);
-    }
 
     /// <inheritdoc/>
     public void Show()
@@ -208,28 +185,52 @@ public class LoadingScreenManager : ILoadingScreenManager
 
         _dispatcher?.Invoke(() =>
         {
-            this.ShowFailure(_LoadingScreenConstants.FailedServiceMessage!);
+            this.ShowFailure(_loadingScreenConstants.FailedServiceMessage!);
         });
     }
 
     /// <inheritdoc/>
     public void Close()
     {
-        _LoadingScreenViewModel?.Dispose();
+        _loadingScreenViewModel?.Dispose();
 
         // Wait for dispatcher to be ready if thread was started
         if (_newWindowThread != null && _newWindowThread.IsAlive)
         {
-            WaitForDispatcherReady();
+            this.WaitForDispatcherReady();
         }
 
         _dispatcher?.Invoke(() =>
         {
-            _LoadingScreenWindow?.Close();
+            _loadingScreenWindow?.Close();
         });
 
         _dispatcher?.InvokeShutdown();
 
         _newWindowThread?.Join();
+    }
+
+    /// Protected implementation of Dispose pattern.
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            this.Close();
+        }
+
+        _disposed = true;
+    }
+
+    /// <summary>
+    /// Public implementation of Dispose pattern callable by consumers.
+    /// </summary>
+    public void Dispose()
+    {
+        this.Dispose(true);
+
+        GC.SuppressFinalize(this);
     }
 }

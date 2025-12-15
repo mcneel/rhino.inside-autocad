@@ -21,7 +21,7 @@ public class GetAutocadBlockTableRecordsComponent : GH_Component, IReferenceComp
     /// Initializes a new instance of the <see cref="GetAutocadBlockTableRecordsComponent"/> class.
     /// </summary>
     public GetAutocadBlockTableRecordsComponent()
-        : base("Get AutoCAD Block Table Records", "BlkRecs",
+        : base("Get AutoCAD Block Table Records", "AC-BlkRecs",
             "Returns the list of all the AutoCAD Bloc1k Table Records in the document",
             "AutoCAD", "Blocks")
     {

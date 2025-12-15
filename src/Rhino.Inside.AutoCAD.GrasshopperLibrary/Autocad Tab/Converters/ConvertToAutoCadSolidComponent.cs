@@ -24,7 +24,7 @@ public class ConvertToAutoCadSolidComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertToAutoCadSolidComponent"/> class.
     /// </summary>
     public ConvertToAutoCadSolidComponent()
-        : base("To AutoCAD Solid", "ToSld",
+        : base("To AutoCAD Solid", "AC-ToSld",
             "Converts a Rhino Brep to AutoCAD Solid3d",
             "AutoCAD", "Convert")
     {

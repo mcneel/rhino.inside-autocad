@@ -24,7 +24,7 @@ public class ConvertToAutoCadTextComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertToAutoCadTextComponent"/> class.
     /// </summary>
     public ConvertToAutoCadTextComponent()
-        : base("To AutoCAD Text", "ToTxt",
+        : base("To AutoCAD Text", "AC-ToTxt",
             "Converts a Rhino TextEntity to an AutoCAD Text",
             "AutoCAD", "Convert")
     {

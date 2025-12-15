@@ -25,7 +25,7 @@ public class ConvertToAutoCadPointComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertToAutoCadPointComponent"/> class.
     /// </summary>
     public ConvertToAutoCadPointComponent()
-        : base("To AutoCAD Point", "ToPt",
+        : base("To AutoCAD Point", "AC-ToPt",
             "Converts a Rhino Point to AutoCAD DBPoint",
             "AutoCAD", "Convert")
     {

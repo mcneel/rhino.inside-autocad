@@ -35,6 +35,9 @@ public class AutoCadInstance : IAutoCadInstance
     /// <inheritdoc/>
     public IAutocadDocument? ActiveDocument => this.GetActiveDocument();
 
+    /// <inheritdoc/>
+    public Version ApplicationVersion { get; }
+
     /// <summary>
     /// Constructs a new <see cref="IAutoCadInstance"/>.
     /// </summary>
@@ -63,6 +66,8 @@ public class AutoCadInstance : IAutoCadInstance
         this.Documents = documentFiles;
 
         this.ValidationLogger = new ValidationLogger();
+
+        this.ApplicationVersion = Application.Version;
 
         this.Validate(documentFiles);
     }
@@ -190,7 +195,6 @@ public class AutoCadInstance : IAutoCadInstance
             }
         }
     }
-
 
     /// <inheritdoc/>
     public void Shutdown()

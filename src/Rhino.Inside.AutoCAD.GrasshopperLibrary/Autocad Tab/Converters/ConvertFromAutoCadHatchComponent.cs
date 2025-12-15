@@ -24,7 +24,7 @@ public class ConvertFromAutoCadHatchComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertFromAutoCadHatchComponent"/> class.
     /// </summary>
     public ConvertFromAutoCadHatchComponent()
-        : base("From AutoCAD Hatch", "FrHat",
+        : base("From AutoCAD Hatch", "AC-FrHat",
             "Converts an AutoCAD Hatch to a Rhino Hatch",
             "AutoCAD", "Convert")
     {

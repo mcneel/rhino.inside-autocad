@@ -20,7 +20,7 @@ public class GetAutocadLayersComponent : GH_Component, IReferenceComponent
     /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
     /// </summary>
     public GetAutocadLayersComponent()
-        : base("Get AutoCAD Layers", "Lyrs",
+        : base("Get AutoCAD Layers", "AC-Lyrs",
             "Returns the list of all the AutoCAD layer in the document",
             "AutoCAD", "Layers")
     {

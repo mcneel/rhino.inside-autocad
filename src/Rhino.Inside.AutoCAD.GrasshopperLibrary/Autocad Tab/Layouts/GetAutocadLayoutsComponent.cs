@@ -20,7 +20,7 @@ public class GetAutocadLayoutsComponent : GH_Component, IReferenceComponent
     /// Initializes a new instance of the <see cref="GetAutocadLayoutsComponent"/> class.
     /// </summary>
     public GetAutocadLayoutsComponent()
-        : base("Get AutoCAD Layouts", "Lays",
+        : base("Get AutoCAD Layouts", "AC-Lays",
             "Returns the list of all the AutoCAD layouts in the document",
             "AutoCAD", "Layouts")
     {

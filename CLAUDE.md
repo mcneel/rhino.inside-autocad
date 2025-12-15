@@ -156,3 +156,52 @@ Uses LoggerService.Instance from Bimorph.Core.Services for error logging through
 - **Rhino Not Found Error**: Application checks registry for Rhino 7 installation. Validation errors are shown via CADApplication.ShowAlertDialog().
 - **Assembly Load Failures**: Ensure Rhino 7 is installed before debugging. The AssemblyResolve handler in RhinoInsideExtension handles RhinoCommon loading.
 - **Build Path Issues**: PostBuild events use Directory.Build.props variables. Ensure all path variables (AppRootDir, DeploymentPackage, etc.) are correctly resolved.
+
+# Rhino.Inside.AutoCAD Documentation Generation
+
+## Purpose
+Generate MDX documentation files for the Rhino.Inside.AutoCAD product website. These files will be copied to the Bimorph Website monorepo at `apps/rhino-inside-autocad/src/app/`.
+
+## Output Format
+Generate MDX files following this exact structure for each node/class:
+
+### Page Template
+```mdx
+export const metadata = {
+  title: '[ClassName] - Rhino.Inside.AutoCAD',
+  description: '[Brief description from XML summary]',
+}
+
+# [ClassName]
+
+[Detailed description from XML docs - 2-3 sentences explaining what this class/node does and when to use it]
+
+---
+
+## [MethodName] {{ tag: '[ReturnType]', label: '[Category]' }}
+
+<Row>
+  <Col>
+    [Method description from XML docs]
+
+    ### Parameters
+    - `paramName` ([Type]): [Description from XML param tag]
+    - `paramName2` ([Type]): [Description]
+
+    ### Returns
+    [Description from XML returns tag]
+
+    ### Remarks
+    [Any additional notes from XML remarks tag, if present]
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example usage
+    [Generate a realistic code example showing how to call this method]
+    ```
+  </Col>
+</Row>
+
+---
+
+[Repeat for each public method/property]

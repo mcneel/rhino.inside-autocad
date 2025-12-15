@@ -23,7 +23,7 @@ public class AutocadBlockReferenceComponent : GH_Component
     /// Initializes a new instance of the <see cref="AutocadBlockReferenceComponent"/> class.
     /// </summary>
     public AutocadBlockReferenceComponent()
-        : base("AutoCAD Block Reference", "BlkRef",
+        : base("AutoCAD Block Reference", "AC-BlkRef",
             "Gets Information from an AutoCAD Block Table Record",
             "AutoCAD", "Blocks")
     {

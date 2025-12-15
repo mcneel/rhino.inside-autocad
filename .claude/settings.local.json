@@ -8,7 +8,8 @@
       "Bash(dotnet build:*)",
       "WebSearch",
       "WebFetch(domain:developer.rhino3d.com)",
-      "WebFetch(domain:mcneel.github.io)"
+      "WebFetch(domain:mcneel.github.io)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

@@ -70,7 +70,7 @@
             </Button.Style>
         </Button>
 
-        <!-- The Client Logo -->
+        <!-- The Rhino Inside Logo -->
         <Image Grid.Row="0"
                Grid.Column="0"
                Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Resources/RhinoInsideLogo.png"

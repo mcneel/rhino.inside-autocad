@@ -7,6 +7,7 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
 {
     private readonly IPreviewServer _previewServer;
 
+    /// <inheritdoc />
     public IGeometryPreviewSettings Settings { get; }
 
     /// <inheritdoc/>

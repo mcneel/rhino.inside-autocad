@@ -32,6 +32,11 @@ public interface IRhinoInsideAutoCadApplication
     IRhinoInsideManager RhinoInsideManager { get; }
 
     /// <summary>
+    /// The manager for the Support Dialog.
+    /// </summary>
+    ISupportDialogManager SupportDialogManager { get; }
+
+    /// <summary>
     /// Show an alert dialog with the given message.
     /// </summary>
     void ShowAlertDialog(string message);

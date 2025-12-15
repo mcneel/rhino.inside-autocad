@@ -30,6 +30,11 @@ public interface IGrasshopperInstance
     GH_Document? ActiveDoc { get; }
 
     /// <summary>
+    /// The version of the Grasshopper application.
+    /// </summary>
+    Version ApplicationVersion { get; }
+
+    /// <summary>
     /// A value indicating whether the Grasshopper solver is enabled.
     /// </summary>
     bool IsEnabled { get; }

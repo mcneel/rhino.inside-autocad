@@ -17,7 +17,7 @@ public interface ILoadingScreenConstants
 
     /// <summary>
     /// The message to display to the user in the splash screen if a
-    /// <see cref="ISatelliteService"/> fails startup.
+    /// there is an error during startup.
     /// </summary>
     string? FailedServiceMessage { get; set; }
 }

@@ -37,6 +37,11 @@ public interface IAutoCadInstance
     IAutocadDocument? ActiveDocument { get; }
 
     /// <summary>
+    /// The version of the AutoCAD application.
+    /// </summary>
+    Version ApplicationVersion { get; }
+
+    /// <summary>
     /// Ensures that the AutoCAD instance is properly shutdown and resources are released.
     /// </summary>
     void Shutdown();

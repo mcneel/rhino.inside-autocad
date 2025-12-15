@@ -20,7 +20,7 @@ public class AutocadBlockTableRecordComponent : GH_Component
     /// Initializes a new instance of the <see cref="AutocadBlockTableRecordComponent"/> class.
     /// </summary>
     public AutocadBlockTableRecordComponent()
-        : base("AutoCAD Block Table Record", "BlkRec",
+        : base("AutoCAD Block Table Record", "AC-BlkRec",
             "Gets Information from an AutoCAD Block Table Record",
             "AutoCAD", "Blocks")
     {

@@ -18,7 +18,7 @@ public class AutocadDocumentComponent : GH_Component
     /// Initializes a new instance of the <see cref="GetAutocadDocumentsComponent"/> class.
     /// </summary>
     public AutocadDocumentComponent()
-        : base("AutoCAD Document", "Doc",
+        : base("AutoCAD Document", "AC-Doc",
             "Gets Information from an autocad Document",
             "AutoCAD", "Document")
     {

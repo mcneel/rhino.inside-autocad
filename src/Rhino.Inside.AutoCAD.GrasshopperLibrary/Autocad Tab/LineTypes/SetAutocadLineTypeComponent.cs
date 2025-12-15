@@ -18,7 +18,7 @@ public class SetAutocadLineTypeComponent : GH_Component
     /// Initializes a new instance of the <see cref="SetAutocadLineTypeComponent"/> class.
     /// </summary>
     public SetAutocadLineTypeComponent()
-        : base("Set AutoCAD Line Type", "SetLT",
+        : base("Set AutoCAD Line Type", "AC-SetLT",
             "Sets properties for an AutoCAD LineType",
             "AutoCAD", "LineTypes")
     {

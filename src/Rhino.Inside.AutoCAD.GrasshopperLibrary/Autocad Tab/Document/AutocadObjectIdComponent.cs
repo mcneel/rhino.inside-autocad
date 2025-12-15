@@ -22,7 +22,7 @@ public class AutocadObjectIdComponent : GH_Component
     /// Initializes a new instance of the <see cref="AutocadObjectIdComponent"/> class.
     /// </summary>
     public AutocadObjectIdComponent()
-        : base("AutoCAD Object Id", "ObjId",
+        : base("AutoCAD Object Id", "AC-ObjId",
             "Gets Information from an AutoCAD ObjectId",
             "AutoCAD", "Document")
     {

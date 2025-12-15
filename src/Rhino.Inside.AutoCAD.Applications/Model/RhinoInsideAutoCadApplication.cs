@@ -2,6 +2,7 @@
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using Rhino.Inside.AutoCAD.Services;
+using Rhino.Inside.AutoCAD.UI.Resources.Models;
 using System.Reflection;
 
 namespace Rhino.Inside.AutoCAD.Applications;
@@ -25,6 +26,9 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
     /// <inheritdoc/>
     public IRhinoInsideManager RhinoInsideManager { get; }
+
+    /// <inheritdoc/>
+    public ISupportDialogManager SupportDialogManager { get; }
 
     /// <summary>
     /// Constructs a new <see cref="IRhinoInsideAutoCadApplication"/>
@@ -62,6 +66,8 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
         this.RhinoInsideManager = rhinoInsideManager;
 
         this.LoadMaterialDesign(applicationDirectories);
+
+        this.SupportDialogManager = new SupportDialogManager(this);
     }
 
     /// <summary>

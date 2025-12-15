@@ -23,7 +23,7 @@ public class GetAutocadBlockReferencesComponent : GH_Component, IReferenceCompon
     /// Initializes a new instance of the <see cref="GetAutocadBlockReferencesComponent"/> class.
     /// </summary>
     public GetAutocadBlockReferencesComponent()
-        : base("Get AutoCAD Block References", "BlkRefs",
+        : base("Get AutoCAD Block References", "AC-BlkRefs",
             "Returns the list of all the AutoCAD Block References in the document of a given Block Table Record",
             "AutoCAD", "Blocks")
     {

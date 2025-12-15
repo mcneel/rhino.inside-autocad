@@ -19,7 +19,7 @@ public class AutocadBakeComponent : GH_Component
     /// Initializes a new instance of the <see cref="AutocadBakeComponent"/> class.
     /// </summary>
     public AutocadBakeComponent()
-        : base("Bake to AutoCAD", "Bake",
+        : base("Bake to AutoCAD", "AC-Bake",
             "Bakes objects to AutoCAD's model space",
             "AutoCAD", "Baking")
     {

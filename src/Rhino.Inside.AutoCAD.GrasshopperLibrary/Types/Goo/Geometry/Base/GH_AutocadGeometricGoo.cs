@@ -218,6 +218,12 @@ where TRhinoType : GeometryBase
             return true;
         }
 
+        if (source is TRhinoType rhinoGoo)
+        {
+            this.Value = this.Convert(rhinoGoo)!;
+            return true;
+        }
+
         return false;
     }
 

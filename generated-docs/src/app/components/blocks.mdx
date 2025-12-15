@@ -1,0 +1,388 @@
+export const metadata = {
+  title: 'Blocks - Rhino.Inside.AutoCAD',
+  description: 'Components for working with AutoCAD blocks, block references, and dynamic blocks',
+}
+
+# Blocks
+
+Components for working with AutoCAD blocks. Access block definitions (Block Table Records), create and manipulate block references, extract geometry from blocks, and work with dynamic block properties.
+
+```csharp
+// Namespace: Rhino.Inside.AutoCAD.GrasshopperLibrary
+using Autodesk.AutoCAD.DatabaseServices;
+using Rhino.Inside.AutoCAD.Interop;
+```
+
+---
+
+## GetAutocadBlockTableRecordsComponent {{ tag: 'List<BlockTableRecord>', label: 'Blocks' }}
+
+<Row>
+  <Col>
+    Returns the AutoCAD BlockTableRecords currently in the AutoCAD document.
+
+    ### Parameters
+    - `Document` (AutocadDocument): An AutoCAD Document
+
+    ### Returns
+    - `BlockTableRecords` (List&lt;BlockTableRecordWrapper&gt;): All block definitions in the document
+
+    ### Remarks
+    Block Table Records are the definitions (templates) from which Block References are created. This includes model space, paper space layouts, and user-defined blocks. Implements `IReferenceComponent` for automatic updates when blocks change.
+
+    ### See Also
+    - `AutocadBlockTableRecordComponent` - Extract block definition properties
+    - `GetAutocadBlockReferencesComponent` - Get instances of a block
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Find all user-defined blocks
+    using Autodesk.AutoCAD.DatabaseServices;
+
+    // Get all block definitions:
+    // GetAutocadDocuments [ActiveDoc]
+    //     → Get Block Table Records [BlockTableRecords]
+    //         → Block Table Record [Name]
+    //             → Filter (exclude *Model_Space, *Paper_Space)
+
+    // Block naming conventions:
+    // *Model_Space  - Model space (internal)
+    // *Paper_Space  - Default layout (internal)
+    // *Paper_Space0 - Additional layouts (internal)
+    // MyBlock       - User-defined block
+    // A$C...        - Anonymous/dynamic blocks
+
+    // Filter pattern:
+    // List [Names] → Filter (not StartsWith "*")
+    //             → Filter (not StartsWith "A$C")
+    ```
+  </Col>
+</Row>
+
+---
+
+## AutocadBlockTableRecordComponent {{ tag: 'Properties', label: 'Blocks' }}
+
+<Row>
+  <Col>
+    Gets information from an AutoCAD Block Table Record.
+
+    ### Parameters
+    - `BlockTableRecord` (BlockTableRecordWrapper): An AutoCAD Block Table Record
+
+    ### Returns
+    - `Name` (String): The name of the block definition
+    - `Id` (AutocadObjectId): The ObjectId of the block definition
+    - `Origin` (Point3d): The origin point of the block (converted to Rhino units)
+
+    ### Remarks
+    The Origin point is automatically converted from AutoCAD units to the current Rhino document units.
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Get block origin for placement calculations
+    using Rhino.Geometry;
+
+    // Workflow: Find blocks and analyze their origins
+    //
+    // Get Block Table Records [BlockTableRecords]
+    //     → Item [i] → Block Table Record
+    //         → [Name]: "Column_Type_A"
+    //         → [Id]: ObjectId
+    //         → [Origin]: Point3d(0, 0, 0)
+
+    // Use origin for offset calculations:
+    // Block Table Record [Origin]
+    //     → Vector (origin to insertion point)
+    //         → Move geometry
+    ```
+  </Col>
+</Row>
+
+---
+
+## GetAutocadBlockReferencesComponent {{ tag: 'List<BlockReference>', label: 'Blocks' }}
+
+<Row>
+  <Col>
+    Returns all Block References of a specific Block Table Record in the document.
+
+    ### Parameters
+    - `Document` (AutocadDocument): An AutoCAD Document
+    - `BlockTableRecordId` (AutocadObjectId): The Block Table Record to get references of
+    - `DirectOnly` (Boolean): If true, only returns non-nested references; if false, includes nested blocks (default: false)
+
+    ### Returns
+    - `BlockReferences` (List&lt;BlockReferenceWrapper&gt;): Normal block references
+    - `AnonymousBlockReferences` (List&lt;BlockReferenceWrapper&gt;): Anonymous (dynamic) block references
+
+    ### Remarks
+    Dynamic blocks create anonymous copies with names like "A$C12345678". These are returned separately in the AnonymousBlockReferences output.
+
+    ### See Also
+    - `AutocadBlockReferenceComponent` - Extract reference properties
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Find all instances of a column block
+    using Autodesk.AutoCAD.DatabaseServices;
+
+    // Workflow: Count and locate all column instances
+    //
+    // Get Block Table Records
+    //     → Filter [Name = "Column_Type_A"]
+    //         → Block Table Record [Id]
+    //             → Get Block References
+    //                 → [BlockReferences]: Normal instances
+    //                 → [AnonymousBlockReferences]: Dynamic instances
+
+    // DirectOnly parameter:
+    // true  → Only blocks directly in model space
+    // false → Include blocks nested inside other blocks
+
+    // Use case: BOM (Bill of Materials)
+    // Get Block References [BlockReferences]
+    //     → List Length → Count for schedule
+    ```
+  </Col>
+</Row>
+
+---
+
+## AutocadBlockReferenceComponent {{ tag: 'Properties', label: 'Blocks' }}
+
+<Row>
+  <Col>
+    Gets information from an AutoCAD Block Reference.
+
+    ### Parameters
+    - `BlockReference` (BlockReferenceWrapper): An AutoCAD Block Reference
+
+    ### Returns
+    - `Name` (String): The name of the block reference
+    - `Id` (AutocadObjectId): The ObjectId of the block reference
+    - `Origin` (Point3d): The insertion point (converted to Rhino units)
+    - `Rotation` (Number): The rotation angle in radians
+    - `BlockTableRecordId` (AutocadObjectId): The ObjectId of the parent block definition
+
+    ### Remarks
+    The Origin (insertion point) is automatically converted to Rhino document units.
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Extract block placement data
+    using Rhino.Geometry;
+
+    // Get all column positions and rotations:
+    //
+    // Get Block References [BlockReferences]
+    //     → Block Reference (for each)
+    //         → [Origin]: Insertion points
+    //         → [Rotation]: Rotation angles (radians)
+
+    // Convert rotation to degrees:
+    // [Rotation] × (180/π) → Degrees
+
+    // Create placement matrix:
+    // Transform.Translation([Origin])
+    //     × Transform.Rotation([Rotation], Vector3d.ZAxis, Point3d.Origin)
+    ```
+  </Col>
+</Row>
+
+---
+
+## CreateAutocadBlockReferenceComponent {{ tag: 'List<BlockReference>', label: 'Blocks' }}
+
+<Row>
+  <Col>
+    Creates AutoCAD Block References at specified insertion points.
+
+    ### Parameters
+    - `Document` (AutocadDocument): An AutoCAD Document
+    - `BlockDefinition` (BlockTableRecordWrapper): The Block Definition to insert
+    - `InsertionPoints` (List&lt;Point3d&gt;): The insertion points for the block references (Rhino Points)
+    - `Rotation` (Number): The rotation angle in radians (default: 0.0)
+    - `Scale` (Number): The uniform scale factor (default: 1.0)
+
+    ### Returns
+    - `BlockReferences` (List&lt;BlockReferenceWrapper&gt;): The created block references
+
+    ### Remarks
+    Blocks are created in memory and must be baked using the Bake component to add them permanently to the document. Scale must be greater than 0.
+
+    ### Exceptions
+    - Error: "Scale must be greater than 0"
+
+    ### See Also
+    - `AutocadBakeComponent` - Bake block references to document
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Place columns at grid intersections
+    using Autodesk.AutoCAD.DatabaseServices;
+    using Autodesk.AutoCAD.Geometry;
+
+    // Workflow: Create column grid
+    //
+    // 1. Get the block definition
+    // Get Block Table Records
+    //     → Filter [Name = "Column_Type_A"]
+    //         → [BlockDefinition]
+    //
+    // 2. Generate grid points
+    // Grid component (5x5 @ 6000mm spacing)
+    //     → [InsertionPoints]
+    //
+    // 3. Create block references
+    // Create Block Reference
+    //     → [Document]: ActiveDoc
+    //     → [BlockDefinition]: Column_Type_A
+    //     → [InsertionPoints]: Grid points
+    //     → [Rotation]: 0.0
+    //     → [Scale]: 1.0
+    //     → [BlockReferences]
+    //
+    // 4. Bake to document
+    // [BlockReferences] → Bake to AutoCAD
+
+    // Internal creation:
+    // var blockRef = new BlockReference(
+    //     insertionPoint,
+    //     blockTableRecord.Id);
+    // blockRef.Rotation = rotation;
+    // blockRef.ScaleFactors = new Scale3d(scale);
+    ```
+  </Col>
+</Row>
+
+---
+
+## AutocadExtractBlockGeometryComponent {{ tag: 'List<Geometry>', label: 'Blocks' }}
+
+<Row>
+  <Col>
+    Extracts the geometry from an AutoCAD Block Table Record or Block Reference.
+
+    ### Parameters
+    - `Block` (Object): An AutoCAD Block Table Record or Block Reference
+
+    ### Returns
+    - `BlockObjects` (List&lt;IGH_GeometricGoo&gt;): All geometry objects contained in the block
+
+    ### Remarks
+    Works with both block definitions (BlockTableRecord) and block instances (BlockReference). For block references, geometry is transformed to the reference's position, rotation, and scale.
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Explode block for analysis
+    using Grasshopper.Kernel.Types;
+
+    // Extract geometry from a block definition:
+    //
+    // Get Block Table Records
+    //     → Filter [Name = "Detail_A"]
+    //         → Extract Block Geometry
+    //             → [BlockObjects]: List of curves, points, etc.
+
+    // Extract from placed reference:
+    //
+    // AutoCAD Block Reference Param
+    //     → Extract Block Geometry
+    //         → [BlockObjects]: Transformed geometry
+
+    // Geometry types returned:
+    // - GH_AutocadCurve (lines, arcs, polylines)
+    // - GH_AutocadPoint (points)
+    // - GH_AutocadHatch (hatches)
+    // - GH_AutocadText (text, mtext)
+    // - Nested GH_AutocadBlockReference
+    ```
+  </Col>
+</Row>
+
+---
+
+## AutocadDynamicPropertiesComponent {{ tag: 'Properties', label: 'Blocks' }}
+
+<Row>
+  <Col>
+    Gets information from an AutoCAD Dynamic Block Reference Property.
+
+    ### Parameters
+    - `Property` (DynamicBlockReferencePropertyWrapper): A Dynamic Block Reference Property
+
+    ### Returns
+    - `Name` (String): The name of the property
+    - `Value` (Object): The current value of the property
+    - `IsReadOnly` (Boolean): Whether the property is read-only
+
+    ### Remarks
+    Dynamic block properties control parameters like visibility states, distances, angles, and lookup values defined in the block editor.
+
+    ### See Also
+    - `SetAutocadDynamicPropertiesComponent` - Modify property values
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Read door swing direction
+    //
+    // AutoCAD Block Reference Param [Door_01]
+    //     → Get Dynamic Properties
+    //         → [Properties]: List of properties
+    //             → Dynamic Block Property
+    //                 → [Name]: "Swing Direction"
+    //                 → [Value]: "Left"
+    //                 → [IsReadOnly]: false
+
+    // Common dynamic property types:
+    // - Visibility: "State1", "State2"
+    // - Distance: 1500.0 (in drawing units)
+    // - Angle: 1.5708 (radians, π/2)
+    // - Lookup: "Type A", "Type B"
+    // - Flip: 0 or 1
+    ```
+  </Col>
+</Row>
+
+---
+
+## SetAutocadDynamicPropertiesComponent {{ tag: 'DynamicBlockProperty', label: 'Blocks' }}
+
+<Row>
+  <Col>
+    Sets the value of an AutoCAD Dynamic Block Reference Property.
+
+    ### Parameters
+    - `Property` (DynamicBlockReferencePropertyWrapper): A Dynamic Block Reference Property
+    - `Value` (Object): The new value for the property (optional)
+
+    ### Returns
+    - `Property` (DynamicBlockReferencePropertyWrapper): The modified property
+    - `Value` (Object): The resulting value of the property
+
+    ### Remarks
+    Only properties where IsReadOnly is false can be modified. The value type must match the property's expected type (string, double, integer, etc.).
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Set all doors to swing left
+    //
+    // Get Block References [Door blocks]
+    //     → Get Dynamic Properties
+    //         → Filter [Name = "Swing Direction"]
+    //             → Set Dynamic Block Properties
+    //                 → [Property]: Swing Direction prop
+    //                 → [Value]: "Left"
+
+    // Batch update example:
+    // All door references
+    //     → Get Dynamic Properties
+    //         → Filter [Name = "Width"]
+    //             → Set Dynamic Block Properties
+    //                 → [Value]: 900.0 (mm)
+
+    // Note: Changes apply immediately to the drawing
+    ```
+  </Col>
+</Row>

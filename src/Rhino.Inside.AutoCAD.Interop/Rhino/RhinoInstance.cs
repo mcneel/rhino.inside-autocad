@@ -30,6 +30,9 @@ public class RhinoInstance : IRhinoInstance
     /// <inheritdoc />
     public RhinoDoc? ActiveDoc { get; private set; }
 
+    /// <inheritdoc />
+    public Version ApplicationVersion { get; }
+
     public UnitSystem UnitSystem { get; private set; }
 
     /// <summary>
@@ -42,6 +45,7 @@ public class RhinoInstance : IRhinoInstance
     {
         _applicationDirectories = applicationDirectories;
         this.RhinoCore = RhinoCoreExtension.Instance;
+        this.ApplicationVersion = Rhino.RhinoApp.Version;
 
     }
 

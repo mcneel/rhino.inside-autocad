@@ -8,61 +8,61 @@
                     Icon="./Icons/Rhino-logo-icon.ico"
                     Author="Bimorph Digital Engineering"
                     ProductCode="{bfd2ab20-da91-4c7a-a93f-65d10e9270b4}">
-  <CompanyDetails Name="Bimorph Consultancy LTD"
-	                Url="https://bimorph.com"
-	                Email="support@bimorph.com">
-  </CompanyDetails>
+	<CompanyDetails Name="Bimorph Consultancy LTD"
+					  Url="https://bimorph.com"
+					  Email="support@bimorph.com">
+	</CompanyDetails>
 
-  <Components Description="Rhino Inside AutoCAD Components">
-    <RuntimeRequirements SupportPath="./Icons;./Icons/Small32;./Icons/Large512;./Toolbar;" OS="Win64" Platform="AutoCAD"/>
+	<Components Description="Rhino Inside AutoCAD Components">
+		<RuntimeRequirements SupportPath="./Icons;./Icons/Small32;./Icons/Large512;./Toolbar;" OS="Win64" Platform="AutoCAD"/>
 
-    <ComponentEntry AppName="Rhino.Inside.AutoCAD"
-                    ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.Applications.dll"
-                    AppDescription="Rhino Inside AutoCAD Main Application"
-                    LoadOnAutoCADStartup="True"
-                    LoadOnCommandInvocation="True">
-      <Commands GroupName="RHINOINSIDE_COMMANDS">
-        <Command Local="RHINO" Global="RHINO" />
-        <Command Local="GRASSHOPPER" Global="GRASSHOPPER" />
-        <Command Local="TOGGLE_RHINO_PREVIEW" Global="TOGGLE_RHINO_PREVIEW" />
-        <Command Local="OPEN_RHINO_VIEWPORT" Global="OPEN_RHINO_VIEWPORT" />
-        <Command Local="GRASSHOPPER_PLAYER" Global="GRASSHOPPER_PLAYER" />
-        <Command Local="GRASSHOPPER_TOGGLE_SOLVER" Global="GRASSHOPPER_TOGGLE_SOLVER" />
-        <Command Local="GRASSHOPPER_PREVIEW_OFF" Global="GRASSHOPPER_PREVIEW_OFF" />
-        <Command Local="GRASSHOPPER_PREVIEW_SHADED" Global="GRASSHOPPER_PREVIEW_SHADED" />
-        <Command Local="GRASSHOPPER_PREVIEW_WIREFRAME" Global="GRASSHOPPER_PREVIEW_WIREFRAME" />
-		  <Command Local="GRASSHOPPER_RECOMPUTE" Global="GRASSHOPPER_RECOMPUTE" />
-		  <Command Local="RHINO_PACKAGE_MANGER" Global="RHINO_PACKAGE_MANGER" />
-        <Command Local="REQUEST_PLUGIN" Global="REQUEST_PLUGIN" />
-        <Command Local="REQUEST_MISSING_FEATURE" Global="REQUEST_MISSING_FEATURE" />
-        <Command Local="BIMORPH_WEBSITE" Global="BIMORPH_WEBSITE" />
-      </Commands>
-    </ComponentEntry>
-
-
-    <ComponentEntry AppName="Rhino.Inside.AutoCAD"
-                    ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.Interop.dll"
-                    AppDescription="Interop Dependency"
-                    AppType="Managed"/>
-
-    <ComponentEntry AppName="Rhino.Inside.AutoCAD"
-                    ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.Services.dll"
-                    AppDescription="Services Dependency"
-                    AppType="Managed"/>
-
-	  <ComponentEntry AppName="Rhino.Inside.AutoCAD"
-	                  ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.UI.Resources.dll"
-	                  AppDescription="UI Dependency"
-	                  AppType="Managed"/>
-
-	  <ComponentEntry AppName="Rhino.Inside.AutoCAD"
-	                  ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.GrasshopperLibrary.dll"
-	                  AppDescription="Grasshopper Component Dependency"
-	                  AppType="Managed"/>
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+						ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.Applications.dll"
+						AppDescription="Rhino Inside AutoCAD Main Application"
+						LoadOnAutoCADStartup="True"
+						LoadOnCommandInvocation="True">
+			<Commands GroupName="RHINOINSIDE_COMMANDS">
+				<Command Local="RHINO" Global="RHINO" />
+				<Command Local="GRASSHOPPER" Global="GRASSHOPPER" />
+				<Command Local="TOGGLE_RHINO_PREVIEW" Global="TOGGLE_RHINO_PREVIEW" />
+				<Command Local="OPEN_RHINO_VIEWPORT" Global="OPEN_RHINO_VIEWPORT" />
+				<Command Local="GRASSHOPPER_PLAYER" Global="GRASSHOPPER_PLAYER" />
+				<Command Local="GRASSHOPPER_TOGGLE_SOLVER" Global="GRASSHOPPER_TOGGLE_SOLVER" />
+				<Command Local="GRASSHOPPER_PREVIEW_OFF" Global="GRASSHOPPER_PREVIEW_OFF" />
+				<Command Local="GRASSHOPPER_PREVIEW_SHADED" Global="GRASSHOPPER_PREVIEW_SHADED" />
+				<Command Local="GRASSHOPPER_PREVIEW_WIREFRAME" Global="GRASSHOPPER_PREVIEW_WIREFRAME" />
+				<Command Local="GRASSHOPPER_RECOMPUTE" Global="GRASSHOPPER_RECOMPUTE" />
+				<Command Local="RHINO_PACKAGE_MANGER" Global="RHINO_PACKAGE_MANGER" />
+				<Command Local="RHINO_INSIDE_ABOUT" Global="RHINO_INSIDE_ABOUT" />
+				<Command Local="RHINO_INSIDE_SUPPORT" Global="RHINO_INSIDE_SUPPORT" />
+				<Command Local="RHINO_INSIDE_UPDATE" Global="RHINO_INSIDE_UPDATE" />
+			</Commands>
+		</ComponentEntry>
 
 
-	  <ComponentEntry AppName="Rhino.Inside.AutoCAD"
-                    ModuleName="./Toolbar/RhinoInsideAutocad_Toolbar.cuix"
-                    AppDescription="Toolbar"/>
-  </Components>
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+						ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.Interop.dll"
+						AppDescription="Interop Dependency"
+						AppType="Managed"/>
+
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+						ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.Services.dll"
+						AppDescription="Services Dependency"
+						AppType="Managed"/>
+
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+						ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.UI.Resources.dll"
+						AppDescription="UI Dependency"
+						AppType="Managed"/>
+
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+						ModuleName="./1.0.0/Win64/Rhino.Inside.AutoCAD.GrasshopperLibrary.dll"
+						AppDescription="Grasshopper Component Dependency"
+						AppType="Managed"/>
+
+
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+					  ModuleName="./Toolbar/RhinoInsideAutocad_Toolbar.cuix"
+					  AppDescription="Toolbar"/>
+	</Components>
 </ApplicationPackage>

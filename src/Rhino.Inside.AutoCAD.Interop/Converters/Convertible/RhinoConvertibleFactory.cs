@@ -11,8 +11,10 @@ public class RhinoConvertibleFactory : IRhinoConvertibleFactory
     public bool MakeConvertible<TRhinoType>(TRhinoType rhinoGeometry, out IRhinoConvertible? result)
         where TRhinoType : Rhino.Geometry.GeometryBase
     {
+
         switch (rhinoGeometry.ObjectType)
         {
+
             case ObjectType.Curve:
                 {
                     result = new RhinoConvertibleCurve(rhinoGeometry as Curve);
@@ -40,14 +42,18 @@ public class RhinoConvertibleFactory : IRhinoConvertibleFactory
                 }
             case ObjectType.Extrusion:
                 {
-                    var brep = (rhinoGeometry as Extrusion).ToBrep();
-                    result = new RhinoConvertibleBrep(brep);
+                    result = new RhinoConvertibleExtrusion(rhinoGeometry as Extrusion);
                     return true;
                 }
             case ObjectType.Surface:
                 {
                     var brep = (rhinoGeometry as Surface).ToBrep();
                     result = new RhinoConvertibleBrep(brep);
+                    return true;
+                }
+            case ObjectType.Hatch:
+                {
+                    result = new RhinoConvertibleHatch(rhinoGeometry as Hatch);
                     return true;
                 }
             case ObjectType.Annotation:

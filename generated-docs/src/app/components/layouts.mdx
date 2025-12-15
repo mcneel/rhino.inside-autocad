@@ -1,0 +1,234 @@
+export const metadata = {
+  title: 'Layouts - Rhino.Inside.AutoCAD',
+  description: 'Components for working with AutoCAD layouts',
+}
+
+# Layouts
+
+Components for managing AutoCAD layouts (paper space tabs). Retrieve, create, and work with layout tabs for sheet organization in your AutoCAD drawings.
+
+```csharp
+// Namespace: Rhino.Inside.AutoCAD.GrasshopperLibrary
+using Autodesk.AutoCAD.DatabaseServices;
+using Rhino.Inside.AutoCAD.Interop;
+using CadLayout = Autodesk.AutoCAD.DatabaseServices.Layout;
+```
+
+---
+
+## GetAutocadLayoutsComponent {{ tag: 'List<Layout>', label: 'Layouts' }}
+
+<Row>
+  <Col>
+    Returns all layouts in the AutoCAD document.
+
+    ### Parameters
+    - `Document` (AutocadDocument): An AutoCAD Document
+
+    ### Returns
+    - `Layouts` (List&lt;AutocadLayoutWrapper&gt;): All layouts in the document
+
+    ### Remarks
+    Includes the Model tab and all paper space layouts. Implements `IReferenceComponent` for automatic updates when layouts change.
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: List all layouts
+    using Autodesk.AutoCAD.DatabaseServices;
+
+    // GetAutocadDocuments [ActiveDoc]
+    //     → Get AutoCAD Layouts [Layouts]
+    //         → AutoCAD Layout [Name, TabOrder]
+
+    // Typical layout structure:
+    // TabOrder 0: "Model" (model space)
+    // TabOrder 1: "Layout1" (paper space)
+    // TabOrder 2: "Layout2" (paper space)
+
+    // Filter paper space only:
+    // Get Layouts → Filter [Name != "Model"]
+    ```
+  </Col>
+</Row>
+
+---
+
+## AutocadLayoutComponent {{ tag: 'Properties', label: 'Layouts' }}
+
+<Row>
+  <Col>
+    Extracts information from an AutoCAD Layout.
+
+    ### Parameters
+    - `Layout` (AutocadLayoutWrapper): An AutoCAD Layout
+
+    ### Returns
+    - `Name` (String): The name of the layout
+    - `Id` (AutocadObjectId): The ObjectId of the layout
+    - `TabOrder` (Integer): The tab display order
+    - `BlockTableRecordId` (AutocadObjectId): The associated block table record ID
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Get layout properties
+    //
+    // Get AutoCAD Layouts [Layouts]
+    //     → AutoCAD Layout
+    //         → [Name]: "Sheet 1"
+    //         → [TabOrder]: 1
+    //         → [BlockTableRecordId]: ObjectId
+
+    // The BlockTableRecordId links to:
+    // - *Paper_Space (first layout)
+    // - *Paper_Space0, *Paper_Space1, etc.
+    ```
+  </Col>
+</Row>
+
+---
+
+## CreateAutocadLayoutComponent {{ tag: 'Layout', label: 'Layouts' }}
+
+<Row>
+  <Col>
+    Creates a new AutoCAD Layout in the document.
+
+    ### Parameters
+    - `Document` (AutocadDocument): An AutoCAD Document
+    - `Name` (String): The name for the new layout
+
+    ### Returns
+    - `Name` (String): The name of the created layout
+    - `Id` (AutocadObjectId): The ObjectId of the created layout
+    - `TabOrder` (Integer): The tab display order
+    - `BlockTableRecordId` (AutocadObjectId): The associated block table record ID
+
+    ### Remarks
+    Layout names must be unique within the document.
+
+    ### Exceptions
+    - Warning: "Layout already exists or could not be created"
+    - Error: "Layout name cannot be empty"
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Create sheet layouts
+    //
+    // Create AutoCAD Layout
+    //     → [Document]: ActiveDoc
+    //     → [Name]: "A101 - Floor Plan"
+    //     → [Layout]
+
+    // Create multiple sheets:
+    // Panel ["A101", "A102", "A103"]
+    //     → Create AutoCAD Layout (for each)
+
+    // Sheet naming conventions:
+    // A101 - Floor Plan Level 1
+    // A201 - Elevations
+    // A301 - Sections
+    // A501 - Details
+    ```
+  </Col>
+</Row>
+
+---
+
+## GetAutocadLayoutByNameComponent {{ tag: 'Layout', label: 'Layouts' }}
+
+<Row>
+  <Col>
+    Retrieves an AutoCAD Layout by its name.
+
+    ### Parameters
+    - `Document` (AutocadDocument): An AutoCAD Document
+    - `Name` (String): The name of the layout to find
+
+    ### Returns
+    - `Layout` (AutocadLayoutWrapper): The found layout, or null if not found
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Switch to specific layout
+    //
+    // Get Layout By Name
+    //     → [Document]: ActiveDoc
+    //     → [Name]: "A101 - Floor Plan"
+    //     → [Layout]
+
+    // Check if layout exists:
+    // Get Layout By Name [Layout]
+    //     → Null check
+    //         → Create Layout (if null)
+    ```
+  </Col>
+</Row>
+
+---
+
+## SetAutocadLayoutComponent {{ tag: 'Layout', label: 'Layouts' }}
+
+<Row>
+  <Col>
+    Modifies properties of an existing AutoCAD Layout.
+
+    ### Parameters
+    - `Layout` (AutocadLayoutWrapper): An AutoCAD Layout to modify
+    - `Name` (String): New name for the layout (optional)
+    - `TabOrder` (Integer): New tab order position (optional)
+
+    ### Returns
+    - `Layout` (AutocadLayoutWrapper): The modified layout
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Rename and reorder layouts
+    //
+    // Get Layout By Name ["Layout1"]
+    //     → Set AutoCAD Layout
+    //         → [Name]: "A101 - Ground Floor"
+    //         → [TabOrder]: 1
+
+    // Batch rename from schedule:
+    // Excel data [old name, new name]
+    //     → Get Layout By Name [old]
+    //         → Set AutoCAD Layout [new name]
+    ```
+  </Col>
+</Row>
+
+---
+
+## Layout Workflow Patterns
+
+### Create Sheet Set from Schedule
+
+```csharp
+// Sheet schedule data:
+// ["A101", "Ground Floor Plan"]
+// ["A102", "First Floor Plan"]
+// ["A201", "North Elevation"]
+
+// Workflow:
+// Excel/CSV [sheet data]
+//     → Split columns
+//         → Create AutoCAD Layout [Name: col[0] + " - " + col[1]]
+```
+
+### Organize Layout Tabs
+
+```csharp
+// Sort layouts alphabetically:
+// Get Layouts → Sort [Name]
+//     → Set Layout [TabOrder: index + 1]
+```
+
+### Check Layout Existence
+
+```csharp
+// Before creating, check if exists:
+// Get Layout By Name [name]
+//     → Branch (null check)
+//         → True: Use existing
+//         → False: Create new
+```

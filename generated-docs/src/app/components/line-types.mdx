@@ -1,0 +1,259 @@
+export const metadata = {
+  title: 'Line Types - Rhino.Inside.AutoCAD',
+  description: 'Components for working with AutoCAD line types',
+}
+
+# Line Types
+
+Components for managing AutoCAD line types. Retrieve, create, and work with line type definitions that control the appearance of lines in your drawings.
+
+```csharp
+// Namespace: Rhino.Inside.AutoCAD.GrasshopperLibrary
+using Autodesk.AutoCAD.DatabaseServices;
+using Rhino.Inside.AutoCAD.Interop;
+using CadLineType = Autodesk.AutoCAD.DatabaseServices.LinetypeTableRecord;
+```
+
+---
+
+## GetAutocadLineTypesComponent {{ tag: 'List<LineType>', label: 'LineTypes' }}
+
+<Row>
+  <Col>
+    Returns all line types in the AutoCAD document.
+
+    ### Parameters
+    - `Document` (AutocadDocument): An AutoCAD Document
+
+    ### Returns
+    - `LineTypes` (List&lt;AutocadLineTypeTableRecordWrapper&gt;): All line types in the document
+
+    ### Remarks
+    Includes standard line types (Continuous, ByLayer, ByBlock) and any custom or loaded line types. Implements `IReferenceComponent` for automatic updates.
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: List available line types
+    using Autodesk.AutoCAD.DatabaseServices;
+
+    // GetAutocadDocuments [ActiveDoc]
+    //     → Get AutoCAD Line Types [LineTypes]
+    //         → AutoCAD Line Type [Name]
+
+    // Standard line types:
+    // - Continuous (solid line)
+    // - ByLayer (inherits from layer)
+    // - ByBlock (inherits from block)
+
+    // Common loaded line types:
+    // - DASHED
+    // - HIDDEN
+    // - CENTER
+    // - PHANTOM
+    // - DOT
+    ```
+  </Col>
+</Row>
+
+---
+
+## AutocadLineTypeComponent {{ tag: 'Properties', label: 'LineTypes' }}
+
+<Row>
+  <Col>
+    Extracts information from an AutoCAD LineType.
+
+    ### Parameters
+    - `LineType` (AutocadLineTypeTableRecordWrapper): An AutoCAD LineType
+
+    ### Returns
+    - `Name` (String): The name of the line type
+    - `Id` (AutocadObjectId): The ObjectId of the line type
+    - `PatternLength` (Number): Total length of the line type pattern
+    - `NumberOfDashes` (Integer): Number of dash segments in the pattern
+    - `ScaleToFit` (Boolean): Whether the pattern is scaled to fit geometry
+    - `Comments` (String): Comments/description of the line type
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Analyze line type patterns
+    //
+    // Get AutoCAD Line Types [LineTypes]
+    //     → AutoCAD Line Type
+    //         → [Name]: "DASHED"
+    //         → [PatternLength]: 0.75
+    //         → [NumberOfDashes]: 2
+    //         → [Comments]: "_ _ _ _ _ _ _"
+
+    // PatternLength is in drawing units
+    // Use LTSCALE to adjust display globally
+    ```
+  </Col>
+</Row>
+
+---
+
+## CreateAutocadLineTypeComponent {{ tag: 'LineType', label: 'LineTypes' }}
+
+<Row>
+  <Col>
+    Creates a new AutoCAD LineType in the document.
+
+    ### Parameters
+    - `Document` (AutocadDocument): An AutoCAD Document
+    - `Name` (String): The name for the new line type
+    - `PatternLength` (Number): Total length of the pattern (default: 1.0)
+    - `NumberOfDashes` (Integer): Number of dash segments (default: 2)
+    - `ScaleToFit` (Boolean): Whether to scale pattern to fit geometry (default: false)
+
+    ### Returns
+    - `Name` (String): The name of the created line type
+    - `Id` (AutocadObjectId): The ObjectId of the created line type
+    - `PatternLength` (Number): Total length of the pattern
+    - `NumberOfDashes` (Integer): Number of dash segments
+    - `ScaleToFit` (Boolean): Whether the pattern is scaled to fit
+    - `Comments` (String): Comments associated with the line type
+
+    ### Exceptions
+    - Warning: "LineType already exists"
+    - Error: "PatternLength must be positive"
+    - Error: "NumberOfDashes must be non-negative"
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Create custom dashed line type
+    //
+    // Create AutoCAD Line Type
+    //     → [Document]: ActiveDoc
+    //     → [Name]: "DASHED_CUSTOM"
+    //     → [PatternLength]: 1.5
+    //     → [NumberOfDashes]: 3
+    //     → [ScaleToFit]: false
+    //     → [LineType]
+
+    // Pattern structure:
+    // PatternLength = total repeat length
+    // NumberOfDashes = visible segments per repeat
+    // Gap = (PatternLength - DashLength) / (NumDashes)
+
+    // Common patterns:
+    // Dashed:   PatternLength=0.75, Dashes=2
+    // Hidden:   PatternLength=0.5,  Dashes=2
+    // Center:   PatternLength=2.0,  Dashes=4
+    ```
+  </Col>
+</Row>
+
+---
+
+## GetAutocadLineTypeByNameComponent {{ tag: 'LineType', label: 'LineTypes' }}
+
+<Row>
+  <Col>
+    Retrieves an AutoCAD LineType by its name.
+
+    ### Parameters
+    - `Document` (AutocadDocument): An AutoCAD Document
+    - `Name` (String): The name of the line type to find
+
+    ### Returns
+    - `LineType` (AutocadLineTypeTableRecordWrapper): The found line type, or null if not found
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Get line type for bake settings
+    //
+    // Get LineType By Name
+    //     → [Document]: ActiveDoc
+    //     → [Name]: "HIDDEN"
+    //     → [LineType]
+    //         → Bake Settings [LineType]
+    //             → Bake to AutoCAD
+
+    // Line type names are case-insensitive
+    // "HIDDEN", "Hidden", "hidden" all match
+    ```
+  </Col>
+</Row>
+
+---
+
+## SetAutocadLineTypeComponent {{ tag: 'LineType', label: 'LineTypes' }}
+
+<Row>
+  <Col>
+    Modifies properties of an existing AutoCAD LineType.
+
+    ### Parameters
+    - `LineType` (AutocadLineTypeTableRecordWrapper): An AutoCAD LineType to modify
+    - `Name` (String): New name for the line type (optional)
+    - `PatternLength` (Number): New pattern length (optional)
+    - `Comments` (String): New comments (optional)
+
+    ### Returns
+    - `LineType` (AutocadLineTypeTableRecordWrapper): The modified line type
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Update line type description
+    //
+    // Get LineType By Name ["DASHED_CUSTOM"]
+    //     → Set AutoCAD Line Type
+    //         → [Comments]: "Custom dashed for demolition"
+
+    // Note: Modifying standard line types
+    // (Continuous, ByLayer, ByBlock) may cause issues
+    ```
+  </Col>
+</Row>
+
+---
+
+## Line Type Workflow Patterns
+
+### Bake with Specific Line Type
+
+```csharp
+// Workflow: Bake hidden lines as dashed
+//
+// Hidden edge curves
+//     → To AutoCAD Curve [Curve]
+//
+// Get LineType By Name ["HIDDEN"]
+//     → Bake Settings [LineType]
+//         → Bake to AutoCAD
+```
+
+### Load Line Types from File
+
+```csharp
+// AutoCAD line types are stored in .lin files
+// acad.lin - Standard AutoCAD line types
+// acadiso.lin - ISO standard line types
+
+// To load via AutoCAD command:
+// -LINETYPE → Load → Select from file
+```
+
+### Apply Different Line Types by Category
+
+```csharp
+// Visible edges   → Bake [LineType: "Continuous"]
+// Hidden edges    → Bake [LineType: "HIDDEN"]
+// Center lines    → Bake [LineType: "CENTER"]
+// Cut lines       → Bake [LineType: "PHANTOM"]
+```
+
+### Scale Line Type Patterns
+
+```csharp
+// Line type scale is controlled by:
+// 1. LTSCALE (global) - affects all objects
+// 2. Object linetype scale - per-object override
+// 3. PSLTSCALE - paper space scaling
+
+// For consistent appearance:
+// Set LTSCALE relative to drawing units
+// Typical: LTSCALE = 1.0 for meters
+//          LTSCALE = 25.4 for millimeters
+```

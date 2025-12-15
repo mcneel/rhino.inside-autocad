@@ -25,8 +25,6 @@ public class TransactionManagerWrapper : WrapperDisposableBase<TransactionManage
     /// </summary>
     private OpenMode GetOpenMode(bool openForWrite) => openForWrite ? OpenMode.ForWrite : OpenMode.ForRead;
 
-
-
     /// <inheritdoc/>
     public IBlockTableRecord GetModelSpaceBlockTableRecord(bool openForWrite = false)
     {

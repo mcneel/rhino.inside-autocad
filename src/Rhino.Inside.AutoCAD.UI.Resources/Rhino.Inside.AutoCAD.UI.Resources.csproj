@@ -58,6 +58,11 @@
 		<Resource Include="Resources\RhinoInsideLogo.png" />
 	</ItemGroup>
 
+
+	<ItemGroup>
+	  <Folder Include="Models\Constants\" />
+	</ItemGroup>
+
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;" />
 	</Target>

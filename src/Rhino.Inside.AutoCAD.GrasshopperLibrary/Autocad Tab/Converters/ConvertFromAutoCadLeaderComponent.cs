@@ -24,7 +24,7 @@ public class ConvertFromAutoCadLeaderComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertFromAutoCadLeaderComponent"/> class.
     /// </summary>
     public ConvertFromAutoCadLeaderComponent()
-        : base("From AutoCAD Leader", "FrLdr",
+        : base("From AutoCAD Leader", "AC-FrLdr",
             "Converts an AutoCAD Leader to a Rhino Leader",
             "AutoCAD", "Convert")
     {

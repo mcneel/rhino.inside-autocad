@@ -24,7 +24,7 @@ public class ConvertFromAutoCadDimensionComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertFromAutoCadDimensionComponent"/> class.
     /// </summary>
     public ConvertFromAutoCadDimensionComponent()
-        : base("From AutoCAD Dimension", "FrDim",
+        : base("From AutoCAD Dimension", "AC-FrDim",
             "Converts an AutoCAD Dimension to a Rhino Dimension",
             "AutoCAD", "Convert")
     {

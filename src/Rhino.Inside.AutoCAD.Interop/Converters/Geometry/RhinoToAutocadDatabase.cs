@@ -685,6 +685,15 @@ public partial class GeometryConverter
         return result;
     }
 
+    /// <summary>
+    /// Converts a <see cref="RhinoBrep"/> to an array of AutoCAD <see cref="CadSolid3d"/>s.
+    /// Typically, this is just a single solid representing the Brep, but depending on
+    /// the import processing it could be multiple solids.
+    /// </summary>
+    /// <remarks>
+    /// We need to use a AutoCAD document to import the Rhino brep temporarily. It is
+    /// deleted after the import so which document we use is not important.
+    /// </remarks>
     public CadSolid3d[] ToAutoCadType(RhinoBrep brep, ITransactionManager transactionManager)
     {
         var activeDocument = Application.DocumentManager.MdiActiveDocument;
@@ -739,6 +748,89 @@ public partial class GeometryConverter
         }
 
         return addedObjects.ToArray();
+    }
+
+    /// <summary>
+    /// Converts a Rhino <see cref="Extrusion"/> to an array of AutoCAD <see cref="CadSolid3d"/>s.
+    /// Typically, this is just a single solid representing the Extrusion, but depending on
+    /// conversion it could be multiple solids.
+    /// </summary>
+    public CadSolid3d[] ToAutoCadType(Extrusion extrusion)
+    {
+        var activeDocument = Application.DocumentManager.MdiActiveDocument;
+
+        using var documentLock = activeDocument.LockDocument();
+
+        var database = activeDocument.Database;
+
+        using var transactionManagerWrapper = new TransactionManagerWrapper(database);
+
+        using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+
+        var result = this.ToAutoCadType(extrusion, transactionManagerWrapper);
+
+        transaction.Commit();
+
+        return result;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="Extrusion"/> to an array of AutoCAD <see cref="CadSolid3d"/>s.
+    /// </summary>
+    public CadSolid3d[] ToAutoCadType(Extrusion extrusion, ITransactionManager transactionManager)
+    {
+
+        var solids = new List<CadSolid3d>();
+
+        try
+        {
+            using var curves = new DBObjectCollection();
+
+            var profileCount = extrusion.ProfileCount;
+
+            for (var i = 0; i < profileCount; i++)
+            {
+                var profile = extrusion.Profile3d(i, 0);
+
+                if (profile == null)
+                    continue;
+
+                var cadCurves = this.ToAutoCadType(profile);
+
+                foreach (var cadCurve in cadCurves)
+                {
+                    curves.Add(cadCurve);
+                }
+            }
+
+            var regions = Region.CreateFromCurves(curves);
+
+            foreach (Region region in regions)
+            {
+                var solid = new Solid3d();
+
+                var extrusionLine = extrusion.PathLineCurve();
+
+                var extrusionVector = extrusionLine.PointAtEnd - extrusionLine.PointAtStart;
+
+                var cadExtrusionVector = this.ToAutoCadType(extrusionVector);
+
+                var sweepOptions = new SweepOptions();
+
+                solid.CreateExtrudedSolid(region, cadExtrusionVector, sweepOptions);
+
+                solids.Add(solid);
+
+                region.Dispose();
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+        return solids.ToArray();
+
     }
 
     /// <summary>

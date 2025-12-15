@@ -1,0 +1,419 @@
+export const metadata = {
+  title: 'Parameters - Rhino.Inside.AutoCAD',
+  description: 'Grasshopper parameters for selecting and referencing AutoCAD geometry',
+}
+
+# Parameters
+
+Grasshopper parameters that allow you to select and reference geometry directly from your AutoCAD drawing. These parameters work similarly to native Rhino parameters, enabling you to right-click and pick objects from the AutoCAD viewport.
+
+<Note>
+  Parameters maintain a live reference to AutoCAD objects. When the referenced object changes in AutoCAD, the Grasshopper definition automatically updates.
+</Note>
+
+---
+
+## Selecting Geometry from AutoCAD
+
+AutoCAD parameters allow you to pick geometry directly from your drawing, just like selecting geometry from Rhino in standard Grasshopper workflows.
+
+### Set One (Single Object Selection)
+
+To select a single object from AutoCAD:
+
+1. **Add a parameter** to your Grasshopper canvas (e.g., AutoCAD Curve from Params > AutoCAD)
+2. **Right-click** on the parameter
+3. Select **"Set one Curve"** (or the appropriate geometry type)
+4. The **AutoCAD window will come into focus**
+5. **Click on the object** you want to select in AutoCAD
+6. The selection is complete and the parameter will display the referenced object
+
+<Note>
+  The menu option text will match the parameter type: "Set one Curve", "Set one Point", "Set one 3D Solid", etc.
+</Note>
+
+### Set Multiple (Multi-Object Selection)
+
+To select multiple objects from AutoCAD:
+
+1. **Add a parameter** to your Grasshopper canvas
+2. **Right-click** on the parameter
+3. Select **"Set multiple Curves"** (or the appropriate geometry type)
+4. The **AutoCAD window will come into focus**
+5. **Click on each object** you want to include in the selection
+   - You can use window selection (click and drag) to select multiple objects at once
+   - You can also click objects individually to add them to the selection
+6. **Press Enter** when you have finished selecting all objects
+7. All selected objects will be referenced by the parameter
+
+<Note>
+  When selecting multiple objects, you must press **Enter** to confirm and complete the selection. Pressing **Escape** will cancel the selection.
+</Note>
+
+### Selection Filtering
+
+Each parameter type automatically filters the selection to only allow valid object types:
+
+| Parameter | Selectable Objects |
+|-----------|-------------------|
+| AutoCAD Curve | Lines, Polylines, Arcs, Circles, Splines, Ellipses |
+| AutoCAD Point | DBPoints |
+| AutoCAD Mesh | PolyFaceMesh objects |
+| AutoCAD Solid | 3D Solid objects |
+| AutoCAD Hatch | Hatch objects |
+| AutoCAD Text | DBText and MText objects |
+| AutoCAD Dimension | All dimension types |
+| AutoCAD Leader | Leader and MLeader objects |
+| AutoCAD Block Reference | Block Reference instances |
+
+If you click on an object that doesn't match the parameter type, it will not be selected.
+
+---
+
+## Available Parameters
+
+### Geometry Parameters
+
+Parameters for selecting geometric objects from AutoCAD.
+
+---
+
+### AutoCAD Curve {{ tag: 'Param', label: 'Geometry' }}
+
+<Row>
+  <Col>
+    References AutoCAD curve entities including lines, polylines, arcs, circles, splines, and ellipses.
+
+    ### Selection Prompts
+    - **Single**: "Select a Curve"
+    - **Multiple**: "Select Curves"
+
+    ### Supported Types
+    - Line
+    - Polyline / LWPolyline / Polyline2d / Polyline3d
+    - Arc
+    - Circle
+    - Spline
+    - Ellipse
+
+    ### Usage
+    Use this parameter as input to the "From AutoCAD Curve" component to convert to Rhino curves for manipulation.
+  </Col>
+  <Col sticky>
+    ```
+    Right-click menu options:
+    ├── Set one Curve
+    ├── Set multiple Curves
+    ├── Clear values
+    └── ...
+    ```
+  </Col>
+</Row>
+
+---
+
+### AutoCAD Point {{ tag: 'Param', label: 'Geometry' }}
+
+<Row>
+  <Col>
+    References AutoCAD DBPoint entities.
+
+    ### Selection Prompts
+    - **Single**: "Select a Point"
+    - **Multiple**: "Select Points"
+
+    ### Supported Types
+    - DBPoint
+
+    ### Usage
+    Use this parameter to reference point objects in your drawing. Convert to Rhino points using the "From AutoCAD Point" component.
+  </Col>
+  <Col sticky>
+    ```
+    Right-click menu options:
+    ├── Set one Point
+    ├── Set multiple Points
+    ├── Clear values
+    └── ...
+    ```
+  </Col>
+</Row>
+
+---
+
+### AutoCAD Mesh {{ tag: 'Param', label: 'Geometry' }}
+
+<Row>
+  <Col>
+    References AutoCAD PolyFaceMesh entities.
+
+    ### Selection Prompts
+    - **Single**: "Select a Mesh"
+    - **Multiple**: "Select Meshes"
+
+    ### Supported Types
+    - PolyFaceMesh
+
+    ### Usage
+    Use this parameter to reference mesh geometry. Convert to Rhino meshes using the "From AutoCAD Mesh" component.
+  </Col>
+  <Col sticky>
+    ```
+    Right-click menu options:
+    ├── Set one Mesh
+    ├── Set multiple Meshes
+    ├── Clear values
+    └── ...
+    ```
+  </Col>
+</Row>
+
+---
+
+### AutoCAD Solid {{ tag: 'Param', label: 'Geometry' }}
+
+<Row>
+  <Col>
+    References AutoCAD 3D Solid entities.
+
+    ### Selection Prompts
+    - **Single**: "Select a 3D Solid"
+    - **Multiple**: "Select 3D Solids"
+
+    ### Supported Types
+    - Solid3d
+
+    ### Usage
+    Use this parameter to reference 3D solid objects. Convert to Rhino Breps using the "From AutoCAD Solid" component.
+  </Col>
+  <Col sticky>
+    ```
+    Right-click menu options:
+    ├── Set one 3D Solid
+    ├── Set multiple 3D Solids
+    ├── Clear values
+    └── ...
+    ```
+  </Col>
+</Row>
+
+---
+
+### AutoCAD Hatch {{ tag: 'Param', label: 'Geometry' }}
+
+<Row>
+  <Col>
+    References AutoCAD Hatch entities.
+
+    ### Selection Prompts
+    - **Single**: "Select a Hatch"
+    - **Multiple**: "Select Hatches"
+
+    ### Supported Types
+    - Hatch
+
+    ### Usage
+    Use this parameter to reference hatch patterns. Convert to Rhino hatches using the "From AutoCAD Hatch" component.
+  </Col>
+  <Col sticky>
+    ```
+    Right-click menu options:
+    ├── Set one Hatch
+    ├── Set multiple Hatches
+    ├── Clear values
+    └── ...
+    ```
+  </Col>
+</Row>
+
+---
+
+### Annotation Parameters
+
+Parameters for selecting annotation objects from AutoCAD.
+
+---
+
+### AutoCAD Text {{ tag: 'Param', label: 'Annotation' }}
+
+<Row>
+  <Col>
+    References AutoCAD text entities including both single-line text (DBText) and multiline text (MText).
+
+    ### Selection Prompts
+    - **Single**: "Select a Text Object"
+    - **Multiple**: "Select Text Objects"
+
+    ### Supported Types
+    - DBText (single-line text)
+    - MText (multiline text)
+
+    ### Remarks
+    DBText objects are automatically converted to MText internally for consistent handling.
+
+    ### Usage
+    Use this parameter to reference text annotations. Convert to Rhino TextEntity using the "From AutoCAD Text" component.
+  </Col>
+  <Col sticky>
+    ```
+    Right-click menu options:
+    ├── Set one Text Object
+    ├── Set multiple Text Objects
+    ├── Clear values
+    └── ...
+    ```
+  </Col>
+</Row>
+
+---
+
+### AutoCAD Dimension {{ tag: 'Param', label: 'Annotation' }}
+
+<Row>
+  <Col>
+    References AutoCAD Dimension entities of all types.
+
+    ### Selection Prompts
+    - **Single**: "Select a Dimension"
+    - **Multiple**: "Select Dimensions"
+
+    ### Supported Types
+    - AlignedDimension
+    - RotatedDimension
+    - RadialDimension
+    - DiametricDimension
+    - AngularDimension
+    - ArcDimension
+    - OrdinateDimension
+
+    ### Usage
+    Use this parameter to reference dimension objects. Convert to Rhino Dimension using the "From AutoCAD Dimension" component.
+  </Col>
+  <Col sticky>
+    ```
+    Right-click menu options:
+    ├── Set one Dimension
+    ├── Set multiple Dimensions
+    ├── Clear values
+    └── ...
+    ```
+  </Col>
+</Row>
+
+---
+
+### AutoCAD Leader {{ tag: 'Param', label: 'Annotation' }}
+
+<Row>
+  <Col>
+    References AutoCAD Leader and MLeader entities.
+
+    ### Selection Prompts
+    - **Single**: "Select a Leader"
+    - **Multiple**: "Select Leaders"
+
+    ### Supported Types
+    - Leader (legacy)
+    - MLeader (multileader)
+
+    ### Remarks
+    Legacy Leader objects are automatically converted to MLeader internally for consistent handling.
+
+    ### Usage
+    Use this parameter to reference leader annotations. Convert to Rhino Leader using the "From AutoCAD Leader" component.
+  </Col>
+  <Col sticky>
+    ```
+    Right-click menu options:
+    ├── Set one Leader
+    ├── Set multiple Leaders
+    ├── Clear values
+    └── ...
+    ```
+  </Col>
+</Row>
+
+---
+
+### Block Parameters
+
+Parameters for selecting block-related objects from AutoCAD.
+
+---
+
+### AutoCAD Block Reference {{ tag: 'Param', label: 'Blocks' }}
+
+<Row>
+  <Col>
+    References AutoCAD Block Reference (block instance) entities.
+
+    ### Selection Prompts
+    - **Single**: "Select a Block Reference"
+    - **Multiple**: "Select Block References"
+
+    ### Supported Types
+    - BlockReference (including dynamic blocks)
+
+    ### Usage
+    Use this parameter to reference block instances in your drawing. Extract block properties using the "AutoCAD Block Reference" component, or extract geometry using the "Extract Block Geometry" component.
+  </Col>
+  <Col sticky>
+    ```
+    Right-click menu options:
+    ├── Set one Block Reference
+    ├── Set multiple Block References
+    ├── Clear values
+    └── ...
+    ```
+  </Col>
+</Row>
+
+---
+
+## Live Reference Behavior
+
+Parameters maintain a live connection to the referenced AutoCAD objects:
+
+### Automatic Updates
+
+When a referenced object is modified in AutoCAD:
+- The parameter automatically detects the change
+- The Grasshopper solution re-computes with the updated geometry
+- Downstream components receive the new data
+
+### Object Tracking
+
+Parameters track objects by their ObjectId:
+- Moving or modifying an object maintains the reference
+- Deleting an object invalidates the reference
+- Copying an object creates a new ObjectId (not automatically tracked)
+
+### Preview Display
+
+Parameters that reference geometric objects display a preview:
+- Referenced geometry is highlighted in the viewport
+- Preview color follows Grasshopper's standard preview settings
+- Toggle preview visibility using the parameter's right-click menu
+
+---
+
+## Tips and Best Practices
+
+### Efficient Selection
+
+- Use **window selection** (click and drag left-to-right) to select multiple objects quickly
+- Use **crossing selection** (click and drag right-to-left) to select objects that cross the window
+- Hold **Shift** while clicking to add to an existing selection
+- Objects are filtered automatically - you can window-select mixed geometry and only valid types will be included
+
+### Managing References
+
+- Use **"Clear values"** from the right-click menu to remove all referenced objects
+- Parameters can be renamed to describe their contents (e.g., "Exterior Walls", "Column Grid")
+- Save your Grasshopper definition to persist object references between sessions
+
+### Performance Considerations
+
+- Referencing many objects can slow down the Grasshopper solution
+- Consider using "Get AutoCAD..." components for bulk operations instead of individual references
+- Disable preview on parameters that don't need visual feedback

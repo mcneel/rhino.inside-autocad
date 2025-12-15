@@ -3,7 +3,6 @@ using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core;
 using Rhino.Inside.AutoCAD.Interop;
 using Rhino.Inside.AutoCAD.Services;
-using System.Diagnostics;
 
 [assembly: CommandClass(typeof(RhinoInsideAutoCadCommands))]
 
@@ -27,8 +26,6 @@ public class RhinoInsideAutoCadCommands
     private const string _packageManagerCommandName = ApplicationConstants.PackageManagerCommandName;
     private const string _grasshopperPlayerCommandName = ApplicationConstants.GrasshopperPlayerCommandName;
     private const string _newFloatingViewportScript = ApplicationConstants.NewFloatingViewportScript;
-    private const string _bimorphContactUrl = ApplicationConstants.BimorphContactUrl;
-    private const string _bimorphWebsiteUrl = ApplicationConstants.BimorphWebsiteUrl;
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO", CommandFlags.Modal)]
     public static void RHINO()
@@ -232,36 +229,27 @@ public class RhinoInsideAutoCadCommands
         _isLaunching = false;
     }
 
-    [CommandMethod("RHINOINSIDE_COMMANDS", "REQUEST_PLUGIN", CommandFlags.Modal)]
-    public static void REQUEST_PLUGIN()
+    [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO_INSIDE_ABOUT", CommandFlags.Modal)]
+    public static void RHINO_INSIDE_ABOUT()
     {
-        //TODO: These should open a UI first.
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = _bimorphContactUrl,
-            UseShellExecute = true
-        });
+        var application = RhinoInsideAutoCadExtension.Application;
+
+        application.SupportDialogManager.Show(SupportDialogTab.About);
     }
 
-    [CommandMethod("RHINOINSIDE_COMMANDS", "REQUEST_MISSING_FEATURE", CommandFlags.Modal)]
-    public static void REQUEST_MISSING_FEATURE()
+    [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO_INSIDE_SUPPORT", CommandFlags.Modal)]
+    public static void RHINO_INSIDE_SUPPORT()
     {
-        //TODO: These should open a UI first.
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = _bimorphContactUrl,
-            UseShellExecute = true
-        });
+        var application = RhinoInsideAutoCadExtension.Application;
+
+        application.SupportDialogManager.Show(SupportDialogTab.Support);
     }
 
-    [CommandMethod("RHINOINSIDE_COMMANDS", "BIMORPH_WEBSITE", CommandFlags.Modal)]
-    public static void BIMORPH_WEBSITE()
+    [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO_INSIDE_UPDATE", CommandFlags.Modal)]
+    public static void RHINO_INSIDE_UPDATE()
     {
-        //TODO: These should open a UI first.
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = _bimorphWebsiteUrl,
-            UseShellExecute = true
-        });
+        var application = RhinoInsideAutoCadExtension.Application;
+
+        application.SupportDialogManager.Show(SupportDialogTab.Update);
     }
 }
