@@ -1,7 +1,7 @@
 ﻿using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
-using Rhino.Geometry;
+
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using CadArc = Autodesk.AutoCAD.DatabaseServices.Arc;
 using CadCircle = Autodesk.AutoCAD.DatabaseServices.Circle;
@@ -43,6 +43,7 @@ using RhinoPoint3d = Rhino.Geometry.Point3d;
 using RhinoPolyCurve = Rhino.Geometry.PolyCurve;
 using RhinoSurface = Rhino.Geometry.Surface;
 using RhinoVector3d = Rhino.Geometry.Vector3d;
+
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <summary>
@@ -787,6 +788,8 @@ public partial class GeometryConverter
         return rhinoSurface;
     }
 
+
+
     /// <summary>
     /// Converts a <see cref="CadSurface"/> to a <see cref="RhinoSurface"/>.
     /// </summary>
@@ -932,62 +935,5 @@ public partial class GeometryConverter
 
         return RhinoHatch.Create(hatchPlane, rhinoLoops.FirstOrDefault(), rhinoLoops.Skip(1),
               pattenIndex, rotation, scale);
-    }
-
-    /// <summary>
-    /// Converts a <see cref="CadHatch"/> to a <see cref="RhinoHatch"/>.
-    /// </summary>
-    public CadHatch ToRhinoType(RhinoHatch rhinoHatch, ITransactionManager transactionManager)
-    {
-        var scale = _unitSystemManager.ToAutoCadLength(rhinoHatch.PatternScale);
-
-        var rotation = rhinoHatch.PatternRotation;
-
-        //TODO: Support Hatch pattens/Styles
-
-        var cadHatch = new CadHatch()
-        {
-            PatternAngle = rotation,
-            PatternScale = scale,
-            Origin = this.ToAutoCadType2d(rhinoHatch.BasePoint)
-
-        };
-
-        var outerCurves = rhinoHatch.Get3dCurves(true);
-
-        var outerCurve = new PolyCurve();
-        foreach (var curve in outerCurves)
-        {
-            outerCurve.Append(curve);
-        }
-
-        var curve2ds = new Curve2dCollection();
-        var edgeTypes = new IntegerCollection();
-
-        var curves = this.ToAutoCadType2d(outerCurve);
-
-        foreach (var curve in curves)
-        {
-
-            curve2ds.Add(curve);
-            edgeTypes.Add(1);
-        }
-
-        foreach (var innerCurve in rhinoHatch.Get3dCurves(false))
-        {
-            var innerLoop = this.ToAutoCadType2d(innerCurve);
-
-            foreach (var curve in innerLoop)
-            {
-                curve2ds.Add(curve);
-                edgeTypes.Add(1);
-            }
-        }
-
-        cadHatch.AppendLoop(HatchLoopTypes.External, curve2ds, edgeTypes);
-
-        cadHatch.EvaluateHatch(true);
-
-        return cadHatch;
     }
 }

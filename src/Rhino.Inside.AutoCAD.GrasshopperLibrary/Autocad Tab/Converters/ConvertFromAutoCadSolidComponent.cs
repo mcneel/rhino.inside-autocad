@@ -1,6 +1,5 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Interop;
-using AutocadSolid = Autodesk.AutoCAD.DatabaseServices.Solid3d;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -33,7 +32,7 @@ public class ConvertFromAutoCadSolidComponent : GH_Component
     /// <inheritdoc />
     protected override void RegisterInputParams(GH_InputParamManager pManager)
     {
-        pManager.AddParameter(new Param_AutocadSolid(), "Solid", "S", "AutoCAD solid", GH_ParamAccess.item);
+        pManager.AddParameter(new Param_AutocadBrepProxy(), "Solid", "S", "AutoCAD solid", GH_ParamAccess.item);
     }
 
     /// <inheritdoc />
@@ -45,26 +44,13 @@ public class ConvertFromAutoCadSolidComponent : GH_Component
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        AutocadSolid? autocadSolid = null;
+        AutocadBrepProxy? autocadSolid = null;
 
         if (!DA.GetData(0, ref autocadSolid)
             || autocadSolid is null) return;
 
-        var rhinoBreps = _geometryConverter.ToRhinoType(autocadSolid);
+        var rhinoBreps = _geometryConverter.FromProxyType(autocadSolid);
 
-        if (rhinoBreps == null || rhinoBreps.Length == 0)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                "Failed to convert solid to Rhino format");
-            return;
-        }
-
-        if (rhinoBreps.Length > 1)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                $"AutoCAD solid converted to {rhinoBreps.Length} Rhino breps. Only returning the first one.");
-        }
-
-        DA.SetData(0, rhinoBreps[0]);
+        DA.SetData(0, rhinoBreps);
     }
 }

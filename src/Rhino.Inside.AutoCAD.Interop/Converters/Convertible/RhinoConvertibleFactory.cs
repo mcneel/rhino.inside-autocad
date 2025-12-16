@@ -47,8 +47,7 @@ public class RhinoConvertibleFactory : IRhinoConvertibleFactory
                 }
             case ObjectType.Surface:
                 {
-                    var brep = (rhinoGeometry as Surface).ToBrep();
-                    result = new RhinoConvertibleBrep(brep);
+                    result = new RhinoConvertibleSurface(rhinoGeometry as Surface);
                     return true;
                 }
             case ObjectType.Hatch:
@@ -60,24 +59,21 @@ public class RhinoConvertibleFactory : IRhinoConvertibleFactory
                 {
                     var annotation = rhinoGeometry as AnnotationBase;
 
-                    if (annotation is TextEntity textEntity)
+                    switch (annotation)
                     {
-                        result = new RhinoConvertibleText(textEntity);
-                        return true;
+                        case TextEntity textEntity:
+                            result = new RhinoConvertibleText(textEntity);
+                            return true;
+                        case Dimension dimension:
+                            result = new RhinoConvertibleDimension(dimension);
+                            return true;
+                        case Leader leader:
+                            result = new RhinoConvertibleLeader(leader);
+                            return true;
+                        default:
+                            result = null;
+                            return false;
                     }
-                    if (annotation is Dimension dimension)
-                    {
-                        result = new RhinoConvertibleDimension(dimension);
-                        return true;
-                    }
-                    if (annotation is Leader leader)
-                    {
-                        result = new RhinoConvertibleLeader(leader);
-                        return true;
-                    }
-                    result = null;
-                    return false;
-
                 }
             default:
                 {

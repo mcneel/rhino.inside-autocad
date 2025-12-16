@@ -16,7 +16,6 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
     where TGoo : class, IGH_GeometricGoo, IGH_AutocadReference
     where TEntity : CadEntity
 {
-
     /// <inheritdoc />
     public BoundingBox ClippingBox => this.Preview_ComputeClippingBox();
 
@@ -34,12 +33,8 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
     /// <param name="description">The description of the parameter.</param>
     /// <param name="category">The category of the parameter.</param>
     /// <param name="subcategory">The subcategory of the parameter.</param>
-    protected Param_AutocadObjectBase(
-        string name,
-        string nickname,
-        string description,
-        string category,
-        string subcategory)
+    protected Param_AutocadObjectBase(string name, string nickname,
+        string description, string category, string subcategory)
         : base(new GH_InstanceDescription(name, nickname, description, category,
             subcategory))
     {

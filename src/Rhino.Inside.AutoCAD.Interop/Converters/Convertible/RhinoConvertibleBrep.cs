@@ -21,7 +21,7 @@ public class RhinoConvertibleBrep : RhinoConvertibleBase<Rhino.Geometry.Brep>
     /// <inheritdoc />
     protected override List<IEntity> ConvertGeometry(ITransactionManager transactionManager)
     {
-        var cadSolids = _geometryConverter.ToAutoCadType(this.RhinoGeometry, transactionManager);
+        var cadSolids = _geometryConverter.ToAutoCadType(this.RhinoGeometry);
 
         var entities = new List<IEntity>();
         foreach (var cadSolid in cadSolids)

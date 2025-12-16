@@ -51,7 +51,7 @@ public class ConvertToAutoCadHatchComponent : GH_Component
         if (!DA.GetData(0, ref rhinoHatch)
             || rhinoHatch is null) return;
 
-        var cadHatch = _geometryConverter.ToRhinoType(rhinoHatch, null!);
+        var cadHatch = _geometryConverter.ToAutoCadType(rhinoHatch, null!);
 
         if (cadHatch == null)
         {

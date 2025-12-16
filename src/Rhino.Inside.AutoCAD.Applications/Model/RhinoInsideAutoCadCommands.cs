@@ -252,4 +252,15 @@ public class RhinoInsideAutoCadCommands
 
         application.SupportDialogManager.Show(SupportDialogTab.Update);
     }
+
+    [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO_INSIDE_CONVERT_BREP", CommandFlags.Transparent)]
+    public static void RHINO_INSIDE_CONVERT_BREP()
+    {
+        var application = RhinoInsideAutoCadExtension.Application;
+
+        var brepConverterRunner = application.BrepConverterRunner;
+
+        brepConverterRunner.Run();
+
+    }
 }

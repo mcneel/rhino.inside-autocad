@@ -77,7 +77,7 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
     }
 
     /// <inheritdoc />
-    public IObjectId BakeToAutocad(ITransactionManager transactionManager, IBakeSettings? settings = null)
+    public List<IObjectId> BakeToAutocad(ITransactionManager transactionManager, IBakeSettings? settings = null)
     {
         if (this.Value == null)
             throw new InvalidOperationException("Cannot bake a null block reference");
@@ -98,6 +98,6 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
 
         transaction.AddNewlyCreatedDBObject(blockReference, true);
 
-        return new AutocadObjectId(objectId);
+        return [new AutocadObjectId(objectId)];
     }
 }

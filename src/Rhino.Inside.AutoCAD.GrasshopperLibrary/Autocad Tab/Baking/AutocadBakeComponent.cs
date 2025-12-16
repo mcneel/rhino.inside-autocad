@@ -120,8 +120,12 @@ public class AutocadBakeComponent : GH_Component
             {
                 try
                 {
-                    var objectId = bakeable.BakeToAutocad(transactionManager, settings);
-                    bakedIds.Add(new GH_AutocadObjectId(objectId));
+                    var objectIds = bakeable.BakeToAutocad(transactionManager, settings);
+
+                    foreach (var objectId in objectIds)
+                    {
+                        bakedIds.Add(new GH_AutocadObjectId(objectId));
+                    }
                 }
                 catch (Exception ex)
                 {

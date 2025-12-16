@@ -62,7 +62,7 @@ public class GH_AutocadHatch : GH_AutocadGeometricGoo<CadHatch, RhinoHatch>
     /// <inheritdoc />
     protected override CadHatch? Convert(RhinoHatch rhinoType)
     {
-        return _geometryConverter.ToRhinoType(rhinoType, null!);
+        return _geometryConverter.ToAutoCadType(rhinoType, null!);
     }
 
     /// <inheritdoc />

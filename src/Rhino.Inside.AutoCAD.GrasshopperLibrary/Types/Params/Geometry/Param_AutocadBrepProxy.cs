@@ -8,15 +8,15 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper parameter for AutoCAD 3D solids.
 /// </summary>
-public class Param_AutocadSolid : Param_AutocadObjectBase<GH_AutocadBrepProxy, CadSolid>
+public class Param_AutocadBrepProxy : Param_AutocadObjectBase<GH_AutocadBrepProxy, AutocadBrepProxy>
 {
     private readonly GeometryConverter _converter = GeometryConverter.Instance!;
 
     /// <inheritdoc />
-    public override GH_Exposure Exposure => GH_Exposure.hidden;
+    public override GH_Exposure Exposure => GH_Exposure.primary;
 
     /// <inheritdoc />
-    public override Guid ComponentGuid => new Guid("0cafbb12-a9fd-4e8d-be7c-a3296575fb8f");
+    public override Guid ComponentGuid => new Guid("b8f2e7c3-4d91-4a5e-9c1f-3e8b6a2d7f4c");
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.Param_AutocadSolid;
@@ -28,9 +28,9 @@ public class Param_AutocadSolid : Param_AutocadObjectBase<GH_AutocadBrepProxy, C
     protected override string PluralPromptMessage => "Select 3D Solids";
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Param_AutocadSolid"/> class.
+    /// Initializes a new instance of the <see cref="Param_AutocadBrepProxy"/> class.
     /// </summary>
-    public Param_AutocadSolid()
+    public Param_AutocadBrepProxy()
         : base("AutoCAD Solid", "Solid",
             "A 3D Solid in AutoCAD", "Params", "AutoCAD")
     { }
@@ -39,10 +39,18 @@ public class Param_AutocadSolid : Param_AutocadObjectBase<GH_AutocadBrepProxy, C
     protected override IFilter CreateSelectionFilter() => new SolidFilter();
 
     /// <inheritdoc />
-    protected override GH_AutocadBrepProxy WrapEntity(CadSolid entity)
-    {
-        var proxy = _converter.ToProxyType(entity);
+    protected override GH_AutocadBrepProxy WrapEntity(AutocadBrepProxy entity) => new GH_AutocadBrepProxy(entity);
 
-        return new GH_AutocadBrepProxy(proxy);
+    protected override bool ConvertSupportObject(IEntity entity, out GH_AutocadBrepProxy? supportedGoo)
+    {
+        if (entity is CadSolid cadSolid)
+        {
+            var proxy = _converter.ToProxyType(cadSolid);
+            supportedGoo = new GH_AutocadBrepProxy(proxy);
+            return true;
+        }
+
+        supportedGoo = null;
+        return false;
     }
 }

@@ -12,6 +12,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public partial class GeometryConverter
 {
     private readonly IUnitSystemManager _unitSystemManager;
+    private readonly IBrepConverterRunner _brepConverterRunner;
 
     private readonly double _fitTolerance = GeometryConstants.FitTolerance;
     private readonly double _midPointParam = GeometryConstants.NormalizedMidLength;
@@ -29,9 +30,12 @@ public partial class GeometryConverter
     /// <summary>
     /// Constructs a new <see cref="GeometryConverter"/>.
     /// </summary>
-    private GeometryConverter(IUnitSystemManager unitSystemManager)
+    private GeometryConverter(IUnitSystemManager unitSystemManager,
+        IBrepConverterRunner brepConverterRunner)
     {
         _unitSystemManager = unitSystemManager;
+        _brepConverterRunner = brepConverterRunner;
+
     }
 
     /// <summary>
@@ -46,8 +50,9 @@ public partial class GeometryConverter
     /// <summary>
     /// Initializes the <see cref="GeometryConverter"/> singleton.
     /// </summary>
-    public static void Initialize(IUnitSystemManager unitSystemManager)
+    public static void Initialize(IUnitSystemManager unitSystemManager,
+        IBrepConverterRunner brepConverterRunner)
     {
-        Instance = new GeometryConverter(unitSystemManager);
+        Instance = new GeometryConverter(unitSystemManager, brepConverterRunner);
     }
 }

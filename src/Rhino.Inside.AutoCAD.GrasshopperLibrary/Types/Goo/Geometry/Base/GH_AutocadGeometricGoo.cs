@@ -257,7 +257,7 @@ where TRhinoType : GeometryBase
     /// <summary>
     /// Applies the given settings to the block reference.
     /// </summary>
-    private void ApplySettings(IBakeSettings? settings, Entity entity)
+    protected void ApplySettings(IBakeSettings? settings, Entity entity)
     {
         if (settings is null) return;
 
@@ -275,7 +275,7 @@ where TRhinoType : GeometryBase
     }
 
     /// <inheritdoc />
-    public IObjectId BakeToAutocad(ITransactionManager transactionManager, IBakeSettings? settings = null)
+    public virtual List<IObjectId> BakeToAutocad(ITransactionManager transactionManager, IBakeSettings? settings = null)
     {
         if (this.Value == null)
             throw new InvalidOperationException("Cannot bake a null block reference");
@@ -296,7 +296,7 @@ where TRhinoType : GeometryBase
 
         transaction.AddNewlyCreatedDBObject(blockReference, true);
 
-        return new AutocadObjectId(objectId);
+        return [new AutocadObjectId(objectId)];
     }
 
     /// <inheritdoc />
@@ -312,3 +312,4 @@ where TRhinoType : GeometryBase
         return $"{this.TypeName} [Type: {this.Value.GetType().Name.ToString()}, Id: {idSuffix} ]";
     }
 }
+

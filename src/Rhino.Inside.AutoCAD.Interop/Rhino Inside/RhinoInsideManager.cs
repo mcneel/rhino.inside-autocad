@@ -5,8 +5,8 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="IRhinoInsideManager"/>
 public class RhinoInsideManager : IRhinoInsideManager
 {
+    private readonly IBrepConverterRunner _brepConverterRunner;
     private readonly UnitSystem _defaultUnitSystem = InteropConstants.FallbackUnitSystem;
-    private readonly IRhinoObjectConverter _rhinoObjectConvert;
     private readonly IGrasshopperGeometryExtractor _grasshopperGeometryExtractor;
     private readonly IGrasshopperChangeResponder _grasshopperChangeResponder;
     private readonly IRhinoConvertibleFactory _rhinoConvertibleFactory;
@@ -33,8 +33,9 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// Constructs a new <see cref="IRhinoInsideManager"/> instance.
     /// </summary>
     public RhinoInsideManager(IRhinoInstance rhinoInstance, IGrasshopperInstance grasshopperInstance,
-        IAutoCadInstance autoCadInstance)
+        IAutoCadInstance autoCadInstance, IBrepConverterRunner brepConverterRunner)
     {
+        _brepConverterRunner = brepConverterRunner;
 
         var previewGeometryConverter = new PreviewGeometryConverter(autoCadInstance);
 
@@ -68,8 +69,7 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         var unitsSystemManager = new UnitSystemManager(_defaultUnitSystem, _defaultUnitSystem);
 
-        GeometryConverter.Initialize(unitsSystemManager);
-        _rhinoObjectConvert = new RhinoObjectConverter(GeometryConverter.Instance!);
+        GeometryConverter.Initialize(unitsSystemManager, _brepConverterRunner);
 
         this.UnitSystemManager = unitsSystemManager;
         _grasshopperGeometryExtractor = new GrasshopperGeometryExtractor(_rhinoConvertibleFactory);
@@ -171,7 +171,7 @@ public class RhinoInsideManager : IRhinoInsideManager
             var unitsSystemManager = new UnitSystemManager(autoCadUnits, rhinoUnits);
             this.UnitSystemManager = unitsSystemManager;
 
-            GeometryConverter.Initialize(unitsSystemManager);
+            GeometryConverter.Initialize(unitsSystemManager, _brepConverterRunner);
 
         }
     }

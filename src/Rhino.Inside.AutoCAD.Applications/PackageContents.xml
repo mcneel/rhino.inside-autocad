@@ -36,6 +36,7 @@
 				<Command Local="RHINO_INSIDE_ABOUT" Global="RHINO_INSIDE_ABOUT" />
 				<Command Local="RHINO_INSIDE_SUPPORT" Global="RHINO_INSIDE_SUPPORT" />
 				<Command Local="RHINO_INSIDE_UPDATE" Global="RHINO_INSIDE_UPDATE" />
+				<Command Local="RHINO_INSIDE_CONVERT_BREP" Global="RHINO_INSIDE_CONVERT_BREP" />
 			</Commands>
 		</ComponentEntry>
 

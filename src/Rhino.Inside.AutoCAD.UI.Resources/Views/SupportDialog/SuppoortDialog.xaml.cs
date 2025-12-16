@@ -1,6 +1,7 @@
 ﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.UI.Resources.ViewModels;
 using System.Windows.Input;
+using System.Windows.Navigation;
 
 namespace Rhino.Inside.AutoCAD.UI.Resources.Views;
 
@@ -37,4 +38,13 @@ public partial class SupportDialog : IWindow
             this.DragMove();
         }
     }
+
+    /// <summary>
+    /// Navigates to the hyperlink's URL when clicked.
+    /// </summary>
+    private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+    {
+        System.Diagnostics.Process.Start(e.Uri.ToString());
+    }
+
 }

@@ -55,8 +55,11 @@ public class GeometryPreviewSettings : IGeometryPreviewSettings
                 Name = this.MaterialName,
             };
 
+
+
             var materialColor =
-                new MaterialColor(Method.Override, 1.0, new EntityColor(this.ColorIndex));
+                new MaterialColor(Method.Override, 1.0,
+                    new EntityColor(EntityColor.LookUpRgb(Convert.ToByte(this.ColorIndex))));
 
             material.Diffuse = new MaterialDiffuseComponent(materialColor, null);
 

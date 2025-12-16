@@ -9,6 +9,7 @@ using CadCircularArc3d = Autodesk.AutoCAD.Geometry.CircularArc3d;
 using CadCurve = Autodesk.AutoCAD.DatabaseServices.Curve;
 using CadDBPoint = Autodesk.AutoCAD.DatabaseServices.DBPoint;
 using CadEllipse = Autodesk.AutoCAD.DatabaseServices.Ellipse;
+using CadHatch = Autodesk.AutoCAD.DatabaseServices.Hatch;
 using CadLine = Autodesk.AutoCAD.DatabaseServices.Line;
 using CadNurbsSurface = Autodesk.AutoCAD.DatabaseServices.NurbSurface;
 using CadPoint3dCollection = Autodesk.AutoCAD.Geometry.Point3dCollection;
@@ -26,6 +27,7 @@ using RhinoBrep = Rhino.Geometry.Brep;
 using RhinoCircle = Rhino.Geometry.Circle;
 using RhinoCurve = Rhino.Geometry.Curve;
 using RhinoEllipse = Rhino.Geometry.Ellipse;
+using RhinoHatch = Rhino.Geometry.Hatch;
 using RhinoLineCurve = Rhino.Geometry.LineCurve;
 using RhinoMesh = Rhino.Geometry.Mesh;
 using RhinoNurbsCurve = Rhino.Geometry.NurbsCurve;
@@ -658,6 +660,29 @@ public partial class GeometryConverter
     }
 
     /// <summary>
+    /// Converts a Rhino <see cref="RhinoBrep"/> in a collection of <see cref="CadNurbsSurface"/>s.
+    /// This is used as a subsitute for breps in autocad for display.
+    /// </summary>
+    public CadNurbsSurface[] ToAutoCadType(RhinoBrep brep)
+    {
+        var cadFaces = new List<CadNurbsSurface>();
+
+        foreach (var face in brep.Faces)
+        {
+            var trimmedSurface = face.DuplicateFace(false);
+
+            var singleFace = trimmedSurface.Faces[0];
+
+            var nurbs = singleFace.ToNurbsSurface();
+
+            var cadSurface = this.ToAutoCadType(nurbs);
+
+            cadFaces.Add(cadSurface);
+        }
+
+        return cadFaces.ToArray();
+    }
+    /// <summary>
     /// Converts a <see cref="RhinoBrep"/> to an array of AutoCAD <see cref="CadSolid3d"/>s.
     /// Typically, this is just a single solid representing the Brep, but depending on
     /// the import processing it could be multiple solids.
@@ -666,7 +691,7 @@ public partial class GeometryConverter
     /// We need to use a AutoCAD document to import the Rhino brep temporarily. It is
     /// deleted after the import so which document we use is not important.
     /// </remarks>
-    public CadSolid3d[] ToAutoCadType(RhinoBrep brep)
+    public CadSolid3d[] ToAutoCadType2(RhinoBrep brep)
     {
         var activeDocument = Application.DocumentManager.MdiActiveDocument;
 
@@ -678,7 +703,7 @@ public partial class GeometryConverter
 
         using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
 
-        var result = this.ToAutoCadType(brep, transactionManagerWrapper);
+        var result = this.ToAutoCadType2(brep, transactionManagerWrapper);
 
         transaction.Commit();
 
@@ -694,7 +719,7 @@ public partial class GeometryConverter
     /// We need to use a AutoCAD document to import the Rhino brep temporarily. It is
     /// deleted after the import so which document we use is not important.
     /// </remarks>
-    public CadSolid3d[] ToAutoCadType(RhinoBrep brep, ITransactionManager transactionManager)
+    public CadSolid3d[] ToAutoCadType2(RhinoBrep brep, ITransactionManager transactionManager)
     {
         var activeDocument = Application.DocumentManager.MdiActiveDocument;
 
@@ -815,9 +840,15 @@ public partial class GeometryConverter
 
                 var cadExtrusionVector = this.ToAutoCadType(extrusionVector);
 
+                var magnitude = extrusionVector.Length;
+
+                var cadMagnitude = _unitSystemManager.ToAutoCadLength(magnitude);
+
+                var directionVector = cadExtrusionVector.MultiplyBy(cadMagnitude);
+
                 var sweepOptions = new SweepOptions();
 
-                solid.CreateExtrudedSolid(region, cadExtrusionVector, sweepOptions);
+                solid.CreateExtrudedSolid(region, directionVector, sweepOptions);
 
                 solids.Add(solid);
 
@@ -831,6 +862,63 @@ public partial class GeometryConverter
 
         return solids.ToArray();
 
+    }
+
+    /// <summary>
+    /// Converts a <see cref="CadHatch"/> to a <see cref="RhinoHatch"/>.
+    /// </summary>
+    public CadHatch ToAutoCadType(RhinoHatch rhinoHatch, ITransactionManager transactionManager)
+    {
+        var scale = _unitSystemManager.ToAutoCadLength(rhinoHatch.PatternScale);
+
+        var rotation = rhinoHatch.PatternRotation;
+
+        //TODO: Support Hatch pattens/Styles
+
+        var cadHatch = new CadHatch()
+        {
+            PatternAngle = rotation,
+            PatternScale = scale,
+            Origin = this.ToAutoCadType2d(rhinoHatch.BasePoint)
+
+        };
+
+        var outerCurves = rhinoHatch.Get3dCurves(true);
+
+        var outerCurve = new PolyCurve();
+        foreach (var curve in outerCurves)
+        {
+            outerCurve.Append(curve);
+        }
+
+        var curve2ds = new Curve2dCollection();
+        var edgeTypes = new IntegerCollection();
+
+        var curves = this.ToAutoCadType2d(outerCurve);
+
+        foreach (var curve in curves)
+        {
+
+            curve2ds.Add(curve);
+            edgeTypes.Add(1);
+        }
+
+        foreach (var innerCurve in rhinoHatch.Get3dCurves(false))
+        {
+            var innerLoop = this.ToAutoCadType2d(innerCurve);
+
+            foreach (var curve in innerLoop)
+            {
+                curve2ds.Add(curve);
+                edgeTypes.Add(1);
+            }
+        }
+
+        cadHatch.AppendLoop(HatchLoopTypes.External, curve2ds, edgeTypes);
+
+        cadHatch.EvaluateHatch(true);
+
+        return cadHatch;
     }
 
     /// <summary>

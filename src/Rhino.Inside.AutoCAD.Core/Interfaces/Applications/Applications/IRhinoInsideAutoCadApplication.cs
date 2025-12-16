@@ -37,6 +37,14 @@ public interface IRhinoInsideAutoCadApplication
     ISupportDialogManager SupportDialogManager { get; }
 
     /// <summary>
+    /// The <see cref="IBrepConverterRunner"/> used to convert Breps between
+    /// via the Autocad Import command. Autocad has no .Net or ObjectArx exposed
+    /// method to convert Breps into Autocad Solids, so this runner uses the
+    /// Autocad Import command to perform the conversion.
+    /// </summary>
+    IBrepConverterRunner BrepConverterRunner { get; }
+
+    /// <summary>
     /// Show an alert dialog with the given message.
     /// </summary>
     void ShowAlertDialog(string message);

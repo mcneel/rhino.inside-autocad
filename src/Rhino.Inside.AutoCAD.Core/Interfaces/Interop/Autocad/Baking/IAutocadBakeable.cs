@@ -11,5 +11,5 @@ public interface IAutocadBakeable
     /// <param name="transactionManager">The transaction manager to use for the bake operation.</param>
     /// <param name="settings">Optional bake settings (layer, linetype, color, etc.).</param>
     /// <returns>The ObjectId of the newly created AutoCAD entity.</returns>
-    IObjectId BakeToAutocad(ITransactionManager transactionManager, IBakeSettings? settings = null);
+    List<IObjectId> BakeToAutocad(ITransactionManager transactionManager, IBakeSettings? settings = null);
 }

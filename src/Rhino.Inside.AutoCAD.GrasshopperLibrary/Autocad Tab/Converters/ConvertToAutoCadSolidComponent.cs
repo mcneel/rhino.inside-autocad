@@ -39,7 +39,7 @@ public class ConvertToAutoCadSolidComponent : GH_Component
     /// <inheritdoc />
     protected override void RegisterOutputParams(GH_OutputParamManager pManager)
     {
-        pManager.AddParameter(new Param_AutocadSolid(), "Solid", "S", "AutoCAD solid",
+        pManager.AddParameter(new Param_AutocadBrepProxy(), "Solid", "S", "AutoCAD solid",
             GH_ParamAccess.item);
     }
 
@@ -51,22 +51,42 @@ public class ConvertToAutoCadSolidComponent : GH_Component
         if (!DA.GetData(0, ref rhinoBrep)
         || rhinoBrep is null) return;
 
-        var cadSolids = _geometryConverter.ToAutoCadType(rhinoBrep);
+        var proxyBrep = _geometryConverter.ToProxyType(rhinoBrep);
 
-        if (cadSolids == null || cadSolids.Length == 0)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                "Failed to convert brep to AutoCAD format");
-            return;
-        }
+        var goo = new GH_AutocadBrepProxy(proxyBrep);
 
-        if (cadSolids.Length > 1)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                $"Brep converted to {cadSolids.Length} AutoCAD solids. Only returning the first one.");
-        }
-
-        var goo = new GH_AutocadSolid(cadSolids[0]);
         DA.SetData(0, goo);
+
+        /*
+        var activeDocument = Application.DocumentManager.MdiActiveDocument;
+        IEntityCollection convertedResult = null;
+
+        var request = new BrepConverterRequest(rhinoBrep, (result) =>
+        {
+            convertedResult = result.ConvertedSolids;
+
+            if (result.Success == false)
+            {
+                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                    "Failed to convert brep to AutoCAD format");
+                return false;
+            }
+            
+
+
+            var goo = convertedResult.Select(cadSolid => new GH_AutocadBrepProxy(cadSolid.Unwrap() as AutocadBrepProxy));
+            DA.SetDataList(0, goo);
+
+            return true;
+        });
+
+        var application = RhinoInsideAutoCadExtension.Application;
+
+        var brepConverterRunner = application.BrepConverterRunner;
+
+        brepConverterRunner.EnqueueRequest(request);
+
+        activeDocument.SendStringToExecute("RHINO_INSIDE_CONVERT_BREP\n", false, false, false);
+        */
     }
 }

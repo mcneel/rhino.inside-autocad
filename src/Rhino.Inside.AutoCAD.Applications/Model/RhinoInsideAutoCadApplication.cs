@@ -30,6 +30,9 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
     /// <inheritdoc/>
     public ISupportDialogManager SupportDialogManager { get; }
 
+    /// <inheritdoc/>
+    public IBrepConverterRunner BrepConverterRunner { get; }
+
     /// <summary>
     /// Constructs a new <see cref="IRhinoInsideAutoCadApplication"/>
     /// </summary>
@@ -53,7 +56,9 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
         var autocadInstance = new AutoCadInstance(bootstrapper.Dispatcher);
 
-        var rhinoInsideManager = new RhinoInsideManager(rhinoInstance, grasshopperInstance, autocadInstance);
+        var brepConverterRunner = new BrepConverterRunner();
+
+        var rhinoInsideManager = new RhinoInsideManager(rhinoInstance, grasshopperInstance, autocadInstance, brepConverterRunner);
 
         this.SettingsManager = settingManager;
 
@@ -68,6 +73,8 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
         this.LoadMaterialDesign(applicationDirectories);
 
         this.SupportDialogManager = new SupportDialogManager(this);
+
+        this.BrepConverterRunner = brepConverterRunner;
     }
 
     /// <summary>
