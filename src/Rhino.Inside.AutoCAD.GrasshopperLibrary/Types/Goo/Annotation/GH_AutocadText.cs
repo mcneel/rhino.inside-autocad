@@ -32,14 +32,14 @@ public class GH_AutocadText : GH_AutocadGeometricGoo<AutocadText, TextEntity>
     /// A private constructor used to create a reference Goo which is a clone of the
     /// input curve.
     /// </summary>
-    private GH_AutocadText(AutocadText curve, IObjectId referenceId) : base(curve, referenceId)
+    private GH_AutocadText(AutocadText curve, IAutocadReferenceId referenceId) : base(curve, referenceId)
     {
     }
 
     /// <inheritdoc />
     protected override GH_AutocadGeometricGoo<AutocadText, TextEntity> CreateClonedInstance(AutocadText entity)
     {
-        return new GH_AutocadText(entity.Clone() as AutocadText, this.AutocadReferenceId);
+        return new GH_AutocadText(entity.Clone() as AutocadText, this.Reference);
     }
 
     /// <inheritdoc />

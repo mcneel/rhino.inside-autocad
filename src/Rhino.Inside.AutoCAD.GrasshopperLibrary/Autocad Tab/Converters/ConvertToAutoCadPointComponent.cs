@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using Point3d = Rhino.Geometry.Point3d;
 using RhinoPoint = Rhino.Geometry.Point;
@@ -8,7 +9,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that converts a Rhino point to an AutoCAD DBPoint.
 /// </summary>
-public class ConvertToAutoCadPointComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertToAutoCadPointComponent : RhinoInsideAutocad_Component
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

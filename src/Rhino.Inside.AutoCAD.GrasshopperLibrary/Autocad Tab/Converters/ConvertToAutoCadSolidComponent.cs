@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using RhinoBrep = Rhino.Geometry.Brep;
 
@@ -7,7 +8,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that converts a Rhino brep to an AutoCAD Solid3d.
 /// </summary>
-public class ConvertToAutoCadSolidComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertToAutoCadSolidComponent : RhinoInsideAutocad_Component
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

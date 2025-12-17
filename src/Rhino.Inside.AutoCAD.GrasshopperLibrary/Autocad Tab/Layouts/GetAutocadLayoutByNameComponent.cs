@@ -1,5 +1,6 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using CadLayout = Autodesk.AutoCAD.DatabaseServices.Layout;
 
@@ -8,7 +9,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layout which matches the name.
 /// </summary>
-public class GetAutocadLayoutByNameComponent : GH_Component, IReferenceComponent
+[ComponentVersion(introduced: "1.0.0")]
+public class GetAutocadLayoutByNameComponent : RhinoInsideAutocad_Component, IReferenceComponent
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("d6e7b9c0-3e4f-5a8b-0c2d-9f6e5b8d0d3f");

@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using AutocadMesh = Autodesk.AutoCAD.DatabaseServices.PolyFaceMesh;
 
@@ -7,7 +8,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that converts an AutoCAD PolyFaceMesh to a Rhino mesh.
 /// </summary>
-public class ConvertFromAutoCadMeshComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertFromAutoCadMeshComponent : RhinoInsideAutocad_Component
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

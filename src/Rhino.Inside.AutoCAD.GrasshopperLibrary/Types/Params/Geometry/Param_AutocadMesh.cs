@@ -29,7 +29,7 @@ public class Param_AutocadMesh : Param_AutocadObjectBase<GH_AutocadMesh, CadMesh
     /// Initializes a new instance of the <see cref="Param_AutocadMesh"/> class.
     /// </summary>
     public Param_AutocadMesh()
-        : base("AutoCAD Mesh", "Mesh",
+        : base("AutoCAD Mesh", "AC-Mesh",
             "A Polyface Mesh in AutoCAD", "Params", "AutoCAD")
     { }
 

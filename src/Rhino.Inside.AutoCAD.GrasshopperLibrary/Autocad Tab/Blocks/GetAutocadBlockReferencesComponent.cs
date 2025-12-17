@@ -1,6 +1,7 @@
 using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -8,7 +9,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD BlockTableRecords currently open in the AutoCAD session.
 /// </summary>
-public class GetAutocadBlockReferencesComponent : GH_Component, IReferenceComponent
+[ComponentVersion(introduced: "1.0.0")]
+public class GetAutocadBlockReferencesComponent : RhinoInsideAutocad_Component, IReferenceComponent
 {
     /// <inheritdoc />
     public override GH_Exposure Exposure => GH_Exposure.secondary;

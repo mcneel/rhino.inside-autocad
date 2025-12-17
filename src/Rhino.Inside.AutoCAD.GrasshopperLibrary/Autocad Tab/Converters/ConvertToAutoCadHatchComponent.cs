@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using RhinoHatch = Rhino.Geometry.Hatch;
 
@@ -7,7 +8,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that converts a Rhino hatch to an AutoCAD hatch.
 /// </summary>
-public class ConvertToAutoCadHatchComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertToAutoCadHatchComponent : RhinoInsideAutocad_Component
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

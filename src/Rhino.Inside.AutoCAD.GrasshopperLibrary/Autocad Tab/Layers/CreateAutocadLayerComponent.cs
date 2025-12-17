@@ -1,5 +1,6 @@
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using Color = System.Drawing.Color;
 
@@ -8,7 +9,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
 /// </summary>
-public class CreateAutocadLayerComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class CreateAutocadLayerComponent : RhinoInsideAutocad_Component
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("e5b9283d-5312-4c6a-8a1f-a0504257c52b");

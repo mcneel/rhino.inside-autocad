@@ -33,17 +33,17 @@ public class GH_AutocadHatch : GH_AutocadGeometricGoo<CadHatch, RhinoHatch>
     /// A private constructor used to create a reference Goo which is not a clone of the
     /// input hatch.
     /// </summary>
-    private GH_AutocadHatch(CadHatch hatch, IObjectId referenceId) : base(hatch, referenceId)
+    private GH_AutocadHatch(CadHatch hatch, IAutocadReferenceId referenceId) : base(hatch, referenceId)
     {
     }
 
     /// <inheritdoc />
     protected override GH_AutocadGeometricGoo<CadHatch, RhinoHatch> CreateClonedInstance(CadHatch entity)
     {
-        if (this.AutocadReferenceId.IsValid)
+        if (this.Reference.IsValid)
         {
             var picker = new AutocadObjectPicker();
-            if (picker.TryGetUpdatedObject(this.AutocadReferenceId, out var updatedEntity)
+            if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var updatedEntity)
                 && updatedEntity!.Unwrap() is CadHatch hatch)
             {
                 return new GH_AutocadHatch(hatch);

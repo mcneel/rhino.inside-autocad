@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -6,7 +7,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that sets properties for an AutoCAD layout.
 /// </summary>
-public class AutocadLayoutComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class AutocadLayoutComponent : RhinoInsideAutocad_Component
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("1a15933d-7233-47e3-83d3-192d10cb80bb");

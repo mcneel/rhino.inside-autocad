@@ -1,6 +1,7 @@
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -8,7 +9,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that adds AutoCAD Block References to a document.
 /// </summary>
-public class CreateAutocadBlockReferenceComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class CreateAutocadBlockReferenceComponent : RhinoInsideAutocad_Component
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

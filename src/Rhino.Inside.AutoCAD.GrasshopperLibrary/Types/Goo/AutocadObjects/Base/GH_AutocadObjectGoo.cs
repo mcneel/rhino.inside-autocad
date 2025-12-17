@@ -1,5 +1,9 @@
-﻿using Grasshopper.Kernel.Types;
+﻿using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.DatabaseServices;
+using GH_IO.Serialization;
+using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -9,9 +13,10 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 public abstract class GH_AutocadObjectGoo<TWrapperType> : GH_Goo<TWrapperType>, IGH_AutocadReferenceObject
 where TWrapperType : IDbObject
 {
+    private const string _referenceHandleDictionaryName = "AutocadReferenceHandle";
 
     /// <inheritdoc />
-    public IObjectId AutocadReferenceId => this.Value.Id;
+    public IAutocadReferenceId Reference => new AutocadReferenceId(this.Value);
 
     /// <inheritdoc />
     public IDbObject ObjectValue => this.Value;
@@ -109,14 +114,59 @@ where TWrapperType : IDbObject
         }
         return false;
     }
+
     /// <inheritdoc />
     public void GetUpdatedObject()
     {
         var picker = new AutocadObjectPicker();
-        if (picker.TryGetUpdatedObject(this.AutocadReferenceId, out var entity))
+        if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var entity))
         {
             this.Value = (TWrapperType?)entity;
         }
+    }
+
+    /// <inheritdoc />
+    public override bool Read(GH_IReader reader)
+    {
+        var referenceHandle = string.Empty;
+
+        reader.TryGetString(_referenceHandleDictionaryName, ref referenceHandle);
+
+        if (string.IsNullOrEmpty(referenceHandle))
+            return true;
+
+        var activeDocument = Application.DocumentManager.MdiActiveDocument;
+
+        var database = activeDocument.Database;
+
+        var handle = new Handle(Convert.ToInt64(referenceHandle, 16));
+
+        var transaction = database.TransactionManager.StartTransaction();
+
+        var newId = database.GetObjectId(false, handle, 0);
+
+        if (newId.IsValid == false) return true;
+
+        var referencedObject = transaction.GetObject(newId, OpenMode.ForRead);
+
+        var wrapper = new DbObjectWrapper(referencedObject);
+
+        var newWrapper = (GH_AutocadObjectGoo<TWrapperType>)this.CreateInstance(wrapper);
+
+        this.Value = newWrapper.Value;
+
+        transaction.Commit();
+
+        return true;
+    }
+
+    /// <inheritdoc />
+    public override bool Write(GH_IWriter writer)
+    {
+        if (this.Reference.ObjectId.IsValid && this.Value is not null)
+            writer.SetString(_referenceHandleDictionaryName, this.Reference.GetSerializedValue());
+
+        return true;
     }
 
     /// <inheritdoc />
@@ -125,10 +175,6 @@ where TWrapperType : IDbObject
         if (this.Value == null)
             return $"Null {this.TypeName}";
 
-        var idSuffix = this.Value.Id.IsValid
-            ? this.Value.Id.ToString()
-            : "Invalid or Not in Database";
-
-        return $"{this.TypeName} [Id: {idSuffix} ]";
+        return $"{this.TypeName} [Id: {this.Reference} ]";
     }
 }

@@ -1,5 +1,6 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -7,7 +8,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that bakes AutoCAD objects to the model space.
 /// </summary>
-public class AutocadBakeComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class AutocadBakeComponent : RhinoInsideAutocad_Component
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new Guid("C5D7E9F1-A3B5-4C7D-9E1F-3A5B7C9D1E3F");

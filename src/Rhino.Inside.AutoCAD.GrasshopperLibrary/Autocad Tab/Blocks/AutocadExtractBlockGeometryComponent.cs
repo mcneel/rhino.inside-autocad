@@ -2,6 +2,7 @@
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -9,7 +10,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that extracts the geometry from an AutoCAD block.
 /// </summary>
-public class AutocadExtractBlockGeometryComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class AutocadExtractBlockGeometryComponent : RhinoInsideAutocad_Component
 {
     private readonly GooTypeRegistry _gooConverterRegister = GooTypeRegistry.Instance!;
 

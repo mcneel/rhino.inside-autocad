@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -6,7 +7,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns information about an AutoCAD ObjectId.
 /// </summary>
-public class AutocadObjectIdComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class AutocadObjectIdComponent : RhinoInsideAutocad_Component
 {
 
     /// <inheritdoc />

@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using Color = System.Drawing.Color;
 
@@ -7,7 +8,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that creates bake settings for AutoCAD objects.
 /// </summary>
-public class AutocadBakeSettingsComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class AutocadBakeSettingsComponent : RhinoInsideAutocad_Component
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new Guid("B4C6D8E0-F2A4-4B6C-9D8E-0F2A4B6C8D0E");

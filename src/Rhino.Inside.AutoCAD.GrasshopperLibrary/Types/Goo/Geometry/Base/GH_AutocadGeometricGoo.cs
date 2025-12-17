@@ -1,4 +1,6 @@
-﻿using Autodesk.AutoCAD.DatabaseServices;
+﻿using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.DatabaseServices;
+using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
@@ -16,14 +18,12 @@ public abstract class GH_AutocadGeometricGoo<TWrapperType, TRhinoType>
 where TWrapperType : Entity
 where TRhinoType : GeometryBase
 {
-    /// <summary>
-    /// The geometry converter instance.s
-    /// </summary>
     protected readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
     private readonly AutocadColorConverter _colorConverter = AutocadColorConverter.Instance!;
+    private const string _referenceHandleDictionaryName = "AutocadReferenceHandle";
 
     /// <inheritdoc />
-    public IObjectId AutocadReferenceId { get; }
+    public IAutocadReferenceId Reference { get; private set; }
 
     /// <inheritdoc />
     public IDbObject ObjectValue => new AutocadEntityWrapper(this.Value);
@@ -78,7 +78,7 @@ where TRhinoType : GeometryBase
     /// </summary>
     protected GH_AutocadGeometricGoo()
     {
-        this.AutocadReferenceId = new AutocadObjectId();
+        this.Reference = AutocadReferenceId.NoReference;
     }
 
     /// <summary>
@@ -86,9 +86,9 @@ where TRhinoType : GeometryBase
     /// specified AutoCAD Object.
     /// </summary>
     /// <param name="dbObject">The AutoCAD Object to wrap.</param>
-    protected GH_AutocadGeometricGoo(TWrapperType dbObject) : base(dbObject.Clone() as TWrapperType)
+    protected GH_AutocadGeometricGoo(TWrapperType? dbObject) : base(dbObject?.Clone() as TWrapperType)
     {
-        this.AutocadReferenceId = new AutocadObjectId(dbObject.Id);
+        this.Reference = dbObject is not null ? new AutocadReferenceId(dbObject) : AutocadReferenceId.NoReference;
     }
 
     /// <summary>
@@ -97,9 +97,9 @@ where TRhinoType : GeometryBase
     /// </summary>
     /// <param name="dbObject">The AutoCAD Object to wrap.</param>
     /// <param name="referenceId">The AutoCAD ObjectId to bind to this reference.</param>
-    protected GH_AutocadGeometricGoo(TWrapperType dbObject, IObjectId referenceId) : base(dbObject)
+    protected GH_AutocadGeometricGoo(TWrapperType dbObject, IAutocadReferenceId referenceId) : base(dbObject)
     {
-        this.AutocadReferenceId = referenceId;
+        this.Reference = referenceId;
     }
 
     /// <summary>
@@ -248,7 +248,7 @@ where TRhinoType : GeometryBase
     public void GetUpdatedObject()
     {
         var picker = new AutocadObjectPicker();
-        if (picker.TryGetUpdatedObject(this.AutocadReferenceId, out var entity))
+        if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var entity))
         {
             this.Value = (TWrapperType?)entity.Unwrap();
         }
@@ -300,16 +300,56 @@ where TRhinoType : GeometryBase
     }
 
     /// <inheritdoc />
+    public override bool Read(GH_IReader reader)
+    {
+        var referenceHandle = string.Empty;
+
+        reader.TryGetString(_referenceHandleDictionaryName, ref referenceHandle);
+
+        if (string.IsNullOrEmpty(referenceHandle))
+            return true;
+
+        var activeDocument = Application.DocumentManager.MdiActiveDocument;
+
+        var database = activeDocument.Database;
+
+        var handle = new Handle(System.Convert.ToInt64(referenceHandle, 16));
+
+        var transaction = database.TransactionManager.StartTransaction();
+
+        var newId = database.GetObjectId(false, handle, 0);
+
+        if (newId.IsValid == false) return true;
+
+        var referencedObject = transaction.GetObject(newId, OpenMode.ForRead);
+
+        if (referencedObject is TWrapperType typeReferencedObject == false)
+            return true;
+
+        this.Value = typeReferencedObject;
+
+        this.Reference = new AutocadReferenceId(typeReferencedObject);
+
+        transaction.Commit();
+
+        return true;
+    }
+
+    /// <inheritdoc />
+    public override bool Write(GH_IWriter writer)
+    {
+        if (this.Reference.IsValid && this.Value is not null)
+            writer.SetString(_referenceHandleDictionaryName, this.Reference.GetSerializedValue());
+
+        return true;
+    }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         if (this.Value == null)
             return $"Null {this.TypeName}";
 
-        var idSuffix = this.AutocadReferenceId.IsValid
-            ? this.AutocadReferenceId.Value.ToString()
-            : "Invalid or Not in Database";
-
-        return $"{this.TypeName} [Type: {this.Value.GetType().Name.ToString()}, Id: {idSuffix} ]";
+        return $"{this.TypeName} [Type: {this.Value.GetType().Name.ToString()}, Id: {this.Reference} ]";
     }
 }
-

@@ -31,7 +31,7 @@ public class Param_AutocadSolid : Param_AutocadObjectBase<GH_AutocadBrepProxy, C
     /// Initializes a new instance of the <see cref="Param_AutocadSolid"/> class.
     /// </summary>
     public Param_AutocadSolid()
-        : base("AutoCAD Solid", "Solid",
+        : base("AutoCAD Solid", "AC-Solid",
             "A 3D Solid in AutoCAD", "Params", "AutoCAD")
     { }
 

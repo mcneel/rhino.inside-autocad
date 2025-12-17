@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using AutocadDimension = Autodesk.AutoCAD.DatabaseServices.Dimension;
 
@@ -7,7 +8,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that converts an AutoCAD Dimension to a Rhino Dimension.
 /// </summary>
-public class ConvertFromAutoCadDimensionComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertFromAutoCadDimensionComponent : RhinoInsideAutocad_Component
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

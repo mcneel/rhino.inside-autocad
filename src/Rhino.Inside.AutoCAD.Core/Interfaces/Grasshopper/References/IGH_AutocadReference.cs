@@ -8,5 +8,5 @@ public interface IGH_AutocadReference
     /// <summary>
     /// The AutoCAD object identifier.
     /// </summary>
-    IObjectId AutocadReferenceId { get; }
+    IAutocadReferenceId Reference { get; }
 }

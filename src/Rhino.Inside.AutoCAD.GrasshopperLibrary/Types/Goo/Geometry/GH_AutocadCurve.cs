@@ -33,17 +33,17 @@ public class GH_AutocadCurve : GH_AutocadGeometricGoo<AutocadCurve, RhinoCurve>
     /// A private constructor used to create a reference Goo which is not a clone of the
     /// input curve.
     /// </summary>
-    private GH_AutocadCurve(AutocadCurve curve, IObjectId referenceId) : base(curve, referenceId)
+    private GH_AutocadCurve(AutocadCurve curve, IAutocadReferenceId referenceId) : base(curve, referenceId)
     {
     }
 
     /// <inheritdoc />
     protected override GH_AutocadGeometricGoo<AutocadCurve, RhinoCurve> CreateClonedInstance(AutocadCurve entity)
     {
-        if (this.AutocadReferenceId.IsValid)
+        if (this.Reference.IsValid)
         {
             var picker = new AutocadObjectPicker();
-            if (picker.TryGetUpdatedObject(this.AutocadReferenceId, out var updatedEntity)
+            if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var updatedEntity)
                 && updatedEntity!.Unwrap() is AutocadCurve curve)
             {
                 return new GH_AutocadCurve(curve);

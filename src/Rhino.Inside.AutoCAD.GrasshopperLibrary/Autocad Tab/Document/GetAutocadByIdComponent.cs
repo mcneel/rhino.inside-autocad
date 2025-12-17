@@ -1,5 +1,6 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using CadLayer = Autodesk.AutoCAD.DatabaseServices.LayerTableRecord;
 
@@ -8,7 +9,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD documents currently open in the AutoCAD session.
 /// </summary>
-public class GetByAutocadIdComponent : GH_Component, IReferenceComponent
+[ComponentVersion(introduced: "1.0.0")]
+public class GetByAutocadIdComponent : RhinoInsideAutocad_Component, IReferenceComponent
 {
     /// <inheritdoc />
     public override GH_Exposure Exposure => GH_Exposure.secondary;

@@ -32,14 +32,14 @@ public class GH_AutocadPoint : GH_AutocadGeometricGoo<AutocadPoint, RhinoPoint>
     /// A private constructor used to create a reference Goo which is a clone of the
     /// input curve.
     /// </summary>
-    private GH_AutocadPoint(AutocadPoint curve, IObjectId referenceId) : base(curve, referenceId)
+    private GH_AutocadPoint(AutocadPoint curve, IAutocadReferenceId referenceId) : base(curve, referenceId)
     {
     }
 
     /// <inheritdoc />
     protected override GH_AutocadGeometricGoo<AutocadPoint, RhinoPoint> CreateClonedInstance(AutocadPoint entity)
     {
-        return new GH_AutocadPoint(entity.Clone() as AutocadPoint, this.AutocadReferenceId);
+        return new GH_AutocadPoint(entity.Clone() as AutocadPoint, this.Reference);
     }
 
     /// <inheritdoc />

@@ -31,14 +31,14 @@ public class GH_AutocadDimension : GH_AutocadGeometricGoo<AutocadDimension, Rhin
     /// A private constructor used to create a reference Goo which is a clone of the
     /// input dimension.
     /// </summary>
-    private GH_AutocadDimension(AutocadDimension dimension, IObjectId referenceId) : base(dimension, referenceId)
+    private GH_AutocadDimension(AutocadDimension dimension, IAutocadReferenceId referenceId) : base(dimension, referenceId)
     {
     }
 
     /// <inheritdoc />
     protected override GH_AutocadGeometricGoo<AutocadDimension, RhinoDimension> CreateClonedInstance(AutocadDimension entity)
     {
-        return new GH_AutocadDimension(entity.Clone() as AutocadDimension, this.AutocadReferenceId);
+        return new GH_AutocadDimension(entity.Clone() as AutocadDimension, this.Reference);
     }
 
     /// <inheritdoc />

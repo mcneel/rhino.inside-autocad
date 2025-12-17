@@ -29,7 +29,7 @@ public class Param_AutocadPoint : Param_AutocadObjectBase<GH_AutocadPoint, CadPo
     /// Initializes a new instance of the <see cref="Param_AutocadPoint"/> class.
     /// </summary>
     public Param_AutocadPoint()
-        : base("AutoCAD Point", "Point",
+        : base("AutoCAD Point", "AC-Point",
             "A Point in AutoCAD", "Params", "AutoCAD")
     { }
 

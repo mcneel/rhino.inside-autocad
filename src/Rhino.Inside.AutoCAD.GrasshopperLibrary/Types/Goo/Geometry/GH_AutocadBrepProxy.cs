@@ -36,14 +36,14 @@ public class GH_AutocadBrepProxy : GH_AutocadGeometricGoo<AutocadBrepProxy, Rhin
     /// A private constructor used to create a reference Goo which is a clone of the
     /// input curve.
     /// </summary>
-    private GH_AutocadBrepProxy(AutocadBrepProxy proxy, IObjectId referenceId) : base(proxy, referenceId)
+    private GH_AutocadBrepProxy(AutocadBrepProxy proxy, IAutocadReferenceId referenceId) : base(proxy, referenceId)
     {
     }
 
     /// <inheritdoc />
     protected override GH_AutocadGeometricGoo<AutocadBrepProxy, RhinoBrep> CreateClonedInstance(AutocadBrepProxy entity)
     {
-        return new GH_AutocadBrepProxy(entity.Clone() as AutocadBrepProxy, this.AutocadReferenceId);
+        return new GH_AutocadBrepProxy(entity.Clone() as AutocadBrepProxy, this.Reference);
     }
 
     /// <inheritdoc />

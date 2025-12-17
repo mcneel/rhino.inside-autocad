@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -6,7 +7,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that creates a new AutoCAD linetype.
 /// </summary>
-public class CreateAutocadLineTypeComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class CreateAutocadLineTypeComponent : RhinoInsideAutocad_Component
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("a8f5c3d2-4e7b-4a9c-8d1f-6e3b2c5a8f9d");

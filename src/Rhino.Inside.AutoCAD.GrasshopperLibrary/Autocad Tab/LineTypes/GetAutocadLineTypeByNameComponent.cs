@@ -1,5 +1,6 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using CadLineType = Autodesk.AutoCAD.DatabaseServices.LinetypeTableRecord;
 
@@ -8,7 +9,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD linetype which matches the name.
 /// </summary>
-public class GetAutocadLineTypeByNameComponent : GH_Component, IReferenceComponent
+[ComponentVersion(introduced: "1.0.0")]
+public class GetAutocadLineTypeByNameComponent : RhinoInsideAutocad_Component, IReferenceComponent
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("f8a9d1e2-5b6c-7a0d-2e4f-1c8d7d0a2f5e");

@@ -133,7 +133,7 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
     {
         foreach (var autocadId in m_data.AllData(true).OfType<TGoo>())
         {
-            if (change.DoesEffectObject(autocadId.AutocadReferenceId))
+            if (change.DoesEffectObject(autocadId.Reference.ObjectId))
                 return true;
         }
 

@@ -7,11 +7,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD ObjectIds.
 /// </summary>
-public class GH_AutocadObjectId : GH_Goo<AutocadObjectId>, IGH_AutocadReference
+public class GH_AutocadObjectId : GH_Goo<AutocadObjectId>
 {
-    /// <inheritdoc />
-    public IObjectId AutocadReferenceId => this.Value;
-
     /// <inheritdoc />
     public override bool IsValid => this.Value is { IsValid: true };
 

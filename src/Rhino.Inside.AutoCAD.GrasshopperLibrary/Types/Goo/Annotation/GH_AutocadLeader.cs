@@ -31,14 +31,14 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadMLeader, RhinoLead
     /// A private constructor used to create a reference Goo which is a clone of the
     /// input leader.
     /// </summary>
-    private GH_AutocadLeader(AutocadMLeader leader, IObjectId referenceId) : base(leader, referenceId)
+    private GH_AutocadLeader(AutocadMLeader leader, IAutocadReferenceId referenceId) : base(leader, referenceId)
     {
     }
 
     /// <inheritdoc />
     protected override GH_AutocadGeometricGoo<AutocadMLeader, RhinoLeader> CreateClonedInstance(AutocadMLeader entity)
     {
-        return new GH_AutocadLeader(entity.Clone() as AutocadMLeader, this.AutocadReferenceId);
+        return new GH_AutocadLeader(entity.Clone() as AutocadMLeader, this.Reference);
     }
 
     /// <inheritdoc />

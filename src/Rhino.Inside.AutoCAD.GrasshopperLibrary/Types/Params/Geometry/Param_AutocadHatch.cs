@@ -29,7 +29,7 @@ public class Param_AutocadHatch : Param_AutocadObjectBase<GH_AutocadHatch, CadHa
     /// Initializes a new instance of the <see cref="Param_AutocadHatch"/> class.
     /// </summary>
     public Param_AutocadHatch()
-        : base("AutoCAD Hatch", "Hatch",
+        : base("AutoCAD Hatch", "AC-Hatch",
             "A Hatch in AutoCAD", "Params", "AutoCAD")
     { }
 

@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -6,7 +7,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that extracts properties from an AutoCAD dynamic block reference property.
 /// </summary>
-public class AutocadDynamicPropertiesComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class AutocadDynamicPropertiesComponent : RhinoInsideAutocad_Component
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("B8C4D2E1-6F3A-4B9C-8D5E-2A1F9B7C3D6E");

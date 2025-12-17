@@ -33,14 +33,14 @@ public class GH_AutocadMesh : GH_AutocadGeometricGoo<AutocadMesh, RhinoMesh>
     /// A private constructor used to create a reference Goo which is a clone of the
     /// input curve.
     /// </summary>
-    private GH_AutocadMesh(AutocadMesh curve, IObjectId referenceId) : base(curve, referenceId)
+    private GH_AutocadMesh(AutocadMesh curve, IAutocadReferenceId referenceId) : base(curve, referenceId)
     {
     }
 
     /// <inheritdoc />
     protected override GH_AutocadGeometricGoo<AutocadMesh, RhinoMesh> CreateClonedInstance(AutocadMesh entity)
     {
-        return new GH_AutocadMesh(entity.Clone() as AutocadMesh, this.AutocadReferenceId);
+        return new GH_AutocadMesh(entity.Clone() as AutocadMesh, this.Reference);
     }
 
     /// <inheritdoc />
