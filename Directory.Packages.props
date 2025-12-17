@@ -6,10 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Assembly redirect nugets -->
-    <PackageVersion Include="MaterialDesignColors" Version="3.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
-    <PackageVersion Include="NuGet.Versioning" Version="6.10.0" />
     <!-- MVVM Toolkits -->
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <!-- Rhino and AutoCAD API nugets -->
@@ -17,7 +15,6 @@
     <PackageVersion Include="AutoCAD.NET.Core" Version="24.3.0" />
     <PackageVersion Include="AutoCAD.NET" Version="24.3.0" />
     <PackageVersion Include="RhinoCommon" Version="8.0.23304.9001" />
-    <PackageVersion Include="Rhino.Inside" Version="7.0.0" />
     <PackageVersion Include="RhinoWindows" Version="7.36.23346.16351" />
     <PackageVersion Include="Grasshopper" Version="8.0.23304.9001" />
     <!-- Material Design Themes -->
@@ -25,18 +22,10 @@
     <!-- Infrastrucure -->
     <PackageVersion Include="NaturalSort.Extension" Version="4.3.0" />
     <PackageVersion Include="System.Resources.Extensions" Version="9.0.0" />
-    <PackageVersion Include="FluentValidation" Version="11.9.1" />
-    <PackageVersion Include="Microsoft.Web.WebView2" Version="1.0.3590-prerelease" />
     <!-- Text.JSON nuget -->
     <PackageVersion Include="System.Text.Json" Version="9.0.0" />
     <!-- Deployment -->
-    <PackageVersion Include="WixToolset.UI.wixext" Version="5.0.2" />
-    <!-- Unit test nugets -->
-    <PackageVersion Include="xunit" Version="2.8.1" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.1" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-    <PackageVersion Include="NSubstitute" Version="5.1.0" />
-    <PackageVersion Include="Xunit.StaFact" Version="1.1.11" />
+    <PackageVersion Include="WixToolset.UI.wixext" Version="6.0.2" />
     <!--Logging-->
     <PackageVersion Include="Serilog" Version="4.2.0" />
     <PackageVersion Include="Serilog.Settings.Configuration" Version="9.0.0" />
