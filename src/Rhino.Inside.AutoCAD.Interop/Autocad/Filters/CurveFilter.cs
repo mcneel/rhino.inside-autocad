@@ -3,6 +3,9 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
+/// <summary>
+/// A filter that selects AutoCAD Curve entities.
+/// </summary>
 public class CurveFilter : IFilter
 {
     /// <inheritdoc />
