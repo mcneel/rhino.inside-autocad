@@ -4,7 +4,7 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <inheritdoc cref="IFlushQueueHandler"/>
-class FlushQueueHandler : IFlushQueueHandler
+public class FlushQueueHandler : IFlushQueueHandler
 {
     private readonly Queue<IGrasshopperDocumentChangedEvent> _changeQueue = new Queue<IGrasshopperDocumentChangedEvent>();
 
