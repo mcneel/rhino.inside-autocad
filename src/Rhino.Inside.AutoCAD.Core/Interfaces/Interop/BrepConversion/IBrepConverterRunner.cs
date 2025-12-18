@@ -1,9 +1,9 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// A service which manages and executes BREP conversion requests. Autocad does not exposed
+/// A service which manages and executes BREP conversion requests. Autocad does not expose
 /// methods to create Brep objects directly from geometry data in either of the .Net or
-/// ObjectArx libraries so this service is responsible  for converting Brep via the Import
+/// ObjectArx libraries so this service is responsible for converting Brep via the Import
 /// command. It works in bulk by queuing requests and once the Autocad
 /// RHINO_INSIDE_CONVERT_BREP Command is run, all requests in the queue are processed.
 /// </summary>

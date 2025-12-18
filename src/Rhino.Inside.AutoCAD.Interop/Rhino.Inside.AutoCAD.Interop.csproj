@@ -16,7 +16,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="Autocad\Transient\RhinoObjectPreviewServer.cs" />
+	  <None Include="Autocad\Transient\PreviewServers\RhinoObjectPreviewServer.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

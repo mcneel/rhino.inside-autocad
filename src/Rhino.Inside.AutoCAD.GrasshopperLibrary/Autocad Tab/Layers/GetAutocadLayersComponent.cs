@@ -10,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class GetAutocadLayersComponent : RhinoInsideAutocad_Component, IReferenceComponent
+public class GetAutocadLayersComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("41c4ed14-3a97-4812-94bc-4950bca8be7d");

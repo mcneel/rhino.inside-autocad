@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that converts an AutoCAD Solid3d to a Rhino brep.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class ConvertFromAutoCadSolidComponent : RhinoInsideAutocad_Component
+public class ConvertFromAutoCadSolidComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

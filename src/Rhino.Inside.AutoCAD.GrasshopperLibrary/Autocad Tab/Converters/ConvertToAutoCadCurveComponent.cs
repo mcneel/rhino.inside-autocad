@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that converts a Rhino curve to an AutoCAD curve.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class ConvertToAutoCadCurveComponent : RhinoInsideAutocad_Component
+public class ConvertToAutoCadCurveComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

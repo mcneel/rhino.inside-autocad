@@ -60,7 +60,7 @@ public interface IRhinoInsideManager
     IGrasshopperObjectPreviewServer GrasshopperPreviewServer { get; }
 
     /// <summary>
-    /// Shuts down the Rhino.Inside.AutoCAD manager, enusure all document are saved and
+    /// Shuts down the Rhino.Inside.AutoCAD manager, ensuring all document are saved and
     /// releasing any resources.
     /// </summary>
     void Shutdown();

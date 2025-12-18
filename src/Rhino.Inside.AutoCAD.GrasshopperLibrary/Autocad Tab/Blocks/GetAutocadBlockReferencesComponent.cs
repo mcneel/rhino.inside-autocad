@@ -10,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that returns the AutoCAD BlockTableRecords currently open in the AutoCAD session.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class GetAutocadBlockReferencesComponent : RhinoInsideAutocad_Component, IReferenceComponent
+public class GetAutocadBlockReferencesComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
     public override GH_Exposure Exposure => GH_Exposure.secondary;

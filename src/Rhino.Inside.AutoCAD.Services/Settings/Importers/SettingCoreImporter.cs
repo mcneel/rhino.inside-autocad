@@ -6,7 +6,7 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// <inheritdoc cref="ISettingCoreImporter"/>
 public class SettingCoreImporter : ISettingCoreImporter
 {
-    private readonly string _settingCoreJsonName = CoreConstants.SettingCoreJsonName;
+    private readonly string _settingCoreJsonName = ApplicationConstants.SettingCoreJsonName;
 
     /// <summary>
     /// Returns the <see cref="ISettingsCore"/> instance from JSON.

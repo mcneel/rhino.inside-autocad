@@ -1,6 +1,8 @@
 using Grasshopper.Kernel;
+using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using AutocadDimension = Autodesk.AutoCAD.DatabaseServices.Dimension;
+using RhinoCurve = Rhino.Geometry.Curve;
 using RhinoDimension = Rhino.Geometry.Dimension;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -77,7 +79,24 @@ public class GH_AutocadDimension : GH_AutocadGeometricGoo<AutocadDimension, Rhin
     /// <inheritdoc />
     public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
     {
-        // Dimensions don't have a dedicated collection in preview data
-        // The AutoCAD preview will be handled through the convertible system
+        var rhinoGeometry = this.RhinoGeometry;
+        if (rhinoGeometry == null) return;
+
+        var geometryBases = rhinoGeometry.Explode();
+
+        foreach (var geometryBase in geometryBases)
+        {
+            if (geometryBase is RhinoCurve curve)
+            {
+                previewData.Wires.Add(curve);
+                continue;
+            }
+
+            if (geometryBase is TextEntity textEntity)
+            {
+                previewData.Texts.Add(textEntity);
+                continue;
+            }
+        }
     }
 }

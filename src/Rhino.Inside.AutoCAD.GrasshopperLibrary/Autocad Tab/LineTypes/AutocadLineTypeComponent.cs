@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that returns information about an AutoCAD Line Pattern.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class AutocadLineTypeComponent : RhinoInsideAutocad_Component
+public class AutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("d5e7f0a1-6b4c-4d8e-0f3a-2b9c4d6e8f0b");

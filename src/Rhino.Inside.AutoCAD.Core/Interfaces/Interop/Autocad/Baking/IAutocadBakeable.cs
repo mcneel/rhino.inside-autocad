@@ -8,8 +8,9 @@ public interface IAutocadBakeable
     /// <summary>
     /// Bakes the object to AutoCAD's model space within the provided transaction.
     /// </summary>
-    /// <returns>The ObjectId of the newly created AutoCAD entity.</returns>
+    /// <returns>
+    /// The ObjectId of the newly created AutoCAD entity.
+    /// </returns>
     List<IObjectId> BakeToAutocad(ITransactionManager transactionManager,
         IBakingComponent bakingComponent, IBakeSettings? settings = null);
 }
-

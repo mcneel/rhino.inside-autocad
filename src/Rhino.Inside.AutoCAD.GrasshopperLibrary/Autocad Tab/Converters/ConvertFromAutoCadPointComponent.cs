@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that converts an AutoCAD DBPoint to a Rhino point.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class ConvertFromAutoCadPointComponent : RhinoInsideAutocad_Component
+public class ConvertFromAutoCadPointComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

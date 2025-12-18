@@ -3,7 +3,8 @@
 /// <summary>
 /// Represents a reference to an AutoCAD object. This includes an <see cref="IObjectId"/>
 /// which uniquely identifies the object within the AutoCAD database but may not guarantee
-/// persistence across sessions and the objects Handle which should persist.
+/// persistence across sessions and the objects Handle which should persist between sessions.
+/// The handle is serialized as a string for storage inside Grasshopper documents.
 /// </summary>
 public interface IAutocadReferenceId
 {

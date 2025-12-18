@@ -14,5 +14,4 @@ public interface IObjectIdCollection : IEnumerable<IObjectId>
     /// Adds a collection of <see cref="IObjectId"/>s to the <see cref="IObjectIdCollection"/>.
     /// </summary>
     void Add(IObjectIdCollection entityCollection);
-
 }

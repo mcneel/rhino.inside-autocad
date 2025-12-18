@@ -1,7 +1,7 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// Represents the version history of a Autocad Grasshopper component. It provides
+/// Represents the version history of an Autocad Grasshopper component. It provides
 /// information about the version it was introduced,  whether it has been updated or
 /// deprecated, and methods to retrieve version details.
 /// </summary>

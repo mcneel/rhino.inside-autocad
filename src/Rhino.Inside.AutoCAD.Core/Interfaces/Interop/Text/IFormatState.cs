@@ -5,7 +5,6 @@
 /// </summary>
 public interface IFormatState
 {
-
     /// <summary>
     /// Gets the name of the font used for the text.
     /// </summary>

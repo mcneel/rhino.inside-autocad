@@ -3,14 +3,13 @@
 namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// Represents an instance of the Rhino application within the Rhino.Inside.AutoCAD
+/// Represents an instance of the Grasshopper application within the Rhino.Inside.AutoCAD
 /// environment.
 /// </summary>
 /// <remarks>
-/// This interface provides access to the core functionality of Rhino, including
-/// its core extension, the active document, and methods for validating and
-/// interacting with Rhino commands. It acts as the primary entry point for
-/// managing the Rhino instance.
+/// This interface provides access to the core functionality of Grasshopper, including its
+/// active document, and methods disabling and recalculating the solution. It acts as the
+/// primary entry point for managing the Grasshopper instance.
 /// </remarks>
 public interface IGrasshopperInstance
 {

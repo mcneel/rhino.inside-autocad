@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that converts an AutoCAD PolyFaceMesh to a Rhino mesh.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class ConvertFromAutoCadMeshComponent : RhinoInsideAutocad_Component
+public class ConvertFromAutoCadMeshComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

@@ -1,7 +1,8 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// The application configuration interface. This interface provides basic information about the application
+/// The application configuration interface. This interface provides basic information
+/// about the application
 /// </summary>
 public interface IApplicationConfig
 {

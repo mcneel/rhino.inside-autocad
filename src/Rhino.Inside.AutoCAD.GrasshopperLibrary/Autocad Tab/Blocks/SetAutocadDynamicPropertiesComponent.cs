@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that extracts properties from an AutoCAD dynamic block reference property.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_Component
+public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("b28d185e-fe02-4330-9159-59e6faa508d1");

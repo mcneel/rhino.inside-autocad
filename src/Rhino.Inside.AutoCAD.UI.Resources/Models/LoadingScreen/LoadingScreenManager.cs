@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.UI.Resources.Models;
 /// <summary>
 /// The splash screen window launcher. Provides a UI window with
 /// progress reporting and failure information for starting the
-/// <see cref="IApplicationMain"/> and <see cref="ISatelliteService"/>.
+/// application.
 /// </summary>
 public class LoadingScreenManager : ILoadingScreenManager
 {
@@ -148,7 +148,6 @@ public class LoadingScreenManager : ILoadingScreenManager
             }
         }
     }
-
 
     /// <inheritdoc/>
     public void Show()

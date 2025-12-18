@@ -10,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that returns the AutoCAD documents currently open in the AutoCAD session.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class GetByAutocadIdComponent : RhinoInsideAutocad_Component, IReferenceComponent
+public class GetByAutocadIdComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
     public override GH_Exposure Exposure => GH_Exposure.secondary;

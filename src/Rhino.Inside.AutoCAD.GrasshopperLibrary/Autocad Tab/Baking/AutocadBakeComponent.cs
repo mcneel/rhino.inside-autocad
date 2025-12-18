@@ -11,7 +11,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that bakes AutoCAD objects to the model space.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class AutocadBakeComponent : RhinoInsideAutocad_Component, IBakingComponent
+public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingComponent
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new Guid("C5D7E9F1-A3B5-4C7D-9E1F-3A5B7C9D1E3F");

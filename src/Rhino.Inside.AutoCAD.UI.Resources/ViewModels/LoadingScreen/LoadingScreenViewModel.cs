@@ -1,5 +1,5 @@
-﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -37,12 +37,6 @@ public partial class LoadingScreenViewModel : ObservableObject, IDisposable
     /// </summary>
     [ObservableProperty]
     private Visibility _progressMessageVisibility = Visibility.Visible;
-
-    /// <summary>
-    /// The current <see cref="IProgressReport"/> that has been posted.
-    /// </summary>
-    [ObservableProperty]
-    private IProgressReport? _currentProgressReport;
 
     /// <summary>
     /// The error message to display to the user if there has been a startup

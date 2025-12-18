@@ -13,7 +13,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// Represents a Grasshopper Goo object for AutoCAD ObjectIds.
 /// </summary>
 public abstract class GH_AutocadGeometricGoo<TWrapperType, TRhinoType>
-    : GH_GeometricGoo<TWrapperType>, IGH_AutocadReferenceObject,
+    : GH_GeometricGoo<TWrapperType>, IGH_AutocadReferenceDatabaseObject,
         IGH_PreviewData, IGH_AutocadGeometryPreview, IAutocadBakeable
 where TWrapperType : Entity
 where TRhinoType : GeometryBase

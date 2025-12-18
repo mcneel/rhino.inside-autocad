@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that sets properties for an AutoCAD layout.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class SetAutocadLayoutComponent : RhinoInsideAutocad_Component
+public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("e7f9a1b4-8c0d-5e3f-9a2b-8d6c5f8e9b3f");

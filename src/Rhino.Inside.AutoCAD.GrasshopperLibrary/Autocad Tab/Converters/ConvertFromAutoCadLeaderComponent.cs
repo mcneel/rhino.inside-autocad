@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that converts an AutoCAD MLeader to a Rhino Leader.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class ConvertFromAutoCadLeaderComponent : RhinoInsideAutocad_Component
+public class ConvertFromAutoCadLeaderComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

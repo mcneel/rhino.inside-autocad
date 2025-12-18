@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that creates bake settings for AutoCAD objects.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class AutocadBakeSettingsComponent : RhinoInsideAutocad_Component
+public class AutocadBakeSettingsComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new Guid("B4C6D8E0-F2A4-4B6C-9D8E-0F2A4B6C8D0E");

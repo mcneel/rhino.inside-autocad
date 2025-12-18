@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// </summary>
 public class UserSettingImporter : IUserSettingsImporter<IUserSettings>
 {
-    private const string _userSettingsJsonName = CoreConstants.UserSettingsJsonName;
+    private const string _userSettingsJsonName = ApplicationConstants.UserSettingsJsonName;
     private const string _userSettingDeserializeError = MessageConstants.UserSettingDeserializeError;
 
     /// <summary>

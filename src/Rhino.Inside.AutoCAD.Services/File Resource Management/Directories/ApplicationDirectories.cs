@@ -5,8 +5,8 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// <inheritdoc cref="IApplicationDirectories"/>
 public class ApplicationDirectories : IApplicationDirectories
 {
-    private const string _assemblyFolder = CoreConstants.AssemblyFolderName;
-    private const string _resourcesFolderName = CoreConstants.ResourcesFolderName;
+    private const string _assemblyFolder = ApplicationConstants.AssemblyFolderName;
+    private const string _resourcesFolderName = ApplicationConstants.ResourcesFolderName;
 
     /// <inheritdoc />
     public string RootInstall { get; }

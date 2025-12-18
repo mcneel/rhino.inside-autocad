@@ -11,7 +11,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that extracts the geometry from an AutoCAD block.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class AutocadExtractBlockGeometryComponent : RhinoInsideAutocad_Component
+public class AutocadExtractBlockGeometryComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GooTypeRegistry _gooConverterRegister = GooTypeRegistry.Instance!;
 
@@ -112,4 +112,3 @@ public class AutocadExtractBlockGeometryComponent : RhinoInsideAutocad_Component
         DA.SetDataList(0, gooObjects.ToList());
     }
 }
-

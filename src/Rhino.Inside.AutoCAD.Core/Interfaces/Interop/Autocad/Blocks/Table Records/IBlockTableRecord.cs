@@ -19,6 +19,5 @@ public interface IBlockTableRecord : IDbObject
     /// <summary>
     /// Gets all the objects contained within this <see cref="IBlockTableRecord"/>.
     /// </summary>
-
     IEntityCollection GetObjects(ITransactionManager transactionManager);
 }

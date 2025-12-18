@@ -10,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that returns the AutoCAD layouts currently in the AutoCAD document.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class GetAutocadLayoutsComponent : RhinoInsideAutocad_Component, IReferenceComponent
+public class GetAutocadLayoutsComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("c5f6a8b9-2d3e-4f7a-9b1c-8e5d4a7f9c2e");

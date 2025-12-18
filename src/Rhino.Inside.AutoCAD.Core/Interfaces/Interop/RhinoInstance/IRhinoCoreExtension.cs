@@ -1,6 +1,4 @@
-﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
-
-namespace Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
 /// An extension to manage the Rhino core inside AutoCAD.

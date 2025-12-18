@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that converts a Rhino Dimension to an AutoCAD Dimension.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class ConvertToAutoCadDimensionComponent : RhinoInsideAutocad_Component
+public class ConvertToAutoCadDimensionComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 

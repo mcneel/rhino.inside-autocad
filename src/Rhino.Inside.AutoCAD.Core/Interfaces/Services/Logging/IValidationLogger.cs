@@ -2,7 +2,8 @@
 
 /// <summary>
 /// A logger for storing validation error messages for
-/// <see cref="ISatelliteService"/>s. If the 
+/// application start up. It is used to collect validation
+/// information before the main logging system is available. 
 /// </summary>
 public interface IValidationLogger
 {

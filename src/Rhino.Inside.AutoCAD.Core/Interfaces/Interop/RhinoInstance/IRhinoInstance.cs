@@ -63,7 +63,7 @@ public interface IRhinoInstance
     bool RunRhinoScript(string commandName);
 
     /// <summary>
-    /// The steps to take to shutdown this plugin.
+    /// The steps to taken to shutdown the rhino instance.
     /// </summary>
     void Shutdown();
 }

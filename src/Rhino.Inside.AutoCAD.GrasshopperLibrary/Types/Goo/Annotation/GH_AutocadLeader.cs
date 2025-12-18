@@ -88,5 +88,6 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadMLeader, RhinoLead
         var curve = rhinoGeometry.Curve;
 
         previewData.Wires.Add(curve);
+
     }
 }

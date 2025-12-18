@@ -1,7 +1,7 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// A reference to an AutoCAD object.
+/// A grasshopper Goo reference to an AutoCAD object of any type.
 /// </summary>
 public interface IGH_AutocadReference
 {

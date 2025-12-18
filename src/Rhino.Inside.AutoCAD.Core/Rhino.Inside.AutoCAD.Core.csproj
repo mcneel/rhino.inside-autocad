@@ -15,7 +15,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="Interfaces\Grasshopper\References\IGH_AutocadReferenceObject.cs" />
+	  <None Include="Interfaces\Grasshopper\References\IGH_AutocadReferenceDatabaseObject.cs" />
 	</ItemGroup>
 
 

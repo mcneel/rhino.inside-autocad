@@ -8,14 +8,19 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 public class GooConverter
 {
     /// <summary>
-    /// Attempts to convert the specified source object to the target type <typeparamref
-    /// name="TTarget"/>.
+    /// Attempts to convert the specified source object to the target type
+    /// <typeparamref name="TTarget"/>.
     /// </summary>
-    /// <typeparam name="TTarget">The type to which the source object should be converted.
+    /// <typeparam name="TTarget">
+    /// The type to which the source object should be converted.
     /// </typeparam>
-    /// <param name="source">The object to be converted.</param>
-    /// <param name="target">The converted object if the conversion is successful;
-    /// otherwise, the default value of <typeparamref name="TTarget"/>.</param>
+    /// <param name="source">
+    /// The object to be converted.
+    /// </param>
+    /// <param name="target">
+    /// The converted object if the conversion is successful;
+    /// otherwise, the default value of <typeparamref name="TTarget"/>.
+    /// </param>
     /// <returns>
     /// <see langword="true"/> if the conversion is successful; otherwise,
     /// <see langword="false"/>.
@@ -27,8 +32,7 @@ public class GooConverter
             target = isCast;
             return true;
         }
-
-        if (source is IGH_AutocadReferenceObject ghAutocadReferenceObject)
+        if (source is IGH_AutocadReferenceDatabaseObject ghAutocadReferenceObject)
         {
             var dbObject = ghAutocadReferenceObject.ObjectValue;
             if (dbObject is TTarget targetCast)
@@ -37,7 +41,6 @@ public class GooConverter
                 return true;
             }
         }
-
         if (source is IDbObject autocadReferenceObject)
         {
             var dbObject = autocadReferenceObject;
@@ -47,7 +50,6 @@ public class GooConverter
                 return true;
             }
         }
-
         target = default;
         return false;
     }
@@ -55,27 +57,29 @@ public class GooConverter
     /// <summary>
     /// Attempts to retrieve the <see cref="IObjectId"/> from the specified source object.
     /// </summary>
-    /// <param name="source">The object from which to retrieve the identifier.</param>
-    /// <param name="target">The retrieved <see cref="IObjectId"/> if successful; otherwise,
-    /// <see langword="null"/>.</param>
+    /// <param name="source">
+    /// The object from which to retrieve the identifier.
+    /// </param>
+    /// <param name="target">
+    /// The retrieved <see cref="IObjectId"/> if successful; otherwise,
+    /// <see langword="null"/>.
+    /// </param>
     /// <returns>
     /// <see langword="true"/> if the identifier is successfully retrieved; otherwise,
     /// <see langword="false"/>.
     /// </returns>
     public bool TryConvertGetId(object source, out IObjectId? target)
     {
-        if (source is IGH_AutocadReferenceObject ghAutocadReferenceObject)
+        if (source is IGH_AutocadReferenceDatabaseObject ghAutocadReferenceObject)
         {
             target = ghAutocadReferenceObject.ObjectValue.Id;
             return true;
         }
-
         if (source is IDbObject autocadReferenceObject)
         {
             target = autocadReferenceObject.Id;
             return true;
         }
-
         target = null;
         return false;
     }

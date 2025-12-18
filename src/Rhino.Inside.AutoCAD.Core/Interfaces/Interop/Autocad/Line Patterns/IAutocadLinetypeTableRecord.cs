@@ -40,7 +40,7 @@ public interface IAutocadLinetypeTableRecord : IDisposable
     string Comments { get; }
 
     /// <summary>
-    /// Returns the pattern of the <see cref="LinetypeTableRecord"/> as a list
+    /// Returns the pattern of the <see cref="IAutocadLinetypeTableRecord"/> as a list
     /// of <see cref="LineCurve"/>s. The pattern is from the  <paramref name=
     /// "originPoint"/> and runs in the X direction The pattern is repeated until
     /// it is longer than the <paramref name="patternTotalLength"/> or the

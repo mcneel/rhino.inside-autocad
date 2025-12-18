@@ -1,5 +1,8 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
+/// <summary>
+/// Imports core settings from JSON.
+/// </summary>
 public interface ISettingCoreImporter
 {
     /// <summary>

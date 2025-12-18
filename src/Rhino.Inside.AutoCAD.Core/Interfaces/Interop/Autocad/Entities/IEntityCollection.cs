@@ -14,5 +14,4 @@ public interface IEntityCollection : IEnumerable<IEntity>
     /// Adds a collection of <see cref="IEntity"/>s to the <see cref="IEntityCollection"/>.
     /// </summary>
     void Add(IEntityCollection entityCollection);
-
 }

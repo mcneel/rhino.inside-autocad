@@ -23,7 +23,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// called <see cref="AutocadBrepProxy "/> and it represents the Brep as a collection of
 /// Autocad Nurbs Surfaces and can be used to represent the Brep in Autocad.
 /// </summary>
-public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadReferenceObject,
+public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadReferenceDatabaseObject,
     IGH_PreviewData, IGH_AutocadGeometryPreview, IAutocadBakeable
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;

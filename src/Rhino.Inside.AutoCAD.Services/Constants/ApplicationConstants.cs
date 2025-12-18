@@ -6,6 +6,41 @@
 public class ApplicationConstants
 {
     /// <summary>
+    /// The name of the Rhino.Inside.AutoCAD.Core settings JSON file.
+    /// </summary>
+    public const string SettingCoreJsonName = "SettingsCore.json";
+
+    /// <summary>
+    /// The name of the user settings JSON file.
+    /// </summary>
+    public const string UserSettingsJsonName = "UserSettings.json";
+
+    /// <summary>
+    /// The folder storing the application assemblies.
+    /// </summary>
+    public const string AssemblyFolderName = "Win64";
+
+    /// <summary>
+    /// The name of the application resources folder.
+    /// </summary>
+    public const string ResourcesFolderName = "Resources";
+
+    /// <summary>
+    /// The name of the material design assembly.
+    /// </summary>
+    public static List<string> MaterialDesignAssemblyNames =
+    [
+        "MaterialDesignThemes.Wpf.dll",
+        "MaterialDesignColors.dll",
+        "Microsoft.Xaml.Behaviors.dll"
+    ];
+
+    /// <summary>
+    /// The name of the Serilog configuration file.
+    /// </summary>
+    public const string LogConfigName = "SerilogConfig.json";
+
+    /// <summary>
     /// The name of the application. This must match the Product name in the assembly
     /// info (Build.Props).
     /// </summary>
@@ -31,15 +66,6 @@ public class ApplicationConstants
     /// </summary>
     public const string PackagePrefixName = "RhinoInsideAutoCAD.Applications.";
 
-    /// <summary>
-    /// The name of the material design assembly.
-    /// </summary>
-    public static List<string> MaterialDesignAssemblyNames =
-    [
-        "MaterialDesignThemes.Wpf.dll",
-        "MaterialDesignColors.dll",
-        "Microsoft.Xaml.Behaviors.dll"
-    ];
 
     /// <summary>
     /// The name  of the Rhino.Inside tab in the AutoCad application ribbon.
@@ -101,8 +127,6 @@ public class ApplicationConstants
     /// </summary>
     public const string WireframeButtonSelected = "pack://application:,,,/Rhino.Inside.AutoCAD.Applications;component/Icons/Large512/Grasshopper_Preview_Wireframe_Selected.png";
 
-    #region Rhino Constants
-
     /// <summary>
     /// The registry key path for Rhino 8 installation information.
     /// </summary>
@@ -163,10 +187,6 @@ public class ApplicationConstants
     /// </summary>
     public const string RhinoCoreInitializationFailedErrorMessage = "Failed to initialize Rhino Core";
 
-    #endregion
-
-    #region Application Initialization Messages
-
     /// <summary>
     /// Success message displayed when Rhino.Inside.AutoCAD loads successfully.
     /// </summary>
@@ -181,10 +201,6 @@ public class ApplicationConstants
     /// Format string for displaying stack trace information.
     /// </summary>
     public const string StackTraceMessageFormat = "\nStack trace: {0}\n";
-
-    #endregion
-
-    #region Command Constants
 
     /// <summary>
     /// The identifier for the Rhino preview toggle button.
@@ -235,16 +251,4 @@ public class ApplicationConstants
     /// The Rhino script command for creating a new floating viewport.
     /// </summary>
     public const string NewFloatingViewportScript = "_NewFloatingViewport _Projection _CopyActive";
-
-    /// <summary>
-    /// The URL for the Bimorph contact page.
-    /// </summary>
-    public const string BimorphContactUrl = "https://www.bimorph.com/contact";
-
-    /// <summary>
-    /// The URL for the Bimorph website home page.
-    /// </summary>
-    public const string BimorphWebsiteUrl = "https://www.bimorph.com/";
-
-    #endregion
 }

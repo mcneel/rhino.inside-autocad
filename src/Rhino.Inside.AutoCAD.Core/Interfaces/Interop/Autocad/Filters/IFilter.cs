@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Represents a filter which can be used to filter objects from the
-/// <see cref="IDocument"/>.
+/// <see cref="IAutocadDocument"/>.
 /// </summary>
 public interface IFilter
 {

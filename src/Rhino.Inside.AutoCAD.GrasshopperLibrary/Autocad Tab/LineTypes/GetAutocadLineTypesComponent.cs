@@ -10,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that returns the AutoCAD linetypes currently in the AutoCAD document.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class GetAutocadLineTypesComponent : RhinoInsideAutocad_Component, IReferenceComponent
+public class GetAutocadLineTypesComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("e7a8c0d1-4f5b-6a9c-1d3e-0d7f6c9a1e4f");

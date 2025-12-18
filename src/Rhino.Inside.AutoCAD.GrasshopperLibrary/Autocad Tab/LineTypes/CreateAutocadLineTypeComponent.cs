@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that creates a new AutoCAD linetype.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class CreateAutocadLineTypeComponent : RhinoInsideAutocad_Component
+public class CreateAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("a8f5c3d2-4e7b-4a9c-8d1f-6e3b2c5a8f9d");

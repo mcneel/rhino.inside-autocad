@@ -38,7 +38,7 @@ public class SettingManager : ISettingsManager
             WriteIndented = true
         };
 
-        var userSettingsPath = $"{_applicationDirectories.UserLocal}{CoreConstants.UserSettingsJsonName}";
+        var userSettingsPath = $"{_applicationDirectories.UserLocal}{ApplicationConstants.UserSettingsJsonName}";
 
         var jsonString = JsonSerializer.Serialize((UserSettings)this.User, serializerOptions);
 

@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class AutocadBlockReferenceComponent : RhinoInsideAutocad_Component
+public class AutocadBlockReferenceComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
@@ -85,4 +85,3 @@ public class AutocadBlockReferenceComponent : RhinoInsideAutocad_Component
         DA.SetData(4, blockTableRecordIdGoo);
     }
 }
-

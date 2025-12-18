@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that returns information about an AutoCAD ObjectId.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class AutocadObjectIdComponent : RhinoInsideAutocad_Component
+public class AutocadObjectIdComponent : RhinoInsideAutocad_ComponentBase
 {
 
     /// <inheritdoc />

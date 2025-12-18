@@ -12,10 +12,9 @@ public class LoggerService : ILoggerService
     private static ILoggerService? _instance;
     private static readonly object Lock = new();
 
-    private const string _serilogConfigFileName = CoreConstants.LogConfigName;
-    private const string _loggerServiceAlreadyInitialized = CoreMessageConstants.LoggerServiceAlreadyInitialized;
-    private const string _loggerServiceNotInitialized = CoreMessageConstants.LoggerServiceNotInitialized;
-    private const string _userHasInteractedMessage = CoreMessageConstants.UserHasInteractedLogMessage;
+    private const string _serilogConfigFileName = ApplicationConstants.LogConfigName;
+    private const string _loggerServiceAlreadyInitialized = MessageConstants.LoggerServiceAlreadyInitialized;
+    private const string _loggerServiceNotInitialized = MessageConstants.LoggerServiceNotInitialized;
 
     /// <summary>
     /// Returns the singleton instance of the <see cref="ILogger"/>.
@@ -80,14 +79,6 @@ public class LoggerService : ILoggerService
 
             _instance = new LoggerService(applicationDirectories);
         }
-    }
-
-    /// <inheritdoc />
-    public void LogUIInteragtion(string commandName, string viewModelName)
-    {
-        var message = string.Format(_userHasInteractedMessage, commandName, viewModelName);
-
-        Log.Logger.Information(message);
     }
 
     /// <inheritdoc />

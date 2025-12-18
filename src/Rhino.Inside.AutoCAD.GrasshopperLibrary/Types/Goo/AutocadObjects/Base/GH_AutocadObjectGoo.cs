@@ -10,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD ObjectIds.
 /// </summary>
-public abstract class GH_AutocadObjectGoo<TWrapperType> : GH_Goo<TWrapperType>, IGH_AutocadReferenceObject
+public abstract class GH_AutocadObjectGoo<TWrapperType> : GH_Goo<TWrapperType>, IGH_AutocadReferenceDatabaseObject
 where TWrapperType : IDbObject
 {
     private const string _referenceHandleDictionaryName = "AutocadReferenceHandle";

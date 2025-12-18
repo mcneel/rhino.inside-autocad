@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that converts a Rhino hatch to an AutoCAD hatch.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class ConvertToAutoCadHatchComponent : RhinoInsideAutocad_Component
+public class ConvertToAutoCadHatchComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
