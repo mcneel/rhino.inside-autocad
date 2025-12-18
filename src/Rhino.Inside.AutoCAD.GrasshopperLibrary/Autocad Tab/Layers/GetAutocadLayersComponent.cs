@@ -1,5 +1,6 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using CadLayer = Autodesk.AutoCAD.DatabaseServices.LayerTableRecord;
 
@@ -8,7 +9,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
 /// </summary>
-public class GetAutocadLayersComponent : GH_Component, IReferenceComponent
+[ComponentVersion(introduced: "1.0.0")]
+public class GetAutocadLayersComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new("41c4ed14-3a97-4812-94bc-4950bca8be7d");
@@ -20,7 +22,7 @@ public class GetAutocadLayersComponent : GH_Component, IReferenceComponent
     /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
     /// </summary>
     public GetAutocadLayersComponent()
-        : base("GetAutoCadLayers", "GetLayers",
+        : base("Get AutoCAD Layers", "AC-Lyrs",
             "Returns the list of all the AutoCAD layer in the document",
             "AutoCAD", "Layers")
     {
@@ -49,7 +51,6 @@ public class GetAutocadLayersComponent : GH_Component, IReferenceComponent
             || autocadDocument is null) return;
 
         var layersRepository = autocadDocument.LayerRepository;
-        layersRepository.LayerTableModified += (_, _) => this.ExpireSolution(true);
 
         var gooLayers = layersRepository
             .Select(layer => new GH_AutocadLayer(layer))
@@ -68,7 +69,7 @@ public class GetAutocadLayersComponent : GH_Component, IReferenceComponent
 
         foreach (var changedObject in change)
         {
-            if (changedObject.Unwrap() is CadLayer)
+            if (changedObject.UnwrapObject() is CadLayer)
             {
                 return true;
             }

@@ -1,0 +1,48 @@
+﻿<Project Sdk="WixToolset.Sdk/6.0.2">
+  <PropertyGroup>
+    <TargetFramework>$(Framework)</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <Configurations>Release;Debug;DebugBackwards</Configurations>
+    <Version>$(AssemblyVersion)</Version>
+    <Product>$(AppName)</Product>
+    <Company>$(CompanyName)</Company>
+    <Copyright>Copyright © $(CompanyName) 2025</Copyright>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+    <DefineConstants>
+		$(DefineConstants);UpgradeCode=03C5A84C-F8F9-445E-921E-13D359E81D87
+		$(DefineConstants);RootComponentId=1E221361-0B7E-46D5-A77C-E64EF0D9E439
+		$(DefineConstants);IconId=54EFEEB6-68A4-4242-BF98-E7271EAAFC9D
+		$(DefineConstants);ResourcesId=C3CC1367-135B-4091-B5A3-DBE80AE61FC0
+		$(DefineConstants);WinId=188E81F1-7DC6-4539-B840-0947A788F688
+		$(DefineConstants);ToolbarId=D6EC6E9F-2949-475D-9E74-38D28DCA5ED0
+		$(DefineConstants);AppName=$(AppName)
+		$(DefineConstants);AppVersion=$(AssemblyVersion)
+		$(DefineConstants);AppRootDir=$(AppRootDir)
+		$(DefineConstants);CompanyName=$(CompanyName)
+		$(DefineConstants);RootDirectory=$(DeploymentPackage)
+		$(DefineConstants);RootDirectoryVersion=$(DeploymentPackageVersioned)
+		$(DefineConstants);IconsDirectory=$(DeploymentPackage)Icons/
+		$(DefineConstants);ResourcesDirectory=$(DeploymentPackage)Resources/
+		$(DefineConstants);ToolbarDirectory=$(DeploymentPackage)Toolbar/
+		$(DefineConstants);AssembliesDirectory=$(DeploymentPackage_Win64)
+		$(DefineConstants);RegistryKey=Software\Autodesk\AutoCAD\R24.3\ACAD-7101:409\Applications\Rhino.Inside.AutoCAD
+		$(DefineConstants);InstallLocation=$(AppRootDir)
+		$(DefineConstants);InstallLocationAssemblies=$(AppRootDirAssemblies)
+		$(DefineConstants);Bitness=always64
+	</DefineConstants>
+    <OutputName>$(AppName) Installer $(RuntimeName) V$(AssemblyVersion)</OutputName>
+    <SuppressIces>ICE64</SuppressIces>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Include.wxi" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Terms.rtf" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" />
+  </ItemGroup>
+</Project>

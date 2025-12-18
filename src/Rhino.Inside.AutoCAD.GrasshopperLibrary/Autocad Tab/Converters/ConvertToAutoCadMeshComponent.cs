@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using RhinoMesh = Rhino.Geometry.Mesh;
 
@@ -7,12 +8,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that converts a Rhino mesh to an AutoCAD PolyFaceMesh.
 /// </summary>
-public class ConvertToAutoCadMeshComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertToAutoCadMeshComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new("7f3e9a2b-5c1d-4e8f-9b2a-3d6c8e4f1a7b");
+
+    /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.tertiary;
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertToAutoCadMeshComponent;
@@ -21,7 +26,7 @@ public class ConvertToAutoCadMeshComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertToAutoCadMeshComponent"/> class.
     /// </summary>
     public ConvertToAutoCadMeshComponent()
-        : base("ToAutoCadMesh", "ToCadMesh",
+        : base("To AutoCAD Mesh", "AC-ToMsh",
             "Converts a Rhino Mesh to AutoCAD PolyFaceMesh",
             "AutoCAD", "Convert")
     {

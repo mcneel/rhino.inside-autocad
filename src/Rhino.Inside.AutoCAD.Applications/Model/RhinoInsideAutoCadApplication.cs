@@ -2,6 +2,7 @@
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using Rhino.Inside.AutoCAD.Services;
+using Rhino.Inside.AutoCAD.UI.Resources.Models;
 using System.Reflection;
 
 namespace Rhino.Inside.AutoCAD.Applications;
@@ -21,13 +22,16 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
     public IBootstrapper Bootstrapper { get; }
 
     /// <inheritdoc/>
-    public IApplicationServicesCore ApplicationServicesCore { get; }
-
-    /// <inheritdoc/>
     public IApplicationConfig ApplicationConfig { get; }
 
     /// <inheritdoc/>
     public IRhinoInsideManager RhinoInsideManager { get; }
+
+    /// <inheritdoc/>
+    public ISupportDialogManager SupportDialogManager { get; }
+
+    /// <inheritdoc/>
+    public IBrepConverterRunner BrepConverterRunner { get; }
 
     /// <summary>
     /// Constructs a new <see cref="IRhinoInsideAutoCadApplication"/>
@@ -46,13 +50,13 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
         var fileResourceManager = new FileResourceManager(applicationDirectories, settingManager);
 
-        var applicationServicesCore = new ApplicationServicesCore();
-
         var rhinoInstance = new RhinoInstance(applicationDirectories);
 
         var grasshopperInstance = new GrasshopperInstance(applicationDirectories);
 
         var autocadInstance = new AutoCadInstance(bootstrapper.Dispatcher);
+
+        var brepConverterRunner = new BrepConverterRunner();
 
         var rhinoInsideManager = new RhinoInsideManager(rhinoInstance, grasshopperInstance, autocadInstance);
 
@@ -62,13 +66,15 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
         this.Bootstrapper = bootstrapper;
 
-        this.ApplicationServicesCore = applicationServicesCore;
-
         this.ApplicationConfig = applicationConfig;
 
         this.RhinoInsideManager = rhinoInsideManager;
 
         this.LoadMaterialDesign(applicationDirectories);
+
+        this.SupportDialogManager = new SupportDialogManager(this);
+
+        this.BrepConverterRunner = brepConverterRunner;
     }
 
     /// <summary>
@@ -98,6 +104,8 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
     {
         try
         {
+            this.RhinoInsideManager?.Shutdown();
+
             this.Bootstrapper?.AssemblyManager.ShutDown();
 
             RhinoCoreExtension.Instance.Shutdown();

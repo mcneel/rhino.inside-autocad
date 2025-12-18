@@ -1,18 +1,23 @@
 using Grasshopper.Kernel;
+using Rhino.Geometry;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
-using AutocadSolid = Autodesk.AutoCAD.DatabaseServices.Solid3d;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
 /// A Grasshopper component that converts an AutoCAD Solid3d to a Rhino brep.
 /// </summary>
-public class ConvertFromAutoCadSolidComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertFromAutoCadSolidComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new("9e2f4a6b-8c1d-5e7f-3a9b-6c8d2e5f9a1b");
+
+    /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.primary;
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertFromAutoCadSolidComponent;
@@ -21,7 +26,7 @@ public class ConvertFromAutoCadSolidComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertFromAutoCadSolidComponent"/> class.
     /// </summary>
     public ConvertFromAutoCadSolidComponent()
-        : base("FromAutoCadSolid", "FromCadSolid",
+        : base("From AutoCAD Solid", "AC-FrSld",
             "Converts an AutoCAD Solid3d to a Rhino brep",
             "AutoCAD", "Convert")
     {
@@ -42,26 +47,11 @@ public class ConvertFromAutoCadSolidComponent : GH_Component
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        AutocadSolid? autocadSolid = null;
+        Brep? rhinoBrep = null;
 
-        if (!DA.GetData(0, ref autocadSolid)
-            || autocadSolid is null) return;
+        if (!DA.GetData(0, ref rhinoBrep)
+            || rhinoBrep is null) return;
 
-        var rhinoBreps = _geometryConverter.ToRhinoType(autocadSolid);
-
-        if (rhinoBreps == null || rhinoBreps.Length == 0)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                "Failed to convert solid to Rhino format");
-            return;
-        }
-
-        if (rhinoBreps.Length > 1)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                $"AutoCAD solid converted to {rhinoBreps.Length} Rhino breps. Only returning the first one.");
-        }
-
-        DA.SetData(0, rhinoBreps[0]);
+        DA.SetData(0, rhinoBrep);
     }
 }

@@ -29,7 +29,7 @@ public class LayoutObjectEraser : IObjectEraser
     {
         using var layoutManager = LayoutManager.Current;
 
-        var dbObjectUnwrapped = dbObject.Unwrap();
+        var dbObjectUnwrapped = dbObject.UnwrapObject();
 
         if (dbObjectUnwrapped.GetRXClass().Equals(_layoutRxClass) == false)
             return;

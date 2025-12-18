@@ -1,6 +1,8 @@
-﻿using Autodesk.Windows;
+﻿using Autodesk.AutoCAD.BoundaryRepresentation;
+using Autodesk.Windows;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using System.Windows.Media.Imaging;
+using Exception = Autodesk.AutoCAD.BoundaryRepresentation.Exception;
 
 namespace Rhino.Inside.AutoCAD.Services;
 
@@ -10,6 +12,7 @@ public class ButtonIconReplacer : IButtonIconReplacer
     private const string _rhinoInsideTabName = ApplicationConstants.RhinoInsideTabName;
     private const int _smallIconSize = ApplicationConstants.SmallIconSize;
     private const int _largeIconSize = ApplicationConstants.LargeIconSize;
+    private const string _rhinoInsideTabNotLoadedError = MessageConstants.RhinoInsideTabNotLoadedError;
 
     /// <inheritdoc />
     public string ButtonId { get; }
@@ -50,37 +53,71 @@ public class ButtonIconReplacer : IButtonIconReplacer
         button.LargeImage = this.ResizeImage(buttonFilePath, _largeIconSize, _largeIconSize);
     }
 
-    /// <inheritdoc />
-    public void Replace(string buttonFilePath)
+    /// <summary>
+    /// Finds the Rhino Inside ribbon tab in the Autocad UI Ribbon.
+    /// </summary>
+    private bool FindRhinoInsideTab(out RibbonTab? rhinoInsideTab)
     {
-        var ribbon = Autodesk.Windows.ComponentManager.Ribbon;
+        var ribbon = ComponentManager.Ribbon;
 
         foreach (var tab in ribbon.Tabs)
         {
             if (tab.Title != _rhinoInsideTabName) continue;
 
-            foreach (var panel in tab.Panels)
-            {
-                foreach (var item in panel.Source.Items)
-                {
-                    if (item is Autodesk.Windows.RibbonButton button && button.Id == this.ButtonId)
-                    {
-                        this.UpdateButton(buttonFilePath, button);
-                    }
+            rhinoInsideTab = tab;
+            return true;
+        }
 
-                    if (item is Autodesk.Windows.RibbonRowPanel subPanel)
+        rhinoInsideTab = null;
+        return false;
+    }
+
+    /// <summary>
+    /// Finds the button in the Rhino Inside ribbon tab.
+    /// </summary>
+    private bool FindButton(RibbonTab rhinoInsideTab, out RibbonButton? ribbonButton)
+    {
+        foreach (var panel in rhinoInsideTab.Panels)
+        {
+            foreach (var item in panel.Source.Items)
+            {
+                if (item is RibbonButton button &&
+                    button.Id == this.ButtonId)
+                {
+                    ribbonButton = button;
+                    return true;
+                }
+
+                if (item is RibbonRowPanel subPanel)
+                {
+                    foreach (var subPanelItem in subPanel.Items)
                     {
-                        foreach (var subPanelItem in subPanel.Items)
+                        if (subPanelItem is RibbonButton subButton &&
+                            subButton.Id == this.ButtonId)
                         {
-                            if (subPanelItem is Autodesk.Windows.RibbonButton subButton &&
-                                subButton.Id == this.ButtonId)
-                            {
-                                this.UpdateButton(buttonFilePath, subButton);
-                            }
+                            ribbonButton = subButton;
+                            return true;
                         }
                     }
                 }
             }
+        }
+
+        ribbonButton = null;
+        return false;
+    }
+
+    /// <inheritdoc />
+    public void Replace(string buttonFilePath)
+    {
+        if (this.FindRhinoInsideTab(out var rhinoInsideTab) == false)
+        {
+            throw new Exception(ErrorStatus.InvalidInput, _rhinoInsideTabNotLoadedError);
+        }
+
+        if (this.FindButton(rhinoInsideTab!, out var button))
+        {
+            this.UpdateButton(buttonFilePath, button!);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Grasshopper;
-using Grasshopper.Kernel;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -8,9 +6,9 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class RhinoInsideManager : IRhinoInsideManager
 {
     private readonly UnitSystem _defaultUnitSystem = InteropConstants.FallbackUnitSystem;
-    private readonly IRhinoObjectConverter _rhinoObjectConvert;
     private readonly IGrasshopperGeometryExtractor _grasshopperGeometryExtractor;
     private readonly IGrasshopperChangeResponder _grasshopperChangeResponder;
+    private readonly IRhinoConvertibleFactory _rhinoConvertibleFactory;
 
     /// <inheritdoc />
     public IRhinoInstance RhinoInstance { get; }
@@ -34,15 +32,25 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// Constructs a new <see cref="IRhinoInsideManager"/> instance.
     /// </summary>
     public RhinoInsideManager(IRhinoInstance rhinoInstance, IGrasshopperInstance grasshopperInstance,
-        IAutoCadInstance autoCadInstance)
+        IAutoCadInstance autoCadInstance )
     {
+        var previewGeometryConverter = new PreviewGeometryConverter(autoCadInstance);
 
-        this.RhinoPreviewServer = new RhinoObjectPreviewServer();
+        _rhinoConvertibleFactory = new RhinoConvertibleFactory();
 
-        this.GrasshopperPreviewServer = new GrasshopperObjectPreviewServer();
+        var rhinoPreviewSettings = new GeometryPreviewSettings(128,
+            "Rhino.Inside.AutoCAD.Preview.Rhino.Material", 4);
+
+        this.RhinoPreviewServer = new RhinoObjectPreviewServer(rhinoPreviewSettings, previewGeometryConverter);
+
+        var grasshopperPreviewSettings = new GeometryPreviewSettings(128,
+            "Rhino.Inside.AutoCAD.Preview.Grasshopper.Material", 1);
+
+        this.GrasshopperPreviewServer = new GrasshopperObjectPreviewServer(
+            grasshopperPreviewSettings, previewGeometryConverter, _rhinoConvertibleFactory);
 
         this.AutoCadInstance = autoCadInstance;
-        autoCadInstance.DocumentCreated += this.UpdateUnitSystem;
+        autoCadInstance.DocumentCreated += this.AutocadDocumentSwitched;
         autoCadInstance.UnitsChanged += this.UpdateUnitSystem;
         autoCadInstance.DocumentChanged += this.AutocadDocumentChange;
 
@@ -59,13 +67,32 @@ public class RhinoInsideManager : IRhinoInsideManager
         var unitsSystemManager = new UnitSystemManager(_defaultUnitSystem, _defaultUnitSystem);
 
         GeometryConverter.Initialize(unitsSystemManager);
-        _rhinoObjectConvert = new RhinoObjectConverter(GeometryConverter.Instance!);
 
         this.UnitSystemManager = unitsSystemManager;
-        _grasshopperGeometryExtractor = new GrasshopperGeometryExtractor();
+        _grasshopperGeometryExtractor = new GrasshopperGeometryExtractor(_rhinoConvertibleFactory);
         _grasshopperChangeResponder = new GrasshopperChangeResponder();
     }
 
+    /// <summary>
+    /// Handles AutoCAD document switching and creates preview materials in both Rhino and Grasshopper
+    /// preview servers.
+    /// </summary>
+    private void AutocadDocumentSwitched(object sender, EventArgs e)
+    {
+        this.UpdateUnitSystem(sender, e);
+
+        var document = this.AutoCadInstance.ActiveDocument;
+
+        if (document == null) return;
+
+        this.RhinoPreviewServer.Settings.CreateMaterial(document);
+
+        this.GrasshopperPreviewServer.Settings.CreateMaterial(document);
+    }
+
+    /// <summary>
+    /// Handles AutoCAD document changes and responds to them in Grasshopper.
+    /// </summary>
     private void AutocadDocumentChange(object sender, IAutocadDocumentChangeEventArgs e)
     {
         _grasshopperChangeResponder.Respond(e.Change);
@@ -93,11 +120,7 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         var previewGeometryData = _grasshopperGeometryExtractor.ExtractPreviewGeometry(ghDocumentObject);
 
-        var convertedWireframeEntities = previewGeometryData.GetWireframeEntities();
-
-        var convertedShadedEntities = previewGeometryData.GetShadedEntities();
-
-        this.GrasshopperPreviewServer.AddObject(instanceGuid, convertedWireframeEntities, convertedShadedEntities);
+        this.GrasshopperPreviewServer.AddObject(instanceGuid, previewGeometryData);
 
         this.AutoCadInstance.ActiveDocument?.UpdateScreen();
 
@@ -124,9 +147,11 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         this.RhinoPreviewServer.RemoveObject(rhinoObject.Id);
 
-        if (_rhinoObjectConvert.TryConvert(rhinoObject, out var newEntities))
+        if (_rhinoConvertibleFactory.MakeConvertible(rhinoObject.Geometry, out var rhinoConvertible))
         {
-            this.RhinoPreviewServer.AddObject(rhinoObject.Id, newEntities);
+            var newSet = new RhinoConvertibleSet { rhinoConvertible };
+
+            this.RhinoPreviewServer.AddObject(rhinoObject.Id, newSet);
         }
 
         this.AutoCadInstance.ActiveDocument?.UpdateScreen();
@@ -147,254 +172,23 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         }
     }
-}
-
-/// <summary>
-/// A Service that responds to AutoCAD document changes and updates Grasshopper documents accordingly.
-/// </summary>
-public interface IGrasshopperChangeResponder
-{
-    /// <summary>
-    /// Updates the all the Grasshopper documents according to the specified AutoCAD document change.
-    /// </summary>
-    void Respond(IAutocadDocumentChange documentChange);
-}
-
-/// <inheritdoc cref="IGrasshopperChangeResponder"/>
-public class GrasshopperChangeResponder : IGrasshopperChangeResponder
-{
-    private readonly IFlushQueueHandler _flushQueue;
-
-    public GrasshopperChangeResponder()
-    {
-        _flushQueue = new FlushQueueHandler();
-    }
-
-    /// <summary>
-    /// Returns true if the Grasshopper active object is awaiting solution and will be computed
-    /// in this current solution cycle.
-    /// </summary>
-    private bool AwaitingSolution(bool activeDefinition, IGH_ActiveObject ghActiveObject)
-    {
-        return activeDefinition && ghActiveObject.Phase == GH_SolutionPhase.Blank;
-    }
-
-    /// <summary>
-    /// Returns true if the Grasshopper active object is currently being computed which has
-    /// triggered the change.
-    /// </summary>
-    private bool IsActiveObject(IGH_ActiveObject ghActiveObject)
-    {
-        return ghActiveObject.Phase == GH_SolutionPhase.Computing;
-    }
-
-    /// <summary>
-    /// Enqueues the specified Grasshopper document change for processing.
-    /// </summary>
-    private void Enqueue(IGrasshopperDocumentChangedEvent change)
-    {
-        if (GH_Document.EnableSolutions == false)
-            return;
-
-        if (change.Definition.SolutionState != GH_ProcessStep.Process)
-        {
-            _flushQueue.Add(change);
-
-            _flushQueue.Execute();
-        }
-    }
-
-    /// <summary>
-    /// Updates a specific Grasshopper document according to the specified AutoCAD document change.
-    /// </summary>
-    private void UpdateDocument(IAutocadDocumentChange documentChange, GH_Document definition)
-    {
-        var activeDefinition = definition.SolutionState == GH_ProcessStep.Process;
-
-        if (activeDefinition)
-            return;
-
-        var grasshopperChange = new GrasshopperDocumentChangedEvent(documentChange, definition);
-
-        foreach (var ghActiveObject in definition.Objects.OfType<IGH_ActiveObject>())
-        {
-            if (ghActiveObject.Locked
-                || this.AwaitingSolution(activeDefinition, ghActiveObject)
-                || this.IsActiveObject(ghActiveObject))
-                continue;
-
-            try
-            {
-                switch (ghActiveObject)
-                {
-                    case IReferenceParam persistentParam:
-                        {
-                            if (persistentParam.NeedsToBeExpired(documentChange))
-                            {
-                                grasshopperChange.ExpiredObjects.Add(persistentParam);
-                            }
-
-                            break;
-                        }
-                    case IReferenceComponent persistentComponent:
-                        {
-                            if (persistentComponent.NeedsToBeExpired(documentChange))
-                            {
-                                grasshopperChange.ExpiredObjects.Add(persistentComponent);
-                            }
-                            break;
-                        }
-                }
-            }
-            catch { }
-        }
-
-        if (grasshopperChange.ExpiredObjects.Any())
-            this.Enqueue(grasshopperChange);
-    }
 
     /// <inheritdoc />
-    public void Respond(IAutocadDocumentChange documentChange)
+    public void Shutdown()
     {
-        if (documentChange.HasChanges == false) return;
+        this.AutoCadInstance.DocumentCreated -= this.AutocadDocumentSwitched;
+        this.AutoCadInstance.UnitsChanged -= this.UpdateUnitSystem;
+        this.AutoCadInstance.DocumentChanged -= this.AutocadDocumentChange;
+        this.AutoCadInstance.Shutdown();
 
-        foreach (GH_Document definition in Instances.DocumentServer)
-        {
-            this.UpdateDocument(documentChange, definition);
-        }
-    }
-}
+        this.GrasshopperInstance.OnPreviewExpired -= this.UpdateGrasshopperPreview;
+        this.GrasshopperInstance.OnObjectRemoved -= this.OnGrasshopperObjectRemoved;
+        this.GrasshopperInstance.Shutdown();
 
-/// <summary>
-/// Represents a change event for a Grasshopper document triggered by an AutoCAD document change.
-/// </summary>
-public interface IGrasshopperDocumentChangedEvent
-{
-    /// <summary>
-    /// Gets the AutoCAD document change that triggered this event.
-    /// </summary>
-    IAutocadDocumentChange Change { get; }
-
-    /// <summary>
-    /// Gets the Grasshopper document associated with this change event.
-    /// </summary>
-    GH_Document Definition { get; }
-
-    /// <summary>
-    /// Gets the list of Grasshopper objects that are marked as expired due to the change.
-    /// </summary>
-    List<IGH_ActiveObject> ExpiredObjects { get; }
-
-    /// <summary>
-    /// Creates a new solution for the Grasshopper document based on the expired objects.
-    /// </summary>
-    /// <returns>The updated Grasshopper document after processing the changes.</returns>
-    GH_Document NewSolution();
-}
-/// <inheritdoc cref="IGrasshopperDocumentChangedEvent"/>
-public class GrasshopperDocumentChangedEvent : IGrasshopperDocumentChangedEvent
-{
-    /// <inheritdoc/>
-    public IAutocadDocumentChange Change { get; }
-
-    /// <inheritdoc/>
-    public GH_Document Definition { get; }
-
-    /// <inheritdoc/>
-    public List<IGH_ActiveObject> ExpiredObjects { get; }
-
-    /// <summary>
-    /// Constructs a new <see cref="IGrasshopperDocumentChangedEvent"/>
-    /// </summary>
-    public GrasshopperDocumentChangedEvent(IAutocadDocumentChange change, GH_Document definition)
-    {
-        this.Change = change;
-        this.Definition = definition;
-        this.ExpiredObjects = new List<IGH_ActiveObject>();
-    }
-
-    /// <inheritdoc/>
-    public GH_Document NewSolution()
-    {
-        foreach (var obj in this.ExpiredObjects)
-            obj.ExpireSolution(false);
-
-        return this.Definition;
-    }
-}
-
-/// <summary>
-/// Base interface for all Parameter types in Rhino.Inside.Autocad that reference Autocad
-/// elements.
-/// </summary>
-public interface IReferenceParam : IGH_Param
-{
-    /// <summary>
-    /// Each implementing Parameter must define whether it needs to be expired based on
-    /// the given <see cref="IAutocadDocumentChange"/> in the <see cref="IAutocadDocument"/>.
-    /// If it does, the Parameter will be expired to trigger computation.
-    /// </summary>
-    bool NeedsToBeExpired(IAutocadDocumentChange change);
-}
-
-/// <summary>
-/// Base interface for all Component types in Rhino.Inside.Autocad that reference Autocad
-/// elements.
-/// </summary>
-public interface IReferenceComponent : IGH_Component
-{
-    /// <summary>
-    /// Each implementing Component must define whether it needs to be expired based on
-    /// the given <see cref="IAutocadDocumentChange"/> in the <see cref="IAutocadDocument"/>.
-    /// If it does, the Component will be expired to trigger computation.
-    /// </summary>
-    bool NeedsToBeExpired(IAutocadDocumentChange change);
-}
-
-/// <summary>
-/// Handles the queuing and execution of Grasshopper document changes in response to
-/// AutoCAD document changes.
-/// </summary>
-internal interface IFlushQueueHandler
-{
-    /// <summary>
-    /// Adds a Grasshopper document change event to the processing queue.
-    /// </summary>
-    /// <param name="change">The Grasshopper document change event to enqueue.</param>
-    void Add(IGrasshopperDocumentChangedEvent change);
-
-    /// <summary>
-    /// Executes all queued Grasshopper document changes, processing them sequentially.
-    /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task Execute();
-}
-
-/// <inheritdoc cref="IFlushQueueHandler"/>
-class FlushQueueHandler : IFlushQueueHandler
-{
-    private readonly Queue<IGrasshopperDocumentChangedEvent> _changeQueue = new Queue<IGrasshopperDocumentChangedEvent>();
-
-    /// <inheritdoc />
-    public void Add(IGrasshopperDocumentChangedEvent change)
-    {
-        _changeQueue.Enqueue(change);
-    }
-
-    /// <inheritdoc />
-    public async Task Execute()
-    {
-        var solutions = new List<GH_Document>();
-        while (_changeQueue.Count > 0)
-        {
-            if (_changeQueue.Dequeue().NewSolution() is GH_Document solution)
-            {
-                if (solutions.Contains(solution) == false)
-                    solutions.Add(solution);
-            }
-        }
-
-        foreach (var solution in solutions)
-            solution.NewSolution(false);
+        this.RhinoInstance.DocumentCreated -= this.UpdateUnitSystem;
+        this.RhinoInstance.UnitsChanged -= this.UpdateUnitSystem;
+        this.RhinoInstance.ObjectModifiedOrAppended -= this.RhinoObjectModifiedOrAppended;
+        this.RhinoInstance.ObjectRemoved -= this.RhinoObjectRemoved;
+        this.RhinoInstance.Shutdown();
     }
 }

@@ -1,4 +1,6 @@
-﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Autodesk.AutoCAD.DatabaseServices;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Services;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -10,11 +12,14 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public partial class GeometryConverter
 {
+    private readonly ILoggerService _logger = LoggerService.Instance!;
     private readonly IUnitSystemManager _unitSystemManager;
-
     private readonly double _fitTolerance = GeometryConstants.FitTolerance;
     private readonly double _midPointParam = GeometryConstants.NormalizedMidLength;
     private readonly double _zeroTolerance = GeometryConstants.ZeroTolerance;
+    private readonly double _zeroWidth = GeometryConstants.AbsoluteZeroValue;
+    private readonly HatchLoopTypes _externalType = HatchLoopTypes.External;
+    private readonly HatchLoopTypes _outermostType = HatchLoopTypes.Outermost;
 
     /// <summary>
     /// Returns the <see cref="GeometryConverter"/> singleton.
@@ -27,6 +32,7 @@ public partial class GeometryConverter
     private GeometryConverter(IUnitSystemManager unitSystemManager)
     {
         _unitSystemManager = unitSystemManager;
+
     }
 
     /// <summary>

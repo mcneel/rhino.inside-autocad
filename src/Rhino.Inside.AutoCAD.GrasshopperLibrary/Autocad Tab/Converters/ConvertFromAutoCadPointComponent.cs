@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using AutocadPoint = Autodesk.AutoCAD.DatabaseServices.DBPoint;
 
@@ -7,12 +8,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that converts an AutoCAD DBPoint to a Rhino point.
 /// </summary>
-public class ConvertFromAutoCadPointComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertFromAutoCadPointComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new("6d8e1f2a-5b7c-4d9e-2f3a-7b9c5d1e8f4a");
+
+    /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.primary;
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertFromAutoCadPointComponent;
@@ -21,7 +26,7 @@ public class ConvertFromAutoCadPointComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertFromAutoCadPointComponent"/> class.
     /// </summary>
     public ConvertFromAutoCadPointComponent()
-        : base("FromAutoCadPoint", "FromCadPoint",
+        : base("From AutoCAD Point", "AC-FrPt",
             "Converts an AutoCAD DBPoint to a Rhino point",
             "AutoCAD", "Convert")
     {
@@ -48,13 +53,6 @@ public class ConvertFromAutoCadPointComponent : GH_Component
             || autocadPoint is null) return;
 
         var rhinoPoint = _geometryConverter.ToRhinoType(autocadPoint);
-
-        if (rhinoPoint == null)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                "Failed to convert point to Rhino format");
-            return;
-        }
 
         DA.SetData(0, rhinoPoint.Location);
     }

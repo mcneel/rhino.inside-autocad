@@ -7,24 +7,9 @@
 public interface IFileResourceManager
 {
     /// <summary>
-    /// The <see cref="IFileNameLibrary"/>.
-    /// </summary>
-    IFileNameLibrary FileNameLibrary { get; }
-
-    /// <summary>
-    /// The <see cref="IJsonNameLibrary"/>.
-    /// </summary>
-    IJsonNameLibrary JsonNameLibrary { get; }
-
-    /// <summary>
     /// The <see cref="IApplicationDirectories"/>.
     /// </summary>
     IApplicationDirectories ApplicationDirectories { get; }
-
-    /// <summary>
-    /// The <see cref="IJsonResourceImporter"/>.
-    /// </summary>
-    IJsonResourceImporter JsonResourceImporter { get; }
 
     /// <summary>
     /// The <see cref="IFilepath"/> of the currently open file

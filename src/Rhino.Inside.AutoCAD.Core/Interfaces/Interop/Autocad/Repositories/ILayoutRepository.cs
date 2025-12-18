@@ -7,8 +7,7 @@
 public interface ILayoutRepository : IRepository<IAutocadLayout>, IEnumerable<IAutocadLayout>
 {
     /// <summary>
-    /// Updates the <see cref="ILayoutRepository"/>> with the <see cref="IAutocadLayout"/>s per
-    /// the current state of the active <see cref="IAutocadDocument"/>.
+    /// Tries to add a new <see cref="IAutocadLayout"/> to the repository.
     /// </summary>
-    void Update();
+    bool TryAddLayout(string name, out IAutocadLayout? layout);
 }

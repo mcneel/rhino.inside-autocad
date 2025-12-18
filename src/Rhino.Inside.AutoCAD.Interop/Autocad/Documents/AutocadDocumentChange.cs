@@ -8,6 +8,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class AutocadDocumentChange : IAutocadDocumentChange
 {
     private readonly HashSet<IObjectId> _flatObjectList;
+    private readonly HashSet<Type> _affectedTypes;
     /// <summary>
     /// A dictionary of change types and their affected objects if there
     /// are any associated with the change.
@@ -31,6 +32,7 @@ public class AutocadDocumentChange : IAutocadDocumentChange
         var comparer = new ObjectIdEqualityComparer();
 
         _flatObjectList = new HashSet<IObjectId>(comparer);
+        _affectedTypes = new HashSet<Type>();
 
         this.Document = document;
     }
@@ -49,7 +51,10 @@ public class AutocadDocumentChange : IAutocadDocumentChange
             _changes[changeType] = new List<IDbObject>();
 
         _changes[changeType].Add(affectedObject);
+
         _flatObjectList.Add(affectedObject.Id);
+
+        _affectedTypes.Add(affectedObject.Type);
     }
 
     /// <inheritdoc />
@@ -67,9 +72,15 @@ public class AutocadDocumentChange : IAutocadDocumentChange
     }
 
     /// <inheritdoc />
-    public bool DoesAffectObject(IObjectId objectId)
+    public bool DoesEffectObject(IObjectId objectId)
     {
         return _flatObjectList.Contains(objectId);
+    }
+
+    /// <inheritdoc />
+    public bool DoesEffectType(Type type)
+    {
+        return _affectedTypes.Contains(type);
     }
 
     /// <inheritdoc />

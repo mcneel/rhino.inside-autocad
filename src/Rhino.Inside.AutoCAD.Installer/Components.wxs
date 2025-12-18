@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?include "Include.wxi"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+	<Fragment>
+		<DirectoryRef Id="ROOTDIRECTORY">
+			<!-- PackageContents XML -->
+			<Component Id="PackageContentsFile" Guid="$(var.RootComponentId)"
+			           Bitness="$(var.Bitness)">
+
+				<RegistryValue Root='HKCU'
+				               Key="$(var.RegistryKey)"
+				               Name='InstallationPath'
+				               Value="$(var.InstallLocation)"
+				               Type='string'
+				               KeyPath='yes'/>
+
+				<RemoveRegistryKey Root="HKCU"
+				                   Key="$(var.RegistryKey)" Action="removeOnUninstall" />
+
+				<RemoveFolder Id='RemoveAutodesk' On='uninstall' Property='Autodesk' />
+				<RemoveFolder Id='RemoveApplicationPlugins' On='uninstall' Property='ApplicationPlugins' />
+				<RemoveFolder Id='RemoveROOTDIRECTORY' On='uninstall' Property='ROOTDIRECTORY' />
+				<RemoveFolder Id='RemoveAppVersion' On='uninstall' Property='AppVersion' />
+
+				<File Id="PackageContents.xml" Name="PackageContents.xml" DiskId="1" Source="$(var.RootDirectory)PackageContents.xml" Vital="yes"/>
+
+
+			</Component>
+		</DirectoryRef>
+
+		<DirectoryRef Id="IconsFolder">
+			<!-- Icons -->
+			<Component Id="IconFiles" Guid="$(var.IconId)"
+			           Bitness="$(var.Bitness)">
+
+				<RegistryValue Root='HKCU'
+				               Key="$(var.RegistryKey)"
+				               Name='InstallationPath'
+				               Value="$(var.InstallLocation)Icons"
+				               Type='string'
+				               KeyPath='yes'/>
+
+				<RemoveRegistryKey Root="HKCU"
+				                   Key="$(var.RegistryKey)" Action="removeOnUninstall" />
+
+				<RemoveFolder Id='RemoveIconsFolder' On='uninstall'/>
+				<File Id="RhinoInsideLogo.ico" Name="RhinoInsideLogo.ico" DiskId="1" Source="$(var.IconsDirectory)RhinoInsideLogo.ico" Vital="yes" />
+
+				<!-- Icons 	Large512x512 -->
+				<File Id="Large512_Bimorph.png" Name="Bimorph_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Bimorph.png" Vital="yes" />
+				<File Id="Large512_bug_outline.png" Name="bug-outline_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\bug-outline.png" Vital="yes" />
+				<File Id="Large512_cog_outline.png" Name="cog-outline_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\cog-outline.png" Vital="yes" />
+				<File Id="Large512_Grasshopper.png" Name="Grasshopper_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Grasshopper.png" Vital="yes" />
+				<File Id="Large512_GrasshopperPlayer.png" Name="GrasshopperPlayer_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\GrasshopperPlayer.png" Vital="yes" />
+				<File Id="Large512_Grasshopper_Preview_Off.png" Name="Grasshopper_Preview_Off_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Grasshopper_Preview_Off.png" Vital="yes" />
+				<File Id="Large512_Grasshopper_Preview_Off_Selected.png" Name="Grasshopper_Preview_Off_Selected_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Grasshopper_Preview_Off_Selected.png" Vital="yes" />
+				<File Id="Large512_Grasshopper_Preview_Shaded.png" Name="Grasshopper_Preview_Shaded_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Grasshopper_Preview_Shaded.png" Vital="yes" />
+				<File Id="Large512_Grasshopper_Preview_Shaded_Selected.png" Name="Grasshopper_Preview_Shaded_Selected_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Grasshopper_Preview_Shaded_Selected.png" Vital="yes" />
+				<File Id="Large512_Grasshopper_Preview_Wireframe.png" Name="Grasshopper_Preview_Wireframe_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Grasshopper_Preview_Wireframe.png" Vital="yes" />
+				<File Id="Large512_Grasshopper_Preview_Wireframe_Selected.png" Name="Grasshopper_Preview_Wireframe_Selected_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Grasshopper_Preview_Wireframe_Selected.png" Vital="yes" />
+				<File Id="Large512_Grasshopper_Recompute.png" Name="Grasshopper_Recompute_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Grasshopper_Recompute.png" Vital="yes" />
+				<File Id="Large512_Grasshopper_SolverOff.png" Name="Grasshopper_SolverOff_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Grasshopper_SolverOff.png" Vital="yes" />
+				<File Id="Large512_Grasshopper_SolverOn.png" Name="Grasshopper_SolverOn_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Grasshopper_SolverOn.png" Vital="yes" />
+				<File Id="Large512_lightbulb_outline.png" Name="lightbulb-outline_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\lightbulb-outline.png" Vital="yes" />
+				<File Id="Large512_OpenViewport.png" Name="OpenViewport_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\OpenViewport.png" Vital="yes" />
+				<File Id="Large512_PackageManager.png" Name="PackageManager_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\PackageManager.png" Vital="yes" />
+				<File Id="Large512_power_plug_outline.png" Name="power-plug-outline_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\power-plug-outline.png" Vital="yes" />
+				<File Id="Large512_Rhino.png" Name="Rhino_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Rhino.png" Vital="yes" />
+				<File Id="Large512_Rhinoceros_Preview_Off.png" Name="Rhinoceros_Preview_Off_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Rhinoceros_Preview_Off.png" Vital="yes" />
+				<File Id="Large512_Rhinoceros_Preview_Shaded.png" Name="Rhinoceros_Preview_Shaded_Large.png" DiskId="1" Source="$(var.IconsDirectory)Large512\Rhinoceros_Preview_Shaded.png" Vital="yes" />
+
+				<!-- Icons 	Small32x32 -->
+				<File Id="Small32_Bimorph.png" Name="Bimorph.png" DiskId="1" Source="$(var.IconsDirectory)Small32\Bimorph.png" Vital="yes" />
+				<File Id="Small32_bug_outline.png" Name="bug-outline.png" DiskId="1" Source="$(var.IconsDirectory)Small32\bug-outline.png" Vital="yes" />
+				<File Id="Small32_cog_outline.png" Name="cog-outline.png" DiskId="1" Source="$(var.IconsDirectory)Small32\cog-outline.png" Vital="yes" />
+				<File Id="Small32_Grasshopper.png" Name="Grasshopper.png" DiskId="1" Source="$(var.IconsDirectory)Small32\Grasshopper.png" Vital="yes" />
+				<File Id="Small32_GrasshopperPlayer.png" Name="GrasshopperPlayer.png" DiskId="1" Source="$(var.IconsDirectory)Small32\GrasshopperPlayer.png" Vital="yes" />
+				<File Id="Small32_Grasshopper_Preview_Off.png" Name="Grasshopper_Preview_Off.png" DiskId="1" Source="$(var.IconsDirectory)Small32\Grasshopper_Preview_Off.png" Vital="yes" />
+				<File Id="Small32_Grasshopper_Preview_Shaded.png" Name="Grasshopper_Preview_Shaded.png" DiskId="1" Source="$(var.IconsDirectory)Small32\Grasshopper_Preview_Shaded.png" Vital="yes" />
+				<File Id="Small32_Grasshopper_Preview_Wireframe.png" Name="Grasshopper_Preview_Wireframe.png" DiskId="1" Source="$(var.IconsDirectory)Small32\Grasshopper_Preview_Wireframe.png" Vital="yes" />
+				<File Id="Small32_Grasshopper_Recompute.png" Name="Grasshopper_Recompute.png" DiskId="1" Source="$(var.IconsDirectory)Small32\Grasshopper_Recompute.png" Vital="yes" />
+				<File Id="Small32_Grasshopper_SolverOff.png" Name="Grasshopper_SolverOff.png" DiskId="1" Source="$(var.IconsDirectory)Small32\Grasshopper_SolverOff.png" Vital="yes" />
+				<File Id="Small32_Grasshopper_SolverOn.png" Name="Grasshopper_SolverOn.png" DiskId="1" Source="$(var.IconsDirectory)Small32\Grasshopper_SolverOn.png" Vital="yes" />
+				<File Id="Small32_lightbulb_outline.png" Name="lightbulb-outline.png" DiskId="1" Source="$(var.IconsDirectory)Small32\lightbulb-outline.png" Vital="yes" />
+				<File Id="Small32_OpenViewport.png" Name="OpenViewport.png" DiskId="1" Source="$(var.IconsDirectory)Small32\OpenViewport.png" Vital="yes" />
+				<File Id="Small32_PackageManager.png" Name="PackageManager.png" DiskId="1" Source="$(var.IconsDirectory)Small32\PackageManager.png" Vital="yes" />
+				<File Id="Small32_power_plug_outline.png" Name="power-plug-outline.png" DiskId="1" Source="$(var.IconsDirectory)Small32\power-plug-outline.png" Vital="yes" />
+				<File Id="Small32_Rhino.png" Name="Rhino.png" DiskId="1" Source="$(var.IconsDirectory)Small32\Rhino.png" Vital="yes" />
+				<File Id="Small32_Rhinoceros_Preview_Off.png" Name="Rhinoceros_Preview_Off.png" DiskId="1" Source="$(var.IconsDirectory)Small32\Rhinoceros_Preview_Off.png" Vital="yes" />
+				<File Id="Small32_Rhinoceros_Preview_Shaded.png" Name="Rhinoceros_Preview_Shaded.png" DiskId="1" Source="$(var.IconsDirectory)Small32\Rhinoceros_Preview_Shaded.png" Vital="yes" />
+			</Component>
+		</DirectoryRef>
+
+
+		<DirectoryRef Id="ResourcesFolder">
+			<!-- Resources -->
+			<Component Id="Resources" Guid="$(var.ResourcesId)"
+			           Bitness="$(var.Bitness)">
+
+				<RegistryValue Root='HKCU'
+				               Key="$(var.RegistryKey)"
+				               Name='InstallationPath'
+				               Value="$(var.InstallLocation)Resources"
+				               Type='string'
+				               KeyPath='yes'/>
+
+				<RemoveRegistryKey Root="HKCU"
+				                   Key="$(var.RegistryKey)" Action="removeOnUninstall" />
+
+
+				<RemoveFolder Id='RemoveResourcesFolder' On='uninstall' />
+
+				<File Id="SettingsCore.json" Name="SettingsCore.json" DiskId="1" Source="$(var.ResourcesDirectory)SettingsCore.json" Vital="yes" />
+				<File Id="UserSettings.json" Name="UserSettings.json" DiskId="1" Source="$(var.ResourcesDirectory)UserSettings.json" Vital="yes" />
+				<File Id="SerilogConfig.json" Name="SerilogConfig.json" DiskId="1" Source="$(var.ResourcesDirectory)SerilogConfig.json" Vital="yes" />
+
+
+			</Component>
+		</DirectoryRef>
+
+		<DirectoryRef Id="ToolbarFolder">
+			<!-- Toolbar -->
+			<Component Id="Toolbar" Guid="$(var.ToolbarId)"
+			           Bitness="$(var.Bitness)">
+
+				<RegistryValue Root='HKCU'
+				               Key="$(var.RegistryKey)"
+				               Name='InstallationPath'
+				               Value="$(var.InstallLocation)Toolbar"
+				               Type='string'
+				               KeyPath='yes'/>
+
+				<RemoveRegistryKey Root="HKCU"
+				                   Key="$(var.RegistryKey)" Action="removeOnUninstall" />
+
+				<RemoveFolder Id='RemoveToolbarFolder' On='uninstall' />
+
+				<File Id="RhinoInsideAutocad_Toolbar.cuix" Name="RhinoInsideAutocad_Toolbar.cuix" DiskId="1" Source="$(var.ToolbarDirectory)RhinoInsideAutocad_Toolbar.cuix" Vital="yes" />
+		
+			</Component>
+		</DirectoryRef>
+
+
+		<DirectoryRef Id="Win64Folder">
+			<!-- Assemblies -->
+			<Component Id="Win64" Guid="$(var.WinId)"
+			           Bitness="$(var.Bitness)">
+
+
+				<RegistryValue Root='HKCU'
+				               Key="$(var.RegistryKey)"
+				               Name='InstallationPath'
+				               Value="$(var.InstallLocationAssemblies)"
+				               Type='string'
+				               KeyPath='yes'/>
+
+				<RemoveRegistryKey Root="HKCU"
+				                   Key="$(var.RegistryKey)" Action="removeOnUninstall" />
+
+				<RemoveFolder Id='RemoveWin64Folder' On='uninstall' />
+
+
+				<File Id="Serilog.dll" Source="$(var.AssembliesDirectory)Serilog.dll" Vital="yes" />
+				<File Id="Serilog.Settings.Configuration.dll" Source="$(var.AssembliesDirectory)Serilog.Settings.Configuration.dll" Vital="yes" />
+				<File Id="Serilog.Sinks.File.dll" Source="$(var.AssembliesDirectory)Serilog.Sinks.File.dll" Vital="yes" />
+				<File Id="System.Buffers.dll" Source="$(var.AssembliesDirectory)System.Buffers.dll" Vital="yes" />
+				<File Id="System.Collections.Immutable.dll" Source="$(var.AssembliesDirectory)System.Collections.Immutable.dll" Vital="yes" />
+				<File Id="System.ComponentModel.Annotations.dll" Source="$(var.AssembliesDirectory)System.ComponentModel.Annotations.dll" Vital="yes" />
+				<File Id="System.Diagnostics.DiagnosticSource.dll" Source="$(var.AssembliesDirectory)System.Diagnostics.DiagnosticSource.dll" Vital="yes" />
+				<File Id="System.Formats.Nrbf.dll" Source="$(var.AssembliesDirectory)System.Formats.Nrbf.dll" Vital="yes" />
+				<File Id="System.IO.Pipelines.dll" Source="$(var.AssembliesDirectory)System.IO.Pipelines.dll" Vital="yes" />
+				<File Id="System.Memory.dll" Source="$(var.AssembliesDirectory)System.Memory.dll" Vital="yes" />
+				<File Id="System.Numerics.Vectors.dll" Source="$(var.AssembliesDirectory)System.Numerics.Vectors.dll" Vital="yes" />
+				<File Id="System.Reflection.Metadata.dll" Source="$(var.AssembliesDirectory)System.Reflection.Metadata.dll" Vital="yes" />
+				<File Id="System.Resources.Extensions.dll" Source="$(var.AssembliesDirectory)System.Resources.Extensions.dll" Vital="yes" />
+				<File Id="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.AssembliesDirectory)System.Runtime.CompilerServices.Unsafe.dll" Vital="yes" />
+				<File Id="System.Text.Encodings.Web.dll" Source="$(var.AssembliesDirectory)System.Text.Encodings.Web.dll" Vital="yes" />
+				<File Id="System.Text.Json.dll" Source="$(var.AssembliesDirectory)System.Text.Json.dll" Vital="yes" />
+				<File Id="System.Threading.Channels.dll" Source="$(var.AssembliesDirectory)System.Threading.Channels.dll" Vital="yes" />
+				<File Id="System.Threading.Tasks.Extensions.dll" Source="$(var.AssembliesDirectory)System.Threading.Tasks.Extensions.dll" Vital="yes" />
+				<File Id="System.ValueTuple.dll" Source="$(var.AssembliesDirectory)System.ValueTuple.dll" Vital="yes" />
+				<File Id="CommunityToolkit.Mvvm.dll" Source="$(var.AssembliesDirectory)CommunityToolkit.Mvvm.dll" Vital="yes" />
+				<File Id="MaterialDesignColors.dll" Source="$(var.AssembliesDirectory)MaterialDesignColors.dll" Vital="yes" />
+				<File Id="MaterialDesignThemes.Wpf.dll" Source="$(var.AssembliesDirectory)MaterialDesignThemes.Wpf.dll" Vital="yes" />
+				<File Id="Microsoft.Bcl.AsyncInterfaces.dll" Source="$(var.AssembliesDirectory)Microsoft.Bcl.AsyncInterfaces.dll" Vital="yes" />
+				<File Id="Microsoft.Bcl.HashCode.dll" Source="$(var.AssembliesDirectory)Microsoft.Bcl.HashCode.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.Abstractions.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Configuration.Abstractions.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.Binder.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Configuration.Binder.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Configuration.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.FileExtensions.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Configuration.FileExtensions.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.Json.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Configuration.Json.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.DependencyModel.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.DependencyModel.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.FileProviders.Abstractions.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.FileProviders.Abstractions.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.FileProviders.Physical.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.FileProviders.Physical.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.FileSystemGlobbing.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.FileSystemGlobbing.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Primitives.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Primitives.dll" Vital="yes" />
+				<File Id="Microsoft.Xaml.Behaviors.dll" Source="$(var.AssembliesDirectory)Microsoft.Xaml.Behaviors.dll" Vital="yes" />
+				<File Id="NaturalSort.Extension.dll" Source="$(var.AssembliesDirectory)NaturalSort.Extension.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.Applications.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.Applications.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.Core.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.Core.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.GrasshopperLibrary.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.GrasshopperLibrary.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.Interop.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.Interop.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.Services.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.Services.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.UI.Resources.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.UI.Resources.dll" Vital="yes" />
+				
+			</Component>
+		</DirectoryRef>
+
+	</Fragment>
+</Wix>

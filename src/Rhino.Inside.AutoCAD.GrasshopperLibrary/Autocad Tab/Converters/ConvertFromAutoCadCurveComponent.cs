@@ -1,4 +1,5 @@
 ﻿using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using AutocadCurve = Autodesk.AutoCAD.DatabaseServices.Curve;
 
@@ -6,13 +7,17 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
 /// A Grasshopper component that converts an AutoCAD curve to a Rhino curve
-/// </summary> 
-public class ConvertFromAutoCadCurveComponent : GH_Component
+/// </summary>
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertFromAutoCadCurveComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new("522ea559-c8e5-41d0-a559-ef2376898033");
+
+    /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.primary;
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertFromAutoCadCurveComponent;
@@ -21,7 +26,7 @@ public class ConvertFromAutoCadCurveComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertToAutoCadCurveComponent"/> class.
     /// </summary>
     public ConvertFromAutoCadCurveComponent()
-        : base("FromAutoCadCurve", "FromCadCurve",
+        : base("From AutoCAD Curve", "AC-FrCrv",
             "Converts an AutoCAD to a Rhino curve",
             "AutoCAD", "Convert")
     {

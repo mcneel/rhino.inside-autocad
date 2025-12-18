@@ -14,6 +14,10 @@
 		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <None Include="Interfaces\Grasshopper\References\IGH_AutocadReferenceDatabaseObject.cs" />
+	</ItemGroup>
+
 
 	<ItemGroup>
 		<Reference Include="PresentationCore" />
@@ -26,6 +30,11 @@
 		<PackageReference Include="Grasshopper">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <Folder Include="Interfaces\Interop\Text\" />
 	</ItemGroup>
 
 

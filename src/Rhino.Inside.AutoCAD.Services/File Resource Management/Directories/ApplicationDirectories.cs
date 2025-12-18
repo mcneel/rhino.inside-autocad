@@ -5,12 +5,8 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// <inheritdoc cref="IApplicationDirectories"/>
 public class ApplicationDirectories : IApplicationDirectories
 {
-    private const string _userTestFolderName = CoreConstants.UserTestFolderName;
-    private const string _supportedApplicationsFolderName = CoreConstants.SupportedApplicationFolderName;
-    private const string _usageMetricsFolderName = CoreConstants.UsageMetricsFolderName;
-    private const string _assemblyFolder = CoreConstants.AssemblyFolderName;
-    private const string _resourcesFolderName = CoreConstants.ResourcesFolderName;
-    private const string _bimorphAppDataFolderName = CoreConstants.BimorphAppDataFolderName;
+    private const string _assemblyFolder = ApplicationConstants.AssemblyFolderName;
+    private const string _resourcesFolderName = ApplicationConstants.ResourcesFolderName;
 
     /// <inheritdoc />
     public string RootInstall { get; }
@@ -23,18 +19,6 @@ public class ApplicationDirectories : IApplicationDirectories
 
     /// <inheritdoc />
     public string UserLocal { get; }
-
-    /// <inheritdoc />
-    public string UserTests { get; }
-
-    /// <inheritdoc />
-    public string SupportedApplication { get; }
-
-    /// <inheritdoc />
-    public string UsageMetrics { get; }
-
-    /// <inheritdoc />
-    public string BimorphAppData { get; }
 
     /// <inheritdoc />
     public string ApplicationName { get; }
@@ -60,14 +44,6 @@ public class ApplicationDirectories : IApplicationDirectories
 
         var userLocal = $"{appData}\\{applicationConfig.ClientFolderName}\\";
 
-        var bimorphAppData = $"{appData}\\{_bimorphAppDataFolderName}\\";
-
-        var userTests = $"{bimorphAppData}{_userTestFolderName}\\";
-
-        var supportedApplications = $"{bimorphAppData}{_supportedApplicationsFolderName}\\";
-
-        var usageMetrics = $"{bimorphAppData}{_usageMetricsFolderName}\\";
-
         if (Directory.Exists(userLocal) == false)
             Directory.CreateDirectory(userLocal);
 
@@ -78,14 +54,6 @@ public class ApplicationDirectories : IApplicationDirectories
         this.Assemblies = $"{rootInstallDirectory}{currentVersion}\\{_assemblyFolder}\\";
 
         this.UserLocal = userLocal;
-
-        this.BimorphAppData = bimorphAppData;
-
-        this.UserTests = userTests;
-
-        this.SupportedApplication = supportedApplications;
-
-        this.UsageMetrics = usageMetrics;
 
         this.ApplicationName = applicationName;
 

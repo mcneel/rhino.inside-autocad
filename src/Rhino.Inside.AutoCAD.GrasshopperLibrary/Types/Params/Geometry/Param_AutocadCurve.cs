@@ -29,7 +29,7 @@ public class Param_AutocadCurve : Param_AutocadObjectBase<GH_AutocadCurve, CadCu
     /// Initializes a new instance of the <see cref="Param_AutocadCurve"/> class.
     /// </summary>
     public Param_AutocadCurve()
-        : base("AutoCAD Curve", "Curve",
+        : base("AutoCAD Curve", "AC-Curve",
             "A Curve in AutoCAD", "Params", "AutoCAD")
     { }
 
@@ -38,4 +38,5 @@ public class Param_AutocadCurve : Param_AutocadObjectBase<GH_AutocadCurve, CadCu
 
     /// <inheritdoc />
     protected override GH_AutocadCurve WrapEntity(CadCurve entity) => new GH_AutocadCurve(entity);
+
 }

@@ -58,4 +58,10 @@ public interface IRhinoInsideManager
     /// AutoCAD. This is used to manage the transient objects previewed in the AutoCAD viewport.
     /// </summary>
     IGrasshopperObjectPreviewServer GrasshopperPreviewServer { get; }
+
+    /// <summary>
+    /// Shuts down the Rhino.Inside.AutoCAD manager, ensuring all document are saved and
+    /// releasing any resources.
+    /// </summary>
+    void Shutdown();
 }

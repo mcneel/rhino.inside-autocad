@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using RhinoBrep = Rhino.Geometry.Brep;
 
@@ -7,12 +8,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that converts a Rhino brep to an AutoCAD Solid3d.
 /// </summary>
-public class ConvertToAutoCadSolidComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertToAutoCadSolidComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new("5b7c9d1e-4f6a-3b8c-7d2e-9f1a5b6c8d3e");
+
+    /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.tertiary;
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertToAutoCadSolidComponent;
@@ -21,7 +26,7 @@ public class ConvertToAutoCadSolidComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertToAutoCadSolidComponent"/> class.
     /// </summary>
     public ConvertToAutoCadSolidComponent()
-        : base("ToAutoCadSolid", "ToCadSolid",
+        : base("To AutoCAD Solid", "AC-ToSld",
             "Converts a Rhino Brep to AutoCAD Solid3d",
             "AutoCAD", "Convert")
     {
@@ -48,22 +53,9 @@ public class ConvertToAutoCadSolidComponent : GH_Component
         if (!DA.GetData(0, ref rhinoBrep)
         || rhinoBrep is null) return;
 
-        var cadSolids = _geometryConverter.ToAutoCadType(rhinoBrep);
+        var goo = new GH_AutocadBrepProxy(rhinoBrep);
 
-        if (cadSolids == null || cadSolids.Length == 0)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                "Failed to convert brep to AutoCAD format");
-            return;
-        }
-
-        if (cadSolids.Length > 1)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                $"Brep converted to {cadSolids.Length} AutoCAD solids. Only returning the first one.");
-        }
-
-        var goo = new GH_AutocadSolid(cadSolids[0]);
         DA.SetData(0, goo);
+
     }
 }

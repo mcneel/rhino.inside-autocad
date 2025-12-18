@@ -8,13 +8,13 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper parameter for AutoCAD 3D solids.
 /// </summary>
-public class Param_AutocadSolid : Param_AutocadObjectBase<GH_AutocadSolid, CadSolid>
+public class Param_AutocadSolid : Param_AutocadObjectBase<GH_AutocadBrepProxy, CadSolid>
 {
     /// <inheritdoc />
     public override GH_Exposure Exposure => GH_Exposure.primary;
 
     /// <inheritdoc />
-    public override Guid ComponentGuid => new Guid("b8f2e7c3-4d91-4a5e-9c1f-3e8b6a2d7f4c");
+    public override Guid ComponentGuid => new Guid("0cafbb12-a9fd-4e8d-be7c-a3296575fb8f");
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.Param_AutocadSolid;
@@ -29,7 +29,7 @@ public class Param_AutocadSolid : Param_AutocadObjectBase<GH_AutocadSolid, CadSo
     /// Initializes a new instance of the <see cref="Param_AutocadSolid"/> class.
     /// </summary>
     public Param_AutocadSolid()
-        : base("AutoCAD Solid", "Solid",
+        : base("AutoCAD Solid", "AC-Solid",
             "A 3D Solid in AutoCAD", "Params", "AutoCAD")
     { }
 
@@ -37,5 +37,8 @@ public class Param_AutocadSolid : Param_AutocadObjectBase<GH_AutocadSolid, CadSo
     protected override IFilter CreateSelectionFilter() => new SolidFilter();
 
     /// <inheritdoc />
-    protected override GH_AutocadSolid WrapEntity(CadSolid entity) => new GH_AutocadSolid(entity);
+    protected override GH_AutocadBrepProxy WrapEntity(CadSolid entity)
+    {
+        return GH_AutocadBrepProxy.CreateFromSolid(entity);
+    }
 }

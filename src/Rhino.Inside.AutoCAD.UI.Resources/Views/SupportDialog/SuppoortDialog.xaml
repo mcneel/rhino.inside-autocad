@@ -1,0 +1,706 @@
+﻿<Window x:Class="Rhino.Inside.AutoCAD.UI.Resources.Views.SupportDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+       Height="800"
+        Width="600"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        FontFamily="Maison Neue"
+        MouseDown="Window_MouseDown"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BackgroundCardBrush}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Views/Styles/ColorStyles.xaml" />
+
+                <materialDesign:CustomColorTheme BaseTheme="Light"
+                                                 PrimaryColor="{StaticResource BrandBlue}"
+                                                 SecondaryColor="{StaticResource BrandGrey}" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/materialdesign3.defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid  >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="60" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    Margin="14">
+
+            <!-- The Rhino Inside Logo -->
+            <Image Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Resources/RhinoInsideLogo.png"
+                   Margin="0 0 10 0"
+                   Width="64" />
+
+            <!-- Title -->
+            <TextBlock Text="Rhino.Inside.Autocad"
+                       VerticalAlignment="Center"
+                       FontSize="24"
+                       Foreground="{StaticResource PrimaryTextBrush}"
+                       Style="{StaticResource MaterialDesignBodyLargeTextBlock}"/>
+
+        </StackPanel>
+
+
+        <!-- The  Header Border-->
+        <Border Grid.Row="1"
+                BorderThickness="0.5"
+                BorderBrush="{StaticResource BorderGreyColorBrush}"
+                VerticalAlignment="Top"
+                Margin="0,0,0,0" />
+
+        <!-- Tabs-->
+        <TabControl Grid.Row="1"
+                    SelectedIndex="{Binding SelectedTabIndex}">
+
+            <!-- About Tab-->
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock Text="About"
+                               Style="{StaticResource MaterialDesignBody1TextBlock}"
+                               Foreground="{StaticResource PrimaryTextBrush}" />
+                </TabItem.Header>
+                <StackPanel Margin="20">
+                    <TextBlock Text="Rhino.Inside.AutoCAD brings the full power of Rhino and Grasshopper modeling software directly into AutoCAD. Create parametric models with native AutoCAD geometry using visual programming in Grasshopper, or tap into Rhino's complete suite of surface modeling tools and NURBS engine."
+                               TextWrapping="Wrap"
+                               Margin="0 0 10 0"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyMediumTextBlock}"/>
+
+
+                    <TextBlock 
+                               TextWrapping="Wrap"
+                               Margin="0 10 10 0"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyMediumTextBlock}">
+                        Rhino.Inside.AutoCAD is a free and open-source project. You can find the source code on the McNeel GitHub:
+                        <Hyperlink NavigateUri="https://github.com/mcneel/rhino.inside-autocad"
+                                   RequestNavigate="Hyperlink_RequestNavigate">
+                            https://github.com/mcneel/rhino.inside-autocad
+                        </Hyperlink>
+                        , contributions are welcome.
+                    </TextBlock>
+
+
+                    <TextBlock Text="Rhino®, Grasshopper® and Rhino.Inside® are Registered McNeel Trademarks."
+                           TextWrapping="Wrap"
+                           Margin="0 10 10 0"
+                           Foreground="{StaticResource PrimaryTextBrush}"
+                           Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+
+                    <TextBlock Text="AutoCAD® is a Registered Autodesk Trademark."
+                               TextWrapping="Wrap"
+                               Margin="0 10 10 0"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyMediumTextBlock}"/>
+                </StackPanel>
+            </TabItem>
+
+            <!-- Support Tab-->
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock Text="Support"
+                               Style="{StaticResource MaterialDesignBody1TextBlock}"
+                               Foreground="{StaticResource PrimaryTextBrush}" />
+                </TabItem.Header>
+
+                <Grid Margin="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Docs -->
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="0"
+                               Text="Documentation"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               FontWeight="Bold"
+                               Style="{StaticResource MaterialDesignBodyLargeTextBlock}" />
+
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="1"
+                               Text="Documentation on how to use Rhino Inside Autocad can be found online."
+                               TextWrapping="Wrap"
+                               Margin="0 0 10 0"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyMediumTextBlock}"/>
+
+                    <!-- The Documentation Button -->
+                    <Button Grid.Column="1"
+                            Grid.Row="0"
+                            Grid.RowSpan="2"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Content="Documentation"
+                            BorderThickness="2"
+                            Margin="0,0,10,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding ButtonVisibility}"
+                            BorderBrush="{StaticResource PrimaryTextBrush}"
+                            Foreground="{StaticResource PrimaryTextBrush}"
+                            Command="{Binding OpenDocumentationCommand}" />
+
+                    <Border Grid.Column="0"
+                            Grid.Row="2"
+                            Grid.ColumnSpan="2"
+                            BorderThickness="0.5"
+                            BorderBrush="{StaticResource BorderGreyColorBrush}"
+                            VerticalAlignment="Center"
+                            Margin="10,10,10,10" />
+
+                    <!-- Report a Bug -->
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="3"
+                               Text="Report a Bug"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               FontWeight="Bold"
+                               Style="{StaticResource MaterialDesignBodyLargeTextBlock}" />
+
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="4"
+                               Text="The best way to report a bug is to visit the Mcneel forum. Create a post in the Rhino Inside for Autocad Category and we will be notified"
+                               TextWrapping="Wrap"
+                               Margin="0 0 10 0"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+                    <!-- The OpenForum Button -->
+                    <Button Grid.Column="1"
+                            Grid.Row="3"
+                            Grid.RowSpan="2"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Content="Forum"
+                            BorderThickness="2"
+                            Margin="0,0,10,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding ButtonVisibility}"
+                            BorderBrush="{StaticResource PrimaryTextBrush}"
+                            Foreground="{StaticResource PrimaryTextBrush}"
+                            Command="{Binding OpenForumCommand}" />
+
+                    <Border Grid.Column="0"
+                            Grid.Row="5"
+                            Grid.ColumnSpan="2"
+                            BorderThickness="0.5"
+                            BorderBrush="{StaticResource BorderGreyColorBrush}"
+                            VerticalAlignment="Center"
+                            Margin="10,10,10,10" />
+
+                    <!-- Report a Feature -->
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="6"
+                               Text="Missing a Feature"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyLargeTextBlock}"
+                               FontWeight="Bold" />
+
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="7"
+                               Text="Rhino Inside Autocad is an evolving project, if there is a missing feature you would like to see visit the Mcneel forum and create a post in the Rhino Inside for Autocad Category, and we will be notified, and we can investigate adding it to the future roadmap."
+                               TextWrapping="Wrap"
+                               Margin="0 0 10 0"
+                               Style="{StaticResource MaterialDesignBodyMediumTextBlock}"
+                               Foreground="{StaticResource PrimaryTextBrush}" />
+
+                    <!-- The OpenForum Button -->
+                    <Button Grid.Column="1"
+                            Grid.Row="6"
+                            Grid.RowSpan="2"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Content="Forum"
+                            BorderThickness="2"
+                            Margin="0,0,10,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding ButtonVisibility}"
+                            BorderBrush="{StaticResource PrimaryTextBrush}"
+                            Foreground="{StaticResource PrimaryTextBrush}"
+                            Command="{Binding OpenForumCommand}" />
+
+                    <Border Grid.Column="0"
+                            Grid.Row="8"
+                            Grid.ColumnSpan="2"
+                            BorderThickness="0.5"
+                            BorderBrush="{StaticResource BorderGreyColorBrush}"
+                            VerticalAlignment="Center"
+                            Margin="10,10,10,10" />
+
+                    <!-- Sponsor a Feature -->
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="9"
+                               Text="Sponsor a Feature"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyLargeTextBlock}"
+                               FontWeight="Bold" />
+
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="10"
+                               Text="If there is a missing must-have feature which is not on the future roadmap but is vital to your workflow, consider sponsoring its development. Fill out the Bimorph projects form to get in touch."
+                               TextWrapping="Wrap"
+                               Margin="0 0 10 0"
+                               Style="{StaticResource MaterialDesignBodyMediumTextBlock}"
+                               Foreground="{StaticResource PrimaryTextBrush}" />
+
+                    <!-- The Bimorph Button -->
+                    <Button Grid.Column="1"
+                            Grid.Row="9"
+                            Grid.RowSpan="2"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Content="Bimorph"
+                            BorderThickness="2"
+                            Margin="0,0,10,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding ButtonVisibility}"
+                            BorderBrush="{StaticResource PrimaryTextBrush}"
+                            Foreground="{StaticResource PrimaryTextBrush}"
+                            Command="{Binding OpenBimorphCommand}" />
+
+                    <Border Grid.Column="0"
+                            Grid.Row="11"
+                            Grid.ColumnSpan="2"
+                            BorderThickness="0.5"
+                            BorderBrush="{StaticResource BorderGreyColorBrush}"
+                            VerticalAlignment="Center"
+                            Margin="10,10,10,10" />
+
+                    <!-- Need a Plugin -->
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="12"
+                               Text="Need a Custom Plugin"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyLargeTextBlock}"
+                               FontWeight="Bold" />
+
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="13"
+                               Text="At Bimorph we are trusted experts in custom plugin development for Autocad. If you have a project you would like explore with us, please get in touch. "
+                               TextWrapping="Wrap"
+                               Margin="0 0 10 0"
+                               Style="{StaticResource MaterialDesignBodyMediumTextBlock}"
+                               Foreground="{StaticResource PrimaryTextBrush}" />
+
+                    <!-- The Bimorph Button -->
+                    <Button Grid.Column="1"
+                            Grid.Row="12"
+                            Grid.RowSpan="2"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Content="Bimorph"
+                            BorderThickness="2"
+                            Margin="0,0,10,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding ButtonVisibility}"
+                            BorderBrush="{StaticResource PrimaryTextBrush}"
+                            Foreground="{StaticResource PrimaryTextBrush}"
+                            Command="{Binding OpenBimorphCommand}" />
+                </Grid>
+
+            </TabItem>
+
+            <!-- Update Tab-->
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock Text="Update"
+                               Style="{StaticResource MaterialDesignBody1TextBlock}"
+                               Foreground="{StaticResource PrimaryTextBrush}" />
+                </TabItem.Header>
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="0"
+                               Text="Version Info"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyLargeTextBlock}"
+                               FontWeight="Bold" />
+
+                    <StackPanel Grid.Column="0"
+                                Grid.Row="1"
+                                Orientation="Horizontal">
+                        <TextBlock Text="Current Autocad Version: "
+                                   Margin="3 0"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+                        <TextBlock Text="{Binding AutocadVersion}"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+                        <materialDesign:PackIcon Kind="TickCircleOutline"
+                                                 Margin="3 0"
+                                                 VerticalAlignment="Center"
+                                                 Foreground="{StaticResource PrimaryGreenColorBrush}">
+                            <materialDesign:PackIcon.Style>
+                                <Style TargetType="materialDesign:PackIcon">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding AutocadIsUpToDate}"
+                                                     Value="True">
+                                            <Setter Property="Visibility"
+                                                    Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding AutocadIsUpToDate}"
+                                                     Value="False">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </materialDesign:PackIcon.Style>
+                        </materialDesign:PackIcon>
+
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding AutocadIsUpToDate}"
+                                                     Value="False">
+                                            <Setter Property="Visibility"
+                                                    Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding AutocadIsUpToDate}"
+                                                     Value="True">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <materialDesign:PackIcon Kind="CloseCircleOutline"
+                                                     Margin="3 0"
+                                                     VerticalAlignment="Center"
+                                                     Foreground="{StaticResource WarningColorBrush}"/>
+
+                            <TextBlock Text="Update Available"
+                                       Foreground="{StaticResource WarningColorBrush}"
+                                       Style="{StaticResource MaterialDesignBodySmallTextBlock}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="0"
+                                Grid.Row="2"
+                                Orientation="Horizontal">
+                        <TextBlock Text="Current Rhino Version: "
+                                   Margin="3 0"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+                        <TextBlock Text="{Binding RhinoVersion}"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+                        <materialDesign:PackIcon Kind="TickCircleOutline"
+                                                 Margin="3 0"
+                                                 VerticalAlignment="Center"
+                                                 Foreground="{StaticResource PrimaryGreenColorBrush}">
+                            <materialDesign:PackIcon.Style>
+                                <Style TargetType="materialDesign:PackIcon">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RhinoIsUpToDate}"
+                                                     Value="True">
+                                            <Setter Property="Visibility"
+                                                    Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding RhinoIsUpToDate}"
+                                                     Value="False">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </materialDesign:PackIcon.Style>
+                        </materialDesign:PackIcon>
+
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RhinoIsUpToDate}"
+                                                     Value="False">
+                                            <Setter Property="Visibility"
+                                                    Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding RhinoIsUpToDate}"
+                                                     Value="True">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <materialDesign:PackIcon Kind="CloseCircleOutline"
+                                                     Margin="3 0"
+                                                     VerticalAlignment="Center"
+                                                     Foreground="{StaticResource WarningColorBrush}" />
+
+                            <TextBlock Text="Update Available"
+                                       Foreground="{StaticResource WarningColorBrush}"
+                                       Style="{StaticResource MaterialDesignBodySmallTextBlock}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </StackPanel>
+
+
+                    <StackPanel Grid.Column="0"
+                                Grid.Row="3"
+                                Orientation="Horizontal">
+                        <TextBlock Text="Current Grasshopper Version: "
+                                   Margin="3 0"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+                        <TextBlock Text="{Binding GrasshopperVersion}"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+                        <materialDesign:PackIcon Kind="TickCircleOutline"
+                                                 Margin="3 0"
+                                                 VerticalAlignment="Center"
+                                                 Foreground="{StaticResource PrimaryGreenColorBrush}">
+                            <materialDesign:PackIcon.Style>
+                                <Style TargetType="materialDesign:PackIcon">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding GrasshopperIsUpToDate}"
+                                                     Value="True">
+                                            <Setter Property="Visibility"
+                                                    Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding GrasshopperIsUpToDate}"
+                                                     Value="False">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </materialDesign:PackIcon.Style>
+                        </materialDesign:PackIcon>
+
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding GrasshopperIsUpToDate}"
+                                                     Value="False">
+                                            <Setter Property="Visibility"
+                                                    Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding GrasshopperIsUpToDate}"
+                                                     Value="True">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <materialDesign:PackIcon Kind="CloseCircleOutline"
+                                                     Margin="3 0"
+                                                     VerticalAlignment="Center"
+                                                     Foreground="{StaticResource WarningColorBrush}" />
+
+                            <TextBlock Text="Update Available"
+                                       Foreground="{StaticResource WarningColorBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="0"
+                                Grid.Row="4"
+                                Orientation="Horizontal">
+                        <TextBlock Text="Current Rhino Inside Autocad Version: "
+                                   Margin="3 0"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+                        <TextBlock Text="{Binding RhinoInsideAutocadVersion}"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+                        <materialDesign:PackIcon Kind="TickCircleOutline"
+                                                 Margin="3 0"
+                                                 VerticalAlignment="Center"
+                                                 Foreground="{StaticResource PrimaryGreenColorBrush}">
+                            <materialDesign:PackIcon.Style>
+                                <Style TargetType="materialDesign:PackIcon">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RhinoInsideAutocadIsUpToDate}"
+                                                     Value="True">
+                                            <Setter Property="Visibility"
+                                                    Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding RhinoInsideAutocadIsUpToDate}"
+                                                     Value="False">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </materialDesign:PackIcon.Style>
+                        </materialDesign:PackIcon>
+
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Style.Triggers>
+
+                                        <DataTrigger Binding="{Binding RhinoInsideAutocadIsUpToDate}"
+                                                     Value="False">
+                                            <Setter Property="Visibility"
+                                                    Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding RhinoInsideAutocadIsUpToDate}"
+                                                     Value="True">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <materialDesign:PackIcon Kind="CloseCircleOutline"
+                                                     Margin="3 0"
+                                                     VerticalAlignment="Center"
+                                                     Foreground="{StaticResource WarningColorBrush}" />
+
+                            <TextBlock Text="Update Available"
+                                       Foreground="{StaticResource WarningColorBrush}"
+                                       Style="{StaticResource MaterialDesignBodySmallTextBlock}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- The Action Button -->
+                    <Button Grid.Row="6"
+                            Content="Update Rhino.Inside.Autocad"
+                            BorderThickness="2"
+                            Margin="0,10,10,0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            BorderBrush="{StaticResource WarningColorBrush}"
+                            Foreground="{StaticResource WarningColorBrush}"
+                            Command="{Binding UpdateRhinoInsideCommand}" >
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource MaterialDesignOutlinedButton}">
+                                <Style.Triggers>
+
+                                    <DataTrigger Binding="{Binding RhinoInsideAutocadIsUpToDate}"
+                                                 Value="False">
+                                        <Setter Property="Visibility"
+                                                Value="Visible" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding RhinoInsideAutocadIsUpToDate}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                </Grid>
+
+
+            </TabItem>
+
+            <!-- Setting Tab-->
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock Text="Settings"
+                               Style="{StaticResource MaterialDesignBody1TextBlock}"
+                               Foreground="{StaticResource PrimaryTextBrush}" />
+                </TabItem.Header>
+
+
+            </TabItem>
+        </TabControl>
+
+
+        <!-- The  Footer Border-->
+        <Border Grid.Row="2"
+                BorderThickness="0.5"
+                BorderBrush="{StaticResource BorderGreyColorBrush}"
+                VerticalAlignment="Top"
+                Margin="0,0,0,0" />
+
+        <!-- Brought to you Label -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Margin="0,8,0,8"
+                    Opacity="0.43">
+            <TextBlock Text="Developed in collaboration with"
+                       FontStyle="Italic"
+                       HorizontalAlignment="Center"
+                       FontSize="10"
+                       Foreground="Gainsboro"
+                       VerticalAlignment="Center" />
+
+            <Image Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Resources/BimorphLogo.png"
+                   Width="70"
+                   Margin="8 0 0 0"
+                   VerticalAlignment="Center" />
+        </StackPanel>
+
+
+        <!-- The Action Button -->
+        <Button Grid.Row="2"
+                Style="{StaticResource MaterialDesignOutlinedButton}"
+                Content="Close"
+                BorderThickness="2"
+                Margin="0,0,10,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Visibility="{Binding ButtonVisibility}"
+                BorderBrush="{StaticResource PrimaryTextBrush}"
+                Foreground="{StaticResource PrimaryTextBrush}"
+                Click="Button_Click" />
+
+    </Grid>
+
+
+
+</Window>

@@ -3,22 +3,17 @@ using Autodesk.AutoCAD.EditorInput;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
-
+/// <summary>
+/// A filter that selects AutoCAD Solid3d entities.
+/// </summary>
 public class SolidFilter : IFilter
 {
-    /// <summary>
-    /// Constructs a filter that selects entities which are 3D solids.
-    /// </summary>
-    public SolidFilter()
-    {
-    }
-
     /// <inheritdoc />
     public ISelectionFilter GetSelectionFilter()
     {
         var filterCriteria = new[]
         {
-            new TypedValue((int)DxfCode.Start, "3DSOLID")
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue((int)DxfCode.Start, "3DSOLID")
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

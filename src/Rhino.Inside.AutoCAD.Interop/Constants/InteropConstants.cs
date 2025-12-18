@@ -25,14 +25,18 @@ public class InteropConstants
 
     /// <summary>
     /// The length in <see cref="IUnitSystemManager.RhinoUnits"/> of a pattern point
-    /// in a <see cref="IAutocadLinePattern"/> that is 0-length. The length is used to represent
+    /// in a <see cref="IAutocadLinetypeTableRecord"/> that is 0-length. The length is used to represent
     /// the point as a line internally.
     /// </summary>
     public const double LinePatternPointLength = 0.1;
 
     /// <summary>
-    /// The total length in <see cref="IUnitSystemManager.RhinoUnits"/> of a 
-    /// <see cref="IAutocadLinePattern"/>.
+    /// The file name of the Grasshopper library DLL.
     /// </summary>
-    public const double LinePatternTotalLength = 85.0;
+    public const string GrasshopperLibraryFileName = "Rhino.Inside.AutoCAD.GrasshopperLibrary.dll";
+
+    /// <summary>
+    /// The fully qualified type name for the GH_AutocadGeometricGoo generic base type.
+    /// </summary>
+    public const string GooBaseTypeName = "Rhino.Inside.AutoCAD.GrasshopperLibrary.GH_AutocadGeometricGoo`2, Rhino.Inside.AutoCAD.GrasshopperLibrary";
 }

@@ -8,12 +8,16 @@ public class TransactionManagerWrapper : WrapperDisposableBase<TransactionManage
 {
     private readonly Database _database;
 
+    /// <inheritdoc/>
+    public IObjectId BlockTableId { get; }
+
     /// <summary>
     /// Constructs a new <see cref="TransactionManagerWrapper"/>.
     /// </summary>
     public TransactionManagerWrapper(Database database) : base(database.TransactionManager)
     {
         _database = database;
+        this.BlockTableId = new AutocadObjectId(database.BlockTableId);
     }
 
     /// <summary>

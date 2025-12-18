@@ -6,40 +6,33 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 using CadArc = Autodesk.AutoCAD.DatabaseServices.Arc;
 using CadCircle = Autodesk.AutoCAD.DatabaseServices.Circle;
 using CadCircularArc3d = Autodesk.AutoCAD.Geometry.CircularArc3d;
-using CadCompositeCurve3d = Autodesk.AutoCAD.Geometry.CompositeCurve3d;
 using CadCurve = Autodesk.AutoCAD.DatabaseServices.Curve;
-using CadCurve3d = Autodesk.AutoCAD.Geometry.Curve3d;
 using CadDBPoint = Autodesk.AutoCAD.DatabaseServices.DBPoint;
 using CadEllipse = Autodesk.AutoCAD.DatabaseServices.Ellipse;
-using CadExtents3d = Autodesk.AutoCAD.DatabaseServices.Extents3d;
+using CadHatch = Autodesk.AutoCAD.DatabaseServices.Hatch;
 using CadLine = Autodesk.AutoCAD.DatabaseServices.Line;
 using CadNurbsSurface = Autodesk.AutoCAD.DatabaseServices.NurbSurface;
-using CadObjectId = Autodesk.AutoCAD.DatabaseServices.ObjectId;
-using CadPoint3d = Autodesk.AutoCAD.Geometry.Point3d;
 using CadPoint3dCollection = Autodesk.AutoCAD.Geometry.Point3dCollection;
 using CadPolyFaceMesh = Autodesk.AutoCAD.DatabaseServices.PolyFaceMesh;
 using CadPolygonMesh = Autodesk.AutoCAD.DatabaseServices.PolygonMesh;
-using CadPolygonMeshVertex = Autodesk.AutoCAD.DatabaseServices.PolygonMeshVertex;
 using CadPolyline3d = Autodesk.AutoCAD.DatabaseServices.Polyline3d;
 using CadPolyMeshType = Autodesk.AutoCAD.DatabaseServices.PolyMeshType;
 using CadSolid3d = Autodesk.AutoCAD.DatabaseServices.Solid3d;
 using CadSpline = Autodesk.AutoCAD.DatabaseServices.Spline;
 using CadSubDMesh = Autodesk.AutoCAD.DatabaseServices.SubDMesh;
 using CadSurface = Autodesk.AutoCAD.DatabaseServices.Surface;
-using CadVertex3dType = Autodesk.AutoCAD.DatabaseServices.Vertex3dType;
 using RhinoArc = Rhino.Geometry.Arc;
 using RhinoArcCurve = Rhino.Geometry.ArcCurve;
-using RhinoBoundingBox = Rhino.Geometry.BoundingBox;
 using RhinoBrep = Rhino.Geometry.Brep;
 using RhinoCircle = Rhino.Geometry.Circle;
 using RhinoCurve = Rhino.Geometry.Curve;
 using RhinoEllipse = Rhino.Geometry.Ellipse;
+using RhinoHatch = Rhino.Geometry.Hatch;
 using RhinoLineCurve = Rhino.Geometry.LineCurve;
 using RhinoMesh = Rhino.Geometry.Mesh;
 using RhinoNurbsCurve = Rhino.Geometry.NurbsCurve;
 using RhinoNurbsSurface = Rhino.Geometry.NurbsSurface;
 using RhinoPoint = Rhino.Geometry.Point;
-using RhinoPoint3d = Rhino.Geometry.Point3d;
 using RhinoPolyCurve = Rhino.Geometry.PolyCurve;
 using RhinoPolyLineCurve = Rhino.Geometry.PolylineCurve;
 using RhinoSubD = Rhino.Geometry.SubD;
@@ -94,27 +87,60 @@ public partial class GeometryConverter
     }
 
     /// <summary>
-    /// Converts the given <see cref="RhinoCurve"/> into a single composite curve. This
-    /// method provide a second processing step after the ToAutoCadType where each curve
-    /// in the converted list is appended into a single geometric composite curve.
+    /// Converts the given <see cref="RhinoCurve"/> to a list of AutoCAD
+    /// <see cref="Geometry.Curve"/>s. Typically, the list contains one <see cref="Geometry.Curve"/>
+    /// if successful, however it can contain more if the <see cref="RhinoPolyCurve"/>
+    /// is converted. It is the <see cref="RhinoPolyCurve"/> conversion which drives
+    /// the need to return a list as AutoCAD does not have a direct equivalent.
+    /// </summary>
+    public IList<Autodesk.AutoCAD.Geometry.Curve2d> ToAutoCadType2d(RhinoCurve curve)
+    {
+        switch (curve)
+        {
+            case RhinoLineCurve line:
+                return [this.ToAutoCadType2d(line)];
+
+            case RhinoArcCurve arc:
+                {
+                    if (arc.IsCompleteCircle == false)
+                        return [this.ToAutoCadType2d(arc)];
+
+                    var circle = new RhinoCircle(arc.Arc);
+
+                    return [this.ToAutoCadType2d(circle)];
+                }
+
+            case RhinoNurbsCurve nurbsCurve:
+                return [this.ToAutoCadType2d(nurbsCurve)];
+
+            case RhinoPolyLineCurve polyLineCurve:
+                return [this.ToAutoCadType2d(polyLineCurve)];
+
+            case RhinoPolyCurve polyCurve:
+                return this.ToAutoCadType2d(polyCurve);
+
+            default:
+                return [];
+        }
+    }
+
+    /// <summary>
+    /// Converts the given <see cref="RhinoCurve"/> into a single curve. If the
+    /// conversion would have result in multiple curves (for example a <see cref="RhinoPolyCurve"/>)
+    /// then it is converted to a single <see cref="RhinoNurbsCurve"/> first. This will produce
+    /// a single AutoCAD curve, but may result in loss of fidelity.  Where possible, use the list
+    /// of curves returned by <see cref="ToAutoCadType(RhinoCurve)"/>
     /// </summary>
     public CadCurve ToAutoCadSingleCurve(RhinoCurve curve)
     {
-        var listCurves = this.ToAutoCadType(curve);
+        var single = curve is RhinoPolyCurve ? curve.ToNurbsCurve() : curve;
 
-        var curve3ds = new CadCurve3d[listCurves.Count];
-        for (var index = 0; index < listCurves.Count; index++)
-        {
-            var convertedCurve = listCurves[index];
+        var listCurves = this.ToAutoCadType(single);
 
-            var curve3d = convertedCurve.GetGeCurve();
+        if (listCurves.Count == 1)
+            return listCurves[0];
 
-            curve3ds[index] = curve3d;
-        }
-
-        var compositeCurve = new CadCompositeCurve3d(curve3ds);
-
-        return CadCurve.CreateFromGeCurve(compositeCurve);
+        throw new System.Exception("Cannot convert Rhino curve to single AutoCAD curve.");
     }
 
     /// <summary>
@@ -127,6 +153,18 @@ public partial class GeometryConverter
         var endPoint = this.ToAutoCadType(line.PointAtEnd);
 
         return new CadLine(startPoint, endPoint);
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RhinoLineCurve"/> to a <see cref="LineSegment2d"/>.
+    /// </summary>
+    public LineSegment2d ToAutoCadType2d(RhinoLineCurve line)
+    {
+        var startPoint = this.ToAutoCadType2d(line.PointAtStart);
+
+        var endPoint = this.ToAutoCadType2d(line.PointAtEnd);
+
+        return new LineSegment2d(startPoint, endPoint);
     }
 
     /// <summary>
@@ -160,6 +198,26 @@ public partial class GeometryConverter
         spline.UpdateFitData();
 
         return spline;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RhinoNurbsCurve"/> to a <see cref="CadSpline"/>.
+    /// </summary>
+    public NurbCurve2d ToAutoCadType2d(RhinoNurbsCurve nurbsCurve)
+    {
+        var plane = Rhino.Geometry.Plane.WorldXY;
+
+        var flatCurve = RhinoCurve.ProjectToPlane(nurbsCurve, plane).ToNurbsCurve();
+
+        var fitPoints = new Point2dCollection();
+        foreach (var rhinoPoint in flatCurve.Points)
+        {
+            var cadPoint = this.ToAutoCadType2d(rhinoPoint.Location);
+            fitPoints.Add(cadPoint);
+        }
+
+        return new NurbCurve2d(fitPoints);
+
     }
 
     /// <summary>
@@ -226,6 +284,22 @@ public partial class GeometryConverter
     }
 
     /// <summary>
+    /// Converts a <see cref="RhinoArcCurve"/> to a <see cref="CircularArc2d"/>.
+    /// </summary>
+    public CircularArc2d ToAutoCadType2d(RhinoArcCurve arcCurve)
+    {
+        var midPoint = arcCurve.PointAtNormalizedLength(_midPointParam);
+
+        var startPoint = this.ToAutoCadType2d(arcCurve.PointAtStart);
+        var endPoint = this.ToAutoCadType2d(arcCurve.PointAtEnd);
+        var pointOnArc = this.ToAutoCadType2d(midPoint);
+
+        var circularArc = new CircularArc2d(startPoint, pointOnArc, endPoint);
+
+        return circularArc;
+    }
+
+    /// <summary>
     /// Converts a <see cref="RhinoCircle"/> to a <see cref="CadCircle"/>.
     /// </summary>
     public CadCircle ToAutoCadType(RhinoCircle circle)
@@ -234,10 +308,24 @@ public partial class GeometryConverter
 
         var normal = this.ToAutoCadType(circle.Normal);
 
-        var radius = _unitSystemManager.ToRhinoLength(circle.Radius);
+        var radius = _unitSystemManager.ToAutoCadLength(circle.Radius);
 
         var cadCircle =
             new Autodesk.AutoCAD.DatabaseServices.Circle(center, normal, radius);
+
+        return cadCircle;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RhinoCircle"/> to a <see cref="CadCircle"/>.
+    /// </summary>
+    public CircularArc2d ToAutoCadType2d(RhinoCircle circle)
+    {
+        var center = this.ToAutoCadType2d(circle.Center);
+
+        var radius = _unitSystemManager.ToAutoCadLength(circle.Radius);
+
+        var cadCircle = new Autodesk.AutoCAD.Geometry.CircularArc2d(center, radius);
 
         return cadCircle;
     }
@@ -261,6 +349,27 @@ public partial class GeometryConverter
 
         return new CadPolyline3d(Poly3dType.SimplePoly, pointCollection,
             polyLineCurve.IsClosed);
+
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RhinoPolyCurve"/> to a <see cref="CadPolyline3d"/>.
+    /// </summary>
+    public PolylineCurve2d ToAutoCadType2d(RhinoPolyLineCurve polyLineCurve)
+    {
+        var pointCount = polyLineCurve.PointCount;
+
+        var pointCollection = new Point2dCollection();
+        for (var j = 0; j < pointCount; j++)
+        {
+            var rhinoPoint = polyLineCurve.Point(j);
+
+            var cadPoint = this.ToAutoCadType2d(rhinoPoint);
+
+            pointCollection.Add(cadPoint);
+        }
+
+        return new PolylineCurve2d(pointCollection);
 
     }
 
@@ -375,20 +484,37 @@ public partial class GeometryConverter
     /// </summary>
     public CadPolyFaceMesh ToAutoCadType(RhinoMesh mesh)
     {
-
         var activeDocument = Application.DocumentManager.MdiActiveDocument;
+
+        using var documentLock = activeDocument.LockDocument();
 
         var database = activeDocument.Database;
 
-        var polyFaceMesh = new PolyFaceMesh();
+        using var transactionManagerWrapper = new TransactionManagerWrapper(database);
 
+        using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+
+        var result = this.ToAutoCadType(mesh, transactionManagerWrapper);
+
+        transaction.Commit();
+
+        return result;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RhinoMesh"/> into an <see cref="CadPolyFaceMesh"/> object.
+    /// Autocad cad Mesh faces are 1-based indexing, so we need to add 1 to each index.
+    /// </summary>
+    public CadPolyFaceMesh ToAutoCadType(RhinoMesh mesh, ITransactionManager transactionManager)
+    {
+        var polyFaceMesh = new CadPolyFaceMesh();
+
+        var clone = new CadPolyFaceMesh();
         try
         {
-            using var documentLock = activeDocument.LockDocument();
+            var transaction = transactionManager.Unwrap();
 
-            using var transaction = database.TransactionManager.StartTransaction();
-
-            var blockTable = transaction.GetObject(database.BlockTableId, OpenMode.ForRead) as BlockTable;
+            var blockTable = transaction.GetObject(transactionManager.BlockTableId.Unwrap(), OpenMode.ForRead) as BlockTable;
 
             var blockTableRecord = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace],
                 OpenMode.ForWrite) as BlockTableRecord;
@@ -402,22 +528,38 @@ public partial class GeometryConverter
                 var vertex = new PolyFaceMeshVertex(this.ToAutoCadType(point));
 
                 polyFaceMesh.AppendVertex(vertex);
+                transaction.AddNewlyCreatedDBObject(vertex, true);
             }
 
             foreach (var face in mesh.Faces)
             {
-                var faceRecord = new FaceRecord((short)face.A, (short)face.B, (short)face.C, (short)face.D);
+                if (face.IsQuad)
+                {
+                    var quadFaceRecord = new FaceRecord((short)(face.A + 1), (short)(face.B + 1), (short)(face.C + 1), (short)(face.D + 1));
+
+                    polyFaceMesh.AppendFaceRecord(quadFaceRecord);
+
+                    transaction.AddNewlyCreatedDBObject(quadFaceRecord, true);
+
+                    continue;
+                }
+
+                var faceRecord = new FaceRecord((short)(face.A + 1), (short)(face.B + 1), (short)(face.C + 1), 0);
 
                 polyFaceMesh.AppendFaceRecord(faceRecord);
-            }
-            transaction.Abort();
 
+                transaction.AddNewlyCreatedDBObject(faceRecord, true);
+            }
+
+            clone = polyFaceMesh.Clone() as CadPolyFaceMesh;
+
+            polyFaceMesh.Erase(true);
         }
         catch (System.Exception ex)
         {
-
+            _logger.LogError(ex, "Autocad PolyFaceMesh ToAutoCadType(RhinoMesh mesh) ");
         }
-        return polyFaceMesh;
+        return clone;
     }
 
     /// <summary>
@@ -527,6 +669,29 @@ public partial class GeometryConverter
     }
 
     /// <summary>
+    /// Converts a Rhino <see cref="RhinoBrep"/> in a collection of <see cref="CadNurbsSurface"/>s.
+    /// This is used as a subsitute for breps in autocad for display.
+    /// </summary>
+    public CadNurbsSurface[] ToAutoCadType(RhinoBrep brep)
+    {
+        var cadFaces = new List<CadNurbsSurface>();
+
+        foreach (var face in brep.Faces)
+        {
+            var trimmedSurface = face.DuplicateFace(false);
+
+            var singleFace = trimmedSurface.Faces[0];
+
+            var nurbs = singleFace.ToNurbsSurface();
+
+            var cadSurface = this.ToAutoCadType(nurbs);
+
+            cadFaces.Add(cadSurface);
+        }
+
+        return cadFaces.ToArray();
+    }
+    /// <summary>
     /// Converts a <see cref="RhinoBrep"/> to an array of AutoCAD <see cref="CadSolid3d"/>s.
     /// Typically, this is just a single solid representing the Brep, but depending on
     /// the import processing it could be multiple solids.
@@ -535,11 +700,38 @@ public partial class GeometryConverter
     /// We need to use a AutoCAD document to import the Rhino brep temporarily. It is
     /// deleted after the import so which document we use is not important.
     /// </remarks>
-    public CadSolid3d[] ToAutoCadType(RhinoBrep brep)
+    public CadSolid3d[] ToAutoCadType2(RhinoBrep brep)
     {
         var activeDocument = Application.DocumentManager.MdiActiveDocument;
 
+        using var documentLock = activeDocument.LockDocument();
+
         var database = activeDocument.Database;
+
+        using var transactionManagerWrapper = new TransactionManagerWrapper(database);
+
+        using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+
+        var result = this.ToAutoCadType2(brep, transactionManagerWrapper);
+
+        transaction.Commit();
+
+        return result;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RhinoBrep"/> to an array of AutoCAD <see cref="CadSolid3d"/>s.
+    /// Typically, this is just a single solid representing the Brep, but depending on
+    /// the import processing it could be multiple solids.
+    /// </summary>
+    /// <remarks>
+    /// We need to use a AutoCAD document to import the Rhino brep temporarily. It is
+    /// deleted after the import so which document we use is not important.
+    /// </remarks>
+    public CadSolid3d[] ToAutoCadType2(RhinoBrep brep, ITransactionManager transactionManager)
+    {
+        var activeDocument = Application.DocumentManager.MdiActiveDocument;
+
         var editor = activeDocument.Editor;
 
         var addedObjects = new List<CadSolid3d>();
@@ -548,7 +740,7 @@ public partial class GeometryConverter
         {
             var tempFolder = Path.GetTempPath();
 
-            var pathLocation = $@"{tempFolder}AWI\Converters\";
+            var pathLocation = $@"{tempFolder}RhinoInsideAutocad\Converters\";
 
             Directory.CreateDirectory(pathLocation);
 
@@ -567,9 +759,7 @@ public partial class GeometryConverter
 
             var selectedObjects = selectLast?.Value;
 
-            using var transaction = database.TransactionManager.StartTransaction();
-
-            using var documentLock = activeDocument.LockDocument();
+            var transaction = transactionManager.Unwrap();
 
             for (var index = 0; index < selectedObjects!.Count; index++)
             {
@@ -584,10 +774,7 @@ public partial class GeometryConverter
                 addedObjects.Add(solid3d);
 
                 importedObject.Erase(true);
-
             }
-
-            transaction.Commit();
         }
         catch (System.Exception ex)
         {
@@ -598,208 +785,149 @@ public partial class GeometryConverter
     }
 
     /// <summary>
-    /// Converts a <see cref="RhinoBoundingBox"/> to a <see cref="CadExtents3d"/>.
+    /// Converts a Rhino <see cref="Extrusion"/> to an array of AutoCAD <see cref="CadSolid3d"/>s.
+    /// Typically, this is just a single solid representing the Extrusion, but depending on
+    /// conversion it could be multiple solids.
     /// </summary>
-    public RhinoBoundingBox ToRhinoType(CadExtents3d extents)
-    {
-        var min = this.ToRhinoType(extents.MinPoint);
-
-        var max = this.ToRhinoType(extents.MaxPoint);
-
-        return new RhinoBoundingBox(min, max);
-    }
-
-    /// <summary>
-    /// Converts a Rhino mesh into an AutoCAD SubDMesh object.
-    /// </summary>
-    public RhinoMesh ToRhinoSubD(CadSubDMesh mesh)
-    {
-        var rhinoMesh = new RhinoMesh();
-
-        foreach (CadPoint3d point in mesh.Vertices)
-            rhinoMesh.Vertices.Add(this.ToRhinoType(point));
-
-        var edges = 0;
-
-        for (var x = 0; x < mesh.FaceArray.Count; x = x + edges + 1)
-        {
-            edges = mesh.FaceArray[x];
-
-            var faces = new List<int>();
-
-            for (var y = x + 1; y <= x + edges; y++)
-
-            {
-                var faceInt = mesh.FaceArray[y];
-
-                faces.Add(faceInt);
-            }
-
-            if (faces.Count == 4)
-            {
-                rhinoMesh.Faces.AddFace(faces[0], faces[1], faces[2], faces[3]);
-                continue;
-            }
-            rhinoMesh.Faces.AddFace(faces[0], faces[1], faces[2]);
-        }
-
-        return rhinoMesh;
-    }
-
-    /// <summary>
-    /// Converts a Rhino mesh into an AutoCAD PolyFaceMesh object.
-    /// </summary>
-    public RhinoMesh ToRhinoType(CadPolyFaceMesh mesh)
+    public CadSolid3d[] ToAutoCadType(Extrusion extrusion)
     {
         var activeDocument = Application.DocumentManager.MdiActiveDocument;
 
+        using var documentLock = activeDocument.LockDocument();
+
         var database = activeDocument.Database;
 
-        var rhinoMesh = new RhinoMesh();
+        using var transactionManagerWrapper = new TransactionManagerWrapper(database);
+
+        using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+
+        var result = this.ToAutoCadType(extrusion, transactionManagerWrapper);
+
+        transaction.Commit();
+
+        return result;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="Extrusion"/> to an array of AutoCAD <see cref="CadSolid3d"/>s.
+    /// </summary>
+    public CadSolid3d[] ToAutoCadType(Extrusion extrusion, ITransactionManager transactionManager)
+    {
+
+        var solids = new List<CadSolid3d>();
 
         try
         {
-            using var transaction = database.TransactionManager.StartTransaction();
+            using var curves = new DBObjectCollection();
 
-            foreach (CadObjectId id in mesh)
+            var profileCount = extrusion.ProfileCount;
+
+            for (var i = 0; i < profileCount; i++)
             {
-                var dbObject = transaction.GetObject(id, OpenMode.ForRead);
+                var profile = extrusion.Profile3d(i, 0);
 
-                switch (dbObject)
+                if (profile == null)
+                    continue;
+
+                var cadCurves = this.ToAutoCadType(profile);
+
+                foreach (var cadCurve in cadCurves)
                 {
-                    case PolyFaceMeshVertex polyFaceMeshVertex:
-                        {
-                            var rhinoVertex = this.ToRhinoType(polyFaceMeshVertex.Position);
-
-                            rhinoMesh.Vertices.Add(rhinoVertex);
-                            continue;
-                        }
-                    case FaceRecord face when face.GetVertexAt(3) != 0:
-                        rhinoMesh.Faces.AddFace(face.GetVertexAt(0), face.GetVertexAt(1),
-                            face.GetVertexAt(2), face.GetVertexAt(3));
-                        continue;
-
-                    case FaceRecord face:
-                        rhinoMesh.Faces.AddFace(face.GetVertexAt(0), face.GetVertexAt(1),
-                            face.GetVertexAt(2));
-                        break;
+                    curves.Add(cadCurve);
                 }
             }
 
-            transaction.Commit();
+            var regions = Region.CreateFromCurves(curves);
 
-        }
-        catch (System.Exception ex)
-        {
-
-        }
-
-        return rhinoMesh;
-    }
-
-    /// <summary>
-    /// Converts an AutoCAD <see cref="CadPolygonMesh"/> into a Rhino <see cref="RhinoNurbsSurface"/> object.
-    /// </summary>
-    public RhinoNurbsSurface ToRhinoType(CadPolygonMesh mesh)
-    {
-        var degree = 1;
-        switch (mesh.PolyMeshType)
-        {
-            case CadPolyMeshType.BezierSurfaceMesh:
-                degree = 2;
-                break;
-            case CadPolyMeshType.CubicSurfaceMesh:
-                degree = 3;
-                break;
-            case CadPolyMeshType.QuadSurfaceMesh:
-                degree = 4;
-                break;
-            default:
-                break;
-        }
-
-        var controlPointsU = mesh.MSize;
-        var controlPointsV = mesh.NSize;
-
-        var points = new List<RhinoPoint3d>();
-
-        foreach (var meshItem in mesh)
-        {
-            if (meshItem is not CadPolygonMeshVertex vertex || vertex.VertexType != CadVertex3dType.ControlVertex) continue;
-
-            var convertedPoint = this.ToRhinoType(vertex.Position);
-
-            points.Add(convertedPoint);
-        }
-
-        var rhinoSurface = RhinoNurbsSurface.CreateFromPoints(points, controlPointsU,
-            controlPointsV, degree, degree);
-
-        return rhinoSurface;
-    }
-
-    /// <summary>
-    /// Converts a <see cref="CadNurbsSurface"/> to a <see cref="RhinoNurbsSurface"/>.
-    /// </summary>
-    public RhinoNurbsSurface ToRhinoType(CadNurbsSurface cadNurbsSurface)
-    {
-        var dimension = 3;
-        var degreeU = cadNurbsSurface.DegreeInU + 1;
-        var degreeV = cadNurbsSurface.DegreeInV + 1;
-        var isRational = cadNurbsSurface.IsRational;
-        var controlPointsU = cadNurbsSurface.NumberOfControlPointsInU;
-        var controlPointsV = cadNurbsSurface.NumberOfControlPointsInV;
-
-        var rhinoSurface = RhinoNurbsSurface.Create(dimension, isRational, degreeU, degreeV, controlPointsU, controlPointsV);
-
-        // Correct Knots from AutoCAD Nurbs Specification
-        for (var index = 1; index < cadNurbsSurface.UKnots.Count - 1; index++)
-        {
-            var uKnot = cadNurbsSurface.UKnots[index];
-            rhinoSurface.KnotsU[index - 1] = uKnot;
-        }
-
-        for (var index = 1; index < cadNurbsSurface.VKnots.Count - 1; index++)
-        {
-            var vKnot = cadNurbsSurface.VKnots[index];
-            rhinoSurface.KnotsV[index - 1] = vKnot;
-        }
-
-        for (var u = 0; u < cadNurbsSurface.NumberOfControlPointsInU; u++)
-        {
-            for (var v = 0; v < cadNurbsSurface.NumberOfControlPointsInV; v++)
+            foreach (Region region in regions)
             {
-                var controlPoint = cadNurbsSurface.GetControlPointAt(u, v);
+                var solid = new Solid3d();
 
-                var convertedPoint = this.ToRhinoType(controlPoint);
+                var extrusionLine = extrusion.PathLineCurve();
 
-                var weight = cadNurbsSurface.GetWeight(u, v);
+                var extrusionVector = extrusionLine.PointAtEnd - extrusionLine.PointAtStart;
 
-                var rhinoControlPoint =
-                    new Rhino.Geometry.ControlPoint(convertedPoint, weight);
-                rhinoSurface.Points.SetControlPoint(u, v, rhinoControlPoint);
+                var cadExtrusionVector = this.ToAutoCadType(extrusionVector);
 
+                var magnitude = extrusionVector.Length;
+
+                var cadMagnitude = _unitSystemManager.ToAutoCadLength(magnitude);
+
+                var directionVector = cadExtrusionVector.MultiplyBy(cadMagnitude);
+
+                var sweepOptions = new SweepOptions();
+
+                solid.CreateExtrudedSolid(region, directionVector, sweepOptions);
+
+                solids.Add(solid);
+
+                region.Dispose();
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+        return solids.ToArray();
+
+    }
+
+    /// <summary>
+    /// Converts a <see cref="CadHatch"/> to a <see cref="RhinoHatch"/>.
+    /// </summary>
+    public CadHatch ToAutoCadType(RhinoHatch rhinoHatch, ITransactionManager transactionManager)
+    {
+        var scale = _unitSystemManager.ToAutoCadLength(rhinoHatch.PatternScale);
+
+        var rotation = rhinoHatch.PatternRotation;
+
+        //TODO: Support Hatch pattens/Styles
+
+        var cadHatch = new CadHatch()
+        {
+            PatternAngle = rotation,
+            PatternScale = scale,
+            Origin = this.ToAutoCadType2d(rhinoHatch.BasePoint)
+
+        };
+
+        var outerCurves = rhinoHatch.Get3dCurves(true);
+
+        var outerCurve = new PolyCurve();
+        foreach (var curve in outerCurves)
+        {
+            outerCurve.Append(curve);
+        }
+
+        var curve2ds = new Curve2dCollection();
+        var edgeTypes = new IntegerCollection();
+
+        var curves = this.ToAutoCadType2d(outerCurve);
+
+        foreach (var curve in curves)
+        {
+
+            curve2ds.Add(curve);
+            edgeTypes.Add(1);
+        }
+
+        foreach (var innerCurve in rhinoHatch.Get3dCurves(false))
+        {
+            var innerLoop = this.ToAutoCadType2d(innerCurve);
+
+            foreach (var curve in innerLoop)
+            {
+                curve2ds.Add(curve);
+                edgeTypes.Add(1);
             }
         }
 
-        return rhinoSurface;
-    }
+        cadHatch.AppendLoop(HatchLoopTypes.External, curve2ds, edgeTypes);
 
-    /// <summary>
-    /// Converts a <see cref="CadSurface"/> to a <see cref="RhinoSurface"/>.
-    /// </summary>
-    public RhinoSurface[] ToRhinoType(CadSurface cadSurface)
-    {
-        var nurbs = cadSurface.ConvertToNurbSurface();
+        cadHatch.EvaluateHatch(true);
 
-        var converted = new List<RhinoSurface>();
-        foreach (var nurbsSurface in nurbs)
-        {
-            converted.Add(this.ToRhinoType(nurbsSurface));
-        }
-
-        return converted.ToArray();
-
+        return cadHatch;
     }
 
     /// <summary>

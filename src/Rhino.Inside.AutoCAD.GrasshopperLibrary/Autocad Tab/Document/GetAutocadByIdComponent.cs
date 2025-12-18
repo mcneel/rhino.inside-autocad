@@ -1,5 +1,6 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using CadLayer = Autodesk.AutoCAD.DatabaseServices.LayerTableRecord;
 
@@ -8,8 +9,12 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD documents currently open in the AutoCAD session.
 /// </summary>
-public class GetByAutocadIdComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class GetByAutocadIdComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
+    /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.secondary;
+
     /// <inheritdoc />
     public override Guid ComponentGuid => new("ab9f48ba-bef6-4646-a3ad-146a92678440");
 
@@ -20,7 +25,7 @@ public class GetByAutocadIdComponent : GH_Component
     /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
     /// </summary>
     public GetByAutocadIdComponent()
-        : base("GetById", "GetId",
+        : base("Get By Id", "AC-ById",
             "Returns the the AutoCAD object which matches the id",
             "AutoCAD", "Document")
     {
@@ -32,7 +37,7 @@ public class GetByAutocadIdComponent : GH_Component
         pManager.AddParameter(new Param_AutocadDocument(GH_ParamAccess.item), "Document",
             "Doc", "An AutoCAD Document", GH_ParamAccess.item);
 
-        pManager.AddParameter(new Param_AutocadId(GH_ParamAccess.item), "ObjectId",
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "ObjectId",
             "Id", "An AutoCAD ObjectId", GH_ParamAccess.item);
     }
 
@@ -71,7 +76,7 @@ public class GetByAutocadIdComponent : GH_Component
 
         foreach (var changedObject in change)
         {
-            if (changedObject.Unwrap() is CadLayer)
+            if (changedObject.UnwrapObject() is CadLayer)
             {
                 return true;
             }

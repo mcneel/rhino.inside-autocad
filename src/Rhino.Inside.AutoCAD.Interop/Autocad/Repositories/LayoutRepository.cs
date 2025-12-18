@@ -18,7 +18,7 @@ public class LayoutRepository : Disposable, ILayoutRepository
     {
         _document = document;
 
-        this.Update();
+        this.Repopulate();
     }
 
     ///<inheritdoc />
@@ -26,20 +26,16 @@ public class LayoutRepository : Disposable, ILayoutRepository
         _layouts.TryGetValue(name, out layout);
 
     ///<inheritdoc />
-    public void Update()
+    public void Repopulate()
     {
         _layouts.Clear();
 
         _ = _document.Transaction(transactionManagerWrapper =>
         {
-            var database = _document.Database.Unwrap();
-
             var transactionManager = transactionManagerWrapper.Unwrap();
 
-            var layoutDictionaryId = database.LayoutDictionaryId;
-
             using var layouts = (DBDictionary)transactionManager
-                .GetObject(layoutDictionaryId, OpenMode.ForRead);
+                .GetObject(_document.Database.LayoutDictionaryId.Unwrap(), OpenMode.ForRead);
 
             foreach (var entity in layouts)
             {
@@ -54,6 +50,53 @@ public class LayoutRepository : Disposable, ILayoutRepository
 
             return true;
         });
+    }
+
+    /// <summary>
+    /// Creates a new layer in the active document and returns the <see cref="IAutocadLayout"/>.
+    /// </summary>
+    private IAutocadLayout CreateLayout(string name)
+    {
+        using var documentLock = _document.Unwrap().LockDocument();
+
+        var layoutWrapper = _document.Transaction(transactionManagerWrapper =>
+        {
+            var transactionManager = transactionManagerWrapper.Unwrap();
+
+            var layout = new Layout()
+            {
+                LayoutName = name
+            };
+
+            using var layoutDictionary = (DBDictionary)transactionManager.GetObject(
+                _document.Database.LayoutDictionaryId.Unwrap(), OpenMode.ForWrite);
+
+            layoutDictionary[name] = layout;
+
+            transactionManager.AddNewlyCreatedDBObject(layout, true);
+
+            return new AutocadLayoutWrapper(layout);
+        });
+
+        _document.UpdateScreen();
+
+        return layoutWrapper;
+    }
+
+    /// <inheritdoc/>
+    public bool TryAddLayout(string name, out IAutocadLayout? layout)
+    {
+        if (_layouts.ContainsKey(name) == false)
+        {
+            layout = this.CreateLayout(name);
+
+            _layouts[layout.Name] = layout;
+
+            return true;
+        }
+
+        layout = null;
+        return false;
     }
 
     ///<inheritdoc/>

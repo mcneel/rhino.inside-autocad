@@ -31,4 +31,18 @@ public class MessageConstants
     /// </summary
     public const string FileUnitsNotSupported = "Warning: unsupported document file units ({0}). Set a valid metric or imperial unit system and try again.";
 
+    /// <summary>
+    /// An error message when the LoadGHA method is not found via reflection.
+    /// </summary>
+    public const string LoadGhaMethodNotFound = "LoadGHA method not found";
+
+    /// <summary>
+    /// An error message when Grasshopper fails to initialize.
+    /// </summary>
+    public const string GrasshopperInitializationFailed = "Failed to initialize Grasshopper";
+
+    /// <summary>
+    /// An error message when the GH_AutocadGeometricGoo type cannot be found.
+    /// </summary>
+    public const string GooBaseTypeNotFound = "GH_AutocadGeometricGoo type not found. Ensure Rhino.Inside.Autocad.GrasshopperLibrary is loaded.";
 }

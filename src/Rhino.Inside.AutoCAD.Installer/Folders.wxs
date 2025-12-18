@@ -1,0 +1,21 @@
+<Wix xmlns='http://wixtoolset.org/schemas/v4/wxs'>
+	<?include 'Include.wxi'?>
+	<Fragment>
+		<Media Id='1' Cabinet='Sample.cab' EmbedCab='yes' DiskPrompt='CD-ROM #1' />
+		<Property Id='DiskPrompt' Value='Rhino.Inside.AutoCAD Application Installer' />
+		<Directory Id='AppDataFolder'>
+			<Directory Id='Autodesk' Name='Autodesk'>
+				<Directory Id='ApplicationPlugins' Name='ApplicationPlugins'>
+					<Directory Id='ROOTDIRECTORY' Name='Rhino.Inside.AutoCAD.bundle'>
+						<Directory Id='AppVersion' Name='$(var.AppVersion)'>
+							<Directory Id='Win64Folder' Name='Win64'/>
+						</Directory>
+						<Directory Id='IconsFolder' Name='Icons'/>
+						<Directory Id='ResourcesFolder' Name='Resources'/>
+						<Directory Id='ToolbarFolder' Name='Toolbar'/>
+					</Directory>
+				</Directory>
+			</Directory>
+		</Directory>
+	</Fragment>
+</Wix>

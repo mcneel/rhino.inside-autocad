@@ -1,7 +1,7 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// A cache of <see cref="IDocument"/> entities filtered by a specific <see
+/// A cache of <see cref="IAutocadDocument"/> entities filtered by a specific <see
 /// cref="IFilter"/>.
 /// </summary>
 public interface IFilteredCache : IDisposable

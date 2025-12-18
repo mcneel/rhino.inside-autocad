@@ -43,6 +43,11 @@ public interface IRhinoInstance
     RhinoDoc? ActiveDoc { get; }
 
     /// <summary>
+    /// The version of the Rhino application.
+    /// </summary>
+    Version ApplicationVersion { get; }
+
+    /// <summary>
     /// Validates that the Rhino document is created and ready to use.
     /// </summary>
     void ValidateRhinoDoc(RhinoInsideMode mode, IValidationLogger validationLogger);
@@ -58,7 +63,7 @@ public interface IRhinoInstance
     bool RunRhinoScript(string commandName);
 
     /// <summary>
-    /// The steps to take to shutdown this plugin.
+    /// The steps to taken to shutdown the rhino instance.
     /// </summary>
     void Shutdown();
 }

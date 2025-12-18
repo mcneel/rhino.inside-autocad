@@ -3,7 +3,9 @@ using Autodesk.AutoCAD.EditorInput;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
-
+/// <summary>
+/// A filter that selects a type by name.
+/// </summary>
 public class TypeFilter : ITypeFilter
 {
     /// <inheritdoc />
@@ -23,7 +25,7 @@ public class TypeFilter : ITypeFilter
     {
         var filterCriteria = new[]
         {
-            new TypedValue((int) DxfCode.Start, this.TypeName.ToUpper()),
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue((int) DxfCode.Start, this.TypeName.ToUpper()),
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

@@ -1,7 +1,7 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// An event args interface created when a <see cref="IAutocadLayer"/> is added
+/// An event args interface created when a <see cref="IAutocadLayerTableRecord"/> is added
 /// to the <see cref="ILayerRepository"/>.
 /// </summary>
 public interface ILayerAddedEventArgs
@@ -10,5 +10,5 @@ public interface ILayerAddedEventArgs
     /// The layer added to the <see cref="ILayerRepository"/> that raised this
     /// event args.
     /// </summary>
-    IAutocadLayer Layer { get; }
+    IAutocadLayerTableRecord LayerTableRecord { get; }
 }

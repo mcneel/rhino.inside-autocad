@@ -10,8 +10,6 @@ public class SettingManager : ISettingsManager
 
     /// <inheritdoc />
     public ISettingsCore Core { get; }
-    /// <inheritdoc />
-    public IApplicationSettings Application { get; }
 
     /// <inheritdoc />
     public IUserSettings User { get; }
@@ -25,13 +23,9 @@ public class SettingManager : ISettingsManager
 
         var coreSettingImporter = new SettingCoreImporter();
 
-        var applicationSettingsImporter = new ApplicationSettingsImporter();
-
         var userSettingImporter = new UserSettingImporter();
 
         this.Core = coreSettingImporter.Import(applicationDirectories);
-
-        this.Application = applicationSettingsImporter.Import(applicationDirectories);
 
         this.User = userSettingImporter.Import(applicationDirectories);
     }
@@ -44,7 +38,7 @@ public class SettingManager : ISettingsManager
             WriteIndented = true
         };
 
-        var userSettingsPath = $"{_applicationDirectories.UserLocal}{CoreConstants.UserSettingsJsonName}";
+        var userSettingsPath = $"{_applicationDirectories.UserLocal}{ApplicationConstants.UserSettingsJsonName}";
 
         var jsonString = JsonSerializer.Serialize((UserSettings)this.User, serializerOptions);
 

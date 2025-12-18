@@ -13,6 +13,11 @@
 public interface ITransactionManager : IDisposable
 {
     /// <summary>
+    /// Returns the <see cref="IObjectId"/> of the Block Table.
+    /// </summary>
+    IObjectId BlockTableId { get; }
+
+    /// <summary>
     /// Returns the <see cref="IBlockTableRecord"/>. Input true to
     /// open the block table record for write purposes.
     /// </summary>

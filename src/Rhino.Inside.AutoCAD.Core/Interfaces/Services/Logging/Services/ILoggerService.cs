@@ -12,12 +12,6 @@ public interface ILoggerService
     void LogMessage(string message);
 
     /// <summary>
-    /// Logs a UI interaction event. e.g a button command
-    /// </summary>
-    /// <param name="commandName">The name of the command to log.</param>
-    void LogUIInteragtion(string commandName, string viewModelName);
-
-    /// <summary>
     /// Logs an error with optional extra message and golden thread scope information.
     /// </summary>
     /// <param name="ex">The exception to log.</param>

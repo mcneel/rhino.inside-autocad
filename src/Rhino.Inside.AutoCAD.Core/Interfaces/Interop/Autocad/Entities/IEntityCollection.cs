@@ -14,9 +14,4 @@ public interface IEntityCollection : IEnumerable<IEntity>
     /// Adds a collection of <see cref="IEntity"/>s to the <see cref="IEntityCollection"/>.
     /// </summary>
     void Add(IEntityCollection entityCollection);
-
-    /// <summary>
-    /// Transforms all the <see cref="IEntity"/>s in the <see cref="IEntityCollection"/>
-    /// </summary>
-    //void TransformBy(ITransform transform);
 }

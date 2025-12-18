@@ -25,5 +25,4 @@ public interface ITransientManager : IDisposable
     /// Removes the provided <paramref name="entities"/> from this <see cref="ITransientManager"/>.
     /// </summary>
     void RemoveEntities(IEnumerable<IEntity> entities);
-
 }

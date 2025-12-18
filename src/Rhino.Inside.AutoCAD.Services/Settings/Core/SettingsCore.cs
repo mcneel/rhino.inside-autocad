@@ -11,5 +11,5 @@ public class SettingsCore : ISettingsCore
     public IDeploymentDirectory DeploymentDirectory { get; set; }
 
     /// <inheritdoc/>
-    public ISplashScreenConstants SplashScreenConstants { get; set; }
+    public ILoadingScreenConstants LoadingScreenConstants { get; set; }
 }

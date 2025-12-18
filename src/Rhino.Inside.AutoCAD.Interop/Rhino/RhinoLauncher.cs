@@ -23,9 +23,9 @@ public class RhinoLauncher : IRhinoLauncher
     /// <inheritdoc />
     public void Launch(RhinoInsideMode mode)
     {
-        var splashScreenLauncher = new SplashScreenLauncher(_application);
+        var loadingScreenLauncher = new LoadingScreenManager(_application);
 
-        splashScreenLauncher.Show();
+        loadingScreenLauncher.Show();
 
         try
         {
@@ -53,11 +53,11 @@ public class RhinoLauncher : IRhinoLauncher
                 rhinoCoreExtension.WindowManager.ShowWindow();
             }
 
-            splashScreenLauncher.Close();
+            loadingScreenLauncher.Close();
         }
         catch (Exception e)
         {
-            splashScreenLauncher.ShowExceptionInfo();
+            loadingScreenLauncher.ShowExceptionInfo();
 
             LoggerService.Instance.LogError(e);
         }

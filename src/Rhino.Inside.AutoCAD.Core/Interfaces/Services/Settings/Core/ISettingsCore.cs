@@ -11,7 +11,7 @@ public interface ISettingsCore
     IDeploymentDirectory DeploymentDirectory { get; }
 
     /// <summary>
-    /// The <see cref="ISplashScreenConstants"/>.
+    /// The <see cref="ILoadingScreenConstants"/>.
     /// </summary>
-    ISplashScreenConstants SplashScreenConstants { get; }
+    ILoadingScreenConstants LoadingScreenConstants { get; }
 }

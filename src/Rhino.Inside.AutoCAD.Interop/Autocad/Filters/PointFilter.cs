@@ -1,24 +1,18 @@
-﻿using Autodesk.AutoCAD.DatabaseServices;
-using Autodesk.AutoCAD.EditorInput;
+﻿using Autodesk.AutoCAD.EditorInput;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
-
+/// <summary>
+/// A filter that selects AutoCAD Point entities.
+/// </summary>
 public class PointFilter : IFilter
 {
-    /// <summary>
-    /// Constructs a filter that selects entities of which are curves.
-    /// </summary>
-    public PointFilter()
-    {
-    }
-
     /// <inheritdoc />
     public ISelectionFilter GetSelectionFilter()
     {
         var filterCriteria = new[]
         {
-            new TypedValue(0, "POINT")
+            new Autodesk.AutoCAD.DatabaseServices.TypedValue(0, "POINT")
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

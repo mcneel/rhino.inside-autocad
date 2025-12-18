@@ -13,16 +13,17 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="Autocad Tab\Layers\AutocadLayerInfo.cs" />
-	  <None Include="Types\Goo\Document\GH_AutocadLayer.cs" />
+	  <None Include="Types\Goo\AutocadObjects\GH_AutocadLayer.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="NaturalSort.Extension" />
 		<PackageReference Include="MaterialDesignThemes" />
+		<PackageReference Include="System.Resources.Extensions" />
 		<PackageReference Include="RhinoCommon">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>

@@ -1,6 +1,4 @@
-﻿using Rhino.Geometry;
-
-namespace Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
 /// The base super-interface for all entities.
@@ -8,13 +6,7 @@ namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 public interface IEntity : IDbObject
 {
     /// <summary>
-    /// The axis-aligned <see cref="BoundingBox"/> of the
-    /// <see cref="IEntity"/>.
-    /// </summary>
-    BoundingBox BoundingBox { get; }
-
-    /// <summary>
-    /// Returns the name of this <see cref="IEntity"/>'s host <see cref="IAutocadLayer"/>.
+    /// Returns the name of this <see cref="IEntity"/>'s host <see cref="IAutocadLayerTableRecord"/>.
     /// </summary>
     string LayerName { get; }
 

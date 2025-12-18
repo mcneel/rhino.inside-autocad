@@ -43,7 +43,14 @@ public interface IAutocadDocumentChange : IEnumerable<IDbObject>
     bool Contains(ChangeType changeType);
 
     /// <summary>
-    /// Checks if the change affects the specified <paramref name="objectId"/>.
+    /// Checks if the change effects the specified <paramref name="objectId"/>.
     /// </summary>
-    bool DoesAffectObject(IObjectId objectId);
+    bool DoesEffectObject(IObjectId objectId);
+
+    /// <summary>
+    /// Checks if the change effects any objects of the specified <paramref name="type"/>.
+    /// This is particularly useful when checking for if repositories need to be updated
+    /// as a result of the change.
+    /// </summary>
+    bool DoesEffectType(Type type);
 }

@@ -4,7 +4,7 @@ using Rhino.Inside.AutoCAD.Services;
 namespace Rhino.Inside.AutoCAD.Applications;
 
 /// <summary>
-/// Configurations for the <see cref="IBimorphApplication"/>.
+/// Configurations for the <see cref="IApplicationConfig"/>.
 /// </summary>
 public class RhinoInsideAutoCadApplicationConfig : IApplicationConfig
 {

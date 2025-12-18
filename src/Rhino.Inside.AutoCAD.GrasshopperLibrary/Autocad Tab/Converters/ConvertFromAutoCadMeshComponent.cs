@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using AutocadMesh = Autodesk.AutoCAD.DatabaseServices.PolyFaceMesh;
 
@@ -7,12 +8,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that converts an AutoCAD PolyFaceMesh to a Rhino mesh.
 /// </summary>
-public class ConvertFromAutoCadMeshComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertFromAutoCadMeshComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new("3c5d7e9f-2a4b-5c6d-8e1f-4a7b9c2d5e8f");
+
+    /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.primary;
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertFromAutoCadMeshComponent;
@@ -21,7 +26,7 @@ public class ConvertFromAutoCadMeshComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertFromAutoCadMeshComponent"/> class.
     /// </summary>
     public ConvertFromAutoCadMeshComponent()
-        : base("FromAutoCadMesh", "FromCadMesh",
+        : base("From AutoCAD Mesh", "AC-FrMsh",
             "Converts an AutoCAD PolyFaceMesh to a Rhino mesh",
             "AutoCAD", "Convert")
     {
@@ -48,13 +53,6 @@ public class ConvertFromAutoCadMeshComponent : GH_Component
             || autocadMesh is null) return;
 
         var rhinoMesh = _geometryConverter.ToRhinoType(autocadMesh);
-
-        if (rhinoMesh == null)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                "Failed to convert mesh to Rhino format");
-            return;
-        }
 
         DA.SetData(0, rhinoMesh);
     }

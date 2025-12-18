@@ -28,7 +28,7 @@ public class GroupObjectEraser : IObjectEraser
     /// <inheritdoc />
     public void Erase(IDbObject dbObject)
     {
-        var dbObjectUnwrapped = dbObject.Unwrap();
+        var dbObjectUnwrapped = dbObject.UnwrapObject();
 
         if (dbObjectUnwrapped.GetRXClass().Equals(_groupRxClass) == false)
             return;
@@ -43,7 +43,7 @@ public class GroupObjectEraser : IObjectEraser
 
             groupObject.Erase(true);
         }
-        
+
         dbObjectUnwrapped.Erase(true);
     }
 }

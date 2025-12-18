@@ -4,18 +4,21 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <inheritdoc cref="IBlockReference"/>
-public class BlockReferenceWrapper : EntityWrapper, IBlockReference
+public class BlockReferenceWrapper : AutocadEntityWrapper, IBlockReference
 {
     private readonly BlockReference _blockReference;
 
     /// <inheritdoc />
-    public ICustomPropertySet CustomProperties { get; }
+    public IDynamicPropertySet DynamicProperties { get; }
 
     /// <inheritdoc />
     public double Rotation => _blockReference.Rotation;
 
     /// <inheritdoc />
     public string Name { get; }
+
+    /// <inheritdoc />
+    public IObjectId BlockTableRecordId { get; }
 
     /// <summary>
     /// Constructs a new <see cref="BlockReferenceWrapper"/>.
@@ -26,56 +29,77 @@ public class BlockReferenceWrapper : EntityWrapper, IBlockReference
 
         this.Name = blockReference.Name;
 
-        this.CustomProperties = new CustomPropertySet();
+        this.BlockTableRecordId = new AutocadObjectId(blockReference.BlockTableRecord);
+
+        this.DynamicProperties = this.PopulateDynamicProperties(blockReference);
     }
 
     /// <summary>
     /// Obtains the <see cref="DynamicBlockReferenceProperty"/>s of the provided 
     /// <see cref="BlockReference"/>.
     /// </summary>
-    private IDictionary<string, DynamicBlockReferenceProperty> DynamicBlockReferenceProperties(BlockReference blockReference)
+    private IDynamicPropertySet PopulateDynamicProperties(BlockReference blockReference)
     {
-        var blockReferenceProperties = new Dictionary<string, DynamicBlockReferenceProperty>();
+        var blockReferenceProperties = new DynamicPropertySet();
 
         foreach (DynamicBlockReferenceProperty dynamicProperty in blockReference.DynamicBlockReferencePropertyCollection)
         {
-            if (dynamicProperty.ReadOnly) continue;
+            var wrapped = new DynamicBlockReferencePropertyWrapper(dynamicProperty);
 
-            blockReferenceProperties[dynamicProperty.PropertyName] = dynamicProperty;
+            blockReferenceProperties.Add(wrapped);
         }
 
         return blockReferenceProperties;
     }
 
     /// <inheritdoc />
-    public void AddCustomProperties(ICustomPropertySet customProperties)
+    public void AddCustomProperties(IDynamicPropertySet dynamicProperties)
     {
-        foreach (var customProperty in customProperties)
+        foreach (var customProperty in dynamicProperties)
         {
-            this.CustomProperties.Add(customProperty);
+            this.DynamicProperties.Add(customProperty);
         }
     }
 
     /// <inheritdoc />
-    public void CommitCustomProperties()
+    public IEntityCollection GetObjects(ITransactionManager transactionManager)
     {
-        var blockReferenceProperties = this.DynamicBlockReferenceProperties(_blockReference);
+        var entityCollection = new EntityCollection();
+        var blockTableRecord = _blockReference.AnonymousBlockTableRecord;
 
-        foreach (var property in this.CustomProperties)
+        var transaction = transactionManager.Unwrap();
+
+        var blockDefinition = transaction.GetObject(blockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+
+        var transform = _blockReference.BlockTransform;
+
+        foreach (var entityId in blockDefinition)
         {
-            var propertyName = property.Name.Name;
+            var entity = transaction.GetObject(entityId, OpenMode.ForRead) as Entity;
 
-            var propertyValue = property.Value.Value;
+            if (entity.Visible == false)
+                continue;
 
-            if (blockReferenceProperties.TryGetValue(propertyName, out var dynamicProperty) == false) continue;
+            var entityClone = entity.Clone() as Entity;
+            entityClone.TransformBy(transform);
 
-            var type = dynamicProperty.Value.GetType();
+            if (entityClone is BlockReference blockReference)
+            {
+                var wrapper = new BlockReferenceWrapper(blockReference);
 
-            var convertedValue = Convert.ChangeType(propertyValue, type);
+                var nestedBlockReferences = wrapper.GetObjects(transactionManager);
 
-            if (convertedValue == null) continue;
+                foreach (var nestedEntity in nestedBlockReferences)
+                {
+                    entityCollection.Add(nestedEntity);
+                }
+                continue;
+            }
 
-            dynamicProperty.Value = convertedValue;
+            entityCollection.Add(new AutocadEntityWrapper(entityClone));
+
         }
+
+        return entityCollection;
     }
 }

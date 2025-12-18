@@ -3,6 +3,10 @@ using Autodesk.AutoCAD.DatabaseServices;
 using Rhino.Inside.AutoCAD.Core;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using System.Windows.Threading;
+using CadBlockTableRecord = Autodesk.AutoCAD.DatabaseServices.BlockTableRecord;
+using CadLayer = Autodesk.AutoCAD.DatabaseServices.LayerTableRecord;
+using CadLayout = Autodesk.AutoCAD.DatabaseServices.Layout;
+using CadLineType = Autodesk.AutoCAD.DatabaseServices.LinetypeTableRecord;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -21,8 +25,8 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     private readonly IDocumentCloseAction _documentCloseAction;
     private readonly Dispatcher _dispatcher;
 
-    private const GroupCodeValue _applicationNameKey = DataTagKeys.ApplicationNameKey;
-    private const GroupCodeValue _documentIdKey = DataTagKeys.DocumentIdKey;
+    private const short _applicationNameKey = XRecordKeys.ApplicationNameKey;
+    private const short _documentIdKey = XRecordKeys.DocumentIdKey;
 
     /// <summary>
     /// Used as a flag for document changed events. Used to defer the invocation of the
@@ -50,6 +54,15 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
 
     /// <inheritdoc/>
     public ILayerRepository LayerRepository { get; }
+
+    /// <inheritdoc/>
+    public ILineTypeRepository LineTypeRepository { get; }
+
+    /// <inheritdoc/>
+    public ILayoutRepository LayoutRepository { get; }
+
+    /// <inheritdoc/>
+    public IBlockTableRecordRepository BlockTableRecordRepository { get; }
 
     /// <inheritdoc/>
     public UnitSystem UnitSystem { get; private set; }
@@ -93,7 +106,13 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
 
         this.UnitSystem = documentUnits;
 
-        this.LayerRepository = new LayerRepository(document);
+        this.LayerRepository = new LayerRepository(this);
+
+        this.LineTypeRepository = new LineTypeRepository(this);
+
+        this.LayoutRepository = new LayoutRepository(this);
+
+        this.BlockTableRecordRepository = new BlockTableRecordRepository(this);
 
         _documentChange = new AutocadDocumentChange(this);
     }
@@ -149,8 +168,8 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
         {
             documentId = Guid.NewGuid();
 
-            xData.Add(new TypedValue((short)_applicationNameKey, _applicationName));
-            xData.Add(new TypedValue(idKey, documentId.ToString()));
+            xData.Add(new Autodesk.AutoCAD.DatabaseServices.TypedValue((short)_applicationNameKey, _applicationName));
+            xData.Add(new Autodesk.AutoCAD.DatabaseServices.TypedValue(idKey, documentId.ToString()));
 
             modelSpace.UpgradeOpen();
 
@@ -218,10 +237,29 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
 
         if (_documentChange.HasChanges)
         {
-            this.OnDocumentChanged(EventArgs.Empty);
+            this.CheckRepositories();
 
-            _documentChange = new AutocadDocumentChange(this);
+            this.TriggerDocumentChanged();
         }
+    }
+
+    /// <summary>
+    /// Checks the repositories to see if they need to be updated based on the
+    /// current <see cref="_documentChange"/>.
+    /// </summary>
+    private void CheckRepositories()
+    {
+        if (_documentChange.DoesEffectType(typeof(CadLayer)))
+            this.LayerRepository.Repopulate();
+
+        if (_documentChange.DoesEffectType(typeof(CadLayout)))
+            this.LayoutRepository.Repopulate();
+
+        if (_documentChange.DoesEffectType(typeof(CadLineType)))
+            this.LineTypeRepository.Repopulate();
+
+        if (_documentChange.DoesEffectType(typeof(CadBlockTableRecord)))
+            this.BlockTableRecordRepository.Repopulate();
     }
 
     /// <summary>
@@ -236,10 +274,13 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
 
         if (this.UnitSystem != documentUnits)
         {
-            OnUnitsChanged?.Invoke(this, EventArgs.Empty);
+
             this.UnitSystem = documentUnits;
+
+            _documentChange.AddChange(ChangeType.UnitsChanged);
+
+            OnUnitsChanged?.Invoke(this, EventArgs.Empty);
         }
-        _documentChange.AddChange(ChangeType.UnitsChanged);
     }
 
     /// <summary>
@@ -324,11 +365,13 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     /// <summary>
     /// Raises the <see cref="DocumentChanged"/> event.
     /// </summary>
-    protected virtual void OnDocumentChanged(EventArgs e)
+    private void TriggerDocumentChanged()
     {
         var eventArgs = new AutocadDocumentChangeEventArgs(_documentChange);
 
         DocumentChanged?.Invoke(this, eventArgs);
+
+        _documentChange = new AutocadDocumentChange(this);
     }
 
     /// <inheritdoc/>
@@ -338,8 +381,10 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     }
 
     /// <inheritdoc/>
-    public IDbObject GetObjectById(IObjectId objectId)
+    public IDbObject? GetObjectById(IObjectId objectId)
     {
+        if (objectId.IsValid == false) return null;
+
         return this.Transaction((transactionManagerWrapper) =>
         {
             var cadObjectId = objectId.Unwrap();

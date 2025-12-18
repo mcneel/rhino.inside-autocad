@@ -60,7 +60,7 @@ public class AutocadObjectPicker : IAutocadObjectPicker
                 var entity = transaction.GetObject(selectedObject.ObjectId,
                     OpenMode.ForRead) as CadEntity;
 
-                var wrappedEntity = new EntityWrapper(entity);
+                var wrappedEntity = new AutocadEntityWrapper(entity);
 
                 entities.Add(wrappedEntity);
             }
@@ -90,7 +90,8 @@ public class AutocadObjectPicker : IAutocadObjectPicker
 
             var selectionFilter = filter.Unwrap();
 
-            var promptSelectionResult = _document.Unwrap().Editor.GetSelection(options, selectionFilter);
+            var promptSelectionResult = _document.Unwrap().Editor
+                .GetSelection(options, selectionFilter);
 
             if (promptSelectionResult.Status != PromptStatus.OK) return entities;
 
@@ -105,7 +106,7 @@ public class AutocadObjectPicker : IAutocadObjectPicker
                 var entity = transaction.GetObject(selectedObject.ObjectId,
                     OpenMode.ForRead) as CadEntity;
 
-                var wrappedEntity = new EntityWrapper(entity);
+                var wrappedEntity = new AutocadEntityWrapper(entity);
 
                 entities.Add(wrappedEntity);
             }
@@ -113,5 +114,30 @@ public class AutocadObjectPicker : IAutocadObjectPicker
             return entities;
 
         });
+    }
+
+    /// <inheritdoc/>
+    public bool TryGetUpdatedObject(IObjectId objectId, out IEntity? entity)
+    {
+        entity = _document.Transaction((transactionManager) =>
+         {
+             if (objectId.IsValid == false) return null;
+             try
+             {
+                 var transaction = transactionManager.Unwrap();
+
+                 var cadEntity = transaction.GetObject(objectId.Unwrap(),
+                        OpenMode.ForRead) as CadEntity;
+
+                 return new AutocadEntityWrapper(cadEntity);
+             }
+             catch (Exception e)
+             {
+
+                 return null;
+             }
+         });
+
+        return entity != null;
     }
 }

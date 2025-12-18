@@ -11,6 +11,18 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class RhinoCoreExtension : IRhinoCoreExtension
 {
+    private const string _rhinoRegistryKeyPath = ApplicationConstants.RhinoRegistryKeyPath;
+    private const string _rhinoInstallPathValueName = ApplicationConstants.RhinoInstallPathValueName;
+    private const string _rhinoPluginsFolderValueName = ApplicationConstants.RhinoPluginsFolderValueName;
+    private const string _rhinoCommonAssemblyName = ApplicationConstants.RhinoCommonAssemblyName;
+    private const string _grasshopperAssemblyName = ApplicationConstants.GrasshopperAssemblyName;
+    private const string _rhinoCommonDllName = ApplicationConstants.RhinoCommonDllName;
+    private const string _grasshopperDllRelativePath = ApplicationConstants.GrasshopperDllRelativePath;
+    private const string _rhinoNoSplashArgument = ApplicationConstants.RhinoNoSplashArgument;
+    private const string _rhinoSchemeArgumentFormat = ApplicationConstants.RhinoSchemeArgumentFormat;
+    private const string _rhinoInsideSchemeNameFormat = ApplicationConstants.RhinoInsideSchemeNameFormat;
+    private const string _rhinoNotInstalledErrorMessage = ApplicationConstants.RhinoNotInstalledErrorMessage;
+    private const string _rhinoCoreInitializationFailedErrorMessage = ApplicationConstants.RhinoCoreInitializationFailedErrorMessage;
 
     private static RhinoCore? _rhinoCore;
 
@@ -39,7 +51,7 @@ public class RhinoCoreExtension : IRhinoCoreExtension
     /// </summary>
     static readonly string _systemDir = (string)Microsoft.Win32.Registry.GetValue
     (
-        @"HKEY_LOCAL_MACHINE\SOFTWARE\McNeel\Rhinoceros\7.0\Install", "Path", string.Empty
+        _rhinoRegistryKeyPath, _rhinoInstallPathValueName, string.Empty
     );
 
     /// <summary>
@@ -47,7 +59,7 @@ public class RhinoCoreExtension : IRhinoCoreExtension
     /// </summary>
     static readonly string _pluginDir = (string)Microsoft.Win32.Registry.GetValue
     (
-        @"HKEY_LOCAL_MACHINE\SOFTWARE\McNeel\Rhinoceros\7.0\Install", "Default Plug-ins Folder", string.Empty
+        _rhinoRegistryKeyPath, _rhinoPluginsFolderValueName, string.Empty
     );
 
     /// <summary>
@@ -68,12 +80,12 @@ public class RhinoCoreExtension : IRhinoCoreExtension
         _rhinoInstallDirectoryExists = Directory.Exists(_systemDir);
         if (_rhinoInstallDirectoryExists)
         {
-            RegisterAssemblyResolver("RhinoCommon", Path.Combine(_systemDir, $"RhinoCommon.dll"));
-            RegisterAssemblyResolver("Grasshopper", Path.Combine(_pluginDir, $"Grasshopper//Grasshopper.dll"));
+            RegisterAssemblyResolver(_rhinoCommonAssemblyName, Path.Combine(_systemDir, _rhinoCommonDllName));
+            RegisterAssemblyResolver(_grasshopperAssemblyName, Path.Combine(_pluginDir, _grasshopperDllRelativePath));
         }
         else
         {
-            Instance.ValidationLogger.AddMessage("Rhino 7 not installed or could not be found. The application requires Rhino 7 to run.");
+            Instance.ValidationLogger.AddMessage(_rhinoNotInstalledErrorMessage);
         }
     }
 
@@ -116,15 +128,17 @@ public class RhinoCoreExtension : IRhinoCoreExtension
     {
         try
         {
-            var schemeName =
-                $"Inside-{HostApplicationServices.Current.Product}-{HostApplicationServices.Current.releaseMarketVersion}";
+            var schemeName = string.Format(
+                _rhinoInsideSchemeNameFormat,
+                HostApplicationServices.Current.Product,
+                HostApplicationServices.Current.releaseMarketVersion);
 
             var style = WindowStyle.Hidden;
 
             var args = new[]
             {
-                    "/nosplash",
-                    $"/scheme={schemeName}"
+                    _rhinoNoSplashArgument,
+                    string.Format(_rhinoSchemeArgumentFormat, schemeName)
                 };
 
             _rhinoCore ??= new RhinoCore(args, style);
@@ -138,7 +152,7 @@ public class RhinoCoreExtension : IRhinoCoreExtension
         }
         catch
         {
-            this.ValidationLogger.AddMessage("Failed to initialize Rhino Core");
+            this.ValidationLogger.AddMessage(_rhinoCoreInitializationFailedErrorMessage);
 
             throw;
         }
@@ -160,6 +174,7 @@ public class RhinoCoreExtension : IRhinoCoreExtension
     public void Shutdown()
     {
         RhinoApp.Closing -= this.OnClosing;
+        RhinoApp.Exit(true);
         _rhinoCore?.Dispose();
     }
 }

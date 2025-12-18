@@ -2,14 +2,18 @@
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Services;
 using System.Collections;
+using CadObjectIdCollection = Autodesk.AutoCAD.DatabaseServices.ObjectIdCollection;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
-///<inheritdoc/>
+/// <inheritdoc cref="IBlockTableRecordRepository"/>
 public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepository
 {
     private readonly IAutocadDocument _document;
     private readonly Dictionary<string, IBlockTableRecord> _blockTableRecords;
+
+    /// <inheritdoc/>
+    public event EventHandler? BlockTableModified;
 
     /// <summary>
     /// Constructs a new <see cref="BlockTableRecordRepository"/>.
@@ -20,7 +24,7 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
 
         _blockTableRecords = new Dictionary<string, IBlockTableRecord>();
 
-        this.Populate();
+        this.Repopulate();
     }
 
     /// <summary>
@@ -41,7 +45,7 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
     /// Populates this <see cref="IBlockTableRecordRepository"/> with <see cref="IBlockTableRecord"/>s
     /// from the active <see cref="IAutocadDocument"/>.
     /// </summary>
-    private void Populate()
+    public void Repopulate()
     {
         this.Clear();
 
@@ -82,7 +86,7 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
                 var externalBlockTableRecord = externalBlockTableRecordWrapper.Unwrap();
 
                 var objectIdCollection =
-                    new ObjectIdCollection { externalBlockTableRecord.Id };
+                    new CadObjectIdCollection { externalBlockTableRecord.Id };
 
                 foreach (var objectId in externalBlockTableRecord)
                 {
@@ -97,7 +101,7 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
                 return true;
             });
 
-            this.Populate();
+            this.Repopulate();
         }
 
         return this.TryGetByName(blockName, out blockTableRecord);
@@ -109,6 +113,15 @@ public class BlockTableRecordRepository : Disposable, IBlockTableRecordRepositor
         if (_blockTableRecords.ContainsKey(blockTableRecord.Name)) return;
 
         _blockTableRecords.Add(blockTableRecord.Name, blockTableRecord);
+    }
+
+    /// <inheritdoc/>
+    public bool TryGetById(IObjectId id, out IBlockTableRecord? blockTableRecord)
+    {
+        blockTableRecord =
+            _blockTableRecords.Values.FirstOrDefault(block => block.Id.IsEqualTo(id));
+
+        return blockTableRecord != null;
     }
 
     public IEnumerator<IBlockTableRecord> GetEnumerator() => _blockTableRecords.Values.GetEnumerator();

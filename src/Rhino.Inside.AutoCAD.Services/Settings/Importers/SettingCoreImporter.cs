@@ -6,7 +6,7 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// <inheritdoc cref="ISettingCoreImporter"/>
 public class SettingCoreImporter : ISettingCoreImporter
 {
-    private readonly string _settingCoreJsonName = CoreConstants.SettingCoreJsonName;
+    private readonly string _settingCoreJsonName = ApplicationConstants.SettingCoreJsonName;
 
     /// <summary>
     /// Returns the <see cref="ISettingsCore"/> instance from JSON.
@@ -17,7 +17,7 @@ public class SettingCoreImporter : ISettingCoreImporter
         {
             Converters = {
                 new InterfaceConverterFactory(typeof(DeploymentDirectory), typeof(IDeploymentDirectory)),
-                new InterfaceConverterFactory(typeof(SplashScreenConstants), typeof(ISplashScreenConstants)),
+                new InterfaceConverterFactory(typeof(LoadingScreenConstants), typeof(ILoadingScreenConstants)),
                 new InterfaceConverterFactory(typeof(SettingsCore), typeof(ISettingsCore))
             }
         };

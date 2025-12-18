@@ -11,6 +11,11 @@ public interface IDbObject : IDisposable
     IObjectId Id { get; }
 
     /// <summary>
+    /// The <see cref="Type"/> of the underlying AutoCAD DBObject.
+    /// </summary>
+    Type Type { get; }
+
+    /// <summary>
     /// Checks if the <see cref="IDbObject"/> is valid.
     /// </summary>
     /// <remarks>

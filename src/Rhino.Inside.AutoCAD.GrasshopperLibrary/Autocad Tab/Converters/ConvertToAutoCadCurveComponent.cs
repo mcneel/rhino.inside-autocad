@@ -1,4 +1,5 @@
 ﻿using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using RhinoCurve = Rhino.Geometry.Curve;
 
@@ -7,12 +8,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that converts a Rhino curve to an AutoCAD curve.
 /// </summary>
-public class ConvertToAutoCadCurveComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertToAutoCadCurveComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new("12345678-1234-1234-1234-123456789ABC");
+
+    /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.tertiary;
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertToAutoCadCurveComponent;
@@ -21,7 +26,7 @@ public class ConvertToAutoCadCurveComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertToAutoCadCurveComponent"/> class.
     /// </summary>
     public ConvertToAutoCadCurveComponent()
-        : base("ToAutoCadCurve", "ToCadCurve",
+        : base("To AutoCAD Curve", "AC-ToCrv",
             "Converts a Rhino Curve to AutoCAD curve",
             "AutoCAD", "Convert")
     {
@@ -37,7 +42,7 @@ public class ConvertToAutoCadCurveComponent : GH_Component
     protected override void RegisterOutputParams(GH_OutputParamManager pManager)
     {
         pManager.AddParameter(new Param_AutocadCurve(), "Curve", "C", "AutoCAD curve",
-            GH_ParamAccess.item);
+            GH_ParamAccess.list);
     }
 
     /// <inheritdoc />
@@ -48,16 +53,16 @@ public class ConvertToAutoCadCurveComponent : GH_Component
         if (!DA.GetData(0, ref rhinoCurve)
         || rhinoCurve is null) return;
 
-        var cadCurve = _geometryConverter.ToAutoCadSingleCurve(rhinoCurve);
+        var cadCurves = _geometryConverter.ToAutoCadType(rhinoCurve);
 
-        if (cadCurve == null)
+        if (cadCurves == null || cadCurves.Count == 0)
         {
             this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                 "Failed to convert curve to AutoCAD format");
             return;
         }
 
-        var goo = new GH_AutocadCurve(cadCurve);
-        DA.SetData(0, goo);
+        var goo = cadCurves.Select(cadCurve => new GH_AutocadCurve(cadCurve));
+        DA.SetDataList(0, goo);
     }
 }

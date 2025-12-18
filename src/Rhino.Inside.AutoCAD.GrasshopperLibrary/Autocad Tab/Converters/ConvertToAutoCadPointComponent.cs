@@ -1,19 +1,24 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
-using RhinoPoint = Rhino.Geometry.Point;
 using Point3d = Rhino.Geometry.Point3d;
+using RhinoPoint = Rhino.Geometry.Point;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
 /// A Grasshopper component that converts a Rhino point to an AutoCAD DBPoint.
 /// </summary>
-public class ConvertToAutoCadPointComponent : GH_Component
+[ComponentVersion(introduced: "1.0.0")]
+public class ConvertToAutoCadPointComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new("2a4b6c8d-3e5f-4a7b-9c1d-8e2f4a6b7c9d");
+
+    /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.tertiary;
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.ConvertToAutoCadPointComponent;
@@ -22,7 +27,7 @@ public class ConvertToAutoCadPointComponent : GH_Component
     /// Initializes a new instance of the <see cref="ConvertToAutoCadPointComponent"/> class.
     /// </summary>
     public ConvertToAutoCadPointComponent()
-        : base("ToAutoCadPoint", "ToCadPoint",
+        : base("To AutoCAD Point", "AC-ToPt",
             "Converts a Rhino Point to AutoCAD DBPoint",
             "AutoCAD", "Convert")
     {
@@ -44,7 +49,7 @@ public class ConvertToAutoCadPointComponent : GH_Component
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        Point3d rhinoPoint = Point3d.Unset;
+        var rhinoPoint = Point3d.Unset;
 
         if (!DA.GetData(0, ref rhinoPoint)
         || !rhinoPoint.IsValid) return;

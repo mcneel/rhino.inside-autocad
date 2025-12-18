@@ -13,27 +13,12 @@ public class FileResourceManager : IFileResourceManager
     /// <inheritdoc/>
     public IApplicationDirectories ApplicationDirectories { get; }
 
-    /// <inheritdoc/>
-    public IFileNameLibrary FileNameLibrary { get; }
-
-    /// <inheritdoc/>
-    public IJsonNameLibrary JsonNameLibrary { get; }
-
-    /// <inheritdoc/>
-    public IJsonResourceImporter JsonResourceImporter { get; }
-
     /// <summary>
     /// Constructs a new <see cref="IFileResourceManager"/>
     /// </summary>
     public FileResourceManager(IApplicationDirectories applicationDirectories, ISettingsManager settingsManager)
     {
         this.ApplicationDirectories = applicationDirectories;
-
-        this.FileNameLibrary = settingsManager.Application.FileNameLibrary;
-
-        this.JsonNameLibrary = settingsManager.Application.JsonNameLibrary;
-
-        this.JsonResourceImporter = new JsonResourceImporter(applicationDirectories);
     }
 
     /// <inheritdoc/>

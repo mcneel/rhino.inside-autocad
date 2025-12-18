@@ -45,44 +45,20 @@ public interface IAutocadDocument
     /// </summary>
     ILayerRepository LayerRepository { get; }
 
-    /*/// <summary>
-  /// The <see cref="ILinePatternCache"/> of this <see cref="IAutocadDocument"/>.
-  /// </summary>
-  ILinePatternCache LinePatternCache { get; }
+    /// <summary>
+    /// The <see cref="ILineTypeRepository"/> of this <see cref="IAutocadDocument"/>.
+    /// </summary>
+    ILineTypeRepository LineTypeRepository { get; }
 
+    /// <summary>
+    /// The <see cref="ILayoutRepository"/> of this <see cref="IAutocadDocument"/>.
+    /// </summary>
+    ILayoutRepository LayoutRepository { get; }
 
-  /// <summary>
-  /// The <see cref="ILayoutRepository"/> of this <see cref="IAutocadDocument"/>.
-  /// </summary>
-  ILayoutRepository LayoutRepository { get; }
-
- /// <summary>
- /// The <see cref="IBlockTableRecordRepository"/> of this <see cref="IAutocadDocument"/>.
- /// </summary>
- IBlockTableRecordRepository BlockTableRecordRepository { get; }
-
- /// <summary>
- /// The <see cref="IPlotSettingsRepository"/> of this <see cref="IAutocadDocument"/>.
- /// </summary>
- IPlotSettingsRepository PlotSettingsRepository { get; }
-
- /// <summary>
- /// The <see cref="IDimensionStyleTableRecordRepository"/> of this <see
- /// cref="IAutocadDocument"/>.
- /// </summary>
- IDimensionStyleTableRecordRepository DimensionStyleTableRecordRepository { get; }
-
- /// <summary>
- /// The <see cref="ILeaderStyleObjectRepository"/> of this <see cref=
- /// "IAutocadDocument"/>.
- /// </summary>
- ILeaderStyleObjectRepository LeaderStyleObjectRepository { get; }
-
- /// <summary>
- /// The <see cref="ITextStyleTableRecordRepository"/> of this <see cref=
- /// "IDocument"/>.
- /// </summary>
- ITextStyleTableRecordRepository TextStyleTableRecordRepository { get; }*/
+    /// <summary>
+    /// The <see cref="IBlockTableRecordRepository"/> of this <see cref="IAutocadDocument"/>.
+    /// </summary>
+    IBlockTableRecordRepository BlockTableRecordRepository { get; }
 
     /// <summary>
     /// The <see cref="UnitSystem"/> of this <see cref="IAutocadDocument"/>.

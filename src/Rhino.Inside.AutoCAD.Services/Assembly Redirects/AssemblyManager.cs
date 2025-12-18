@@ -13,13 +13,13 @@ public class AssemblyManager : IAssemblyManager
 
     private readonly AppDomain _currentDomain;
 
-    private readonly IList<string> _materialDesignAssemblyNames = CoreConstants.MaterialDesignAssemblyNames;
+    private readonly IList<string> _materialDesignAssemblyNames = ApplicationConstants.MaterialDesignAssemblyNames;
 
     private readonly IAssemblyRedirectsSet _assemblyNameRedirects;
 
     private readonly Dictionary<string, Assembly> _resolvedAssemblies = [];
 
-    private const string _errorLoadingMaterialDesign = CoreMessageConstants.ErrorLoadingMaterialDesign;
+    private const string _errorLoadingMaterialDesign = MessageConstants.ErrorLoadingMaterialDesign;
 
     /// <summary>
     /// Constructs a new <see cref="AssemblyManager"/>.

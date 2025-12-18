@@ -11,6 +11,12 @@ public class AutocadLayoutWrapper : DbObjectWrapper, IAutocadLayout
     ///<inheritdoc />
     public string Name { get; }
 
+    ///<inheritdoc />
+    public int TabOrder { get; }
+
+    ///<inheritdoc />
+    public IObjectId BlockTableRecordId { get; }
+
     /// <summary>
     /// Constructs a new <see cref="AutocadLayoutWrapper"/>.
     /// </summary>
@@ -18,12 +24,8 @@ public class AutocadLayoutWrapper : DbObjectWrapper, IAutocadLayout
     {
         _layout = layout;
         this.Name = layout.LayoutName;
-    }
-
-    ///<inheritdoc />
-    public IObjectIdTag GetTag()
-    {
-        return ObjectIdTag.CreateExisting(this.Id.Value);
+        this.TabOrder = layout.TabOrder;
+        this.BlockTableRecordId = new AutocadObjectId(layout.BlockTableRecordId);
     }
 
     ///<inheritdoc />
