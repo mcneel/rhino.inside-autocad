@@ -1,0 +1,119 @@
+{
+  "navigation": [
+    {
+      "title": "Getting Started",
+      "links": [
+        { "title": "Introduction", "href": "/" },
+        { "title": "Installation", "href": "/installation" },
+        { "title": "Quick Start", "href": "/quickstart" }
+      ]
+    },
+    {
+      "title": "Parameters",
+      "links": [
+        { "title": "Parameters Overview", "href": "/params" }
+      ]
+    },
+    {
+      "title": "Components",
+      "links": [
+        { "title": "Document", "href": "/components/document" },
+        { "title": "Baking", "href": "/components/baking" },
+        { "title": "Blocks", "href": "/components/blocks" },
+        { "title": "Layers", "href": "/components/layers" },
+        { "title": "Layouts", "href": "/components/layouts" },
+        { "title": "Line Types", "href": "/components/line-types" },
+        { "title": "Geometry Conversion", "href": "/components/geometry-conversion" }
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "name": "Document",
+      "description": "Components for working with AutoCAD documents",
+      "components": [
+        "Get AutoCAD Documents",
+        "AutoCAD Document",
+        "AutoCAD Object Id",
+        "Get AutoCAD By Id"
+      ]
+    },
+    {
+      "name": "Baking",
+      "description": "Components for baking geometry to AutoCAD",
+      "components": [
+        "Bake to AutoCAD",
+        "AutoCAD Bake Settings"
+      ]
+    },
+    {
+      "name": "Blocks",
+      "description": "Components for working with AutoCAD blocks",
+      "components": [
+        "Get AutoCAD Block Table Records",
+        "AutoCAD Block Table Record",
+        "Get AutoCAD Block References",
+        "AutoCAD Block Reference",
+        "Create AutoCAD Block Reference",
+        "Extract Block Geometry",
+        "Dynamic Block Property",
+        "Set Dynamic Block Properties"
+      ]
+    },
+    {
+      "name": "Layers",
+      "description": "Components for managing AutoCAD layers",
+      "components": [
+        "Get AutoCAD Layers",
+        "AutoCAD Layer",
+        "Create AutoCAD Layer",
+        "Get AutoCAD Layer By Name",
+        "Set AutoCAD Layer"
+      ]
+    },
+    {
+      "name": "Layouts",
+      "description": "Components for managing AutoCAD layouts",
+      "components": [
+        "Get AutoCAD Layouts",
+        "AutoCAD Layout",
+        "Create AutoCAD Layout",
+        "Get AutoCAD Layout By Name",
+        "Set AutoCAD Layout"
+      ]
+    },
+    {
+      "name": "LineTypes",
+      "description": "Components for managing AutoCAD line types",
+      "components": [
+        "Get AutoCAD Line Types",
+        "AutoCAD Line Type",
+        "Create AutoCAD Line Type",
+        "Get AutoCAD Line Type By Name",
+        "Set AutoCAD Line Type"
+      ]
+    },
+    {
+      "name": "Convert",
+      "description": "Components for converting geometry between Rhino and AutoCAD",
+      "components": [
+        "To AutoCAD Curve",
+        "From AutoCAD Curve",
+        "To AutoCAD Point",
+        "From AutoCAD Point",
+        "To AutoCAD Mesh",
+        "From AutoCAD Mesh",
+        "To AutoCAD Solid",
+        "From AutoCAD Solid",
+        "To AutoCAD Hatch",
+        "From AutoCAD Hatch",
+        "To AutoCAD Text",
+        "From AutoCAD Text",
+        "To AutoCAD Leader",
+        "From AutoCAD Leader",
+        "To AutoCAD Dimension",
+        "From AutoCAD Dimension"
+      ]
+    }
+  ]
+}

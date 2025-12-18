@@ -1,0 +1,177 @@
+export const metadata = {
+  title: 'Baking - Rhino.Inside.AutoCAD',
+  description: 'Components for baking geometry to AutoCAD model space',
+}
+
+# Baking
+
+Components for baking Grasshopper geometry to AutoCAD's model space. Baking permanently adds objects to your AutoCAD drawing with configurable layer, color, and linetype settings.
+
+```csharp
+// Namespace: Rhino.Inside.AutoCAD.GrasshopperLibrary
+using Rhino.Inside.AutoCAD.Interop;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
+```
+
+---
+
+## AutocadBakeComponent {{ tag: 'List<ObjectId>', label: 'Baking' }}
+
+<Row>
+  <Col>
+    Bakes objects to AutoCAD's model space.
+
+    ### Parameters
+    - `Document` (AutocadDocument): The AutoCAD document to bake to
+    - `Objects` (List&lt;IAutocadBakeable&gt;): The objects to bake to AutoCAD (curves, points, meshes, solids, block references)
+    - `Settings` (BakeSettings): Optional bake settings (layer, linetype, color)
+
+    ### Returns
+    - `ObjectIds` (List&lt;AutocadObjectId&gt;): The ObjectIds of the baked objects
+
+    ### Remarks
+    Objects must implement `IAutocadBakeable` interface. Use the "To AutoCAD" conversion components to prepare Rhino geometry before baking. The component automatically handles document locking and transaction management.
+
+    ### Exceptions
+    - Warning: "Object of type {type} is not bakeable" - Input object doesn't support baking
+    - Error: "No bakeable objects provided" - No valid objects in the input list
+
+    ### See Also
+    - `AutocadBakeSettingsComponent` - Configure layer, linetype, and color
+    - `ConvertToAutoCadCurveComponent` - Convert Rhino curves
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Bake curves to a specific layer
+    using Autodesk.AutoCAD.DatabaseServices;
+    using Rhino.Inside.AutoCAD.Interop;
+
+    // Complete baking workflow:
+    //
+    // 1. Get the target document
+    // GetAutocadDocuments [ActiveDoc] ─┐
+    //                                  │
+    // 2. Create geometry               │
+    // Circle [Curve] ─┐                │
+    //                 │                │
+    // 3. Convert to AutoCAD format     │
+    // To AutoCAD Curve [Curve] ────────┤
+    //                                  │
+    // 4. Configure settings (optional) │
+    // Get Layer By Name [Layer] ─┐     │
+    //                            │     │
+    // Bake Settings [Settings] ──┤     │
+    //                            │     │
+    // 5. Bake to document        │     │
+    // Bake to AutoCAD ───────────┴─────┘
+    //     [ObjectIds] → Store for tracking
+
+    // Transaction pattern (internal):
+    // using var docLock = document.LockDocument();
+    // document.Transaction(tx => {
+    //     foreach (var obj in bakeables)
+    //         obj.BakeToAutocad(tx, settings);
+    //     return true;
+    // });
+    ```
+  </Col>
+</Row>
+
+---
+
+## AutocadBakeSettingsComponent {{ tag: 'BakeSettings', label: 'Baking' }}
+
+<Row>
+  <Col>
+    Creates bake settings for AutoCAD objects.
+
+    ### Parameters
+    - `Layer` (AutocadLayerTableRecordWrapper): The layer to assign to baked objects (optional)
+    - `LineType` (AutocadLineTypeTableRecordWrapper): The line type to assign to baked objects (optional)
+    - `Color` (System.Drawing.Color): The color to assign to baked objects (optional)
+
+    ### Returns
+    - `Settings` (BakeSettings): The configured bake settings
+
+    ### Remarks
+    All parameters are optional. Unspecified settings use AutoCAD's current defaults (typically Layer 0, Continuous linetype, ByLayer color). Color is converted to AutoCAD's internal color format automatically.
+
+    ### See Also
+    - `GetAutocadLayersComponent` - Get available layers
+    - `GetAutocadLineTypesComponent` - Get available linetypes
+    - `CreateAutocadLayerComponent` - Create new layers
+  </Col>
+  <Col sticky>
+    ```csharp
+    // Example: Create settings for construction geometry
+    using Rhino.Inside.AutoCAD.Interop;
+    using System.Drawing;
+
+    // Workflow: Bake to "Construction" layer with
+    // dashed lines and red color
+    //
+    // Get Layer By Name ["Construction"]
+    //     → [Layer] ─────────────────────┐
+    //                                    │
+    // Get LineType By Name ["DASHED"]    │
+    //     → [LineType] ──────────────────┤
+    //                                    │
+    // Color Swatch [Red]                 │
+    //     → [Color] ─────────────────────┤
+    //                                    │
+    // AutoCAD Bake Settings ─────────────┘
+    //     → [Settings]
+    //         → Bake to AutoCAD [Settings]
+
+    // Settings object structure:
+    // new BakeSettings(
+    //     layer: layerWrapper,
+    //     lineType: lineTypeWrapper,
+    //     color: new InternalColor(Color.Red)
+    // );
+    ```
+  </Col>
+</Row>
+
+---
+
+## Baking Workflow Patterns
+
+### Basic Bake (Curves)
+
+```
+Rhino Curve → To AutoCAD Curve → Bake to AutoCAD → ObjectIds
+```
+
+### Bake with Settings
+
+```
+                              ┌─ Get Layer By Name ─┐
+Rhino Curve → To AutoCAD Curve │                    │
+                              └─ Bake Settings ─────┤
+                                                    │
+GetAutocadDocuments ────────────────────────────────┤
+                                                    │
+                              Bake to AutoCAD ──────┘
+```
+
+### Batch Bake Multiple Types
+
+```csharp
+// Bake curves, points, and solids in one operation
+//
+// Curves ─→ To AutoCAD Curve ──┐
+// Points ─→ To AutoCAD Point ──┤─→ Merge ─→ Bake to AutoCAD
+// Breps ──→ To AutoCAD Solid ──┘
+```
+
+### Update Existing Geometry
+
+```csharp
+// 1. Initial bake - store ObjectIds
+// Geometry → Bake → ObjectIds → Data Dam → Panel
+
+// 2. Later - delete old and rebake
+// Panel [ObjectIds] → Delete Objects
+// Modified Geometry → Bake → New ObjectIds
+```
