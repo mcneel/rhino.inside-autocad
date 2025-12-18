@@ -6,13 +6,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 
 public class MeshFilter : IFilter
 {
-    /// <summary>
-    /// Constructs a filter that selects entities which are polyface meshes.
-    /// </summary>
-    public MeshFilter()
-    {
-    }
-
     /// <inheritdoc />
     public ISelectionFilter GetSelectionFilter()
     {

@@ -3,7 +3,9 @@ using Autodesk.AutoCAD.EditorInput;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
-
+/// <summary>
+/// A filter that selects a type by name.
+/// </summary>
 public class TypeFilter : ITypeFilter
 {
     /// <inheritdoc />

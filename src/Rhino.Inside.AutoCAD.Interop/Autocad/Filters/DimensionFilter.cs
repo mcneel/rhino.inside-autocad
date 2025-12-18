@@ -9,13 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class DimensionFilter : IFilter
 {
-    /// <summary>
-    /// Constructs a filter that selects entities which are Dimensions.
-    /// </summary>
-    public DimensionFilter()
-    {
-    }
-
     /// <inheritdoc />
     public ISelectionFilter GetSelectionFilter()
     {

@@ -9,13 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class LeaderFilter : IFilter
 {
-    /// <summary>
-    /// Constructs a filter that selects entities which are Leaders or MLeaders.
-    /// </summary>
-    public LeaderFilter()
-    {
-    }
-
     /// <inheritdoc />
     public ISelectionFilter GetSelectionFilter()
     {

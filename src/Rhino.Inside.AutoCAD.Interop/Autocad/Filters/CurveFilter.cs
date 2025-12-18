@@ -1,18 +1,10 @@
-﻿using Autodesk.AutoCAD.DatabaseServices;
-using Autodesk.AutoCAD.EditorInput;
+﻿using Autodesk.AutoCAD.EditorInput;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
 public class CurveFilter : IFilter
 {
-    /// <summary>
-    /// Constructs a filter that selects entities of which are curves.
-    /// </summary>
-    public CurveFilter()
-    {
-    }
-
     /// <inheritdoc />
     public ISelectionFilter GetSelectionFilter()
     {

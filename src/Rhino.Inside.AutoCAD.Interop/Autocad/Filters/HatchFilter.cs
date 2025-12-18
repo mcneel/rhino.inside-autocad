@@ -4,15 +4,11 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
+/// <summary>
+/// A filter that selects AutoCAD Hatch entities.
+/// </summary>
 public class HatchFilter : IFilter
 {
-    /// <summary>
-    /// Constructs a filter that selects entities which are hatches.
-    /// </summary>
-    public HatchFilter()
-    {
-    }
-
     /// <inheritdoc />
     public ISelectionFilter GetSelectionFilter()
     {

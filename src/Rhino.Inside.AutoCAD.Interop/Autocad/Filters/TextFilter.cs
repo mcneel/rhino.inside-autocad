@@ -6,13 +6,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 
 public class TextFilter : IFilter
 {
-    /// <summary>
-    /// Constructs a filter that selects entities which are Text Objects.
-    /// </summary>
-    public TextFilter()
-    {
-    }
-
     /// <inheritdoc />
     public ISelectionFilter GetSelectionFilter()
     {

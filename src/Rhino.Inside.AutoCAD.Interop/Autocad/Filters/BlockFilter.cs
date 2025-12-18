@@ -4,15 +4,11 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
+/// <summary>
+/// A filter that selects AutoCAD Block entities.
+/// </summary>
 public class BlockFilter : IFilter
 {
-    /// <summary>
-    /// Constructs a filter that selects entities of which are block References.
-    /// </summary>
-    public BlockFilter()
-    {
-    }
-
     /// <inheritdoc />
     public ISelectionFilter GetSelectionFilter()
     {
