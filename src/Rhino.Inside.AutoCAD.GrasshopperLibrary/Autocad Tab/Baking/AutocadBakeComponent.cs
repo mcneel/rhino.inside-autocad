@@ -1,7 +1,9 @@
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Data;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
+using System.Collections;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -9,13 +11,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// A Grasshopper component that bakes AutoCAD objects to the model space.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0")]
-public class AutocadBakeComponent : RhinoInsideAutocad_Component
+public class AutocadBakeComponent : RhinoInsideAutocad_Component, IBakingComponent
 {
     /// <inheritdoc />
     public override Guid ComponentGuid => new Guid("C5D7E9F1-A3B5-4C7D-9E1F-3A5B7C9D1E3F");
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadBakeComponent;
+
+    /// <inheritdoc />
+    public int OutputParamTargetIndex => 0;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AutocadBakeComponent"/> class.
@@ -122,7 +127,7 @@ public class AutocadBakeComponent : RhinoInsideAutocad_Component
             {
                 try
                 {
-                    var objectIds = bakeable.BakeToAutocad(transactionManager, settings);
+                    var objectIds = bakeable.BakeToAutocad(transactionManager, this, settings);
 
                     foreach (var objectId in objectIds)
                     {
@@ -140,5 +145,41 @@ public class AutocadBakeComponent : RhinoInsideAutocad_Component
         });
 
         DA.SetDataList(0, bakedIds);
+    }
+
+    /// <inheritdoc />
+    public void AddWarningMessage(string message)
+    {
+        this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, message);
+    }
+
+    /// <inheritdoc />
+    public bool AppendDataList(IEnumerable list)
+    {
+        var ghParam = this.Params.Output[this.OutputParamTargetIndex];
+
+        var path = new GH_Path(0);
+
+        if (ghParam.VolatileData.PathCount > 0)
+        {
+            var lastPath = ghParam.VolatileData.Paths[ghParam.VolatileData.PathCount - 1];
+
+            var indices = lastPath.Indices;
+
+            indices[indices.Length - 1]++;
+
+            path = new GH_Path(indices);
+        }
+
+        var result = ghParam.AddVolatileDataList(path, list);
+
+        if (result)
+        {
+            ghParam.ExpireSolution(false);
+
+            this.OnPingDocument()?.NewSolution(false);
+        }
+
+        return result;
     }
 }

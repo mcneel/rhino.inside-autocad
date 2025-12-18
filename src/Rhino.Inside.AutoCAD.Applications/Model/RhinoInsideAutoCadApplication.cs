@@ -58,7 +58,7 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
         var brepConverterRunner = new BrepConverterRunner();
 
-        var rhinoInsideManager = new RhinoInsideManager(rhinoInstance, grasshopperInstance, autocadInstance, brepConverterRunner);
+        var rhinoInsideManager = new RhinoInsideManager(rhinoInstance, grasshopperInstance, autocadInstance);
 
         this.SettingsManager = settingManager;
 

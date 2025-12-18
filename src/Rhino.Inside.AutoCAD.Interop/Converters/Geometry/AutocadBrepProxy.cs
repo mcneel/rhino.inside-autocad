@@ -1,5 +1,5 @@
-﻿using Autodesk.AutoCAD.DatabaseServices;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Surface = Autodesk.AutoCAD.DatabaseServices.Surface;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -10,9 +10,26 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// function to create the brep, however this cannot be done synchronously and so when synchronous
 /// conversions a required this  <see cref="AutocadBrepProxy"/> is the fallback option. In the <see
 /// cref="AutocadBrepProxy"/> each face of the Brep is represented as a discrete Nurbs Surface.
+/// It is not a Autocad Entity type, but rather a proxy object which can be used to represent a
+/// Brep via its faces.
 /// </summary>
-public class AutocadBrepProxy : NurbSurface
+public class AutocadBrepProxy : IEntity
 {
+    /// <inheritdoc />
+    public IObjectId Id { get; }
+
+    /// <inheritdoc />
+    public Type Type { get; }
+
+    /// <inheritdoc />
+    public bool IsValid { get; }
+
+    /// <inheritdoc />
+    public string LayerName { get; }
+
+    /// <inheritdoc />
+    public string TypeName { get; }
+
     /// <summary>
     /// Gets the collection of faces that make up the Brep proxy.
     /// Each face is represented as a discrete NURBS surface.
@@ -25,6 +42,18 @@ public class AutocadBrepProxy : NurbSurface
     /// <param name="faces">A list of surfaces representing the faces of the Brep.</param>
     public AutocadBrepProxy(List<Surface> faces) : base()
     {
+        var firstFace = faces.FirstOrDefault();
+
+        this.Id = new AutocadObjectId();
+
+        this.Type = typeof(AutocadBrepProxy);
+
+        this.IsValid = this.Id.IsValid;
+
+        this.LayerName = firstFace?.Layer ?? string.Empty;
+
+        this.TypeName = "Solid3d";
+
         foreach (var nurbsSurface in faces)
         {
             this.Add(nurbsSurface);
@@ -40,11 +69,8 @@ public class AutocadBrepProxy : NurbSurface
         this.Faces.Add(face);
     }
 
-    /// <summary>
-    /// Overrides the Clone method to create a copy of the Brep proxy.
-    /// </summary>
-    /// <returns></returns>
-    public override object Clone()
+    /// <inheritdoc />
+    public IDbObject ShallowClone()
     {
         var clones = new List<Surface>();
         foreach (var surface in this.Faces)
@@ -52,6 +78,15 @@ public class AutocadBrepProxy : NurbSurface
             clones.Add(surface.Clone() as Surface);
         }
 
-        return new AutocadBrepProxy(clones);
+        return new AutocadBrepProxy(clones); ;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        foreach (var surface in this.Faces)
+        {
+            surface.Dispose();
+        }
     }
 }

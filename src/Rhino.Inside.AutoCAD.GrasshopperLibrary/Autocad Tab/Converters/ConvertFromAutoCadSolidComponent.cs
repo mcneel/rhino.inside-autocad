@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
@@ -34,7 +35,7 @@ public class ConvertFromAutoCadSolidComponent : RhinoInsideAutocad_Component
     /// <inheritdoc />
     protected override void RegisterInputParams(GH_InputParamManager pManager)
     {
-        pManager.AddParameter(new Param_AutocadBrepProxy(), "Solid", "S", "AutoCAD solid", GH_ParamAccess.item);
+        pManager.AddParameter(new Param_AutocadSolid(), "Solid", "S", "AutoCAD solid", GH_ParamAccess.item);
     }
 
     /// <inheritdoc />
@@ -46,13 +47,11 @@ public class ConvertFromAutoCadSolidComponent : RhinoInsideAutocad_Component
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        AutocadBrepProxy? autocadSolid = null;
+        Brep? rhinoBrep = null;
 
-        if (!DA.GetData(0, ref autocadSolid)
-            || autocadSolid is null) return;
+        if (!DA.GetData(0, ref rhinoBrep)
+            || rhinoBrep is null) return;
 
-        var rhinoBreps = _geometryConverter.FromProxyType(autocadSolid);
-
-        DA.SetData(0, rhinoBreps);
+        DA.SetData(0, rhinoBrep);
     }
 }

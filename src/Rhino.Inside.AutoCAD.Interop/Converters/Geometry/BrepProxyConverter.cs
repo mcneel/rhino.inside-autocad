@@ -24,7 +24,9 @@ public partial class GeometryConverter
 
         foreach (var surface in rhinoBrep.Faces)
         {
-            var nurbsSurface = surface.ToNurbsSurface();
+            var trimmedFace = surface.DuplicateFace(false);
+
+            var nurbsSurface = trimmedFace.Faces[0].ToNurbsSurface();
 
             var cadNurbsSurface = this.ToAutoCadType(nurbsSurface);
 
@@ -37,7 +39,7 @@ public partial class GeometryConverter
     /// <summary>
     /// Converts a <see cref="AutocadBrepProxy"/> to a <see cref="RhinoBrep"/>.
     /// </summary>
-    public RhinoBrep? FromProxyType(AutocadBrepProxy brepProxy)
+    public RhinoBrep[] FromProxyType(AutocadBrepProxy brepProxy)
     {
         var breps = new List<RhinoBrep>();
 
@@ -53,9 +55,7 @@ public partial class GeometryConverter
             }
         }
 
-        var joinedBrep = RhinoBrep.JoinBreps(breps, _zeroTolerance);
-
-        return joinedBrep.FirstOrDefault();
+        return breps.ToArray();
     }
 
     /// <summary>

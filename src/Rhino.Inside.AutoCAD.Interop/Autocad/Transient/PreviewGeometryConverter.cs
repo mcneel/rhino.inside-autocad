@@ -6,6 +6,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class PreviewGeometryConverter : IPreviewGeometryConverter
 {
     private readonly IAutoCadInstance _autoCadInstance;
+    private readonly IEntityValidator _entityValidator;
 
     /// <summary>
     /// Constructs a new <see cref="PreviewGeometryConverter"/>.
@@ -13,6 +14,7 @@ public class PreviewGeometryConverter : IPreviewGeometryConverter
     public PreviewGeometryConverter(IAutoCadInstance autoCadInstance)
     {
         _autoCadInstance = autoCadInstance;
+        _entityValidator = new EntityValidator();
     }
 
     /// <summary>
@@ -32,15 +34,21 @@ public class PreviewGeometryConverter : IPreviewGeometryConverter
 
         return activeDocument.Transaction(transactionManagerWrapper =>
         {
-
             var entities = new List<IEntity>();
             foreach (var rhinoGeometry in rhinoGeometries)
             {
-
                 var convertedEntities =
                     rhinoGeometry.Convert(transactionManagerWrapper, previewSettings);
 
-                entities.AddRange(convertedEntities);
+                var silent = true;
+
+#if DEBUG
+                silent = false;
+#endif
+
+                var validEntities = _entityValidator.ValidateEntitiesForTransientManager(convertedEntities, silent);
+
+                entities.AddRange(validEntities);
             }
 
             return entities;

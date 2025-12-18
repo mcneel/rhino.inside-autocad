@@ -29,7 +29,7 @@ where TRhinoType : GeometryBase
     public IDbObject ObjectValue => new AutocadEntityWrapper(this.Value);
 
     /// <summary>
-    /// Gets the Rhino geometry equivalent of the AutoCAD curve.
+    /// Gets the Rhino geometry equivalent of the AutoCAD geometry.
     /// </summary>
     public TRhinoType? RhinoGeometry =>
         this.Value == null
@@ -158,14 +158,14 @@ where TRhinoType : GeometryBase
     /// <inheritdoc />
     public override IGH_GeometricGoo Transform(Transform xform)
     {
-        if (this.RhinoGeometry == null)
+        var rhinoGeometry = this.RhinoGeometry;
+
+        if (rhinoGeometry == null)
             return this;
 
-        var rhinoCurve = this.RhinoGeometry;
+        rhinoGeometry.Transform(xform);
 
-        rhinoCurve.Transform(xform);
-
-        var transformed = this.Convert(rhinoCurve);
+        var transformed = this.Convert(rhinoGeometry);
 
         return this.CreateInstance(transformed);
     }
@@ -173,14 +173,14 @@ where TRhinoType : GeometryBase
     /// <inheritdoc />
     public override IGH_GeometricGoo Morph(SpaceMorph xmorph)
     {
-        if (this.RhinoGeometry == null)
+        var rhinoGeometry = this.RhinoGeometry;
+
+        if (rhinoGeometry == null)
             return this;
 
-        var rhinoCurve = this.RhinoGeometry;
+        xmorph.Morph(rhinoGeometry);
 
-        xmorph.Morph(rhinoCurve);
-
-        var morphed = this.Convert(rhinoCurve);
+        var morphed = this.Convert(rhinoGeometry);
 
         return this.CreateInstance(morphed);
     }
@@ -212,9 +212,9 @@ where TRhinoType : GeometryBase
             return true;
         }
 
-        if (source is TWrapperType curve)
+        if (source is TWrapperType wrapperType)
         {
-            this.Value = curve;
+            this.Value = wrapperType;
             return true;
         }
 
@@ -275,7 +275,7 @@ where TRhinoType : GeometryBase
     }
 
     /// <inheritdoc />
-    public virtual List<IObjectId> BakeToAutocad(ITransactionManager transactionManager, IBakeSettings? settings = null)
+    public virtual List<IObjectId> BakeToAutocad(ITransactionManager transactionManager, IBakingComponent bakingComponent, IBakeSettings? settings = null)
     {
         if (this.Value == null)
             throw new InvalidOperationException("Cannot bake a null block reference");

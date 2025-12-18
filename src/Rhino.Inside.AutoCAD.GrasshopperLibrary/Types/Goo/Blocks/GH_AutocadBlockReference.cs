@@ -77,7 +77,7 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
     }
 
     /// <inheritdoc />
-    public List<IObjectId> BakeToAutocad(ITransactionManager transactionManager, IBakeSettings? settings = null)
+    public List<IObjectId> BakeToAutocad(ITransactionManager transactionManager, IBakingComponent bakingComponent, IBakeSettings? settings = null)
     {
         if (this.Value == null)
             throw new InvalidOperationException("Cannot bake a null block reference");

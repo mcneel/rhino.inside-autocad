@@ -308,7 +308,7 @@ public partial class GeometryConverter
 
         var normal = this.ToAutoCadType(circle.Normal);
 
-        var radius = _unitSystemManager.ToRhinoLength(circle.Radius);
+        var radius = _unitSystemManager.ToAutoCadLength(circle.Radius);
 
         var cadCircle =
             new Autodesk.AutoCAD.DatabaseServices.Circle(center, normal, radius);
@@ -323,7 +323,7 @@ public partial class GeometryConverter
     {
         var center = this.ToAutoCadType2d(circle.Center);
 
-        var radius = _unitSystemManager.ToRhinoLength(circle.Radius);
+        var radius = _unitSystemManager.ToAutoCadLength(circle.Radius);
 
         var cadCircle = new Autodesk.AutoCAD.Geometry.CircularArc2d(center, radius);
 
@@ -507,7 +507,9 @@ public partial class GeometryConverter
     /// </summary>
     public CadPolyFaceMesh ToAutoCadType(RhinoMesh mesh, ITransactionManager transactionManager)
     {
-        var polyFaceMesh = new PolyFaceMesh();
+        var polyFaceMesh = new CadPolyFaceMesh();
+
+        var clone = new CadPolyFaceMesh();
         try
         {
             var transaction = transactionManager.Unwrap();
@@ -526,6 +528,7 @@ public partial class GeometryConverter
                 var vertex = new PolyFaceMeshVertex(this.ToAutoCadType(point));
 
                 polyFaceMesh.AppendVertex(vertex);
+                transaction.AddNewlyCreatedDBObject(vertex, true);
             }
 
             foreach (var face in mesh.Faces)
@@ -536,21 +539,27 @@ public partial class GeometryConverter
 
                     polyFaceMesh.AppendFaceRecord(quadFaceRecord);
 
+                    transaction.AddNewlyCreatedDBObject(quadFaceRecord, true);
+
                     continue;
                 }
 
                 var faceRecord = new FaceRecord((short)(face.A + 1), (short)(face.B + 1), (short)(face.C + 1), 0);
 
                 polyFaceMesh.AppendFaceRecord(faceRecord);
+
+                transaction.AddNewlyCreatedDBObject(faceRecord, true);
             }
+
+            clone = polyFaceMesh.Clone() as CadPolyFaceMesh;
 
             polyFaceMesh.Erase(true);
         }
         catch (System.Exception ex)
         {
-
+            _logger.LogError(ex, "Autocad PolyFaceMesh ToAutoCadType(RhinoMesh mesh) ");
         }
-        return polyFaceMesh;
+        return clone;
     }
 
     /// <summary>

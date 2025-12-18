@@ -1,5 +1,6 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Services;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -11,13 +12,11 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public partial class GeometryConverter
 {
+    private readonly ILoggerService _logger = LoggerService.Instance!;
     private readonly IUnitSystemManager _unitSystemManager;
-    private readonly IBrepConverterRunner _brepConverterRunner;
-
     private readonly double _fitTolerance = GeometryConstants.FitTolerance;
     private readonly double _midPointParam = GeometryConstants.NormalizedMidLength;
     private readonly double _zeroTolerance = GeometryConstants.ZeroTolerance;
-    private readonly double _zeroAngleTolerance = GeometryConstants.RadianAngleTolerance;
     private readonly double _zeroWidth = GeometryConstants.AbsoluteZeroValue;
     private readonly HatchLoopTypes _externalType = HatchLoopTypes.External;
     private readonly HatchLoopTypes _outermostType = HatchLoopTypes.Outermost;
@@ -30,11 +29,9 @@ public partial class GeometryConverter
     /// <summary>
     /// Constructs a new <see cref="GeometryConverter"/>.
     /// </summary>
-    private GeometryConverter(IUnitSystemManager unitSystemManager,
-        IBrepConverterRunner brepConverterRunner)
+    private GeometryConverter(IUnitSystemManager unitSystemManager)
     {
         _unitSystemManager = unitSystemManager;
-        _brepConverterRunner = brepConverterRunner;
 
     }
 
@@ -50,9 +47,8 @@ public partial class GeometryConverter
     /// <summary>
     /// Initializes the <see cref="GeometryConverter"/> singleton.
     /// </summary>
-    public static void Initialize(IUnitSystemManager unitSystemManager,
-        IBrepConverterRunner brepConverterRunner)
+    public static void Initialize(IUnitSystemManager unitSystemManager)
     {
-        Instance = new GeometryConverter(unitSystemManager, brepConverterRunner);
+        Instance = new GeometryConverter(unitSystemManager);
     }
 }

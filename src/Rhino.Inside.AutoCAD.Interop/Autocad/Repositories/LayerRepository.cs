@@ -65,10 +65,10 @@ public class LayerRepository : Disposable, ILayerRepository
              return new AutocadLayerTableRecordWrapper(layerTableRecord);
          });
 
+        _document.UpdateScreen();
 
         return layerWrapper;
     }
-
 
     /// <summary>
     /// Populates this <see cref="ILayerRepository"/> with <see cref="IAutocadLayerTableRecord"/>s

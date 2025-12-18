@@ -62,8 +62,6 @@ public class BrepConverterRunner : IBrepConverterRunner
                 if (clone is not Solid3d solid3d) continue;
 
                 addedObjects.Add(solid3d);
-
-                importedObject.Erase(true);
             }
 
             transaction.Commit();

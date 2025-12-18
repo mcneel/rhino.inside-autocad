@@ -10,10 +10,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// </summary>
 public class Param_AutocadSolid : Param_AutocadObjectBase<GH_AutocadBrepProxy, CadSolid>
 {
-    private readonly GeometryConverter _converter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
-    public override GH_Exposure Exposure => GH_Exposure.hidden;
+    public override GH_Exposure Exposure => GH_Exposure.primary;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new Guid("0cafbb12-a9fd-4e8d-be7c-a3296575fb8f");
@@ -41,8 +39,6 @@ public class Param_AutocadSolid : Param_AutocadObjectBase<GH_AutocadBrepProxy, C
     /// <inheritdoc />
     protected override GH_AutocadBrepProxy WrapEntity(CadSolid entity)
     {
-        var proxy = _converter.ToProxyType(entity);
-
-        return new GH_AutocadBrepProxy(proxy);
+        return GH_AutocadBrepProxy.CreateFromSolid(entity);
     }
 }

@@ -788,14 +788,12 @@ public partial class GeometryConverter
         return rhinoSurface;
     }
 
-
-
     /// <summary>
     /// Converts a <see cref="CadSurface"/> to a <see cref="RhinoSurface"/>.
     /// </summary>
     public RhinoSurface[] ToRhinoType(CadSurface cadSurface)
     {
-        var nurbs = cadSurface.ConvertToNurbSurface();
+        var nurbs = cadSurface is CadNurbsSurface cadNurbsSurface ? [cadNurbsSurface] : cadSurface.ConvertToNurbSurface();
 
         var converted = new List<RhinoSurface>();
         foreach (var nurbsSurface in nurbs)
