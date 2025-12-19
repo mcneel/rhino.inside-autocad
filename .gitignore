@@ -365,3 +365,5 @@ MigrationBackup/
 
 Scope/
 generated-docs/
+.claude
+CLAUDE.md
