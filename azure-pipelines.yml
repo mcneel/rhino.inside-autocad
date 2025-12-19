@@ -1,0 +1,23 @@
+trigger:
+  - master
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  GITHUB_REPO: 'github.com/mcneel/rhino.inside-autocad'
+
+steps:
+  - checkout: self
+    persistCredentials: true
+    fetchDepth: 0  # Fetch full history for proper push
+
+  - script: |
+      git config user.email "azure-pipeline@yourorg.com"
+      git config user.name "Azure Pipeline"
+    displayName: 'Configure Git'
+
+  - script: |
+      git remote add github https://$(GITHUB_PAT)@$(GITHUB_REPO)
+      git push github HEAD:master --force
+    displayName: 'Push to GitHub'
