@@ -10,7 +10,7 @@ variables:
 steps:
   - checkout: self
     persistCredentials: true
-    fetchDepth: 0  # Fetch full history for proper push
+    fetchDepth: 0
 
   - script: |
       git config user.email "azure-pipeline@yourorg.com"
@@ -19,5 +19,5 @@ steps:
 
   - script: |
       git remote add github https://$(GITHUB_PAT)@$(GITHUB_REPO)
-      git push github HEAD:master --force
+      git push github HEAD:refs/heads/main --force
     displayName: 'Push to GitHub'
