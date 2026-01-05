@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
 	<PropertyGroup>
-		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<AssemblyVersion>1.0.1</AssemblyVersion>
 		<AppFolderName>Rhino.Inside.AutoCAD.bundle</AppFolderName>
 
 		<AppRootDir>$(APPDATA)\Autodesk\ApplicationPlugins\$(AppFolderName)\</AppRootDir>
