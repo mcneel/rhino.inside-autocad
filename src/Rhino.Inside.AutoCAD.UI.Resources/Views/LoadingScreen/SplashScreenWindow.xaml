@@ -169,7 +169,7 @@
                    VerticalAlignment="Center"
                    Foreground="{StaticResource WarningColorBrush}"
                    Text="{Binding ErrorMessage}"
-                   Margin="20,0,20,0"
+                   Margin="20,0,20,5"
                    TextAlignment="Center"
                    TextTrimming="CharacterEllipsis"
                    TextWrapping="Wrap"
@@ -177,12 +177,12 @@
 
 
         <!-- The Border between the logo and load status Labels -->
-        <Border Grid.Row="4"
+        <Border Grid.Row="5"
                 Grid.Column="0"
                 BorderThickness="0.5"
                 BorderBrush="{StaticResource BorderGreyColorBrush}"
                 VerticalAlignment="Top"
-                Margin="0,22,0,0" />
+                Margin="0,0,0,0" />
 
         <!-- The copyright Label and version number -->
         <TextBlock Grid.Row="5"

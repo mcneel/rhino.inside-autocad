@@ -189,6 +189,17 @@ public class LoadingScreenManager : ILoadingScreenManager
     }
 
     /// <inheritdoc/>
+    public void ShowFailureMessage(string message)
+    {
+        this.WaitForDispatcherReady();
+
+        _dispatcher?.Invoke(() =>
+        {
+            this.ShowFailure(message);
+        });
+    }
+
+    /// <inheritdoc/>
     public void Close()
     {
         _loadingScreenViewModel?.Dispose();

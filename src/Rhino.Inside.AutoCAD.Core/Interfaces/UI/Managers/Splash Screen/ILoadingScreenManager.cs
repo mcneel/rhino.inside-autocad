@@ -17,6 +17,11 @@ public interface ILoadingScreenManager : IDisposable
     void ShowExceptionInfo();
 
     /// <summary>
+    /// Displays the failure message to the user in the splash screen UI.
+    /// </summary>
+    void ShowFailureMessage(string message);
+
+    /// <summary>
     /// Displays the splash screen to the user.
     /// </summary>
     void Show();

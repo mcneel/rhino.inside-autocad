@@ -9,6 +9,13 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class MessageConstants
 {
     /// <summary>
+    /// The error message displayed when Rhino fails to start.
+    /// </summary>
+    public const string RhinoStartFailureMessage = "Unable to start Rhino, ensure you have Rhino 8 installed and a valid licence. To validate this  \n" +
+                                                   "try running the Rhino 8 application outside of AutoCAD and ensure it is  fully working. \n" +
+                                                   "If this issue persists contact us at support@bimorph.com";
+
+    /// <summary>
     /// A Void message.
     /// </summary>
     public const string Void = "VOID";

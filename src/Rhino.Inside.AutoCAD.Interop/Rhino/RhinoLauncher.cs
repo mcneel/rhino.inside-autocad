@@ -11,6 +11,9 @@ public class RhinoLauncher : IRhinoLauncher
     private readonly IRhinoInsideAutoCadApplication _application;
     private readonly IRhinoInsideManager _rhinoInsideManager;
 
+    private const string _rhinoStartFailureMessage =
+        MessageConstants.RhinoStartFailureMessage;
+
     /// <summary>
     /// Creates a new <see cref="IRhinoLauncher"/> instance.
     /// </summary>
@@ -57,7 +60,7 @@ public class RhinoLauncher : IRhinoLauncher
         }
         catch (Exception e)
         {
-            loadingScreenLauncher.ShowExceptionInfo();
+            loadingScreenLauncher.ShowFailureMessage(_rhinoStartFailureMessage);
 
             LoggerService.Instance.LogError(e);
         }
