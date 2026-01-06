@@ -35,8 +35,7 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
 
         var compliedDate = this.GetCompliedDate();
 
-        //var limitDate = compliedDate.AddDays(90);
-        var limitDate = compliedDate;
+        var limitDate = compliedDate.AddDays(90);
 
         if (currentDate > limitDate)
         {
