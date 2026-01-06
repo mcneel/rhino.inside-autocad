@@ -208,6 +208,11 @@ public class ApplicationConstants
         "This version of Rhino.Inside.AutoCAD has expired. Please download the latest version from https://www.bimorph.com/products/rhino-inside-autocad";
 
     /// <summary>
+    /// Build version metadata prefix.
+    /// </summary>
+    public const string BuildVersionMetadataPrefix = "+build";
+
+    /// <summary>
     /// The identifier for the Rhino preview toggle button.
     /// </summary>
     public const string RhinoPreviewButtonId = "RhinoPreviewButtonId";
