@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
 	<PropertyGroup>
-		<AssemblyVersion>1.0.1</AssemblyVersion>
+		<AssemblyVersion>1.0.2</AssemblyVersion>
 		<AppFolderName>Rhino.Inside.AutoCAD.bundle</AppFolderName>
 
 		<AppRootDir>$(APPDATA)\Autodesk\ApplicationPlugins\$(AppFolderName)\</AppRootDir>
@@ -19,7 +19,7 @@
 		<BimorphCompany>Bimorph Digital Engineering LTD</BimorphCompany>
 		<BimorphProduct>Rhino.Inside.AutoCAD</BimorphProduct>
 		<BimorphCopyright>Copyright © Bimorph LTD. 2025</BimorphCopyright>
-		<CompanyName>Rhino.Inside.AutoCAD</CompanyName>
+		<CompanyName>Bimorph Digital Engineering LTD</CompanyName>
 		<AppName>Rhino.Inside.AutoCAD</AppName>
 		<Framework>net48</Framework>
 	</PropertyGroup>
