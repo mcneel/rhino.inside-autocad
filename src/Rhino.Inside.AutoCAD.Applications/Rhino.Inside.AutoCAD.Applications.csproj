@@ -118,4 +118,9 @@
     <Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\*.*&quot; &quot;$(AppRootDir)Icons\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\Small32\*.*&quot; &quot;$(AppRootDir)Icons\Small32\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\Large512\*.*&quot; &quot;$(AppRootDir)Icons\Large512\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Toolbar\RhinoInsideAutocad_Toolbar.cuix&quot; &quot;$(AppRootDir)Toolbar\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)PackageContents.xml&quot; &quot;$(AppRootDir)&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\*.*&quot; &quot;$(DeploymentPackage)Icons\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\Small32\*.*&quot; &quot;$(DeploymentPackage)Icons\Small32\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Icons\Large512\*.*&quot; &quot;$(DeploymentPackage)Icons\Large512\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Toolbar\RhinoInsideAutocad_Toolbar.cuix&quot; &quot;$(DeploymentPackage)Toolbar\&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)PackageContents.xml&quot; &quot;$(DeploymentPackage)&quot;" />
   </Target>
 
+
+	<PropertyGroup>
+		<SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</SourceRevisionId>
+	</PropertyGroup>
+
 </Project>

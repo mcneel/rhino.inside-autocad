@@ -66,7 +66,6 @@ public class ApplicationConstants
     /// </summary>
     public const string PackagePrefixName = "RhinoInsideAutoCAD.Applications.";
 
-
     /// <summary>
     /// The name  of the Rhino.Inside tab in the AutoCad application ribbon.
     /// </summary>
@@ -201,6 +200,17 @@ public class ApplicationConstants
     /// Format string for displaying stack trace information.
     /// </summary>
     public const string StackTraceMessageFormat = "\nStack trace: {0}\n";
+
+    /// <summary>
+    /// Error message displayed when the application has expired.
+    /// </summary>
+    public const string ExpiredMessage =
+        "This version of Rhino.Inside.AutoCAD has expired. Please download the latest version from https://www.bimorph.com/products/rhino-inside-autocad";
+
+    /// <summary>
+    /// Build version metadata prefix.
+    /// </summary>
+    public const string BuildVersionMetadataPrefix = "+build";
 
     /// <summary>
     /// The identifier for the Rhino preview toggle button.

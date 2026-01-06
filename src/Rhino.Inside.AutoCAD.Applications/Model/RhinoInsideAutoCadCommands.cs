@@ -26,11 +26,28 @@ public class RhinoInsideAutoCadCommands
     private const string _packageManagerCommandName = ApplicationConstants.PackageManagerCommandName;
     private const string _grasshopperPlayerCommandName = ApplicationConstants.GrasshopperPlayerCommandName;
     private const string _newFloatingViewportScript = ApplicationConstants.NewFloatingViewportScript;
+    private const string _expiredMessage = ApplicationConstants.ExpiredMessage;
+
+    /// <summary>
+    /// Checks if the application has expired and shows an alert dialog if it has.
+    /// </summary>
+    private static bool CheckApplicationHasExpired()
+    {
+        var application = RhinoInsideAutoCadExtension.Application;
+
+        if (application is null)
+        {
+            Autodesk.AutoCAD.ApplicationServices.Core.Application.ShowAlertDialog(_expiredMessage);
+            return true;
+        }
+
+        return false;
+    }
 
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO", CommandFlags.Modal)]
     public static void RHINO()
     {
-        if (_isLaunching)
+        if (_isLaunching || CheckApplicationHasExpired())
             return;
 
         _isLaunching = true;
@@ -46,7 +63,7 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER", CommandFlags.Modal)]
     public static void GRASSHOPPER()
     {
-        if (_isLaunching)
+        if (_isLaunching || CheckApplicationHasExpired())
             return;
 
         _isLaunching = true;
@@ -66,6 +83,10 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "TOGGLE_RHINO_PREVIEW", CommandFlags.Modal)]
     public static void TOGGLE_RHINO_PREVIEW()
     {
+
+        if (CheckApplicationHasExpired())
+            return;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoInsideManager = application!.RhinoInsideManager;
@@ -87,6 +108,9 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_PREVIEW_OFF", CommandFlags.Modal)]
     public static void GRASSHOPPER_PREVIEW_OFF()
     {
+        if (CheckApplicationHasExpired())
+            return;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoInsideManager = application!.RhinoInsideManager;
@@ -99,6 +123,9 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_PREVIEW_SHADED", CommandFlags.Modal)]
     public static void GRASSHOPPER_PREVIEW_SHADED()
     {
+        if (CheckApplicationHasExpired())
+            return;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoInsideManager = application!.RhinoInsideManager;
@@ -111,6 +138,9 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_PREVIEW_WIREFRAME", CommandFlags.Modal)]
     public static void GRASSHOPPER_PREVIEW_WIREFRAME()
     {
+        if (CheckApplicationHasExpired())
+            return;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoInsideManager = application!.RhinoInsideManager;
@@ -123,6 +153,9 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_RECOMPUTE", CommandFlags.Modal)]
     public static void GRASSHOPPER_RECOMPUTE()
     {
+        if (CheckApplicationHasExpired())
+            return;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoInsideManager = application!.RhinoInsideManager;
@@ -137,6 +170,9 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_TOGGLE_SOLVER", CommandFlags.Modal)]
     public static void GRASSHOPPER_TOGGLE_SOLVER()
     {
+        if (CheckApplicationHasExpired())
+            return;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         var rhinoInsideManager = application!.RhinoInsideManager;
@@ -168,7 +204,7 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "OPEN_RHINO_VIEWPORT", CommandFlags.Modal)]
     public static void OPEN_RHINO_VIEWPORT()
     {
-        if (_isLaunching)
+        if (_isLaunching || CheckApplicationHasExpired())
             return;
 
         _isLaunching = true;
@@ -189,8 +225,7 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO_PACKAGE_MANGER", CommandFlags.Modal)]
     public static void RHINO_PACKAGE_MANGER()
     {
-
-        if (_isLaunching)
+        if (_isLaunching || CheckApplicationHasExpired())
             return;
 
         _isLaunching = true;
@@ -211,7 +246,7 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "GRASSHOPPER_PLAYER", CommandFlags.Modal)]
     public static void GRASSHOPPER_PLAYER()
     {
-        if (_isLaunching)
+        if (_isLaunching || CheckApplicationHasExpired())
             return;
 
         _isLaunching = true;
@@ -232,6 +267,9 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO_INSIDE_ABOUT", CommandFlags.Modal)]
     public static void RHINO_INSIDE_ABOUT()
     {
+        if (CheckApplicationHasExpired())
+            return;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         application.SupportDialogManager.Show(SupportDialogTab.About);
@@ -240,6 +278,9 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO_INSIDE_SUPPORT", CommandFlags.Modal)]
     public static void RHINO_INSIDE_SUPPORT()
     {
+        if (CheckApplicationHasExpired())
+            return;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         application.SupportDialogManager.Show(SupportDialogTab.Support);
@@ -248,6 +289,9 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO_INSIDE_UPDATE", CommandFlags.Modal)]
     public static void RHINO_INSIDE_UPDATE()
     {
+        if (CheckApplicationHasExpired())
+            return;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         application.SupportDialogManager.Show(SupportDialogTab.Update);
@@ -256,6 +300,9 @@ public class RhinoInsideAutoCadCommands
     [CommandMethod("RHINOINSIDE_COMMANDS", "RHINO_INSIDE_CONVERT_BREP", CommandFlags.Transparent)]
     public static void RHINO_INSIDE_CONVERT_BREP()
     {
+        if (CheckApplicationHasExpired())
+            return;
+
         var application = RhinoInsideAutoCadExtension.Application;
 
         var brepConverterRunner = application.BrepConverterRunner;
