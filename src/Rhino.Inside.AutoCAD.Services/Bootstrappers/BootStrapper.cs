@@ -46,10 +46,10 @@ public class Bootstrapper : IBootstrapper
 
         var applicationDirectories = new ApplicationDirectories(versionLog, applicationConfig);
 
-        LoggerService.Initialize(applicationDirectories);
-
         // Do not move this from here.
         var assemblyManager = new AssemblyManager(applicationDirectories, bootstrapperConfig.AssemblyRedirectsSet);
+
+        LoggerService.Initialize(applicationDirectories);
 
         this.Dispatcher = dispatcher;
 

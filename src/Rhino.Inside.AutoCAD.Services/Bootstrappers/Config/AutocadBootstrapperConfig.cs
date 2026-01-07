@@ -32,6 +32,7 @@ public class AutocadBootstrapperConfig : IBootstrapperConfig
             "Microsoft.Bcl.AsyncInterfaces",
             "System.Threading.Tasks.Extensions",
             "System.Buffers",
+            "System.Numerics.Vectors",
             "System.Memory",
             "System.Collections",
             "PresentationFramework",
