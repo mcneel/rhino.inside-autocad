@@ -85,9 +85,9 @@ public class CreateAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
         DA.GetData(4, ref scaleToFit);
 
         // Validation
-        if (patternLength <= 0)
+        if (patternLength < 0)
         {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "PatternLength must be positive");
+            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "PatternLength must be positive or zero");
             return;
         }
 

@@ -1,5 +1,8 @@
+using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using Color = System.Drawing.Color;
@@ -9,7 +12,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.4")]
 public class SetAutocadLayerComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -47,6 +50,12 @@ public class SetAutocadLayerComponent : RhinoInsideAutocad_ComponentBase
         pManager.AddBooleanParameter("Locked", "Locked",
             "Boolean value indicating if the AutoCAD Layers is Locked",
             GH_ParamAccess.item);
+
+        // Make all parameters optional except the first
+        pManager[1].Optional = true;
+        pManager[2].Optional = true;
+        pManager[3].Optional = true;
+        pManager[4].Optional = true;
     }
 
     /// <inheritdoc />
@@ -71,6 +80,52 @@ public class SetAutocadLayerComponent : RhinoInsideAutocad_ComponentBase
 
     }
 
+    /// <summary>
+    /// Updates the properties of an AutoCAD Layer, Return a new Wrapper with updated values.
+    /// If the update fails, the original layer is returned and an error message is added
+    /// to the component.
+    /// </summary>
+    private AutocadLayerTableRecordWrapper UpdateLayout(AutocadLayerTableRecordWrapper autocadLayer, string newName,
+       IObjectId newPattenId, IColor newColor, bool newIsLocked)
+    {
+        try
+        {
+            var cadLayerId = autocadLayer.Id.Unwrap();
+
+            var activeDocument = Application.DocumentManager.MdiActiveDocument;
+
+            using var documentLock = activeDocument.LockDocument();
+
+            var database = activeDocument.Database;
+
+            using var transactionManagerWrapper = new TransactionManagerWrapper(database);
+
+            using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+
+            var cadLayer =
+                transaction.GetObject(cadLayerId, OpenMode.ForWrite) as LayerTableRecord;
+
+            cadLayer!.Name = newName;
+            cadLayer.LinetypeObjectId = newPattenId.Unwrap();
+            cadLayer.Color =
+                Autodesk.AutoCAD.Colors.Color.FromRgb(newColor.Red, newColor.Green,
+                    newColor.Blue);
+            cadLayer.IsLocked = newIsLocked;
+
+            transaction.Commit();
+
+            activeDocument.Editor.Regen();
+
+            return new AutocadLayerTableRecordWrapper(cadLayer);
+
+        }
+        catch (Exception e)
+        {
+            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, e.Message);
+            return autocadLayer;
+        }
+    }
+
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
@@ -89,13 +144,15 @@ public class SetAutocadLayerComponent : RhinoInsideAutocad_ComponentBase
         DA.GetData(3, ref newColor);
         DA.GetData(4, ref newIsLocked);
 
-        var cadLayer = autocadLayer.Unwrap();
-        cadLayer.Name = newName;
-        cadLayer.LinetypeObjectId = newPattenId.Unwrap();
-        cadLayer.Color = Autodesk.AutoCAD.Colors.Color.FromRgb(newColor.Red, newColor.Green, newColor.Blue);
-        cadLayer.IsLocked = newIsLocked;
+        var change = newName != autocadLayer.Name
+                     || newPattenId != autocadLayer.LinePattenId
+                     || newColor != autocadLayer.Color
+                     || newIsLocked != autocadLayer.IsLocked;
 
-        autocadLayer = new AutocadLayerTableRecordWrapper(cadLayer);
+        if (change)
+        {
+            autocadLayer = this.UpdateLayout(autocadLayer, newName, newPattenId, newColor, newIsLocked);
+        }
 
         var linePatten = autocadLayer.LinePattenId;
 
