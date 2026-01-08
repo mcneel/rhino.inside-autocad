@@ -78,7 +78,7 @@ public class LayoutRepository : Disposable, ILayoutRepository
             return new AutocadLayoutWrapper(layout);
         });
 
-        _document.UpdateScreen();
+        _document.Regenerate();
 
         return layoutWrapper;
     }
