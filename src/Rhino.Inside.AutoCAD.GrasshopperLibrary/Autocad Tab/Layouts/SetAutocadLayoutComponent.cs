@@ -1,4 +1,7 @@
+using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
@@ -7,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that sets properties for an AutoCAD layout.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.4")]
 public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -63,6 +66,49 @@ public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
             "The associated block table record ID", GH_ParamAccess.item);
     }
 
+    /// <summary>
+    /// Updates the properties of an AutoCAD layout, Return a new Wrapper with updated values.
+    /// If the update fails, the original layout is returned and an error message is added
+    /// to the component.
+    /// </summary>
+    private AutocadLayoutWrapper UpdateLayout(AutocadLayoutWrapper layout, string newName,
+        int newTabOrder, IObjectId newBlockTableRecordId)
+    {
+        try
+        {
+            var cadLayoutId = layout.Id.Unwrap();
+
+            var activeDocument = Application.DocumentManager.MdiActiveDocument;
+
+            using var documentLock = activeDocument.LockDocument();
+
+            var database = activeDocument.Database;
+
+            using var transactionManagerWrapper = new TransactionManagerWrapper(database);
+
+            using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+
+            var cadLayout =
+                transaction.GetObject(cadLayoutId, OpenMode.ForWrite) as Layout;
+
+            cadLayout!.LayoutName = newName;
+            cadLayout.TabOrder = newTabOrder;
+            cadLayout.BlockTableRecordId = newBlockTableRecordId.Unwrap();
+
+            transaction.Commit();
+
+            activeDocument.Editor.Regen();
+
+            return new AutocadLayoutWrapper(cadLayout);
+
+        }
+        catch (Exception e)
+        {
+            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, e.Message);
+            return layout;
+        }
+    }
+
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
@@ -90,12 +136,14 @@ public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
             return;
         }
 
-        var cadLayout = layout.Unwrap();
-        cadLayout.LayoutName = newName;
-        cadLayout.TabOrder = newTabOrder;
-        cadLayout.BlockTableRecordId = newBlockTableRecordId.Unwrap();
+        var change = newName != layout.Name
+            || newTabOrder != layout.TabOrder
+            || newBlockTableRecordId != layout.BlockTableRecordId;
 
-        layout = new AutocadLayoutWrapper(cadLayout);
+        if (change)
+        {
+            layout = this.UpdateLayout(layout, newName, newTabOrder, newBlockTableRecordId);
+        }
 
         // Output updated values
         DA.SetData(0, layout.Name);
