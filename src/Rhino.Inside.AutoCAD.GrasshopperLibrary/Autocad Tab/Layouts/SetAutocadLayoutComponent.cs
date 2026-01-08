@@ -1,7 +1,7 @@
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
@@ -10,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that sets properties for an AutoCAD layout.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.0.4")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.5")]
 public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -38,16 +38,9 @@ public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
         pManager.AddTextParameter("NewName", "Name",
             "New layout name", GH_ParamAccess.item);
 
-        pManager.AddIntegerParameter("NewTabOrder", "TabOrder",
-            "New tab display order", GH_ParamAccess.item);
-
-        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "NewBlockTableRecordId", "BlockId",
-            "New associated block table record ID", GH_ParamAccess.item);
-
         // Make all parameters optional except the first
         pManager[1].Optional = true;
-        pManager[2].Optional = true;
-        pManager[3].Optional = true;
+
     }
 
     /// <inheritdoc />
@@ -71,8 +64,7 @@ public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
     /// If the update fails, the original layout is returned and an error message is added
     /// to the component.
     /// </summary>
-    private AutocadLayoutWrapper UpdateLayout(AutocadLayoutWrapper layout, string newName,
-        int newTabOrder, IObjectId newBlockTableRecordId)
+    private AutocadLayoutWrapper UpdateLayout(AutocadLayoutWrapper layout, string newName)
     {
         try
         {
@@ -92,12 +84,13 @@ public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
                 transaction.GetObject(cadLayoutId, OpenMode.ForWrite) as Layout;
 
             cadLayout!.LayoutName = newName;
-            cadLayout.TabOrder = newTabOrder;
-            cadLayout.BlockTableRecordId = newBlockTableRecordId.Unwrap();
 
             transaction.Commit();
 
             activeDocument.Editor.Regen();
+
+            //Renaming a layout does not trigger a modified event
+            RhinoInsideAutoCadExtension.Application.RhinoInsideManager.AutoCadInstance.ActiveDocument.LayoutRepository.Repopulate();
 
             return new AutocadLayoutWrapper(cadLayout);
 
@@ -117,12 +110,8 @@ public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
         if (!DA.GetData(0, ref layout) || layout is null) return;
 
         var newName = layout.Name;
-        var newTabOrder = layout.TabOrder;
-        var newBlockTableRecordId = layout.BlockTableRecordId;
 
         DA.GetData(1, ref newName);
-        DA.GetData(2, ref newTabOrder);
-        DA.GetData(3, ref newBlockTableRecordId);
 
         if (string.IsNullOrWhiteSpace(newName))
         {
@@ -130,19 +119,11 @@ public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
             return;
         }
 
-        if (newTabOrder < 0)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "TabOrder must be non-negative");
-            return;
-        }
-
-        var change = newName != layout.Name
-            || newTabOrder != layout.TabOrder
-            || newBlockTableRecordId != layout.BlockTableRecordId;
+        var change = newName != layout.Name;
 
         if (change)
         {
-            layout = this.UpdateLayout(layout, newName, newTabOrder, newBlockTableRecordId);
+            layout = this.UpdateLayout(layout, newName);
         }
 
         // Output updated values

@@ -65,7 +65,7 @@ public class LayerRepository : Disposable, ILayerRepository
              return new AutocadLayerTableRecordWrapper(layerTableRecord);
          });
 
-        _document.UpdateScreen();
+        _document.Regenerate();
 
         return layerWrapper;
     }
