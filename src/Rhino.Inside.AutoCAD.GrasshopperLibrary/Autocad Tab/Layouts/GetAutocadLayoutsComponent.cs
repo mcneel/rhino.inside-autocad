@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layouts currently in the AutoCAD document.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.5")]
 public class GetAutocadLayoutsComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
@@ -33,6 +33,14 @@ public class GetAutocadLayoutsComponent : RhinoInsideAutocad_ComponentBase, IRef
     {
         pManager.AddParameter(new Param_AutocadDocument(GH_ParamAccess.item), "Document",
             "Doc", "An AutoCAD Document", GH_ParamAccess.item);
+
+        pManager.AddBooleanParameter("Repopulate", "Repop",
+            "There are some modifications to layouts (like renaming outside of grasshopper) which do not correctly trigger the object" +
+            " modification event in AutoCAD. If this is set to true, the internal cache of Layouts will be repopulated with" +
+            " the latest information from AutoCAD prior to getting the layouts. This guarantees the latest information by is " +
+            "potentially slow in complex definitions or files.", GH_ParamAccess.item, false);
+
+        pManager[1].Optional = true;
     }
 
     /// <inheritdoc />
@@ -46,9 +54,14 @@ public class GetAutocadLayoutsComponent : RhinoInsideAutocad_ComponentBase, IRef
     protected override void SolveInstance(IGH_DataAccess DA)
     {
         AutocadDocument? autocadDocument = null;
+        var repopulate = false;
 
         if (!DA.GetData(0, ref autocadDocument)
             || autocadDocument is null) return;
+        DA.GetData(1, ref repopulate);
+
+        if (repopulate)
+            autocadDocument.LayoutRepository.Repopulate();
 
         var layoutsRepository = autocadDocument.LayoutRepository;
 

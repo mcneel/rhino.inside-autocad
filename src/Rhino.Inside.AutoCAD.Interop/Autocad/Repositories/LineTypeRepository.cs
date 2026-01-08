@@ -93,7 +93,7 @@ public class LineTypeRepository : Disposable, ILineTypeRepository
             return new AutocadLinetypeTableRecord(linetypeTableRecord);
         });
 
-        _document.UpdateScreen();
+        _document.Regenerate();
 
         return lineTypeWrapper;
     }

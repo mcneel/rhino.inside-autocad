@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that sets properties for an AutoCAD layout.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.5")]
 public class AutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -32,19 +32,6 @@ public class AutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
         pManager.AddParameter(new Param_AutocadLayout(GH_ParamAccess.item), "Layout",
             "Layout", "An AutoCAD Layout", GH_ParamAccess.item);
 
-        pManager.AddTextParameter("NewName", "Name",
-            "New layout name", GH_ParamAccess.item);
-
-        pManager.AddIntegerParameter("NewTabOrder", "TabOrder",
-            "New tab display order", GH_ParamAccess.item);
-
-        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "NewBlockTableRecordId", "BlockId",
-            "New associated block table record ID", GH_ParamAccess.item);
-
-        // Make all parameters optional except the first
-        pManager[1].Optional = true;
-        pManager[2].Optional = true;
-        pManager[3].Optional = true;
     }
 
     /// <inheritdoc />
@@ -69,33 +56,6 @@ public class AutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
         AutocadLayoutWrapper? layout = null;
 
         if (!DA.GetData(0, ref layout) || layout is null) return;
-
-        var newName = layout.Name;
-        var newTabOrder = layout.TabOrder;
-        var newBlockTableRecordId = layout.BlockTableRecordId;
-
-        DA.GetData(1, ref newName);
-        DA.GetData(2, ref newTabOrder);
-        DA.GetData(3, ref newBlockTableRecordId);
-
-        if (string.IsNullOrWhiteSpace(newName))
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Layout name cannot be empty");
-            return;
-        }
-
-        if (newTabOrder < 0)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "TabOrder must be non-negative");
-            return;
-        }
-
-        var cadLayout = layout.Unwrap();
-        cadLayout.LayoutName = newName;
-        cadLayout.TabOrder = newTabOrder;
-        cadLayout.BlockTableRecordId = newBlockTableRecordId.Unwrap();
-
-        layout = new AutocadLayoutWrapper(cadLayout);
 
         // Output updated values
         DA.SetData(0, layout.Name);

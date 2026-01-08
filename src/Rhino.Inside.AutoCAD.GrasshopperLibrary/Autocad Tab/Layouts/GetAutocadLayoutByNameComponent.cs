@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layout which matches the name.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.5")]
 public class GetAutocadLayoutByNameComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
@@ -33,7 +33,16 @@ public class GetAutocadLayoutByNameComponent : RhinoInsideAutocad_ComponentBase,
     {
         pManager.AddParameter(new Param_AutocadDocument(GH_ParamAccess.item), "Document",
             "Doc", "An AutoCAD Document", GH_ParamAccess.item);
+
         pManager.AddTextParameter("Name", "N", "The name of the AutoCAD Layout to retrieve", GH_ParamAccess.item, string.Empty);
+
+        pManager.AddBooleanParameter("Repopulate", "Repop",
+            "There are some modifications to layouts (like renaming outside of grasshopper) which do not correctly trigger the object" +
+            " modification event in AutoCAD. If this is set to true, the internal cache of Layouts will be repopulated with" +
+            " the latest information from AutoCAD prior to getting the layouts. This guarantees the latest information by is " +
+            "potentially slow in complex definitions or files.", GH_ParamAccess.item, false);
+
+        pManager[2].Optional = true;
     }
 
     /// <inheritdoc />
@@ -49,10 +58,15 @@ public class GetAutocadLayoutByNameComponent : RhinoInsideAutocad_ComponentBase,
     {
         AutocadDocument? autocadDocument = null;
         var name = string.Empty;
+        var repopulate = false;
 
         if (!DA.GetData(0, ref autocadDocument)
             || autocadDocument is null) return;
         DA.GetData(1, ref name);
+        DA.GetData(2, ref repopulate);
+
+        if (repopulate)
+            autocadDocument.LayoutRepository.Repopulate();
 
         var layoutsRepository = autocadDocument.LayoutRepository;
 
