@@ -3,7 +3,6 @@ using Rhino.Commands;
 using Rhino.DocObjects;
 using Rhino.Inside.AutoCAD.Core;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.UI;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -155,15 +154,15 @@ public class RhinoInstance : IRhinoInstance
     /// <inheritdoc />
     public void Shutdown()
     {
-        if (this.ActiveDoc != null && this.ActiveDoc.Modified)
-        {
-            if (Rhino.UI.Dialogs.ShowMessage("Save changes to Rhino Document",
-                    "Rhino Save Changes", ShowMessageButton.YesNo,
-                    ShowMessageIcon.Warning) == ShowMessageResult.Yes)
-            {
-                this.ActiveDoc.Save();
-            }
-        }
+        /*   if (this.ActiveDoc != null && this.ActiveDoc.Modified)
+           {
+               if (Rhino.UI.Dialogs.ShowMessage("Save changes to Rhino Document",
+                       "Rhino Save Changes", ShowMessageButton.YesNo,
+                       ShowMessageIcon.Warning) == ShowMessageResult.Yes)
+               {
+                   this.ActiveDoc.Save();
+               }
+           }*/
 
         RhinoDoc.DocumentPropertiesChanged -= this.OnDocumentPropertiesModified;
 

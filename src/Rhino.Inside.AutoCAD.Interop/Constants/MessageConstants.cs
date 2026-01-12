@@ -13,7 +13,7 @@ public class MessageConstants
     /// </summary>
     public const string RhinoStartFailureMessage = "Unable to start Rhino, ensure you have Rhino 8 installed and a valid licence. To validate this  \n" +
                                                    "try running the Rhino 8 application outside of AutoCAD and ensure it is  fully working. \n" +
-                                                   "If this issue persists contact us at support@bimorph.com";
+                                                   "If this issue persists contact us at support@bimorph.com \n {0}";
 
     /// <summary>
     /// A Void message.

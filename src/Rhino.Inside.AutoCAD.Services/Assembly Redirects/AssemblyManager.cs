@@ -50,22 +50,21 @@ public class AssemblyManager : IAssemblyManager
             foreach (var names in _materialDesignAssemblyNames)
             {
                 var assemblyPath = Path.Combine(applicationDirectories.Assemblies, names);
-                var assemblyName = AssemblyName.GetAssemblyName(assemblyPath);
 
-                Assembly.Load(assemblyName);
+                Assembly.LoadFrom(assemblyPath);
             }
         }
         catch (Exception e)
         {
-            LoggerService.Instance.LogError(e, _errorLoadingMaterialDesign);
+            throw new InvalidOperationException(_errorLoadingMaterialDesign, e);
         }
     }
 
     /// <summary>
     /// The event handler which fires when an unresolved assembly event occurs in the
     /// app domain. This is the main method used for resolving assemblies which are
-    /// shipped with the MFE software but conflict with older versions shipped with
-    /// AutoCAD.
+    /// shipped with the Rhino Iniside Autocad software but conflict with older versions
+    /// shipped with AutoCAD.
     /// </summary>
     private Assembly? OnAssemblyResolve(object sender, ResolveEventArgs args)
     {
@@ -78,8 +77,11 @@ public class AssemblyManager : IAssemblyManager
                 return resolve;
 
             var assemblyPath = Path.Combine(_applicationDirectories.Assemblies, $"{matchingAssemblyName}.dll");
-            var assemblyName = AssemblyName.GetAssemblyName(assemblyPath);
-            var assembly = Assembly.Load(assemblyName);
+
+            if (!File.Exists(assemblyPath))
+                return null;
+
+            var assembly = Assembly.LoadFrom(assemblyPath);
 
             _resolvedAssemblies[matchingAssemblyName] = assembly;
 

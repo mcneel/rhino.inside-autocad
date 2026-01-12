@@ -1,26 +1,35 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">
+		<TargetFrameworkName>net48</TargetFrameworkName>
+		<RuntimeName>NET48</RuntimeName>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'">
+		<TargetFrameworkName>net8.0-windows</TargetFrameworkName>
+		<RuntimeName>NET8</RuntimeName>
+	</PropertyGroup>
+
 	<PropertyGroup>
-		<AssemblyVersion>1.0.5</AssemblyVersion>
+		<AssemblyVersion>1.0.6</AssemblyVersion>
 		<AppFolderName>Rhino.Inside.AutoCAD.bundle</AppFolderName>
 
 		<AppRootDir>$(APPDATA)\Autodesk\ApplicationPlugins\$(AppFolderName)\</AppRootDir>
 		<AppRootResources>$(AppRootDir)Resources\</AppRootResources>
 		<AppRootDirVersioned>$(AppRootDir)$(AssemblyVersion)\</AppRootDirVersioned>
-		<AppRootDirAssemblies>$(AppRootDirVersioned)Win64\</AppRootDirAssemblies>
+		<AppRootDirAssemblies>$(AppRootDirVersioned)Win64\$(RuntimeName)\</AppRootDirAssemblies>
 		
 		<AppRootUserTests>$(APPDATA)\Bimorph\Tests\</AppRootUserTests>
 		<AppRootUserSupportedApplication>$(APPDATA)\Bimorph\SupportedApplications\</AppRootUserSupportedApplication>
 
 		<DeploymentPackage>$(ProjDir)..\..\Deployment\OutputFiles\Rhino.Inside.AutoCAD.$(AssemblyVersion)\</DeploymentPackage>
 		<DeploymentPackageVersioned>$(DeploymentPackage)$(AssemblyVersion)\</DeploymentPackageVersioned>
-		<DeploymentPackage_Win64>$(DeploymentPackageVersioned)Win64\</DeploymentPackage_Win64>
+		<DeploymentPackage_Win64>$(DeploymentPackageVersioned)Win64\$(RuntimeName)\</DeploymentPackage_Win64>
 
 		<BimorphCompany>Bimorph Digital Engineering LTD</BimorphCompany>
 		<BimorphProduct>Rhino.Inside.AutoCAD</BimorphProduct>
 		<BimorphCopyright>Copyright © Bimorph LTD. 2025</BimorphCopyright>
 		<CompanyName>Bimorph Digital Engineering LTD</CompanyName>
 		<AppName>Rhino.Inside.AutoCAD</AppName>
-		<Framework>net48</Framework>
 	</PropertyGroup>
 </Project>

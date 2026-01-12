@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ApplicationPackage AppVersion="1.0.5"
+<ApplicationPackage AppVersion="1.0.6"
 					SchemaVersion="1.0"
                     HelpFile=""
                     OnlineDocumentation=""
@@ -13,11 +13,11 @@
 					  Email="support@bimorph.com">
 	</CompanyDetails>
 
-	<Components Description="Rhino Inside AutoCAD Components">
-		<RuntimeRequirements SupportPath="./Icons;./Icons/Small32;./Icons/Large512;./Toolbar;" OS="Win64" Platform="AutoCAD"/>
+	<Components Description="Rhino Inside AutoCAD Components Net48">
+		<RuntimeRequirements SupportPath="./Icons;./Icons/Small32;./Icons/Large512;./Toolbar;" OS="Win64" Platform="AutoCAD" SeriesMin="24.3" SeriesMax="24.3"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.5/Win64/Rhino.Inside.AutoCAD.Applications.dll"
+						ModuleName="./1.0.6/Win64/NET48/Rhino.Inside.AutoCAD.Applications.dll"
 						AppDescription="Rhino Inside AutoCAD Main Application"
 						LoadOnAutoCADStartup="True"
 						LoadOnCommandInvocation="True">
@@ -42,22 +42,76 @@
 
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.5/Win64/Rhino.Inside.AutoCAD.Interop.dll"
+						ModuleName="./1.0.6/Win64/NET48/Rhino.Inside.AutoCAD.Interop.dll"
 						AppDescription="Interop Dependency"
 						AppType="Managed"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.5/Win64/Rhino.Inside.AutoCAD.Services.dll"
+						ModuleName="./1.0.6/Win64/NET48/Rhino.Inside.AutoCAD.Services.dll"
 						AppDescription="Services Dependency"
 						AppType="Managed"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.5/Win64/Rhino.Inside.AutoCAD.UI.Resources.dll"
+						ModuleName="./1.0.6/Win64/NET48/Rhino.Inside.AutoCAD.UI.Resources.dll"
 						AppDescription="UI Dependency"
 						AppType="Managed"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.5/Win64/Rhino.Inside.AutoCAD.GrasshopperLibrary.dll"
+						ModuleName="./1.0.6/Win64/NET48/Rhino.Inside.AutoCAD.GrasshopperLibrary.dll"
+						AppDescription="Grasshopper Component Dependency"
+						AppType="Managed"/>
+
+
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+					  ModuleName="./Toolbar/RhinoInsideAutocad_Toolbar.cuix"
+					  AppDescription="Toolbar"/>
+	</Components>
+
+<Components Description="Rhino Inside AutoCAD Components Net8">
+		<RuntimeRequirements SupportPath="./Icons;./Icons/Small32;./Icons/Large512;./Toolbar;" OS="Win64" Platform="AutoCAD" SeriesMin="R25.0" SeriesMax="R25.1"/>
+
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+						ModuleName="./1.0.6/Win64/NET8/Rhino.Inside.AutoCAD.Applications.dll"
+						AppDescription="Rhino Inside AutoCAD Main Application"
+						LoadOnAutoCADStartup="True"
+						LoadOnCommandInvocation="True">
+			<Commands GroupName="RHINOINSIDE_COMMANDS">
+				<Command Local="RHINO" Global="RHINO" />
+				<Command Local="GRASSHOPPER" Global="GRASSHOPPER" />
+				<Command Local="TOGGLE_RHINO_PREVIEW" Global="TOGGLE_RHINO_PREVIEW" />
+				<Command Local="OPEN_RHINO_VIEWPORT" Global="OPEN_RHINO_VIEWPORT" />
+				<Command Local="GRASSHOPPER_PLAYER" Global="GRASSHOPPER_PLAYER" />
+				<Command Local="GRASSHOPPER_TOGGLE_SOLVER" Global="GRASSHOPPER_TOGGLE_SOLVER" />
+				<Command Local="GRASSHOPPER_PREVIEW_OFF" Global="GRASSHOPPER_PREVIEW_OFF" />
+				<Command Local="GRASSHOPPER_PREVIEW_SHADED" Global="GRASSHOPPER_PREVIEW_SHADED" />
+				<Command Local="GRASSHOPPER_PREVIEW_WIREFRAME" Global="GRASSHOPPER_PREVIEW_WIREFRAME" />
+				<Command Local="GRASSHOPPER_RECOMPUTE" Global="GRASSHOPPER_RECOMPUTE" />
+				<Command Local="RHINO_PACKAGE_MANGER" Global="RHINO_PACKAGE_MANGER" />
+				<Command Local="RHINO_INSIDE_ABOUT" Global="RHINO_INSIDE_ABOUT" />
+				<Command Local="RHINO_INSIDE_SUPPORT" Global="RHINO_INSIDE_SUPPORT" />
+				<Command Local="RHINO_INSIDE_UPDATE" Global="RHINO_INSIDE_UPDATE" />
+				<Command Local="RHINO_INSIDE_CONVERT_BREP" Global="RHINO_INSIDE_CONVERT_BREP" />
+			</Commands>
+		</ComponentEntry>
+
+
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+						ModuleName="./1.0.6/Win64/NET8/Rhino.Inside.AutoCAD.Interop.dll"
+						AppDescription="Interop Dependency"
+						AppType="Managed"/>
+
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+						ModuleName="./1.0.6/Win64/NET8/Rhino.Inside.AutoCAD.Services.dll"
+						AppDescription="Services Dependency"
+						AppType="Managed"/>
+
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+						ModuleName="./1.0.6/Win64/NET8/Rhino.Inside.AutoCAD.UI.Resources.dll"
+						AppDescription="UI Dependency"
+						AppType="Managed"/>
+
+		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
+						ModuleName="./1.0.6/Win64/NET8/Rhino.Inside.AutoCAD.GrasshopperLibrary.dll"
 						AppDescription="Grasshopper Component Dependency"
 						AppType="Managed"/>
 

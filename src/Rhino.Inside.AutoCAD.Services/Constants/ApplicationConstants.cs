@@ -21,6 +21,22 @@ public class ApplicationConstants
     public const string AssemblyFolderName = "Win64";
 
     /// <summary>
+    /// The .NET Framework filter string. This is used to determine which framework
+    /// is being used. For .NET Framework, it is ".NET Framework" for .NET 8, it is ".NET".
+    /// </summary>
+    public const string NetFrameworkFilter = ".NET Framework";
+
+    /// <summary>
+    /// The folder name for .NET Framework 4.8 assemblies.
+    /// </summary>
+    public const string Net48FolderName = "NET48";
+
+    /// <summary>
+    /// The folder name for .NET 8 assemblies.
+    /// </summary>
+    public const string Net8FolderName = "NET8";
+
+    /// <summary>
     /// The name of the application resources folder.
     /// </summary>
     public const string ResourcesFolderName = "Resources";
@@ -152,6 +168,11 @@ public class ApplicationConstants
     public const string GrasshopperAssemblyName = "Grasshopper";
 
     /// <summary>
+    /// The name of the Grasshopper IO assembly (without extension).
+    /// </summary>
+    public const string GrasshopperIOAssemblyName = "GH_IO";
+
+    /// <summary>
     /// The filename of the RhinoCommon assembly.
     /// </summary>
     public const string RhinoCommonDllName = "RhinoCommon.dll";
@@ -160,6 +181,11 @@ public class ApplicationConstants
     /// The relative path to Grasshopper.dll within the plugins folder.
     /// </summary>
     public const string GrasshopperDllRelativePath = "Grasshopper//Grasshopper.dll";
+
+    /// <summary>
+    /// The relative path to GH_IO.dll within the plugins folder.
+    /// </summary>
+    public const string GrasshopperIoDllRelativePath = "Grasshopper//GH_IO.dll";
 
     /// <summary>
     /// Command line argument to suppress Rhino splash screen.

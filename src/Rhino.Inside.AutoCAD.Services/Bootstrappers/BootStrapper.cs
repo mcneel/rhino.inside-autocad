@@ -1,4 +1,5 @@
 ﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -64,4 +65,3 @@ public class Bootstrapper : IBootstrapper
         this.BootstrapperConfig = bootstrapperConfig;
     }
 }
-

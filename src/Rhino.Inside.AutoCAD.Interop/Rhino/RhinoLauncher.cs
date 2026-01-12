@@ -13,7 +13,7 @@ public class RhinoLauncher : IRhinoLauncher
 
     private const string _rhinoStartFailureMessage =
         MessageConstants.RhinoStartFailureMessage;
-
+    private const string _grasshopperCommandName = ApplicationConstants.GrasshopperCommandName;
     /// <summary>
     /// Creates a new <see cref="IRhinoLauncher"/> instance.
     /// </summary>
@@ -60,7 +60,7 @@ public class RhinoLauncher : IRhinoLauncher
         }
         catch (Exception e)
         {
-            loadingScreenLauncher.ShowFailureMessage(_rhinoStartFailureMessage);
+            loadingScreenLauncher.ShowFailureMessage(string.Format(_rhinoStartFailureMessage, e.Message));
 
             LoggerService.Instance.LogError(e);
         }
