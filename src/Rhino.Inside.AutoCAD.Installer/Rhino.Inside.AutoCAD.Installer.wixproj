@@ -19,6 +19,8 @@
 			  $(DefineConstants);IconId=54EFEEB6-68A4-4242-BF98-E7271EAAFC9D
 			  $(DefineConstants);ResourcesId=C3CC1367-135B-4091-B5A3-DBE80AE61FC0
 			  $(DefineConstants);WinId=188E81F1-7DC6-4539-B840-0947A788F688
+			  $(DefineConstants);Net48Id=17C90C64-D6BF-4B92-856B-C62801EF35B8
+			  $(DefineConstants);Net8Id=A412BF15-442C-4574-B0C8-41BF9B9E8B1F
 			  $(DefineConstants);ToolbarId=D6EC6E9F-2949-475D-9E74-38D28DCA5ED0
 			  $(DefineConstants);AppName=$(AppName)
 			  $(DefineConstants);AppVersion=$(AssemblyVersion)
@@ -29,8 +31,8 @@
 			  $(DefineConstants);IconsDirectory=$(DeploymentPackage)Icons/
 			  $(DefineConstants);ResourcesDirectory=$(DeploymentPackage)Resources/
 			  $(DefineConstants);ToolbarDirectory=$(DeploymentPackage)Toolbar/
-			  $(DefineConstants);AssembliesDirectoryNET48=$(DeploymentPackageVersioned)Win64/NET48/
-			  $(DefineConstants);AssembliesDirectoryNET8=$(DeploymentPackageVersioned)Win64/NET8/
+			  $(DefineConstants);AssembliesDirectoryNET48=$(DeploymentPackageVersioned)Win64\NET48\
+			  $(DefineConstants);AssembliesDirectoryNET8=$(DeploymentPackageVersioned)Win64\NET8\
 			  $(DefineConstants);RegistryKey=Software\Autodesk\AutoCAD\R24.3\ACAD-7101:409\Applications\Rhino.Inside.AutoCAD
 			  $(DefineConstants);InstallLocation=$(AppRootDir)
 			  $(DefineConstants);InstallLocationAssemblies=$(AppRootDirAssemblies)

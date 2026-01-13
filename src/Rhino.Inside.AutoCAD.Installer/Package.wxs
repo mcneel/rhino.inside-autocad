@@ -18,7 +18,8 @@
 			<ComponentRef Id="IconFiles"/>
 			<ComponentRef Id="Resources" />
 			<ComponentRef Id="Toolbar" />
-			<ComponentRef Id="Win64" />
+			<ComponentRef Id="Net48" />
+			<ComponentRef Id="Net8" />
 		</Feature>
 
 		<ui:WixUI
