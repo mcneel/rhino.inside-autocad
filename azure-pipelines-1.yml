@@ -7,9 +7,9 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  buildConfiguration: 'Release'
   buildPlatform: 'x64'
   solution: 'Rhino.Inside.AutoCAD.sln'
+  installerProject: 'src/Rhino.Inside.AutoCAD.Installer/Rhino.Inside.AutoCAD.Installer.wixproj'
   GITHUB_REPO: 'mcneel/rhino.inside-autocad'
 
 stages:
@@ -28,17 +28,33 @@ stages:
         restoreSolution: '$(solution)'
 
     - task: VSBuild@1
-      displayName: 'Build Solution'
+      displayName: 'Build Solution (Release - NET4.8)'
       inputs:
         solution: '$(solution)'
         platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
+        configuration: 'Release'
+        msbuildArchitecture: 'x64'
+
+    - task: VSBuild@1
+      displayName: 'Build Solution (ReleaseNET8)'
+      inputs:
+        solution: '$(solution)'
+        platform: '$(buildPlatform)'
+        configuration: 'ReleaseNET8'
+        msbuildArchitecture: 'x64'
+
+    - task: VSBuild@1
+      displayName: 'Build Installer (ReleaseNET8)'
+      inputs:
+        solution: '$(installerProject)'
+        platform: '$(buildPlatform)'
+        configuration: 'ReleaseNET8'
         msbuildArchitecture: 'x64'
 
     - task: CopyFiles@2
       displayName: 'Copy MSI to Staging'
       inputs:
-        SourceFolder: 'src/Rhino.Inside.AutoCAD.Installer/bin/x64/Release/en-US'
+        SourceFolder: 'src/Rhino.Inside.AutoCAD.Installer/bin/x64/ReleaseNET8/en-US'
         Contents: '*.msi'
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
