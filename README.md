@@ -22,7 +22,7 @@ This project currently only supports:
 - Rhino 8 
 - AutoCAD 2024, AutoCAD 2025
 
-For full compatibility make sure you applications are up to date.
+For full compatibility make sure your applications are up to date.
 
 ## Find Out More
 More information including a Quick Start Guide can be found on our [Bimorph Website](https://www.bimorph.com/products/rhino-inside-autocad).
