@@ -15,3 +15,13 @@ This repository is the Rhino.Inside® for Autodesk AutoCAD, named Rhino.Inside.A
 ## Alpha Testing
 
 This project is in early Alpha testing, and it is not recommended for use in a production environment.
+
+## Supported Version
+
+This project currently only supports:
+Rhino 8 
+Autocad 2024, Autocad 2025
+
+## Find Out More
+More information including a Quick Start Guide can be found on our website:
+[Bimorph Website -Rhino.Inside.Autocad ]https://www.bimorph.com/products/rhino-inside-autocad
