@@ -23,5 +23,4 @@ Rhino 8
 Autocad 2024, Autocad 2025
 
 ## Find Out More
-More information including a Quick Start Guide can be found on our website:
-[Bimorph Website -Rhino.Inside.Autocad ]https://www.bimorph.com/products/rhino-inside-autocad
+More information including a Quick Start Guide can be found on our [Bimorph Website](https://www.bimorph.com/products/rhino-inside-autocad).
