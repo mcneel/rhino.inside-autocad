@@ -68,7 +68,7 @@ stages:
           
           foreach ($project in $projects) {
             Write-Host "Building $project..."
-            & dotnet build $project --configuration Release -p:Platform=x64 --no-restore
+            & dotnet build $project --configuration Release -p:Platform=x64 -p:TargetFramework=net48 --no-restore
             if ($LASTEXITCODE -ne 0) {
               Write-Error "Build failed for $project"
               exit 1
