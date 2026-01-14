@@ -10,6 +10,7 @@ variables:
   buildPlatform: 'x64'
   solution: 'Rhino.Inside.AutoCAD.sln'
   GITHUB_REPO: 'mcneel/rhino.inside-autocad'
+  installerProject: 'src/Rhino.Inside.AutoCAD.Installer/Rhino.Inside.AutoCAD.Installer.wixproj'
 
 stages:
 - stage: Build
@@ -29,24 +30,27 @@ stages:
         packageType: 'sdk'
         version: '8.0.x'
 
-    - task: NuGetCommand@2
-      displayName: 'Restore NuGet Packages'
+    # 1. REMOVE INSTALLER PROJECT FROM SOLUTION
+    - task: PowerShell@2
+      displayName: 'Remove Installer Project from Solution'
       inputs:
-        command: 'restore'
-        restoreSolution: '$(solution)'
+        targetType: 'inline'
+        script: |
+          Write-Host "Removing installer project from solution..."
+          dotnet sln "$(solution)" remove "$(installerProject)"
+          Write-Host "Installer project removed."
 
-    # 1. BUILD RELEASE (NET48) - Installer will fail, that's OK
+    # 2. BUILD RELEASE (NET48) - No installer to cause issues
     - task: VSBuild@1
       displayName: 'Build Solution (Release - net48)'
-      continueOnError: true
       inputs:
         solution: '$(solution)'
         platform: '$(buildPlatform)'
         configuration: 'Release'
         msbuildArchitecture: 'x64'
-        msbuildArgs: '/m'
+        msbuildArgs: '/restore /m'
 
-    # 2. VERIFY NET48 DLLS EXIST AND STAGE FILES
+    # 3. STAGE FILES FOR WIX
     - task: PowerShell@2
       displayName: 'Stage Files for Installer'
       inputs:
@@ -82,7 +86,17 @@ stages:
           Write-Host "`nStaging complete. Contents:"
           Get-ChildItem "$stagePath" -Recurse | ForEach-Object { Write-Host $_.FullName }
 
-    # 3. BUILD RELEASENET8 + INSTALLER
+    # 4. ADD INSTALLER PROJECT BACK TO SOLUTION
+    - task: PowerShell@2
+      displayName: 'Add Installer Project back to Solution'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Adding installer project back to solution..."
+          dotnet sln "$(solution)" add "$(installerProject)"
+          Write-Host "Installer project restored."
+
+    # 5. BUILD RELEASENET8 + INSTALLER
     - task: VSBuild@1
       displayName: 'Build Solution (ReleaseNET8 + Installer)'
       inputs:
@@ -90,9 +104,9 @@ stages:
         platform: '$(buildPlatform)'
         configuration: 'ReleaseNET8'
         msbuildArchitecture: 'x64'
-        msbuildArgs: '/m /restore'
+        msbuildArgs: '/restore /m'
 
-    # 4. COPY MSI TO STAGING
+    # 6. COPY MSI TO STAGING
     - task: CopyFiles@2
       displayName: 'Copy MSI to Staging'
       inputs:
@@ -107,7 +121,7 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'installer'
 
-    # 5. GITHUB RELEASE
+    # 7. GITHUB RELEASE
     - task: PowerShell@2
       displayName: 'Create GitHub Release'
       inputs:
