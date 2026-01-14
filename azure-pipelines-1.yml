@@ -54,7 +54,7 @@ stages:
         script: |
           dotnet sln "$(solution)" remove "$(installerProject)"
 
-    # 2. PUBLISH NET48 (to get all dependencies)
+    # 2. PUBLISH NET48 (self-contained to get ALL dependencies)
     - task: PowerShell@2
       displayName: 'Publish NET48 Projects'
       inputs:
@@ -65,15 +65,33 @@ stages:
             --configuration Release `
             --framework net48 `
             --output "publish/net48" `
-            /p:NoWarn=NU1605
+            --self-contained false `
+            /p:NoWarn=NU1605 `
+            /p:PublishReadyToRun=false `
+            /p:CopyLocalLockFileAssemblies=true
           
           if ($LASTEXITCODE -ne 0) {
             Write-Error "Publish NET48 failed"
             exit 1
           }
           
-          Write-Host "`nPublished NET48 DLLs:"
-          Get-ChildItem "publish/net48/*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
+          Write-Host "`n=== ALL Published NET48 files ==="
+          Get-ChildItem "publish/net48" -Recurse | ForEach-Object { Write-Host $_.FullName }
+          
+          Write-Host "`n=== Checking for specific required DLLs ==="
+          $requiredDlls = @(
+            "System.Collections.Immutable.dll",
+            "System.Reflection.Metadata.dll",
+            "Microsoft.Bcl.HashCode.dll",
+            "System.IO.Pipelines.dll"
+          )
+          foreach ($dll in $requiredDlls) {
+            if (Test-Path "publish/net48/$dll") {
+              Write-Host "FOUND: $dll" -ForegroundColor Green
+            } else {
+              Write-Host "MISSING: $dll" -ForegroundColor Red
+            }
+          }
 
     # 3. PUBLISH NET8 (to get all dependencies)
     - task: PowerShell@2
@@ -86,16 +104,34 @@ stages:
             --configuration ReleaseNET8 `
             --framework net8.0-windows `
             --output "publish/net8" `
-            --no-self-contained `
-            /p:NoWarn=NU1605
+            --self-contained false `
+            /p:NoWarn=NU1605 `
+            /p:PublishReadyToRun=false `
+            /p:CopyLocalLockFileAssemblies=true
           
           if ($LASTEXITCODE -ne 0) {
             Write-Error "Publish NET8 failed"
             exit 1
           }
           
-          Write-Host "`nPublished NET8 DLLs:"
-          Get-ChildItem "publish/net8/*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
+          Write-Host "`n=== ALL Published NET8 files ==="
+          Get-ChildItem "publish/net8" -Recurse | ForEach-Object { Write-Host $_.FullName }
+          
+          Write-Host "`n=== Checking for specific required DLLs ==="
+          $requiredDlls = @(
+            "System.Collections.Immutable.dll",
+            "System.Reflection.Metadata.dll",
+            "System.IO.Pipelines.dll",
+            "System.Text.Json.dll",
+            "System.Text.Encodings.Web.dll"
+          )
+          foreach ($dll in $requiredDlls) {
+            if (Test-Path "publish/net8/$dll") {
+              Write-Host "FOUND: $dll" -ForegroundColor Green
+            } else {
+              Write-Host "MISSING: $dll" -ForegroundColor Red
+            }
+          }
 
     # 4. STAGE ALL FILES FOR WIX
     - task: PowerShell@2
@@ -143,6 +179,28 @@ stages:
             Write-Host "  - $($_.Name)"
           }
           Write-Host "  Total: $((@(Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll")).Count) DLLs"
+          
+          Write-Host "`n=== Verifying staged NET48 has required DLLs ==="
+          $requiredNet48 = @("System.Collections.Immutable.dll", "System.Reflection.Metadata.dll", "Microsoft.Bcl.HashCode.dll")
+          foreach ($dll in $requiredNet48) {
+            $path = "$stagePath\$version\Win64\NET48\$dll"
+            if (Test-Path $path) {
+              Write-Host "OK: $dll" -ForegroundColor Green
+            } else {
+              Write-Host "MISSING: $dll" -ForegroundColor Red
+            }
+          }
+          
+          Write-Host "`n=== Verifying staged NET8 has required DLLs ==="
+          $requiredNet8 = @("System.Collections.Immutable.dll", "System.IO.Pipelines.dll", "System.Text.Json.dll")
+          foreach ($dll in $requiredNet8) {
+            $path = "$stagePath\$version\Win64\NET8\$dll"
+            if (Test-Path $path) {
+              Write-Host "OK: $dll" -ForegroundColor Green
+            } else {
+              Write-Host "MISSING: $dll" -ForegroundColor Red
+            }
+          }
 
     # 5. ADD INSTALLER PROJECT BACK TO SOLUTION
     - task: PowerShell@2
