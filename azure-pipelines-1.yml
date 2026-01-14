@@ -21,7 +21,7 @@ stages:
     steps:
 
     # ---------------------------------------
-    # Install supported .NET SDK (CRITICAL)
+    # Install supported .NET SDK
     # ---------------------------------------
     - task: UseDotNet@2
       displayName: 'Install .NET SDK 8.x'
@@ -30,10 +30,10 @@ stages:
         version: '8.0.x'
 
     # ---------------------------------------
-    # Restore using dotnet (NOT NuGet.exe)
+    # Restore solution (SDK-style projects)
     # ---------------------------------------
     - task: DotNetCoreCLI@2
-      displayName: 'Restore NuGet packages'
+      displayName: 'Restore Solution'
       inputs:
         command: 'restore'
         projects: '$(solution)'
@@ -63,7 +63,16 @@ stages:
         restoreNugetPackages: false
 
     # ---------------------------------------
-    # Build WiX installer (NO restore)
+    # Restore WiX installer (REQUIRED)
+    # ---------------------------------------
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore WiX Installer'
+      inputs:
+        command: 'restore'
+        projects: '$(installerProject)'
+
+    # ---------------------------------------
+    # Build WiX installer
     # ---------------------------------------
     - task: VSBuild@1
       displayName: 'Build Installer (ReleaseNET8)'
@@ -75,7 +84,7 @@ stages:
         restoreNugetPackages: false
 
     # ---------------------------------------
-    # Publish MSI
+    # Copy MSI to staging
     # ---------------------------------------
     - task: CopyFiles@2
       displayName: 'Copy MSI to Staging'
@@ -84,6 +93,9 @@ stages:
         Contents: '*.msi'
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
+    # ---------------------------------------
+    # Publish MSI artifact
+    # ---------------------------------------
     - task: PublishBuildArtifacts@1
       displayName: 'Publish MSI Artifact'
       inputs:
