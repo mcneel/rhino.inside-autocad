@@ -21,7 +21,7 @@ stages:
     steps:
 
     # ---------------------------------------
-    # Install supported .NET SDK
+    # Install .NET SDK
     # ---------------------------------------
     - task: UseDotNet@2
       displayName: 'Install .NET SDK 8.x'
@@ -30,7 +30,7 @@ stages:
         version: '8.0.x'
 
     # ---------------------------------------
-    # Restore solution (SDK-style projects)
+    # Restore all SDK-style projects
     # ---------------------------------------
     - task: DotNetCoreCLI@2
       displayName: 'Restore Solution'
@@ -39,20 +39,19 @@ stages:
         projects: '$(solution)'
 
     # ---------------------------------------
-    # Build net48 configuration
+    # Build solution EXCLUDING WiX project
     # ---------------------------------------
     - task: VSBuild@1
-      displayName: 'Build Solution (Release - NET4.8)'
+      displayName: 'Build Solution (Release - net48)'
       inputs:
         solution: '$(solution)'
         platform: '$(buildPlatform)'
         configuration: 'Release'
         msbuildArchitecture: 'x64'
         restoreNugetPackages: false
+        msbuildArgs: >
+          /p:BuildInstaller=false
 
-    # ---------------------------------------
-    # Build net8 configuration
-    # ---------------------------------------
     - task: VSBuild@1
       displayName: 'Build Solution (ReleaseNET8)'
       inputs:
@@ -61,12 +60,14 @@ stages:
         configuration: 'ReleaseNET8'
         msbuildArchitecture: 'x64'
         restoreNugetPackages: false
+        msbuildArgs: >
+          /p:BuildInstaller=false
 
     # ---------------------------------------
-    # Restore WiX installer (REQUIRED)
+    # Restore WiX project (CRITICAL STEP)
     # ---------------------------------------
     - task: VSBuild@1
-      displayName: 'Restore WiX Installer (MSBuild)'
+      displayName: 'Restore WiX Installer'
       inputs:
         solution: '$(installerProject)'
         platform: '$(buildPlatform)'
@@ -79,7 +80,7 @@ stages:
     # Build WiX installer
     # ---------------------------------------
     - task: VSBuild@1
-      displayName: 'Build Installer (ReleaseNET8)'
+      displayName: 'Build WiX Installer'
       inputs:
         solution: '$(installerProject)'
         platform: '$(buildPlatform)'
@@ -88,7 +89,7 @@ stages:
         restoreNugetPackages: false
 
     # ---------------------------------------
-    # Copy MSI to staging
+    # Copy MSI
     # ---------------------------------------
     - task: CopyFiles@2
       displayName: 'Copy MSI to Staging'
@@ -98,7 +99,7 @@ stages:
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
     # ---------------------------------------
-    # Publish MSI artifact
+    # Publish artifact
     # ---------------------------------------
     - task: PublishBuildArtifacts@1
       displayName: 'Publish MSI Artifact'
@@ -106,61 +107,3 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'installer'
         publishLocation: 'Container'
-
-    # ---------------------------------------
-    # Create GitHub Release
-    # ---------------------------------------
-    - task: PowerShell@2
-      displayName: 'Create GitHub Release'
-      inputs:
-        targetType: 'inline'
-        script: |
-          $msiFile = Get-ChildItem "$(Build.ArtifactStagingDirectory)/*.msi" | Select-Object -First 1
-          $msiName = $msiFile.Name
-
-          if ($msiName -match 'V(\d+\.\d+\.\d+)') {
-            $version = "v$($Matches[1])"
-          } else {
-            $version = "v$(Get-Date -Format 'yyyy.MM.dd')-build$(Build.BuildId)"
-          }
-
-          Write-Host "Creating release: $version"
-
-          $headers = @{
-            "Authorization" = "token $(GITHUB_PAT)"
-            "Accept" = "application/vnd.github.v3+json"
-          }
-
-          try {
-            $existingRelease = Invoke-RestMethod `
-              -Uri "https://api.github.com/repos/$(GITHUB_REPO)/releases/tags/$version" `
-              -Headers $headers -Method Get
-
-            Invoke-RestMethod `
-              -Uri "https://api.github.com/repos/$(GITHUB_REPO)/releases/$($existingRelease.id)" `
-              -Headers $headers -Method Delete
-          } catch {}
-
-          $releaseBody = @{
-            tag_name = $version
-            target_commitish = "main"
-            name = "Release $version"
-            body = "Automated release from Azure DevOps build $(Build.BuildId)"
-            draft = $false
-            prerelease = $false
-          } | ConvertTo-Json
-
-          $release = Invoke-RestMethod `
-            -Uri "https://api.github.com/repos/$(GITHUB_REPO)/releases" `
-            -Headers $headers -Method Post `
-            -Body $releaseBody `
-            -ContentType "application/json"
-
-          $uploadUrl = $release.upload_url -replace '\{\?name,label\}', ''
-          $uploadHeaders = @{
-            "Authorization" = "token $(GITHUB_PAT)"
-            "Content-Type" = "application/octet-stream"
-          }
-
-          $uploadUri = "$uploadUrl`?name=$([Uri]::EscapeDataString($msiName))"
-          Invoke-RestMethod -Uri $uploadUri -Headers $uploadHeaders -Method Post -InFile $msiFile.FullName
