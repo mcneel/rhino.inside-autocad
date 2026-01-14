@@ -35,24 +35,40 @@ stages:
         command: 'restore'
         projects: '$(solution)'
 
-    # 0. CREATE DIRECTORY.BUILD.PROPS TO SUPPRESS WARNINGS
+    # 0. CREATE BUILD PROPS AND TARGETS FILES
     - task: PowerShell@2
-      displayName: 'Create Directory.Build.props'
+      displayName: 'Create Directory.Build.props and targets'
       inputs:
         targetType: 'inline'
         script: |
+          # Create Directory.Build.props for warning suppression
           $propsContent = @"
           <Project>
             <PropertyGroup>
               <NoWarn>`$(NoWarn);CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS1591;CS1570;CS1574;MSB3270;NU1608;CS0168;CS0108;CS8766;CS1734</NoWarn>
+              <RunPostBuildEvent>false</RunPostBuildEvent>
             </PropertyGroup>
           </Project>
           "@
           Set-Content -Path "Directory.Build.props" -Value $propsContent
-          Write-Host "Created Directory.Build.props"
+          Write-Host "Created Directory.Build.props:"
           Get-Content "Directory.Build.props"
+          
+          # Create Directory.Build.targets to disable custom post-build targets
+          $targetsContent = @"
+          <Project>
+            <PropertyGroup>
+              <SkipCopyFilesAfterBuild>true</SkipCopyFilesAfterBuild>
+            </PropertyGroup>
+            <Target Name="CopyFilesAfterBuild" AfterTargets="Build" Condition="false" />
+            <Target Name="PostBuildMacros" AfterTargets="Build" Condition="false" />
+          </Project>
+          "@
+          Set-Content -Path "Directory.Build.targets" -Value $targetsContent
+          Write-Host "`nCreated Directory.Build.targets:"
+          Get-Content "Directory.Build.targets"
 
-    # 1. BUILD NET48 PROJECTS ONLY (skip post-build events)
+    # 1. BUILD NET48 PROJECTS ONLY
     - task: PowerShell@2
       displayName: 'Build Code (Release - net48)'
       inputs:
@@ -68,7 +84,7 @@ stages:
           
           foreach ($project in $projects) {
             Write-Host "Building $project..."
-            & dotnet build $project --configuration Release -p:Platform=x64 -p:TargetFramework=net48 -p:PostBuildEvent= --no-restore
+            & msbuild $project /p:Configuration=Release /p:Platform=x64 /p:TargetFramework=net48 /p:PostBuildEvent= /p:RunPostBuildEvent=false /t:Build /restore:false
             if ($LASTEXITCODE -ne 0) {
               Write-Error "Build failed for $project"
               exit 1
@@ -102,6 +118,16 @@ stages:
           Copy-Item "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/x64/Release/net48/*.dll" "$stagePath\$version\Win64\NET48\" -Force
           
           Write-Host "Staging for $version complete."
+
+    # 2.5 REMOVE BUILD OVERRIDES BEFORE FULL SOLUTION BUILD
+    - task: PowerShell@2
+      displayName: 'Remove Build Overrides'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Remove-Item -Path "Directory.Build.props" -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path "Directory.Build.targets" -Force -ErrorAction SilentlyContinue
+          Write-Host "Removed Directory.Build.props and Directory.Build.targets"
 
     # 3. BUILD NET8 AND INSTALLER
     - task: PowerShell@2
