@@ -29,71 +29,24 @@ stages:
         packageType: 'sdk'
         version: '8.0.x'
 
-    - task: DotNetCoreCLI@2
-      displayName: 'Restore Solution'
+    - task: NuGetCommand@2
+      displayName: 'Restore NuGet Packages'
       inputs:
         command: 'restore'
-        projects: '$(solution)'
+        restoreSolution: '$(solution)'
 
-    # 0. CREATE BUILD PROPS AND TARGETS FILES
-    - task: PowerShell@2
-      displayName: 'Create Directory.Build.props and targets'
+    # 1. BUILD RELEASE (NET48) - Installer will fail, that's OK
+    - task: VSBuild@1
+      displayName: 'Build Solution (Release - net48)'
+      continueOnError: true
       inputs:
-        targetType: 'inline'
-        script: |
-          # Create Directory.Build.props for warning suppression
-          $propsContent = @"
-          <Project>
-            <PropertyGroup>
-              <NoWarn>`$(NoWarn);CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS1591;CS1570;CS1574;MSB3270;NU1608;CS0168;CS0108;CS8766;CS1734</NoWarn>
-              <RunPostBuildEvent>false</RunPostBuildEvent>
-            </PropertyGroup>
-          </Project>
-          "@
-          Set-Content -Path "Directory.Build.props" -Value $propsContent
-          Write-Host "Created Directory.Build.props:"
-          Get-Content "Directory.Build.props"
-          
-          # Create Directory.Build.targets to disable custom post-build targets
-          $targetsContent = @"
-          <Project>
-            <PropertyGroup>
-              <SkipCopyFilesAfterBuild>true</SkipCopyFilesAfterBuild>
-            </PropertyGroup>
-            <Target Name="CopyFilesAfterBuild" AfterTargets="Build" Condition="false" />
-            <Target Name="PostBuildMacros" AfterTargets="Build" Condition="false" />
-          </Project>
-          "@
-          Set-Content -Path "Directory.Build.targets" -Value $targetsContent
-          Write-Host "`nCreated Directory.Build.targets:"
-          Get-Content "Directory.Build.targets"
+        solution: '$(solution)'
+        platform: '$(buildPlatform)'
+        configuration: 'Release'
+        msbuildArchitecture: 'x64'
+        msbuildArgs: '/m'
 
-    # 1. BUILD NET48 PROJECTS ONLY
-    - task: PowerShell@2
-      displayName: 'Build Code (Release - net48)'
-      inputs:
-        targetType: 'inline'
-        script: |
-          $projects = @(
-            "src/Rhino.Inside.AutoCAD.Core/Rhino.Inside.AutoCAD.Core.csproj",
-            "src/Rhino.Inside.AutoCAD.Interop/Rhino.Inside.AutoCAD.Interop.csproj",
-            "src/Rhino.Inside.AutoCAD.Services/Rhino.Inside.AutoCAD.Services.csproj",
-            "src/Rhino.Inside.AutoCAD.UI.Resources/Rhino.Inside.AutoCAD.UI.Resources.csproj",
-            "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/Rhino.Inside.AutoCAD.GrasshopperLibrary.csproj"
-          )
-          
-          foreach ($project in $projects) {
-            Write-Host "Building $project..."
-            & msbuild $project /p:Configuration=Release /p:Platform=x64 /p:TargetFramework=net48 /p:PostBuildEvent= /p:RunPostBuildEvent=false /t:Build /restore:false
-            if ($LASTEXITCODE -ne 0) {
-              Write-Error "Build failed for $project"
-              exit 1
-            }
-          }
-          
-          Write-Host "All NET48 projects built successfully."
-
-    # 2. STAGE FILES FOR WIX
+    # 2. VERIFY NET48 DLLS EXIST AND STAGE FILES
     - task: PowerShell@2
       displayName: 'Stage Files for Installer'
       inputs:
@@ -102,6 +55,15 @@ stages:
           $version = "1.0.6"
           $stagePath = "D:\a\1\s\Deployment\OutputFiles\Rhino.Inside.AutoCAD.$version"
           
+          # Check if NET48 DLLs were built
+          $net48Path = "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/x64/Release/net48"
+          if (-not (Test-Path "$net48Path/*.dll")) {
+            Write-Error "NET48 DLLs not found at $net48Path"
+            exit 1
+          }
+          Write-Host "Found NET48 DLLs at $net48Path"
+          Get-ChildItem "$net48Path/*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
+          
           # Create Directory Structure
           New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Large512"
           New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Small32"
@@ -109,39 +71,28 @@ stages:
           New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET48"
           New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET8"
 
-          # Copy Assets from your Installer project folder to the staging folder
+          # Copy Assets
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Icons/*" "$stagePath\Icons\" -Recurse -Force -ErrorAction SilentlyContinue
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Toolbar/RhinoInsideAutocad_Toolbar.cuix" "$stagePath\Toolbar\" -Force -ErrorAction SilentlyContinue
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/PackageContents.xml" "$stagePath\" -Force
 
-          # Copy the Net48 DLLs we just built into the staging folder
-          Copy-Item "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/x64/Release/net48/*.dll" "$stagePath\$version\Win64\NET48\" -Force
+          # Copy NET48 DLLs
+          Copy-Item "$net48Path/*.dll" "$stagePath\$version\Win64\NET48\" -Force
           
-          Write-Host "Staging for $version complete."
+          Write-Host "`nStaging complete. Contents:"
+          Get-ChildItem "$stagePath" -Recurse | ForEach-Object { Write-Host $_.FullName }
 
-    # 2.5 REMOVE BUILD OVERRIDES BEFORE FULL SOLUTION BUILD
-    - task: PowerShell@2
-      displayName: 'Remove Build Overrides'
-      inputs:
-        targetType: 'inline'
-        script: |
-          Remove-Item -Path "Directory.Build.props" -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path "Directory.Build.targets" -Force -ErrorAction SilentlyContinue
-          Write-Host "Removed Directory.Build.props and Directory.Build.targets"
-
-    # 3. BUILD NET8 AND INSTALLER
-    - task: PowerShell@2
+    # 3. BUILD RELEASENET8 + INSTALLER
+    - task: VSBuild@1
       displayName: 'Build Solution (ReleaseNET8 + Installer)'
       inputs:
-        targetType: 'inline'
-        script: |
-          & msbuild Rhino.Inside.AutoCAD.sln /m /restore /p:Configuration=ReleaseNET8 /p:Platform=x64
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Build failed"
-            exit 1
-          }
+        solution: '$(solution)'
+        platform: '$(buildPlatform)'
+        configuration: 'ReleaseNET8'
+        msbuildArchitecture: 'x64'
+        msbuildArgs: '/m /restore'
 
-    # 4. PUBLISH MSI
+    # 4. COPY MSI TO STAGING
     - task: CopyFiles@2
       displayName: 'Copy MSI to Staging'
       inputs:
