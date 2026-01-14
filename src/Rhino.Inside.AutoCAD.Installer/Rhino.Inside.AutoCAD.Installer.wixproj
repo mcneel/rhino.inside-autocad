@@ -1,7 +1,7 @@
 ﻿<Project Sdk="WixToolset.Sdk/6.0.2">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>$(TargetFrameworkName)</TargetFramework>
 
     <Configurations>Debug;Release;DebugNET8;ReleaseNET8</Configurations>
     <Platforms>x64</Platforms>
