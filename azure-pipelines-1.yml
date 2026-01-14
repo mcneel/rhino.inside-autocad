@@ -30,13 +30,12 @@ stages:
         version: '8.0.x'
 
     # ---------------------------------------
-    # Restore all SDK-style projects
+    # Restore for WiX
     # ---------------------------------------
-    - task: DotNetCoreCLI@2
-      displayName: 'Restore Solution'
+    - task: NuGetCommand@2
+      displayName: 'NuGet Restore'
       inputs:
-        command: 'restore'
-        projects: '$(solution)'
+        restoreSolution: '$(solution)'
 
     # ---------------------------------------
     # Build solution Net48
@@ -48,14 +47,11 @@ stages:
         platform: '$(buildPlatform)'
         configuration: 'Release'
         msbuildArchitecture: 'x64'
-        restoreNugetPackages: false
-        msbuildArgs: >
-          /p:BuildInstaller=false
+        msbuildArgs: '/t:Build /p:BuildInstaller=false'
 
     # ---------------------------------------
     # Build solution Net8 and Wix
     # ---------------------------------------
-
     - task: VSBuild@1
       displayName: 'Build Solution (ReleaseNET8 including WiX)'
       inputs:
