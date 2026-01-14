@@ -22,11 +22,6 @@ stages:
     - task: NuGetToolInstaller@1
       displayName: 'Install NuGet'
 
-    - task: NuGetCommand@2
-      displayName: 'Restore NuGet Packages'
-      inputs:
-        restoreSolution: '$(solution)'
-
     - task: VSBuild@1
       displayName: 'Build Solution (Release - NET4.8)'
       inputs:
@@ -34,6 +29,7 @@ stages:
         platform: '$(buildPlatform)'
         configuration: 'Release'
         msbuildArchitecture: 'x64'
+        restoreNugetPackages: true
 
     - task: VSBuild@1
       displayName: 'Build Solution (ReleaseNET8)'
@@ -42,6 +38,7 @@ stages:
         platform: '$(buildPlatform)'
         configuration: 'ReleaseNET8'
         msbuildArchitecture: 'x64'
+        restoreNugetPackages: true
 
     - task: VSBuild@1
       displayName: 'Build Installer (ReleaseNET8)'
@@ -50,6 +47,7 @@ stages:
         platform: '$(buildPlatform)'
         configuration: 'ReleaseNET8'
         msbuildArchitecture: 'x64'
+        restoreNugetPackages: true
 
     - task: CopyFiles@2
       displayName: 'Copy MSI to Staging'
