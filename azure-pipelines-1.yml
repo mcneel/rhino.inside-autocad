@@ -64,7 +64,17 @@ stages:
         msbuildArchitecture: 'x64'
         msbuildArgs: '/restore /m'
 
-    # 3. STAGE FILES FOR WIX
+    # 3. BUILD RELEASENET8 (without installer)
+    - task: VSBuild@1
+      displayName: 'Build Solution (ReleaseNET8 - no installer)'
+      inputs:
+        solution: '$(solution)'
+        platform: '$(buildPlatform)'
+        configuration: 'ReleaseNET8'
+        msbuildArchitecture: 'x64'
+        msbuildArgs: '/restore /m'
+
+    # 4. STAGE ALL FILES FOR WIX
     - task: PowerShell@2
       displayName: 'Stage Files for Installer'
       inputs:
@@ -72,7 +82,12 @@ stages:
         script: |
           $version = "$(AppVersion)"
           $stagePath = "D:\a\1\s\Deployment\OutputFiles\Rhino.Inside.AutoCAD.$version"
+          
+          # Source paths
           $net48Path = "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release/net48"
+          $net8Path = "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/ReleaseNET8/net8.0-windows"
+          
+          Write-Host "Creating directory structure..."
           
           # Create Directory Structure
           New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Large512" | Out-Null
@@ -81,17 +96,36 @@ stages:
           New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET48" | Out-Null
           New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET8" | Out-Null
 
-          # Copy Assets (all with SilentlyContinue for missing files)
+          # Copy Assets
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Icons/*" "$stagePath\Icons\" -Recurse -Force -ErrorAction SilentlyContinue
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Toolbar/RhinoInsideAutocad_Toolbar.cuix" "$stagePath\Toolbar\" -Force -ErrorAction SilentlyContinue
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/PackageContents.xml" "$stagePath\" -Force -ErrorAction SilentlyContinue
 
           # Copy NET48 DLLs
-          Copy-Item "$net48Path/*.dll" "$stagePath\$version\Win64\NET48\" -Force
-          
-          Write-Host "Staged files to: $stagePath"
+          Write-Host "Copying NET48 DLLs from: $net48Path"
+          if (Test-Path "$net48Path/*.dll") {
+            Copy-Item "$net48Path/*.dll" "$stagePath\$version\Win64\NET48\" -Force
+            Write-Host "  Copied $((@(Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll")).Count) DLLs"
+          } else {
+            Write-Error "NET48 DLLs not found at $net48Path"
+            exit 1
+          }
 
-    # 4. ADD INSTALLER PROJECT BACK TO SOLUTION
+          # Copy NET8 DLLs
+          Write-Host "Copying NET8 DLLs from: $net8Path"
+          if (Test-Path "$net8Path/*.dll") {
+            Copy-Item "$net8Path/*.dll" "$stagePath\$version\Win64\NET8\" -Force
+            Write-Host "  Copied $((@(Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll")).Count) DLLs"
+          } else {
+            Write-Error "NET8 DLLs not found at $net8Path"
+            Write-Host "Searching for NET8 output..."
+            Get-ChildItem -Path "src" -Recurse -Filter "*.dll" | Where-Object { $_.FullName -match "net8" } | Select-Object -First 20 | ForEach-Object { Write-Host $_.FullName }
+            exit 1
+          }
+          
+          Write-Host "Staging complete."
+
+    # 5. ADD INSTALLER PROJECT BACK TO SOLUTION
     - task: PowerShell@2
       displayName: 'Add Installer Project back to Solution'
       inputs:
@@ -99,17 +133,17 @@ stages:
         script: |
           dotnet sln "$(solution)" add "$(installerProject)"
 
-    # 5. BUILD RELEASENET8 + INSTALLER
+    # 6. BUILD INSTALLER ONLY
     - task: VSBuild@1
-      displayName: 'Build Solution (ReleaseNET8 + Installer)'
+      displayName: 'Build Installer'
       inputs:
-        solution: '$(solution)'
+        solution: '$(installerProject)'
         platform: '$(buildPlatform)'
         configuration: 'ReleaseNET8'
         msbuildArchitecture: 'x64'
         msbuildArgs: '/restore /m'
 
-    # 6. COPY MSI TO STAGING
+    # 7. COPY MSI TO STAGING
     - task: CopyFiles@2
       displayName: 'Copy MSI to Staging'
       inputs:
@@ -124,7 +158,7 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'installer'
 
-    # 7. GITHUB RELEASE
+    # 8. GITHUB RELEASE
     - task: PowerShell@2
       displayName: 'Create GitHub Release'
       inputs:
