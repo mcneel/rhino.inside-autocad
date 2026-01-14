@@ -33,11 +33,10 @@ stages:
     # Restore for WiX
         # ---------------------------------------
     - task: DotNetCoreCLI@2
-      displayName: 'Dotnet Restore'
+      displayName: 'Restore Solution'
       inputs:
         command: 'restore'
         projects: '$(solution)'
-        feedsToUse: 'select'
 
     # ---------------------------------------
     # Build solution Net48
@@ -49,7 +48,9 @@ stages:
         platform: '$(buildPlatform)'
         configuration: 'Release'
         msbuildArchitecture: 'x64'
-        msbuildArgs: '/t:Build /p:BuildInstaller=false'
+        msbuildArgs: >
+          /p:BuildInstaller=false 
+          /p:NoWarn=CS8600;CS8601;CS8602;CS8603;CS8604;CS1591;CS1570
 
     # ---------------------------------------
     # Build solution Net8 and Wix
@@ -62,6 +63,7 @@ stages:
         configuration: 'ReleaseNET8'
         msbuildArchitecture: 'x64'
         restoreNugetPackages: true
+        msbuildArgs: '/p:NoWarn=CS8600;CS8601;CS8602;CS8603;CS8604'
 
     # ---------------------------------------
     # Copy MSI
