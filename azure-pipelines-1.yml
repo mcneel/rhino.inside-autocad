@@ -10,7 +10,6 @@ variables:
   buildPlatform: 'x64'
   solution: 'Rhino.Inside.AutoCAD.sln'
   GITHUB_REPO: 'mcneel/rhino.inside-autocad'
-  # Suppress all the noisy nullability, XML, and architecture warnings
   commonNoWarn: 'CS8600,CS8601,CS8602,CS8603,CS8604,CS8618,CS8625,CS1591,CS1570,CS1574,MSB3270,NU1608,CS0168,CS0108,CS8766'
 
 stages:
@@ -38,17 +37,17 @@ stages:
         projects: '$(solution)'
 
     # 1. BUILD NET48 PROJECTS ONLY
-    - task: VSBuild@1
+    - task: DotNetCoreCLI@2
       displayName: 'Build Code (Release - net48)'
       inputs:
-        solution: '$(solution)'
-        platform: '$(buildPlatform)'
-        configuration: 'Release'
-        msbuildArchitecture: 'x64'
-        msbuildArgs: >
-          /m /restore 
-          /t:src\Rhino_Inside_AutoCAD_Core;src\Rhino_Inside_AutoCAD_Interop;src\Rhino_Inside_AutoCAD_Services;src\Rhino_Inside_AutoCAD_UI_Resources;src\Rhino_Inside_AutoCAD_GrasshopperLibrary
-          /p:NoWarn="$(commonNoWarn)"
+        command: 'build'
+        projects: |
+          src/Rhino.Inside.AutoCAD.Core/Rhino.Inside.AutoCAD.Core.csproj
+          src/Rhino.Inside.AutoCAD.Interop/Rhino.Inside.AutoCAD.Interop.csproj
+          src/Rhino.Inside.AutoCAD.Services/Rhino.Inside.AutoCAD.Services.csproj
+          src/Rhino.Inside.AutoCAD.UI.Resources/Rhino.Inside.AutoCAD.UI.Resources.csproj
+          src/Rhino.Inside.AutoCAD.GrasshopperLibrary/Rhino.Inside.AutoCAD.GrasshopperLibrary.csproj
+        arguments: '--configuration Release -p:Platform=x64 --no-restore /p:NoWarn="$(commonNoWarn)"'
 
     # 2. STAGE FILES FOR WIX
     - task: PowerShell@2
@@ -72,7 +71,7 @@ stages:
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/PackageContents.xml" "$stagePath\" -Force
 
           # Copy the Net48 DLLs we just built into the staging folder
-          Copy-Item "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release/net48/*.dll" "$stagePath\$version\Win64\NET48\" -Force
+          Copy-Item "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/x64/Release/net48/*.dll" "$stagePath\$version\Win64\NET48\" -Force
           
           Write-Host "Staging for $version complete."
 
