@@ -64,26 +64,26 @@ stages:
         msbuildArchitecture: 'x64'
         msbuildArgs: '/restore /m'
 
-    # 3. PUBLISH NET8 (to get all dependencies)
+    # 3. PUBLISH NET8 (suppress RhinoCommon version warning)
     - task: PowerShell@2
       displayName: 'Publish NET8 Projects'
       inputs:
         targetType: 'inline'
         script: |
-          $projects = @(
-            "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/Rhino.Inside.AutoCAD.GrasshopperLibrary.csproj"
-          )
+          Write-Host "Publishing GrasshopperLibrary for NET8..."
+          dotnet publish "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/Rhino.Inside.AutoCAD.GrasshopperLibrary.csproj" `
+            --configuration ReleaseNET8 `
+            --framework net8.0-windows `
+            --output "publish/net8" `
+            --no-self-contained `
+            /p:NoWarn=NU1605
           
-          foreach ($project in $projects) {
-            Write-Host "Publishing $project..."
-            dotnet publish $project --configuration ReleaseNET8 --framework net8.0-windows --output "publish/net8" --no-self-contained
-            if ($LASTEXITCODE -ne 0) {
-              Write-Error "Publish failed for $project"
-              exit 1
-            }
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Publish failed"
+            exit 1
           }
           
-          Write-Host "Published NET8 DLLs:"
+          Write-Host "`nPublished NET8 DLLs:"
           Get-ChildItem "publish/net8/*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
 
     # 4. STAGE ALL FILES FOR WIX
@@ -95,11 +95,8 @@ stages:
           $version = "$(AppVersion)"
           $stagePath = "D:\a\1\s\Deployment\OutputFiles\Rhino.Inside.AutoCAD.$version"
           
-          # Source paths
           $net48Path = "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release/net48"
           $net8Path = "publish/net8"
-          
-          Write-Host "Creating directory structure..."
           
           # Create Directory Structure
           New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Large512" | Out-Null
@@ -113,14 +110,24 @@ stages:
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Toolbar/RhinoInsideAutocad_Toolbar.cuix" "$stagePath\Toolbar\" -Force -ErrorAction SilentlyContinue
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/PackageContents.xml" "$stagePath\" -Force -ErrorAction SilentlyContinue
 
-          # Copy NET48 DLLs
-          Write-Host "Copying NET48 DLLs from: $net48Path"
-          Copy-Item "$net48Path/*.dll" "$stagePath\$version\Win64\NET48\" -Force
+          # Copy NET48 DLLs (exclude Rhino/Grasshopper/AutoCAD)
+          Write-Host "Copying NET48 DLLs..."
+          Get-ChildItem "$net48Path/*.dll" | Where-Object { 
+            $_.Name -notmatch '^(Rhino|Grasshopper|Eto\.|AutoCAD|Acdbmgd|accoremgd|acmgd)' -and
+            $_.Name -notmatch 'RhinoCommon|RhinoWindows'
+          } | ForEach-Object {
+            Copy-Item $_.FullName "$stagePath\$version\Win64\NET48\" -Force
+          }
           Write-Host "  Copied $((@(Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll")).Count) DLLs"
 
-          # Copy NET8 DLLs
-          Write-Host "Copying NET8 DLLs from: $net8Path"
-          Copy-Item "$net8Path/*.dll" "$stagePath\$version\Win64\NET8\" -Force
+          # Copy NET8 DLLs (exclude Rhino/Grasshopper/AutoCAD)
+          Write-Host "Copying NET8 DLLs..."
+          Get-ChildItem "$net8Path/*.dll" | Where-Object { 
+            $_.Name -notmatch '^(Rhino|Grasshopper|Eto\.|AutoCAD|Acdbmgd|accoremgd|acmgd)' -and
+            $_.Name -notmatch 'RhinoCommon|RhinoWindows'
+          } | ForEach-Object {
+            Copy-Item $_.FullName "$stagePath\$version\Win64\NET8\" -Force
+          }
           Write-Host "  Copied $((@(Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll")).Count) DLLs"
           
           # List staged files
