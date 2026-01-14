@@ -54,15 +54,26 @@ stages:
         script: |
           dotnet sln "$(solution)" remove "$(installerProject)"
 
-    # 2. BUILD RELEASE (NET48)
-    - task: VSBuild@1
-      displayName: 'Build Solution (Release - net48)'
+    # 2. PUBLISH NET48 (to get all dependencies)
+    - task: PowerShell@2
+      displayName: 'Publish NET48 Projects'
       inputs:
-        solution: '$(solution)'
-        platform: '$(buildPlatform)'
-        configuration: 'Release'
-        msbuildArchitecture: 'x64'
-        msbuildArgs: '/restore /m'
+        targetType: 'inline'
+        script: |
+          Write-Host "Publishing GrasshopperLibrary for NET48..."
+          dotnet publish "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/Rhino.Inside.AutoCAD.GrasshopperLibrary.csproj" `
+            --configuration Release `
+            --framework net48 `
+            --output "publish/net48" `
+            /p:NoWarn=NU1605
+          
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Publish NET48 failed"
+            exit 1
+          }
+          
+          Write-Host "`nPublished NET48 DLLs:"
+          Get-ChildItem "publish/net48/*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
 
     # 3. PUBLISH NET8 (to get all dependencies)
     - task: PowerShell@2
@@ -79,7 +90,7 @@ stages:
             /p:NoWarn=NU1605
           
           if ($LASTEXITCODE -ne 0) {
-            Write-Error "Publish failed"
+            Write-Error "Publish NET8 failed"
             exit 1
           }
           
@@ -95,10 +106,10 @@ stages:
           $version = "$(AppVersion)"
           $stagePath = "D:\a\1\s\Deployment\OutputFiles\Rhino.Inside.AutoCAD.$version"
           
-          $net48Path = "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release/net48"
+          $net48Path = "publish/net48"
           $net8Path = "publish/net8"
           
-          # DLLs to EXCLUDE (Rhino/Grasshopper/AutoCAD SDK - these are provided by the host apps)
+          # DLLs to EXCLUDE (Rhino/Grasshopper/AutoCAD SDK - provided by host apps)
           $excludePattern = '^(RhinoCommon|RhinoWindows|Grasshopper|GH_IO|Eto\.|Acdbmgd|accoremgd|acmgd)'
           
           # Create Directory Structure
@@ -113,29 +124,25 @@ stages:
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Toolbar/RhinoInsideAutocad_Toolbar.cuix" "$stagePath\Toolbar\" -Force -ErrorAction SilentlyContinue
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/PackageContents.xml" "$stagePath\" -Force -ErrorAction SilentlyContinue
 
-          # Copy NET48 DLLs (exclude only Rhino/Grasshopper/AutoCAD SDK)
+          # Copy NET48 DLLs
           Write-Host "Copying NET48 DLLs..."
           Get-ChildItem "$net48Path/*.dll" | Where-Object { 
             $_.Name -notmatch $excludePattern
           } | ForEach-Object {
             Copy-Item $_.FullName "$stagePath\$version\Win64\NET48\" -Force
+            Write-Host "  - $($_.Name)"
           }
-          Write-Host "  Copied $((@(Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll")).Count) DLLs"
+          Write-Host "  Total: $((@(Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll")).Count) DLLs"
 
-          # Copy NET8 DLLs (exclude only Rhino/Grasshopper/AutoCAD SDK)
-          Write-Host "Copying NET8 DLLs..."
+          # Copy NET8 DLLs
+          Write-Host "`nCopying NET8 DLLs..."
           Get-ChildItem "$net8Path/*.dll" | Where-Object { 
             $_.Name -notmatch $excludePattern
           } | ForEach-Object {
             Copy-Item $_.FullName "$stagePath\$version\Win64\NET8\" -Force
+            Write-Host "  - $($_.Name)"
           }
-          Write-Host "  Copied $((@(Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll")).Count) DLLs"
-          
-          # List staged files
-          Write-Host "`nNET48 staged:"
-          Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
-          Write-Host "`nNET8 staged:"
-          Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
+          Write-Host "  Total: $((@(Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll")).Count) DLLs"
 
     # 5. ADD INSTALLER PROJECT BACK TO SOLUTION
     - task: PowerShell@2
