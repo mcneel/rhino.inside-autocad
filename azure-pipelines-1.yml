@@ -38,7 +38,6 @@ stages:
         projects: '$(solution)'
 
     # 1. BUILD NET48 PROJECTS ONLY
-    # We use /t: (targets) to build the DLLs but skip the .wixproj entirely
     - task: VSBuild@1
       displayName: 'Build Code (Release - net48)'
       inputs:
@@ -48,11 +47,10 @@ stages:
         msbuildArchitecture: 'x64'
         msbuildArgs: >
           /m /restore 
-          /t:Rhino_Inside_AutoCAD_Core:Build;Rhino_Inside_AutoCAD_Interop:Build;Rhino_Inside_AutoCAD_Services:Build;Rhino_Inside_AutoCAD_UI_Resources:Build;Rhino_Inside_AutoCAD_GrasshopperLibrary:Build
+          /t:src\Rhino_Inside_AutoCAD_Core;src\Rhino_Inside_AutoCAD_Interop;src\Rhino_Inside_AutoCAD_Services;src\Rhino_Inside_AutoCAD_UI_Resources;src\Rhino_Inside_AutoCAD_GrasshopperLibrary
           /p:NoWarn="$(commonNoWarn)"
 
     # 2. STAGE FILES FOR WIX
-    # This creates the directories and copies icons/XML so the installer finds them
     - task: PowerShell@2
       displayName: 'Stage Files for Installer'
       inputs:
@@ -79,7 +77,6 @@ stages:
           Write-Host "Staging for $version complete."
 
     # 3. BUILD NET8 AND INSTALLER
-    # Now that the Net48 files and icons are staged, the installer will succeed
     - task: VSBuild@1
       displayName: 'Build Solution (ReleaseNET8 + Installer)'
       inputs:
