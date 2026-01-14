@@ -10,7 +10,6 @@ variables:
   buildPlatform: 'x64'
   solution: 'Rhino.Inside.AutoCAD.sln'
   GITHUB_REPO: 'mcneel/rhino.inside-autocad'
-  commonNoWarn: 'CS8600,CS8601,CS8602,CS8603,CS8604,CS8618,CS8625,CS1591,CS1570,CS1574,MSB3270,NU1608,CS0168,CS0108,CS8766'
 
 stages:
 - stage: Build
@@ -50,11 +49,9 @@ stages:
             "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/Rhino.Inside.AutoCAD.GrasshopperLibrary.csproj"
           )
           
-          $noWarn = "$(commonNoWarn)"
-          
           foreach ($project in $projects) {
             Write-Host "Building $project..."
-            dotnet build $project --configuration Release -p:Platform=x64 --no-restore "/p:NoWarn=$noWarn"
+            & dotnet build $project --configuration Release "-p:Platform=x64" --no-restore "-p:NoWarn=CS8600,CS8601,CS8602,CS8603,CS8604,CS8618,CS8625,CS1591,CS1570,CS1574,MSB3270,NU1608,CS0168,CS0108,CS8766"
             if ($LASTEXITCODE -ne 0) {
               Write-Error "Build failed for $project"
               exit 1
@@ -90,14 +87,16 @@ stages:
           Write-Host "Staging for $version complete."
 
     # 3. BUILD NET8 AND INSTALLER
-    - task: VSBuild@1
+    - task: PowerShell@2
       displayName: 'Build Solution (ReleaseNET8 + Installer)'
       inputs:
-        solution: '$(solution)'
-        platform: '$(buildPlatform)'
-        configuration: 'ReleaseNET8'
-        msbuildArchitecture: 'x64'
-        msbuildArgs: '/m /restore /p:NoWarn="$(commonNoWarn)"'
+        targetType: 'inline'
+        script: |
+          & msbuild "$(solution)" /m /restore /p:Configuration=ReleaseNET8 /p:Platform=x64 "/p:NoWarn=CS8600,CS8601,CS8602,CS8603,CS8604,CS8618,CS8625,CS1591,CS1570,CS1574,MSB3270,NU1608,CS0168,CS0108,CS8766"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Build failed"
+            exit 1
+          }
 
     # 4. PUBLISH MSI
     - task: CopyFiles@2
