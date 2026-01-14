@@ -67,7 +67,8 @@ stages:
             "System.Collections.Immutable:8.0.0",
             "System.Reflection.Metadata:8.0.0",
             "Microsoft.Bcl.HashCode:1.1.1",
-            "System.Formats.Nrbf:9.0.0"
+            "System.Formats.Nrbf:9.0.0",
+            "System.IO.Pipelines:8.0.0"
           )
           
           foreach ($pkg in $packages) {
@@ -170,50 +171,37 @@ stages:
             
             $packagePath = Join-Path $nugetCache $PackageName.ToLower()
             if (-not (Test-Path $packagePath)) {
-              Write-Host "  ERROR: Package $PackageName not found" -ForegroundColor Red
-              return $false
+              Write-Host "  ERROR: Package $PackageName not found at $packagePath" -ForegroundColor Red
+              return
             }
             
-            # Find DLL for NET48 (prefer netstandard2.0, net48, net472, net462)
-            $net48Dll = Get-ChildItem -Path $packagePath -Recurse -Filter $DllName -ErrorAction SilentlyContinue | 
-              Where-Object { $_.FullName -match '(netstandard2\.0|net4[0-9]|lib[\\/]net)' } |
-              Sort-Object { 
-                if ($_.FullName -match 'net48') { 0 }
-                elseif ($_.FullName -match 'net472') { 1 }
-                elseif ($_.FullName -match 'netstandard2\.0') { 2 }
-                else { 3 }
-              } |
-              Select-Object -First 1
-            
-            # Find DLL for NET8 (prefer net8, net6, netstandard2.1, netstandard2.0)
-            $net8Dll = Get-ChildItem -Path $packagePath -Recurse -Filter $DllName -ErrorAction SilentlyContinue | 
-              Where-Object { $_.FullName -match '(net8|net6|netstandard2\.)' } |
-              Sort-Object { 
-                if ($_.FullName -match 'net8') { 0 }
-                elseif ($_.FullName -match 'net6') { 1 }
-                elseif ($_.FullName -match 'netstandard2\.1') { 2 }
-                else { 3 }
-              } |
-              Select-Object -First 1
-            
-            $success = $true
-            if ($net48Dll -and -not (Test-Path $DestNet48)) {
-              Copy-Item $net48Dll.FullName $DestNet48 -Force
-              Write-Host "  NET48: $DllName" -ForegroundColor Green
-            } elseif (-not (Test-Path $DestNet48)) {
-              Write-Host "  NET48: $DllName NOT FOUND" -ForegroundColor Red
-              $success = $false
+            # Find DLL for NET48
+            if (-not (Test-Path $DestNet48)) {
+              $net48Dll = Get-ChildItem -Path $packagePath -Recurse -Filter $DllName -ErrorAction SilentlyContinue | 
+                Where-Object { $_.FullName -match '(netstandard2\.0|net4[0-9]|lib[\\/]net)' } |
+                Select-Object -First 1
+              
+              if ($net48Dll) {
+                Copy-Item $net48Dll.FullName $DestNet48 -Force
+                Write-Host "  NET48: $DllName" -ForegroundColor Green
+              } else {
+                Write-Host "  NET48: $DllName NOT FOUND in $packagePath" -ForegroundColor Red
+              }
             }
             
-            if ($net8Dll -and -not (Test-Path $DestNet8)) {
-              Copy-Item $net8Dll.FullName $DestNet8 -Force
-              Write-Host "  NET8: $DllName" -ForegroundColor Green
-            } elseif (-not (Test-Path $DestNet8)) {
-              Write-Host "  NET8: $DllName NOT FOUND" -ForegroundColor Red
-              $success = $false
+            # Find DLL for NET8
+            if (-not (Test-Path $DestNet8)) {
+              $net8Dll = Get-ChildItem -Path $packagePath -Recurse -Filter $DllName -ErrorAction SilentlyContinue | 
+                Where-Object { $_.FullName -match '(net8|net7|net6|netstandard2\.)' } |
+                Select-Object -First 1
+              
+              if ($net8Dll) {
+                Copy-Item $net8Dll.FullName $DestNet8 -Force
+                Write-Host "  NET8: $DllName" -ForegroundColor Green
+              } else {
+                Write-Host "  NET8: $DllName NOT FOUND in $packagePath" -ForegroundColor Red
+              }
             }
-            
-            return $success
           }
 
           # Required DLLs mapping: DllName -> PackageName
@@ -223,6 +211,7 @@ stages:
             "Microsoft.Bcl.HashCode.dll" = "microsoft.bcl.hashcode"
             "System.Formats.Nrbf.dll" = "system.formats.nrbf"
             "System.ComponentModel.Annotations.dll" = "system.componentmodel.annotations"
+            "System.IO.Pipelines.dll" = "system.io.pipelines"
           }
 
           Write-Host "`nCopying missing DLLs from NuGet cache..."
