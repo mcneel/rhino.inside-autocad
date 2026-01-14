@@ -32,11 +32,10 @@ stages:
     # ---------------------------------------
     # Restore for WiX
         # ---------------------------------------
-    - task: DotNetCoreCLI@2
-      displayName: 'Restore Solution'
+    - task: NuGetCommand@2
+      displayName: 'NuGet Restore'
       inputs:
-        command: 'restore'
-        projects: '$(solution)'
+        restoreSolution: '$(solution)'
 
     # ---------------------------------------
     # Build solution Net48
@@ -49,8 +48,10 @@ stages:
         configuration: 'Release'
         msbuildArchitecture: 'x64'
         msbuildArgs: >
+          /m
           /p:BuildInstaller=false 
-          /p:NoWarn="CS8600,CS8601,CS8602,CS8603,CS8604,CS1591,CS1570"
+          /p:ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch=None
+          /p:NoWarn="CS8600,CS8601,CS8602,CS8603,CS8604,CS8618,CS8625,CS1591,CS1570,CS1574,MSB3270,NU1608,CS0168"
 
     # ---------------------------------------
     # Build solution Net8 and Wix
@@ -62,9 +63,10 @@ stages:
         platform: '$(buildPlatform)'
         configuration: 'ReleaseNET8'
         msbuildArchitecture: 'x64'
-        restoreNugetPackages: true
-        msbuildArgs: '/p:NoWarn=CS8600,CS8601,CS8602,CS8603,CS8604'
-
+        msbuildArgs: >
+          /m
+          /p:ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch=None
+          /p:NoWarn="CS8600,CS8601,CS8602,CS8603,CS8604,CS8618,CS8625,CS1591,CS1570,CS1574,MSB3270,NU1608,CS0168"
     # ---------------------------------------
     # Copy MSI
     # ---------------------------------------
