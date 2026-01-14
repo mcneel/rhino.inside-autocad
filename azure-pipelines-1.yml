@@ -54,7 +54,7 @@ stages:
         script: |
           dotnet sln "$(solution)" remove "$(installerProject)"
 
-    # 2. PUBLISH NET48 (self-contained to get ALL dependencies)
+    # 2. PUBLISH NET48
     - task: PowerShell@2
       displayName: 'Publish NET48 Projects'
       inputs:
@@ -65,35 +65,12 @@ stages:
             --configuration Release `
             --framework net48 `
             --output "publish/net48" `
-            --self-contained false `
             /p:NoWarn=NU1605 `
-            /p:PublishReadyToRun=false `
             /p:CopyLocalLockFileAssemblies=true
           
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Publish NET48 failed"
-            exit 1
-          }
-          
-          Write-Host "`n=== ALL Published NET48 files ==="
-          Get-ChildItem "publish/net48" -Recurse | ForEach-Object { Write-Host $_.FullName }
-          
-          Write-Host "`n=== Checking for specific required DLLs ==="
-          $requiredDlls = @(
-            "System.Collections.Immutable.dll",
-            "System.Reflection.Metadata.dll",
-            "Microsoft.Bcl.HashCode.dll",
-            "System.IO.Pipelines.dll"
-          )
-          foreach ($dll in $requiredDlls) {
-            if (Test-Path "publish/net48/$dll") {
-              Write-Host "FOUND: $dll" -ForegroundColor Green
-            } else {
-              Write-Host "MISSING: $dll" -ForegroundColor Red
-            }
-          }
+          if ($LASTEXITCODE -ne 0) { exit 1 }
 
-    # 3. PUBLISH NET8 (to get all dependencies)
+    # 3. PUBLISH NET8
     - task: PowerShell@2
       displayName: 'Publish NET8 Projects'
       inputs:
@@ -106,34 +83,11 @@ stages:
             --output "publish/net8" `
             --self-contained false `
             /p:NoWarn=NU1605 `
-            /p:PublishReadyToRun=false `
             /p:CopyLocalLockFileAssemblies=true
           
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Publish NET8 failed"
-            exit 1
-          }
-          
-          Write-Host "`n=== ALL Published NET8 files ==="
-          Get-ChildItem "publish/net8" -Recurse | ForEach-Object { Write-Host $_.FullName }
-          
-          Write-Host "`n=== Checking for specific required DLLs ==="
-          $requiredDlls = @(
-            "System.Collections.Immutable.dll",
-            "System.Reflection.Metadata.dll",
-            "System.IO.Pipelines.dll",
-            "System.Text.Json.dll",
-            "System.Text.Encodings.Web.dll"
-          )
-          foreach ($dll in $requiredDlls) {
-            if (Test-Path "publish/net8/$dll") {
-              Write-Host "FOUND: $dll" -ForegroundColor Green
-            } else {
-              Write-Host "MISSING: $dll" -ForegroundColor Red
-            }
-          }
+          if ($LASTEXITCODE -ne 0) { exit 1 }
 
-    # 4. STAGE ALL FILES FOR WIX
+    # 4. STAGE ALL FILES FOR WIX (including NuGet cache DLLs)
     - task: PowerShell@2
       displayName: 'Stage Files for Installer'
       inputs:
@@ -141,66 +95,110 @@ stages:
         script: |
           $version = "$(AppVersion)"
           $stagePath = "D:\a\1\s\Deployment\OutputFiles\Rhino.Inside.AutoCAD.$version"
+          $nugetCache = "$env:USERPROFILE\.nuget\packages"
           
-          $net48Path = "publish/net48"
-          $net8Path = "publish/net8"
-          
-          # DLLs to EXCLUDE (Rhino/Grasshopper/AutoCAD SDK - provided by host apps)
+          # DLLs to EXCLUDE
           $excludePattern = '^(RhinoCommon|RhinoWindows|Grasshopper|GH_IO|Eto\.|Acdbmgd|accoremgd|acmgd)'
           
           # Create Directory Structure
           New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Large512" | Out-Null
           New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Small32" | Out-Null
           New-Item -ItemType Directory -Force -Path "$stagePath\Toolbar" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$stagePath\Resources" | Out-Null
           New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET48" | Out-Null
           New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET8" | Out-Null
 
           # Copy Assets
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Icons/*" "$stagePath\Icons\" -Recurse -Force -ErrorAction SilentlyContinue
-          Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Toolbar/RhinoInsideAutocad_Toolbar.cuix" "$stagePath\Toolbar\" -Force -ErrorAction SilentlyContinue
+          Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Toolbar/*" "$stagePath\Toolbar\" -Force -ErrorAction SilentlyContinue
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/PackageContents.xml" "$stagePath\" -Force -ErrorAction SilentlyContinue
+          Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Resources/*" "$stagePath\Resources\" -Force -ErrorAction SilentlyContinue
 
-          # Copy NET48 DLLs
-          Write-Host "Copying NET48 DLLs..."
-          Get-ChildItem "$net48Path/*.dll" | Where-Object { 
-            $_.Name -notmatch $excludePattern
-          } | ForEach-Object {
+          # Copy NET48 DLLs from publish
+          Write-Host "Copying NET48 DLLs from publish..."
+          Get-ChildItem "publish/net48/*.dll" | Where-Object { $_.Name -notmatch $excludePattern } | ForEach-Object {
             Copy-Item $_.FullName "$stagePath\$version\Win64\NET48\" -Force
-            Write-Host "  - $($_.Name)"
           }
-          Write-Host "  Total: $((@(Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll")).Count) DLLs"
 
-          # Copy NET8 DLLs
-          Write-Host "`nCopying NET8 DLLs..."
-          Get-ChildItem "$net8Path/*.dll" | Where-Object { 
-            $_.Name -notmatch $excludePattern
-          } | ForEach-Object {
+          # Copy NET8 DLLs from publish
+          Write-Host "Copying NET8 DLLs from publish..."
+          Get-ChildItem "publish/net8/*.dll" | Where-Object { $_.Name -notmatch $excludePattern } | ForEach-Object {
             Copy-Item $_.FullName "$stagePath\$version\Win64\NET8\" -Force
-            Write-Host "  - $($_.Name)"
           }
-          Write-Host "  Total: $((@(Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll")).Count) DLLs"
-          
-          Write-Host "`n=== Verifying staged NET48 has required DLLs ==="
-          $requiredNet48 = @("System.Collections.Immutable.dll", "System.Reflection.Metadata.dll", "Microsoft.Bcl.HashCode.dll")
-          foreach ($dll in $requiredNet48) {
-            $path = "$stagePath\$version\Win64\NET48\$dll"
-            if (Test-Path $path) {
-              Write-Host "OK: $dll" -ForegroundColor Green
+
+          # Required DLLs that may be missing (transitive deps) - search NuGet cache
+          $requiredDlls = @(
+            @{Name="System.Collections.Immutable.dll"; Package="system.collections.immutable"; Framework="net48"},
+            @{Name="System.Reflection.Metadata.dll"; Package="system.reflection.metadata"; Framework="net48"},
+            @{Name="Microsoft.Bcl.HashCode.dll"; Package="microsoft.bcl.hashcode"; Framework="net48"},
+            @{Name="System.Formats.Nrbf.dll"; Package="system.formats.nrbf"; Framework="net48"},
+            @{Name="System.ComponentModel.Annotations.dll"; Package="system.componentmodel.annotations"; Framework="net48"},
+            @{Name="CommunityToolkit.Mvvm.dll"; Package="communitytoolkit.mvvm"; Framework="net48"},
+            @{Name="Serilog.Settings.Configuration.dll"; Package="serilog.settings.configuration"; Framework="net48"},
+            @{Name="Serilog.Sinks.File.dll"; Package="serilog.sinks.file"; Framework="net48"},
+            @{Name="Microsoft.Extensions.Configuration.dll"; Package="microsoft.extensions.configuration"; Framework="net48"},
+            @{Name="Microsoft.Extensions.Configuration.Abstractions.dll"; Package="microsoft.extensions.configuration.abstractions"; Framework="net48"},
+            @{Name="Microsoft.Extensions.Configuration.Binder.dll"; Package="microsoft.extensions.configuration.binder"; Framework="net48"},
+            @{Name="Microsoft.Extensions.Configuration.FileExtensions.dll"; Package="microsoft.extensions.configuration.fileextensions"; Framework="net48"},
+            @{Name="Microsoft.Extensions.Configuration.Json.dll"; Package="microsoft.extensions.configuration.json"; Framework="net48"},
+            @{Name="Microsoft.Extensions.DependencyModel.dll"; Package="microsoft.extensions.dependencymodel"; Framework="net48"},
+            @{Name="Microsoft.Extensions.FileProviders.Abstractions.dll"; Package="microsoft.extensions.fileproviders.abstractions"; Framework="net48"},
+            @{Name="Microsoft.Extensions.FileProviders.Physical.dll"; Package="microsoft.extensions.fileproviders.physical"; Framework="net48"},
+            @{Name="Microsoft.Extensions.FileSystemGlobbing.dll"; Package="microsoft.extensions.filesystemglobbing"; Framework="net48"},
+            @{Name="Microsoft.Extensions.Primitives.dll"; Package="microsoft.extensions.primitives"; Framework="net48"}
+          )
+
+          Write-Host "`nSearching NuGet cache for missing DLLs..."
+          foreach ($dll in $requiredDlls) {
+            $net48Dest = "$stagePath\$version\Win64\NET48\$($dll.Name)"
+            $net8Dest = "$stagePath\$version\Win64\NET8\$($dll.Name)"
+            
+            # Skip if already exists
+            if ((Test-Path $net48Dest) -and (Test-Path $net8Dest)) {
+              Write-Host "  Already have: $($dll.Name)"
+              continue
+            }
+            
+            # Search NuGet cache
+            $packagePath = Join-Path $nugetCache $dll.Package
+            if (Test-Path $packagePath) {
+              # Find the DLL - prefer netstandard2.0, net48, or lib folder
+              $found = Get-ChildItem -Path $packagePath -Recurse -Filter $dll.Name -ErrorAction SilentlyContinue | 
+                Where-Object { $_.FullName -match '(netstandard2\.|net4|lib[\\/])' } |
+                Select-Object -First 1
+              
+              if ($found) {
+                if (-not (Test-Path $net48Dest)) {
+                  Copy-Item $found.FullName $net48Dest -Force
+                  Write-Host "  NET48: Copied $($dll.Name) from NuGet cache"
+                }
+                if (-not (Test-Path $net8Dest)) {
+                  # For NET8, try to find net8/net6/netstandard version
+                  $net8Found = Get-ChildItem -Path $packagePath -Recurse -Filter $dll.Name -ErrorAction SilentlyContinue | 
+                    Where-Object { $_.FullName -match '(net8|net6|netstandard2\.)' } |
+                    Select-Object -First 1
+                  if ($net8Found) {
+                    Copy-Item $net8Found.FullName $net8Dest -Force
+                    Write-Host "  NET8: Copied $($dll.Name) from NuGet cache"
+                  }
+                }
+              } else {
+                Write-Host "  WARNING: $($dll.Name) not found in $packagePath" -ForegroundColor Yellow
+              }
             } else {
-              Write-Host "MISSING: $dll" -ForegroundColor Red
+              Write-Host "  WARNING: Package $($dll.Package) not in NuGet cache" -ForegroundColor Yellow
             }
           }
+
+          # Final count
+          Write-Host "`n=== Final DLL counts ==="
+          Write-Host "NET48: $((@(Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll")).Count) DLLs"
+          Write-Host "NET8: $((@(Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll")).Count) DLLs"
           
-          Write-Host "`n=== Verifying staged NET8 has required DLLs ==="
-          $requiredNet8 = @("System.Collections.Immutable.dll", "System.IO.Pipelines.dll", "System.Text.Json.dll")
-          foreach ($dll in $requiredNet8) {
-            $path = "$stagePath\$version\Win64\NET8\$dll"
-            if (Test-Path $path) {
-              Write-Host "OK: $dll" -ForegroundColor Green
-            } else {
-              Write-Host "MISSING: $dll" -ForegroundColor Red
-            }
-          }
+          Write-Host "`nNET48 DLLs:"
+          Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
+          Write-Host "`nNET8 DLLs:"
+          Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
 
     # 5. ADD INSTALLER PROJECT BACK TO SOLUTION
     - task: PowerShell@2
