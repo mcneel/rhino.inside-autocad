@@ -30,17 +30,26 @@ stages:
         packageType: 'sdk'
         version: '8.0.x'
 
+    # 0. EXTRACT VERSION
+    - task: PowerShell@2
+      displayName: 'Extract Version'
+      inputs:
+        targetType: 'inline'
+        script: |
+          [xml]$props = Get-Content "Directory.Build.props"
+          $version = ($props.Project.PropertyGroup.Version | Where-Object { $_ }).Trim()
+          Write-Host "Version: $version"
+          Write-Host "##vso[task.setvariable variable=AppVersion]$version"
+
     # 1. REMOVE INSTALLER PROJECT FROM SOLUTION
     - task: PowerShell@2
       displayName: 'Remove Installer Project from Solution'
       inputs:
         targetType: 'inline'
         script: |
-          Write-Host "Removing installer project from solution..."
           dotnet sln "$(solution)" remove "$(installerProject)"
-          Write-Host "Installer project removed."
 
-    # 2. BUILD RELEASE (NET48) - No installer to cause issues
+    # 2. BUILD RELEASE (NET48)
     - task: VSBuild@1
       displayName: 'Build Solution (Release - net48)'
       inputs:
@@ -50,72 +59,15 @@ stages:
         msbuildArchitecture: 'x64'
         msbuildArgs: '/restore /m'
 
-    # 3. FIND AND STAGE FILES FOR WIX
+    # 3. STAGE FILES FOR WIX
     - task: PowerShell@2
       displayName: 'Stage Files for Installer'
       inputs:
         targetType: 'inline'
         script: |
-          $version = "1.0.6"
+          $version = "$(AppVersion)"
           $stagePath = "D:\a\1\s\Deployment\OutputFiles\Rhino.Inside.AutoCAD.$version"
-          
-          Write-Host "=== SEARCHING FOR BUILT DLLS ===" -ForegroundColor Cyan
-          
-          # Search for Rhino.Inside DLLs anywhere in the src folder
-          Write-Host "`nSearching for Rhino.Inside*.dll files..."
-          $foundDlls = Get-ChildItem -Path "src" -Recurse -Filter "Rhino.Inside*.dll" -ErrorAction SilentlyContinue
-          if ($foundDlls) {
-            $foundDlls | ForEach-Object { Write-Host "  Found: $($_.FullName)" }
-          } else {
-            Write-Host "  No Rhino.Inside*.dll files found in src/"
-          }
-          
-          # Search specifically in bin folders
-          Write-Host "`nSearching in all bin folders..."
-          $binFolders = Get-ChildItem -Path "src" -Recurse -Directory -Filter "bin" -ErrorAction SilentlyContinue
-          foreach ($bin in $binFolders) {
-            Write-Host "  Bin folder: $($bin.FullName)"
-            $dlls = Get-ChildItem -Path $bin.FullName -Recurse -Filter "*.dll" -ErrorAction SilentlyContinue
-            if ($dlls) {
-              $dlls | ForEach-Object { Write-Host "    - $($_.FullName)" }
-            }
-          }
-          
-          # Try to find the actual NET48 output path
-          $possiblePaths = @(
-            "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/x64/Release/net48",
-            "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release/net48",
-            "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/x64/Release",
-            "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release",
-            "src/Rhino.Inside.AutoCAD.Core/bin/x64/Release/net48",
-            "src/Rhino.Inside.AutoCAD.Core/bin/Release/net48"
-          )
-          
-          $net48Path = $null
-          foreach ($path in $possiblePaths) {
-            Write-Host "`nChecking: $path"
-            if (Test-Path $path) {
-              $dlls = Get-ChildItem -Path $path -Filter "*.dll" -ErrorAction SilentlyContinue
-              if ($dlls) {
-                Write-Host "  FOUND DLLs here!" -ForegroundColor Green
-                $dlls | ForEach-Object { Write-Host "    - $($_.Name)" }
-                $net48Path = $path
-                break
-              } else {
-                Write-Host "  Path exists but no DLLs"
-              }
-            } else {
-              Write-Host "  Path does not exist"
-            }
-          }
-          
-          if (-not $net48Path) {
-            Write-Error "Could not find NET48 DLLs in any expected location"
-            exit 1
-          }
-          
-          Write-Host "`n=== STAGING FILES ===" -ForegroundColor Cyan
-          Write-Host "Using NET48 path: $net48Path"
+          $net48Path = "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release/net48"
           
           # Create Directory Structure
           New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Large512"
@@ -131,9 +83,6 @@ stages:
 
           # Copy NET48 DLLs
           Copy-Item "$net48Path/*.dll" "$stagePath\$version\Win64\NET48\" -Force
-          
-          Write-Host "`nStaging complete. Final contents:"
-          Get-ChildItem "$stagePath" -Recurse | ForEach-Object { Write-Host $_.FullName }
 
     # 4. ADD INSTALLER PROJECT BACK TO SOLUTION
     - task: PowerShell@2
@@ -141,9 +90,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          Write-Host "Adding installer project back to solution..."
           dotnet sln "$(solution)" add "$(installerProject)"
-          Write-Host "Installer project restored."
 
     # 5. BUILD RELEASENET8 + INSTALLER
     - task: VSBuild@1
@@ -176,22 +123,19 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
+          $version = "$(AppVersion)"
           $msiFile = Get-ChildItem "$(Build.ArtifactStagingDirectory)/*.msi" | Select-Object -First 1
           if (-not $msiFile) { throw "MSI not found!" }
-          $msiName = $msiFile.Name
-          
-          if ($msiName -match 'V(\d+\.\d+\.\d+)') { $version = "v$($Matches[1])" } 
-          else { $version = "v$(Get-Date -Format 'yyyy.MM.dd')-b$(Build.BuildId)" }
           
           $headers = @{"Authorization" = "token $(GITHUB_PAT)"; "Accept" = "application/vnd.github.v3+json"}
           $releaseBody = @{
-            tag_name = $version
+            tag_name = "v$version"
             target_commitish = "master"
-            name = "Release $version"
+            name = "Release v$version"
             body = "Automated build $(Build.BuildId)"
           } | ConvertTo-Json
           
           $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$(GITHUB_REPO)/releases" -Headers $headers -Method Post -Body $releaseBody -ContentType "application/json"
-          $uploadUri = ($release.upload_url -replace '\{\?name,label\}', '') + "?name=$([Uri]::EscapeDataString($msiName))"
+          $uploadUri = ($release.upload_url -replace '\{\?name,label\}', '') + "?name=$([Uri]::EscapeDataString($msiFile.Name))"
           
           Invoke-RestMethod -Uri $uploadUri -Headers @{"Authorization" = "token $(GITHUB_PAT)"; "Content-Type" = "application/octet-stream"} -Method Post -InFile $msiFile.FullName
