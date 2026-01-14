@@ -39,7 +39,7 @@ stages:
         projects: '$(solution)'
 
     # ---------------------------------------
-    # Build solution EXCLUDING WiX project
+    # Build solution Net48
     # ---------------------------------------
     - task: VSBuild@1
       displayName: 'Build Solution (Release - net48)'
@@ -52,41 +52,18 @@ stages:
         msbuildArgs: >
           /p:BuildInstaller=false
 
+    # ---------------------------------------
+    # Build solution Net8 and Wix
+    # ---------------------------------------
+
     - task: VSBuild@1
-      displayName: 'Build Solution (ReleaseNET8)'
+      displayName: 'Build Solution (ReleaseNET8 including WiX)'
       inputs:
         solution: '$(solution)'
         platform: '$(buildPlatform)'
         configuration: 'ReleaseNET8'
         msbuildArchitecture: 'x64'
-        restoreNugetPackages: false
-        msbuildArgs: >
-          /p:BuildInstaller=false
-
-    # ---------------------------------------
-    # Restore WiX project (CRITICAL STEP)
-    # ---------------------------------------
-    - task: VSBuild@1
-      displayName: 'Restore WiX Installer'
-      inputs:
-        solution: '$(installerProject)'
-        platform: '$(buildPlatform)'
-        configuration: 'ReleaseNET8'
-        msbuildArchitecture: 'x64'
         restoreNugetPackages: true
-        msbuildArgs: '/t:Restore'
-
-    # ---------------------------------------
-    # Build WiX installer
-    # ---------------------------------------
-    - task: VSBuild@1
-      displayName: 'Build WiX Installer'
-      inputs:
-        solution: '$(installerProject)'
-        platform: '$(buildPlatform)'
-        configuration: 'ReleaseNET8'
-        msbuildArchitecture: 'x64'
-        restoreNugetPackages: false
 
     # ---------------------------------------
     # Copy MSI
