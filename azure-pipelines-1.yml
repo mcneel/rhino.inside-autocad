@@ -75,19 +75,21 @@ stages:
           $net48Path = "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release/net48"
           
           # Create Directory Structure
-          New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Large512"
-          New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Small32"
-          New-Item -ItemType Directory -Force -Path "$stagePath\Toolbar"
-          New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET48"
-          New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET8"
+          New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Large512" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Small32" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$stagePath\Toolbar" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET48" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET8" | Out-Null
 
-          # Copy Assets
+          # Copy Assets (all with SilentlyContinue for missing files)
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Icons/*" "$stagePath\Icons\" -Recurse -Force -ErrorAction SilentlyContinue
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Toolbar/RhinoInsideAutocad_Toolbar.cuix" "$stagePath\Toolbar\" -Force -ErrorAction SilentlyContinue
-          Copy-Item "src/Rhino.Inside.AutoCAD.Installer/PackageContents.xml" "$stagePath\" -Force
+          Copy-Item "src/Rhino.Inside.AutoCAD.Installer/PackageContents.xml" "$stagePath\" -Force -ErrorAction SilentlyContinue
 
           # Copy NET48 DLLs
           Copy-Item "$net48Path/*.dll" "$stagePath\$version\Win64\NET48\" -Force
+          
+          Write-Host "Staged files to: $stagePath"
 
     # 4. ADD INSTALLER PROJECT BACK TO SOLUTION
     - task: PowerShell@2
