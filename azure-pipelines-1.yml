@@ -65,11 +65,15 @@ stages:
     # ---------------------------------------
     # Restore WiX installer (REQUIRED)
     # ---------------------------------------
-    - task: DotNetCoreCLI@2
-      displayName: 'Restore WiX Installer'
+    - task: VSBuild@1
+      displayName: 'Restore WiX Installer (MSBuild)'
       inputs:
-        command: 'restore'
-        projects: '$(installerProject)'
+        solution: '$(installerProject)'
+        platform: '$(buildPlatform)'
+        configuration: 'ReleaseNET8'
+        msbuildArchitecture: 'x64'
+        restoreNugetPackages: true
+        msbuildArgs: '/t:Restore'
 
     # ---------------------------------------
     # Build WiX installer
