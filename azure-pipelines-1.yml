@@ -68,7 +68,10 @@ stages:
             "System.Reflection.Metadata:8.0.0",
             "Microsoft.Bcl.HashCode:1.1.1",
             "System.Formats.Nrbf:9.0.0",
-            "System.IO.Pipelines:8.0.0"
+            "System.IO.Pipelines:8.0.0",
+            "System.Resources.Extensions:8.0.0",
+            "System.Text.Encodings.Web:8.0.0",
+            "System.Text.Json:8.0.0"
           )
           
           foreach ($pkg in $packages) {
@@ -184,8 +187,6 @@ stages:
               if ($net48Dll) {
                 Copy-Item $net48Dll.FullName $DestNet48 -Force
                 Write-Host "  NET48: $DllName" -ForegroundColor Green
-              } else {
-                Write-Host "  NET48: $DllName NOT FOUND in $packagePath" -ForegroundColor Red
               }
             }
             
@@ -212,6 +213,9 @@ stages:
             "System.Formats.Nrbf.dll" = "system.formats.nrbf"
             "System.ComponentModel.Annotations.dll" = "system.componentmodel.annotations"
             "System.IO.Pipelines.dll" = "system.io.pipelines"
+            "System.Resources.Extensions.dll" = "system.resources.extensions"
+            "System.Text.Encodings.Web.dll" = "system.text.encodings.web"
+            "System.Text.Json.dll" = "system.text.json"
           }
 
           Write-Host "`nCopying missing DLLs from NuGet cache..."
