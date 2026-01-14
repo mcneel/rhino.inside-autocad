@@ -36,10 +36,15 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          [xml]$props = Get-Content "Directory.Build.props"
-          $version = ($props.Project.PropertyGroup.Version | Where-Object { $_ }).Trim()
-          Write-Host "Version: $version"
-          Write-Host "##vso[task.setvariable variable=AppVersion]$version"
+          $content = Get-Content "Directory.Build.props" -Raw
+          if ($content -match '<AssemblyVersion>([^<]+)</AssemblyVersion>') {
+            $version = $Matches[1].Trim()
+            Write-Host "Version: $version"
+            Write-Host "##vso[task.setvariable variable=AppVersion]$version"
+          } else {
+            Write-Error "Could not find AssemblyVersion in Directory.Build.props"
+            exit 1
+          }
 
     # 1. REMOVE INSTALLER PROJECT FROM SOLUTION
     - task: PowerShell@2
