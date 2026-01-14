@@ -44,7 +44,7 @@ stages:
           $propsContent = @"
           <Project>
             <PropertyGroup>
-              <NoWarn>`$(NoWarn);CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS1591;CS1570;CS1574;MSB3270;NU1608;CS0168;CS0108;CS8766</NoWarn>
+              <NoWarn>`$(NoWarn);CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS1591;CS1570;CS1574;MSB3270;NU1608;CS0168;CS0108;CS8766;CS1734</NoWarn>
             </PropertyGroup>
           </Project>
           "@
@@ -52,7 +52,7 @@ stages:
           Write-Host "Created Directory.Build.props"
           Get-Content "Directory.Build.props"
 
-    # 1. BUILD NET48 PROJECTS ONLY
+    # 1. BUILD NET48 PROJECTS ONLY (skip post-build events)
     - task: PowerShell@2
       displayName: 'Build Code (Release - net48)'
       inputs:
@@ -68,7 +68,7 @@ stages:
           
           foreach ($project in $projects) {
             Write-Host "Building $project..."
-            & dotnet build $project --configuration Release -p:Platform=x64 -p:TargetFramework=net48 --no-restore
+            & dotnet build $project --configuration Release -p:Platform=x64 -p:TargetFramework=net48 -p:PostBuildEvent= --no-restore
             if ($LASTEXITCODE -ne 0) {
               Write-Error "Build failed for $project"
               exit 1
