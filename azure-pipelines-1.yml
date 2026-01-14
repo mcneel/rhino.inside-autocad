@@ -62,7 +62,6 @@ stages:
         script: |
           $nugetCache = "$env:USERPROFILE\.nuget\packages"
           
-          # Packages needed for installer that aren't transitive deps
           $packages = @(
             "System.Collections.Immutable:8.0.0",
             "System.Reflection.Metadata:8.0.0",
@@ -83,7 +82,6 @@ stages:
             nuget install $name -Version $version -OutputDirectory "$nugetCache\_temp" -NonInteractive
           }
           
-          # Move to proper cache structure
           Get-ChildItem "$nugetCache\_temp" -Directory | ForEach-Object {
             $pkgName = $_.Name -replace '\.\d+\.\d+\.\d+.*$', ''
             $destPath = Join-Path $nugetCache $pkgName.ToLower()
@@ -93,8 +91,6 @@ stages:
             $versionFolder = $_.Name -replace "^$([regex]::Escape($pkgName))\.", ''
             Move-Item $_.FullName (Join-Path $destPath $versionFolder) -Force -ErrorAction SilentlyContinue
           }
-          
-          Write-Host "Packages installed."
 
     # 3. PUBLISH NET48
     - task: PowerShell@2
@@ -102,14 +98,9 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          Write-Host "Publishing GrasshopperLibrary for NET48..."
           dotnet publish "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/Rhino.Inside.AutoCAD.GrasshopperLibrary.csproj" `
-            --configuration Release `
-            --framework net48 `
-            --output "publish/net48" `
-            /p:NoWarn=NU1605 `
-            /p:CopyLocalLockFileAssemblies=true
-          
+            --configuration Release --framework net48 --output "publish/net48" `
+            /p:NoWarn=NU1605 /p:CopyLocalLockFileAssemblies=true
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
     # 4. PUBLISH NET8
@@ -118,15 +109,9 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          Write-Host "Publishing GrasshopperLibrary for NET8..."
           dotnet publish "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/Rhino.Inside.AutoCAD.GrasshopperLibrary.csproj" `
-            --configuration ReleaseNET8 `
-            --framework net8.0-windows `
-            --output "publish/net8" `
-            --self-contained false `
-            /p:NoWarn=NU1605 `
-            /p:CopyLocalLockFileAssemblies=true
-          
+            --configuration ReleaseNET8 --framework net8.0-windows --output "publish/net8" `
+            --self-contained false /p:NoWarn=NU1605 /p:CopyLocalLockFileAssemblies=true
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
     # 5. STAGE ALL FILES FOR WIX
@@ -138,8 +123,6 @@ stages:
           $version = "$(AppVersion)"
           $stagePath = "D:\a\1\s\Deployment\OutputFiles\Rhino.Inside.AutoCAD.$version"
           $nugetCache = "$env:USERPROFILE\.nuget\packages"
-          
-          # DLLs to EXCLUDE
           $excludePattern = '^(RhinoCommon|RhinoWindows|Grasshopper|GH_IO|Eto\.|Acdbmgd|accoremgd|acmgd)'
           
           # Create Directory Structure
@@ -156,56 +139,31 @@ stages:
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/PackageContents.xml" "$stagePath\" -Force -ErrorAction SilentlyContinue
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Resources/*" "$stagePath\Resources\" -Force -ErrorAction SilentlyContinue
 
-          # Copy NET48 DLLs from publish
-          Write-Host "Copying NET48 DLLs from publish..."
+          # Copy DLLs from publish
           Get-ChildItem "publish/net48/*.dll" | Where-Object { $_.Name -notmatch $excludePattern } | ForEach-Object {
             Copy-Item $_.FullName "$stagePath\$version\Win64\NET48\" -Force
           }
-
-          # Copy NET8 DLLs from publish
-          Write-Host "Copying NET8 DLLs from publish..."
           Get-ChildItem "publish/net8/*.dll" | Where-Object { $_.Name -notmatch $excludePattern } | ForEach-Object {
             Copy-Item $_.FullName "$stagePath\$version\Win64\NET8\" -Force
           }
 
-          # Function to find and copy DLL from NuGet cache
-          function Copy-FromNuGet {
-            param($DllName, $PackageName, $DestNet48, $DestNet8)
-            
+          # Copy missing DLLs from NuGet cache
+          function Copy-FromNuGet($DllName, $PackageName, $DestNet48, $DestNet8) {
             $packagePath = Join-Path $nugetCache $PackageName.ToLower()
-            if (-not (Test-Path $packagePath)) {
-              Write-Host "  ERROR: Package $PackageName not found at $packagePath" -ForegroundColor Red
-              return
-            }
+            if (-not (Test-Path $packagePath)) { return }
             
-            # Find DLL for NET48
             if (-not (Test-Path $DestNet48)) {
-              $net48Dll = Get-ChildItem -Path $packagePath -Recurse -Filter $DllName -ErrorAction SilentlyContinue | 
-                Where-Object { $_.FullName -match '(netstandard2\.0|net4[0-9]|lib[\\/]net)' } |
-                Select-Object -First 1
-              
-              if ($net48Dll) {
-                Copy-Item $net48Dll.FullName $DestNet48 -Force
-                Write-Host "  NET48: $DllName" -ForegroundColor Green
-              }
+              $dll = Get-ChildItem -Path $packagePath -Recurse -Filter $DllName -EA SilentlyContinue | 
+                Where-Object { $_.FullName -match '(netstandard2\.0|net4)' } | Select-Object -First 1
+              if ($dll) { Copy-Item $dll.FullName $DestNet48 -Force }
             }
-            
-            # Find DLL for NET8
             if (-not (Test-Path $DestNet8)) {
-              $net8Dll = Get-ChildItem -Path $packagePath -Recurse -Filter $DllName -ErrorAction SilentlyContinue | 
-                Where-Object { $_.FullName -match '(net8|net7|net6|netstandard2\.)' } |
-                Select-Object -First 1
-              
-              if ($net8Dll) {
-                Copy-Item $net8Dll.FullName $DestNet8 -Force
-                Write-Host "  NET8: $DllName" -ForegroundColor Green
-              } else {
-                Write-Host "  NET8: $DllName NOT FOUND in $packagePath" -ForegroundColor Red
-              }
+              $dll = Get-ChildItem -Path $packagePath -Recurse -Filter $DllName -EA SilentlyContinue | 
+                Where-Object { $_.FullName -match '(net8|net7|net6|netstandard2\.)' } | Select-Object -First 1
+              if ($dll) { Copy-Item $dll.FullName $DestNet8 -Force }
             }
           }
 
-          # Required DLLs mapping: DllName -> PackageName
           $requiredFromNuGet = @{
             "System.Collections.Immutable.dll" = "system.collections.immutable"
             "System.Reflection.Metadata.dll" = "system.reflection.metadata"
@@ -218,23 +176,10 @@ stages:
             "System.Text.Json.dll" = "system.text.json"
           }
 
-          Write-Host "`nCopying missing DLLs from NuGet cache..."
           foreach ($entry in $requiredFromNuGet.GetEnumerator()) {
-            $dllName = $entry.Key
-            $packageName = $entry.Value
-            $destNet48 = "$stagePath\$version\Win64\NET48\$dllName"
-            $destNet8 = "$stagePath\$version\Win64\NET8\$dllName"
-            
-            if ((Test-Path $destNet48) -and (Test-Path $destNet8)) {
-              Write-Host "  Already have: $dllName"
-              continue
-            }
-            
-            Copy-FromNuGet -DllName $dllName -PackageName $packageName -DestNet48 $destNet48 -DestNet8 $destNet8
+            Copy-FromNuGet $entry.Key $entry.Value "$stagePath\$version\Win64\NET48\$($entry.Key)" "$stagePath\$version\Win64\NET8\$($entry.Key)"
           }
 
-          # Final count
-          Write-Host "`n=== Final DLL counts ==="
           Write-Host "NET48: $((@(Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll")).Count) DLLs"
           Write-Host "NET8: $((@(Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll")).Count) DLLs"
 
@@ -271,25 +216,65 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'installer'
 
-    # 9. GITHUB RELEASE
+    # 9. GITHUB RELEASE (your working script)
     - task: PowerShell@2
       displayName: 'Create GitHub Release'
       inputs:
         targetType: 'inline'
         script: |
-          $version = "$(AppVersion)"
+          # Find the MSI and extract version from filename
           $msiFile = Get-ChildItem "$(Build.ArtifactStagingDirectory)/*.msi" | Select-Object -First 1
-          if (-not $msiFile) { throw "MSI not found!" }
+          $msiName = $msiFile.Name
           
-          $headers = @{"Authorization" = "token $(GITHUB_PAT)"; "Accept" = "application/vnd.github.v3+json"}
+          # Extract version (e.g., "V1.0.0" from "Rhino.Inside.AutoCAD Installer NET8 V1.0.0.msi")
+          if ($msiName -match 'V(\d+\.\d+\.\d+)') {
+            $version = "v$($Matches[1])"
+          } else {
+            $version = "v$(Get-Date -Format 'yyyy.MM.dd')-build$(Build.BuildId)"
+          }
+          
+          Write-Host "Creating release: $version"
+          Write-Host "MSI file: $msiName"
+          
+          $headers = @{
+            "Authorization" = "token $(GITHUB_PAT)"
+            "Accept" = "application/vnd.github.v3+json"
+          }
+          
+          # Check if release already exists
+          $existingRelease = $null
+          try {
+            $existingRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/$(GITHUB_REPO)/releases/tags/$version" -Headers $headers -Method Get
+            Write-Host "Release $version already exists, deleting it..."
+            Invoke-RestMethod -Uri "https://api.github.com/repos/$(GITHUB_REPO)/releases/$($existingRelease.id)" -Headers $headers -Method Delete
+          } catch {
+            Write-Host "No existing release found for $version"
+          }
+          
+          # Create the release
           $releaseBody = @{
-            tag_name = "v$version"
-            target_commitish = "master"
-            name = "Release v$version"
-            body = "Automated build $(Build.BuildId)"
+            tag_name = $version
+            target_commitish = "main"
+            name = "Release $version"
+            body = "Automated release from Azure DevOps build $(Build.BuildId)"
+            draft = $false
+            prerelease = $false
           } | ConvertTo-Json
           
           $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$(GITHUB_REPO)/releases" -Headers $headers -Method Post -Body $releaseBody -ContentType "application/json"
-          $uploadUri = ($release.upload_url -replace '\{\?name,label\}', '') + "?name=$([Uri]::EscapeDataString($msiFile.Name))"
           
-          Invoke-RestMethod -Uri $uploadUri -Headers @{"Authorization" = "token $(GITHUB_PAT)"; "Content-Type" = "application/octet-stream"} -Method Post -InFile $msiFile.FullName
+          Write-Host "Release created with ID: $($release.id)"
+          
+          # Upload the MSI
+          $uploadUrl = $release.upload_url -replace '\{\?name,label\}', ''
+          $uploadHeaders = @{
+            "Authorization" = "token $(GITHUB_PAT)"
+            "Content-Type" = "application/octet-stream"
+          }
+          
+          $uploadUri = "$uploadUrl`?name=$([Uri]::EscapeDataString($msiName))"
+          Write-Host "Uploading to: $uploadUri"
+          
+          Invoke-RestMethod -Uri $uploadUri -Headers $uploadHeaders -Method Post -InFile $msiFile.FullName
+          
+          Write-Host "MSI uploaded successfully!"
