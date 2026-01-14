@@ -50,7 +50,7 @@ stages:
         msbuildArchitecture: 'x64'
         msbuildArgs: '/restore /m'
 
-    # 3. STAGE FILES FOR WIX
+    # 3. FIND AND STAGE FILES FOR WIX
     - task: PowerShell@2
       displayName: 'Stage Files for Installer'
       inputs:
@@ -59,14 +59,63 @@ stages:
           $version = "1.0.6"
           $stagePath = "D:\a\1\s\Deployment\OutputFiles\Rhino.Inside.AutoCAD.$version"
           
-          # Check if NET48 DLLs were built
-          $net48Path = "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/x64/Release/net48"
-          if (-not (Test-Path "$net48Path/*.dll")) {
-            Write-Error "NET48 DLLs not found at $net48Path"
+          Write-Host "=== SEARCHING FOR BUILT DLLS ===" -ForegroundColor Cyan
+          
+          # Search for Rhino.Inside DLLs anywhere in the src folder
+          Write-Host "`nSearching for Rhino.Inside*.dll files..."
+          $foundDlls = Get-ChildItem -Path "src" -Recurse -Filter "Rhino.Inside*.dll" -ErrorAction SilentlyContinue
+          if ($foundDlls) {
+            $foundDlls | ForEach-Object { Write-Host "  Found: $($_.FullName)" }
+          } else {
+            Write-Host "  No Rhino.Inside*.dll files found in src/"
+          }
+          
+          # Search specifically in bin folders
+          Write-Host "`nSearching in all bin folders..."
+          $binFolders = Get-ChildItem -Path "src" -Recurse -Directory -Filter "bin" -ErrorAction SilentlyContinue
+          foreach ($bin in $binFolders) {
+            Write-Host "  Bin folder: $($bin.FullName)"
+            $dlls = Get-ChildItem -Path $bin.FullName -Recurse -Filter "*.dll" -ErrorAction SilentlyContinue
+            if ($dlls) {
+              $dlls | ForEach-Object { Write-Host "    - $($_.FullName)" }
+            }
+          }
+          
+          # Try to find the actual NET48 output path
+          $possiblePaths = @(
+            "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/x64/Release/net48",
+            "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release/net48",
+            "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/x64/Release",
+            "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release",
+            "src/Rhino.Inside.AutoCAD.Core/bin/x64/Release/net48",
+            "src/Rhino.Inside.AutoCAD.Core/bin/Release/net48"
+          )
+          
+          $net48Path = $null
+          foreach ($path in $possiblePaths) {
+            Write-Host "`nChecking: $path"
+            if (Test-Path $path) {
+              $dlls = Get-ChildItem -Path $path -Filter "*.dll" -ErrorAction SilentlyContinue
+              if ($dlls) {
+                Write-Host "  FOUND DLLs here!" -ForegroundColor Green
+                $dlls | ForEach-Object { Write-Host "    - $($_.Name)" }
+                $net48Path = $path
+                break
+              } else {
+                Write-Host "  Path exists but no DLLs"
+              }
+            } else {
+              Write-Host "  Path does not exist"
+            }
+          }
+          
+          if (-not $net48Path) {
+            Write-Error "Could not find NET48 DLLs in any expected location"
             exit 1
           }
-          Write-Host "Found NET48 DLLs at $net48Path"
-          Get-ChildItem "$net48Path/*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
+          
+          Write-Host "`n=== STAGING FILES ===" -ForegroundColor Cyan
+          Write-Host "Using NET48 path: $net48Path"
           
           # Create Directory Structure
           New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Large512"
@@ -83,7 +132,7 @@ stages:
           # Copy NET48 DLLs
           Copy-Item "$net48Path/*.dll" "$stagePath\$version\Win64\NET48\" -Force
           
-          Write-Host "`nStaging complete. Contents:"
+          Write-Host "`nStaging complete. Final contents:"
           Get-ChildItem "$stagePath" -Recurse | ForEach-Object { Write-Host $_.FullName }
 
     # 4. ADD INSTALLER PROJECT BACK TO SOLUTION
