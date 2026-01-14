@@ -31,11 +31,13 @@ stages:
 
     # ---------------------------------------
     # Restore for WiX
-    # ---------------------------------------
-    - task: NuGetCommand@2
-      displayName: 'NuGet Restore'
+        # ---------------------------------------
+    - task: DotNetCoreCLI@2
+      displayName: 'Dotnet Restore'
       inputs:
-        restoreSolution: '$(solution)'
+        command: 'restore'
+        projects: '$(solution)'
+        feedsToUse: 'select'
 
     # ---------------------------------------
     # Build solution Net48
@@ -80,3 +82,68 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'installer'
         publishLocation: 'Container'
+
+    # ---------------------------------------
+    # Create on McNeel Gihub
+    # ---------------------------------------
+    - task: PowerShell@2
+      displayName: 'Create GitHub Release'
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Find the MSI and extract version from filename
+          $msiFile = Get-ChildItem "$(Build.ArtifactStagingDirectory)/*.msi" | Select-Object -First 1
+          $msiName = $msiFile.Name
+          
+          # Extract version (e.g., "V1.0.0" from "Rhino.Inside.AutoCAD Installer V1.0.0.msi")
+          if ($msiName -match 'V(\d+\.\d+\.\d+)') {
+            $version = "v$($Matches[1])"
+          } else {
+            $version = "v$(Get-Date -Format 'yyyy.MM.dd')-build$(Build.BuildId)"
+          }
+          
+          Write-Host "Creating release: $version"
+          Write-Host "MSI file: $msiName"
+          
+          $headers = @{
+            "Authorization" = "token $(GITHUB_PAT)"
+            "Accept" = "application/vnd.github.v3+json"
+          }
+          
+          # Check if release already exists
+          $existingRelease = $null
+          try {
+            $existingRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/$(GITHUB_REPO)/releases/tags/$version" -Headers $headers -Method Get
+            Write-Host "Release $version already exists, deleting it..."
+            Invoke-RestMethod -Uri "https://api.github.com/repos/$(GITHUB_REPO)/releases/$($existingRelease.id)" -Headers $headers -Method Delete
+          } catch {
+            Write-Host "No existing release found for $version"
+          }
+          
+          # Create the release
+          $releaseBody = @{
+            tag_name = $version
+            target_commitish = "main"
+            name = "Release $version"
+            body = "Automated release from Azure DevOps build $(Build.BuildId)"
+            draft = $false
+            prerelease = $false
+          } | ConvertTo-Json
+          
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$(GITHUB_REPO)/releases" -Headers $headers -Method Post -Body $releaseBody -ContentType "application/json"
+          
+          Write-Host "Release created with ID: $($release.id)"
+          
+          # Upload the MSI
+          $uploadUrl = $release.upload_url -replace '\{\?name,label\}', ''
+          $uploadHeaders = @{
+            "Authorization" = "token $(GITHUB_PAT)"
+            "Content-Type" = "application/octet-stream"
+          }
+          
+          $uploadUri = "$uploadUrl`?name=$([Uri]::EscapeDataString($msiName))"
+          Write-Host "Uploading to: $uploadUri"
+          
+          Invoke-RestMethod -Uri $uploadUri -Headers $uploadHeaders -Method Post -InFile $msiFile.FullName
+          
+          Write-Host "MSI uploaded successfully!"
