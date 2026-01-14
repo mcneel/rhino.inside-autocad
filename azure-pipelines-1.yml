@@ -64,7 +64,7 @@ stages:
         msbuildArchitecture: 'x64'
         msbuildArgs: '/restore /m'
 
-    # 3. PUBLISH NET8 (suppress RhinoCommon version warning)
+    # 3. PUBLISH NET8 (to get all dependencies)
     - task: PowerShell@2
       displayName: 'Publish NET8 Projects'
       inputs:
@@ -98,6 +98,9 @@ stages:
           $net48Path = "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release/net48"
           $net8Path = "publish/net8"
           
+          # DLLs to EXCLUDE (Rhino/Grasshopper/AutoCAD SDK - these are provided by the host apps)
+          $excludePattern = '^(RhinoCommon|RhinoWindows|Grasshopper|GH_IO|Eto\.|Acdbmgd|accoremgd|acmgd)'
+          
           # Create Directory Structure
           New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Large512" | Out-Null
           New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Small32" | Out-Null
@@ -110,21 +113,19 @@ stages:
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Toolbar/RhinoInsideAutocad_Toolbar.cuix" "$stagePath\Toolbar\" -Force -ErrorAction SilentlyContinue
           Copy-Item "src/Rhino.Inside.AutoCAD.Installer/PackageContents.xml" "$stagePath\" -Force -ErrorAction SilentlyContinue
 
-          # Copy NET48 DLLs (exclude Rhino/Grasshopper/AutoCAD)
+          # Copy NET48 DLLs (exclude only Rhino/Grasshopper/AutoCAD SDK)
           Write-Host "Copying NET48 DLLs..."
           Get-ChildItem "$net48Path/*.dll" | Where-Object { 
-            $_.Name -notmatch '^(Rhino|Grasshopper|Eto\.|AutoCAD|Acdbmgd|accoremgd|acmgd)' -and
-            $_.Name -notmatch 'RhinoCommon|RhinoWindows'
+            $_.Name -notmatch $excludePattern
           } | ForEach-Object {
             Copy-Item $_.FullName "$stagePath\$version\Win64\NET48\" -Force
           }
           Write-Host "  Copied $((@(Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll")).Count) DLLs"
 
-          # Copy NET8 DLLs (exclude Rhino/Grasshopper/AutoCAD)
+          # Copy NET8 DLLs (exclude only Rhino/Grasshopper/AutoCAD SDK)
           Write-Host "Copying NET8 DLLs..."
           Get-ChildItem "$net8Path/*.dll" | Where-Object { 
-            $_.Name -notmatch '^(Rhino|Grasshopper|Eto\.|AutoCAD|Acdbmgd|accoremgd|acmgd)' -and
-            $_.Name -notmatch 'RhinoCommon|RhinoWindows'
+            $_.Name -notmatch $excludePattern
           } | ForEach-Object {
             Copy-Item $_.FullName "$stagePath\$version\Win64\NET8\" -Force
           }
