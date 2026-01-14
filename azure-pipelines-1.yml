@@ -35,6 +35,23 @@ stages:
         command: 'restore'
         projects: '$(solution)'
 
+    # 0. CREATE DIRECTORY.BUILD.PROPS TO SUPPRESS WARNINGS
+    - task: PowerShell@2
+      displayName: 'Create Directory.Build.props'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $propsContent = @"
+          <Project>
+            <PropertyGroup>
+              <NoWarn>`$(NoWarn);CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS1591;CS1570;CS1574;MSB3270;NU1608;CS0168;CS0108;CS8766</NoWarn>
+            </PropertyGroup>
+          </Project>
+          "@
+          Set-Content -Path "Directory.Build.props" -Value $propsContent
+          Write-Host "Created Directory.Build.props"
+          Get-Content "Directory.Build.props"
+
     # 1. BUILD NET48 PROJECTS ONLY
     - task: PowerShell@2
       displayName: 'Build Code (Release - net48)'
@@ -51,7 +68,7 @@ stages:
           
           foreach ($project in $projects) {
             Write-Host "Building $project..."
-            & dotnet build $project --configuration Release "-p:Platform=x64" --no-restore "-p:NoWarn=CS8600,CS8601,CS8602,CS8603,CS8604,CS8618,CS8625,CS1591,CS1570,CS1574,MSB3270,NU1608,CS0168,CS0108,CS8766"
+            & dotnet build $project --configuration Release -p:Platform=x64 --no-restore
             if ($LASTEXITCODE -ne 0) {
               Write-Error "Build failed for $project"
               exit 1
@@ -92,7 +109,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          & msbuild "$(solution)" /m /restore /p:Configuration=ReleaseNET8 /p:Platform=x64 "/p:NoWarn=CS8600,CS8601,CS8602,CS8603,CS8604,CS8618,CS8625,CS1591,CS1570,CS1574,MSB3270,NU1608,CS0168,CS0108,CS8766"
+          & msbuild Rhino.Inside.AutoCAD.sln /m /restore /p:Configuration=ReleaseNET8 /p:Platform=x64
           if ($LASTEXITCODE -ne 0) {
             Write-Error "Build failed"
             exit 1
