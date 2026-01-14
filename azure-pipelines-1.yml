@@ -48,7 +48,7 @@ stages:
         msbuildArchitecture: 'x64'
         msbuildArgs: >
           /m /restore 
-          /t:Rhino_Inside_AutoCAD_Core;Rhino_Inside_AutoCAD_Interop;Rhino_Inside_AutoCAD_Services;Rhino_Inside_AutoCAD_UI_Resources;Rhino_Inside_AutoCAD_GrasshopperLibrary
+          /t:Rhino_Inside_AutoCAD_Core:Build;Rhino_Inside_AutoCAD_Interop:Build;Rhino_Inside_AutoCAD_Services:Build;Rhino_Inside_AutoCAD_UI_Resources:Build;Rhino_Inside_AutoCAD_GrasshopperLibrary:Build
           /p:NoWarn="$(commonNoWarn)"
 
     # 2. STAGE FILES FOR WIX
