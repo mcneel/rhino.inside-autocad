@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>$(Framework)</TargetFramework>
+		<TargetFramework>$(TargetFrameworkName)</TargetFramework>
+		<Configurations>Release;Debug;ReleaseNET8;DebugNET8</Configurations>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<OutputType>Library</OutputType>
 		<Nullable>enable</Nullable>
@@ -12,13 +13,12 @@
 		<Copyright>$(BimorphCopyright)</Copyright>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
-		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	
 		<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <None Include="Types\Goo\AutocadObjects\GH_AutocadLayer.cs" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="NaturalSort.Extension" />
@@ -40,7 +40,6 @@
 			<PrivateAssets></PrivateAssets>
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>
-
 	</ItemGroup>
 
 	<ItemGroup>
@@ -49,9 +48,7 @@
 		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Interop\Rhino.Inside.AutoCAD.Interop.csproj" />	
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Reference Include="System.Windows.Forms" />
-	</ItemGroup>
+
 
 	<ItemGroup>
 	  <Compile Update="Properties\Resources.Designer.cs">

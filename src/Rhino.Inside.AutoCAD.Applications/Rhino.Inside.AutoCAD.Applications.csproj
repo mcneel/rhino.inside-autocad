@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>$(Framework)</TargetFramework>
+		<TargetFramework>$(TargetFrameworkName)</TargetFramework>
+		<Configurations>Release;Debug;ReleaseNET8;DebugNET8</Configurations>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<OutputType>Library</OutputType>
 		<Nullable>enable</Nullable>
@@ -12,23 +13,11 @@
 		<Copyright>$(BimorphCopyright)</Copyright>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<UseWPF>true</UseWPF>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Model\Infrastructure\**" />
-    <Compile Remove="Model\Ribbon Menu\**" />
-    <Compile Remove="Model\UI\**" />
-    <EmbeddedResource Remove="Model\Infrastructure\**" />
-    <EmbeddedResource Remove="Model\Ribbon Menu\**" />
-    <EmbeddedResource Remove="Model\UI\**" />
-    <None Remove="Model\Infrastructure\**" />
-    <None Remove="Model\Ribbon Menu\**" />
-    <None Remove="Model\UI\**" />
-    <Page Remove="Model\Infrastructure\**" />
-    <Page Remove="Model\Ribbon Menu\**" />
-    <Page Remove="Model\UI\**" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <None Remove="Icons\Large512\Grasshopper_Preview_Off.png" />
     <None Remove="Icons\Large512\Grasshopper_Preview_Off_Selected.png" />

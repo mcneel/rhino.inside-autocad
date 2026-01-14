@@ -1,10 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>$(Framework)</TargetFramework>
+		<TargetFramework>$(TargetFrameworkName)</TargetFramework>
+		<Configurations>Release;Debug;ReleaseNET8;DebugNET8</Configurations>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<OutputType>Library</OutputType>
 		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
 		<Nullable>enable</Nullable>
 		<LangVersion>preview</LangVersion>
 		<Version>$(AssemblyVersion)</Version>
@@ -14,6 +16,7 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
 
 	<ItemGroup>

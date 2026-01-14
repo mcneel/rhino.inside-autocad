@@ -16,8 +16,10 @@ public class RhinoCoreExtension : IRhinoCoreExtension
     private const string _rhinoPluginsFolderValueName = ApplicationConstants.RhinoPluginsFolderValueName;
     private const string _rhinoCommonAssemblyName = ApplicationConstants.RhinoCommonAssemblyName;
     private const string _grasshopperAssemblyName = ApplicationConstants.GrasshopperAssemblyName;
+    private const string _grasshopperIoAssemblyName = ApplicationConstants.GrasshopperIOAssemblyName;
     private const string _rhinoCommonDllName = ApplicationConstants.RhinoCommonDllName;
     private const string _grasshopperDllRelativePath = ApplicationConstants.GrasshopperDllRelativePath;
+    private const string _grasshopperIoDllRelativePath = ApplicationConstants.GrasshopperIoDllRelativePath;
     private const string _rhinoNoSplashArgument = ApplicationConstants.RhinoNoSplashArgument;
     private const string _rhinoSchemeArgumentFormat = ApplicationConstants.RhinoSchemeArgumentFormat;
     private const string _rhinoInsideSchemeNameFormat = ApplicationConstants.RhinoInsideSchemeNameFormat;
@@ -80,8 +82,21 @@ public class RhinoCoreExtension : IRhinoCoreExtension
         _rhinoInstallDirectoryExists = Directory.Exists(_systemDir);
         if (_rhinoInstallDirectoryExists)
         {
-            RegisterAssemblyResolver(_rhinoCommonAssemblyName, Path.Combine(_systemDir, _rhinoCommonDllName));
+
+#if DEBUGNET8  || RELEASENET8
+            RegisterAssemblyResolver(_rhinoCommonAssemblyName, Path.Combine(_systemDir, "netcore", _rhinoCommonDllName));
+            RegisterAssemblyResolver("Rhino.UI", Path.Combine(_systemDir, "netcore", "Rhino.UI.dll"));
+            RegisterAssemblyResolver("Mono.Cecil", Path.Combine(_systemDir, "netcore", "Mono.Cecil.dll"));
+#else
+       RegisterAssemblyResolver(_rhinoCommonAssemblyName, Path.Combine(_systemDir, _rhinoCommonDllName));
+         
+#endif
+
             RegisterAssemblyResolver(_grasshopperAssemblyName, Path.Combine(_pluginDir, _grasshopperDllRelativePath));
+
+            RegisterAssemblyResolver(_grasshopperIoAssemblyName, Path.Combine(_pluginDir, _grasshopperIoDllRelativePath));
+            RegisterAssemblyResolver("Eto", Path.Combine(_systemDir, "Eto.dll"));
+
         }
         else
         {
@@ -135,13 +150,22 @@ public class RhinoCoreExtension : IRhinoCoreExtension
 
             var style = WindowStyle.Hidden;
 
-            var args = new[]
-            {
-                    _rhinoNoSplashArgument,
-                    string.Format(_rhinoSchemeArgumentFormat, schemeName)
-                };
+            var autocadHandle = Autodesk.AutoCAD.ApplicationServices.Core.Application
+                .MainWindow.Handle;
 
-            _rhinoCore ??= new RhinoCore(args, style);
+            var args = new List<string>()
+            {
+               _rhinoNoSplashArgument,
+                string.Format(_rhinoSchemeArgumentFormat, schemeName)
+            };
+
+#if DEBUGNET8  || RELEASENET8
+            args.Add("/netcore");
+#else
+        args.Add("/netfx");
+#endif
+
+            _rhinoCore ??= new RhinoCore(args.ToArray(), style, autocadHandle);
 
             var mainWindow = RhinoApp.MainWindowHandle();
 

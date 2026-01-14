@@ -1,38 +1,47 @@
 ﻿<Project Sdk="WixToolset.Sdk/6.0.2">
   <PropertyGroup>
-    <TargetFramework>$(Framework)</TargetFramework>
+	  <TargetFramework>$(TargetFrameworkName)</TargetFramework>
+	  <Configurations>Release;Debug;ReleaseNET8;DebugNET8</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
-    <Configurations>Release;Debug;DebugBackwards</Configurations>
+    <Configurations>Release;Debug;DebugNET8;ReleaseNET8</Configurations>
     <Version>$(AssemblyVersion)</Version>
     <Product>$(AppName)</Product>
     <Company>$(CompanyName)</Company>
     <Copyright>Copyright © $(CompanyName) 2025</Copyright>
     <PlatformTarget>x64</PlatformTarget>
     <Platforms>x64</Platforms>
-    <DefineConstants>
-		$(DefineConstants);UpgradeCode=03C5A84C-F8F9-445E-921E-13D359E81D87
-		$(DefineConstants);RootComponentId=1E221361-0B7E-46D5-A77C-E64EF0D9E439
-		$(DefineConstants);IconId=54EFEEB6-68A4-4242-BF98-E7271EAAFC9D
-		$(DefineConstants);ResourcesId=C3CC1367-135B-4091-B5A3-DBE80AE61FC0
-		$(DefineConstants);WinId=188E81F1-7DC6-4539-B840-0947A788F688
-		$(DefineConstants);ToolbarId=D6EC6E9F-2949-475D-9E74-38D28DCA5ED0
-		$(DefineConstants);AppName=$(AppName)
-		$(DefineConstants);AppVersion=$(AssemblyVersion)
-		$(DefineConstants);AppRootDir=$(AppRootDir)
-		$(DefineConstants);CompanyName=$(CompanyName)
-		$(DefineConstants);RootDirectory=$(DeploymentPackage)
-		$(DefineConstants);RootDirectoryVersion=$(DeploymentPackageVersioned)
-		$(DefineConstants);IconsDirectory=$(DeploymentPackage)Icons/
-		$(DefineConstants);ResourcesDirectory=$(DeploymentPackage)Resources/
-		$(DefineConstants);ToolbarDirectory=$(DeploymentPackage)Toolbar/
-		$(DefineConstants);AssembliesDirectory=$(DeploymentPackage_Win64)
-		$(DefineConstants);RegistryKey=Software\Autodesk\AutoCAD\R24.3\ACAD-7101:409\Applications\Rhino.Inside.AutoCAD
-		$(DefineConstants);InstallLocation=$(AppRootDir)
-		$(DefineConstants);InstallLocationAssemblies=$(AppRootDirAssemblies)
-		$(DefineConstants);Bitness=always64
-	</DefineConstants>
+	
+		  <DefineConstants>
+			  $(DefineConstants);UpgradeCode=03C5A84C-F8F9-445E-921E-13D359E81D87
+			  $(DefineConstants);RootComponentId=1E221361-0B7E-46D5-A77C-E64EF0D9E439
+			  $(DefineConstants);IconId=54EFEEB6-68A4-4242-BF98-E7271EAAFC9D
+			  $(DefineConstants);ResourcesId=C3CC1367-135B-4091-B5A3-DBE80AE61FC0
+			  $(DefineConstants);WinId=188E81F1-7DC6-4539-B840-0947A788F688
+			  $(DefineConstants);Net48Id=17C90C64-D6BF-4B92-856B-C62801EF35B8
+			  $(DefineConstants);Net8Id=A412BF15-442C-4574-B0C8-41BF9B9E8B1F
+			  $(DefineConstants);ToolbarId=D6EC6E9F-2949-475D-9E74-38D28DCA5ED0
+			  $(DefineConstants);AppName=$(AppName)
+			  $(DefineConstants);AppVersion=$(AssemblyVersion)
+			  $(DefineConstants);AppRootDir=$(AppRootDir)
+			  $(DefineConstants);CompanyName=$(CompanyName)
+			  $(DefineConstants);RootDirectory=$(DeploymentPackage)
+			  $(DefineConstants);RootDirectoryVersion=$(DeploymentPackageVersioned)
+			  $(DefineConstants);IconsDirectory=$(DeploymentPackage)Icons/
+			  $(DefineConstants);ResourcesDirectory=$(DeploymentPackage)Resources/
+			  $(DefineConstants);ToolbarDirectory=$(DeploymentPackage)Toolbar/
+			  $(DefineConstants);AssembliesDirectoryNET48=$(DeploymentPackageVersioned)Win64\NET48\
+			  $(DefineConstants);AssembliesDirectoryNET8=$(DeploymentPackageVersioned)Win64\NET8\
+			  $(DefineConstants);RegistryKey=Software\Autodesk\AutoCAD\R24.3\ACAD-7101:409\Applications\Rhino.Inside.AutoCAD
+			  $(DefineConstants);InstallLocation=$(AppRootDir)
+			  $(DefineConstants);InstallLocationAssemblies=$(AppRootDirAssemblies)
+			  $(DefineConstants);Bitness=always64
+			  $(DefineConstants);RuntimeName=$(RuntimeName)
+		  </DefineConstants>
+	 
+	  
+   
     <OutputName>$(AppName) Installer $(RuntimeName) V$(AssemblyVersion)</OutputName>
     <SuppressIces>ICE64</SuppressIces>
   </PropertyGroup>

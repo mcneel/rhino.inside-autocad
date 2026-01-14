@@ -5,30 +5,43 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <!-- Assembly redirect nugets -->
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+ 
     <!-- MVVM Toolkits -->
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <!-- Rhino and AutoCAD API nugets -->
-    <PackageVersion Include="AutoCAD.NET.Model" Version="24.3.0" />
-    <PackageVersion Include="AutoCAD.NET.Core" Version="24.3.0" />
-    <PackageVersion Include="AutoCAD.NET" Version="24.3.0" />
-    <PackageVersion Include="RhinoCommon" Version="8.0.23304.9001" />
-    <PackageVersion Include="RhinoWindows" Version="7.36.23346.16351" />
-    <PackageVersion Include="Grasshopper" Version="8.0.23304.9001" />
+    <!-- AutoCAD API nugets -->
+    <PackageVersion Include="AutoCAD.NET.Model" Version="24.3.0" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'" />
+    <PackageVersion Include="AutoCAD.NET.Core" Version="24.3.0" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'" />
+    <PackageVersion Include="AutoCAD.NET" Version="24.3.0" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'" />
+    <PackageVersion Include="AutoCAD.NET.Model" Version="25.1.0" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'" />
+    <PackageVersion Include="AutoCAD.NET.Core" Version="25.1.0" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'" />
+    <PackageVersion Include="AutoCAD.NET" Version="25.1.0" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'" />
+    <!-- Rhino API nugets -->
+    <PackageVersion Include="RhinoCommon" Version="8.0.23304.9001" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'" />
+    <PackageVersion Include="RhinoWindows" Version="7.36.23346.16351" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'" />
+    <PackageVersion Include="Grasshopper" Version="8.0.23304.9001" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'" />
+    <PackageVersion Include="RhinoCommon" Version="8.26.25349.19001" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'" />
+    <PackageVersion Include="RhinoWindows" Version="8.27.25357.11371-rc" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'" />
+    <PackageVersion Include="Grasshopper" Version="8.26.25349.19001" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'" />
     <!-- Material Design Themes -->
     <PackageVersion Include="MaterialDesignThemes" Version="4.9.0" />
     <!-- Infrastrucure -->
     <PackageVersion Include="NaturalSort.Extension" Version="4.3.0" />
-    <PackageVersion Include="System.Resources.Extensions" Version="9.0.0" />
-    <!-- Text.JSON nuget -->
-    <PackageVersion Include="System.Text.Json" Version="9.0.0" />
+    <PackageVersion Include="System.Resources.Extensions" Version="8.0.0" />
+    <!-- Text.JSON nuget  : -Note Net4.8 is Higher-->
+    <PackageVersion Include="System.Text.Json" Version="9.0.0" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'"/>
+    <PackageVersion Include="System.Text.Json" Version="8.0.5" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'" />
     <!-- Deployment -->
     <PackageVersion Include="WixToolset.UI.wixext" Version="6.0.2" />
-    <!--Logging-->
+    <!--Logging : -Note Net4.8 is Higher-->
     <PackageVersion Include="Serilog" Version="4.2.0" />
-    <PackageVersion Include="Serilog.Settings.Configuration" Version="9.0.0" />
+
+    <PackageVersion Include="Serilog.Settings.Configuration" Version="9.0.0" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'"/>
+    <PackageVersion Include="Serilog.Settings.Configuration" Version="8.0.0" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'"/>
     <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageVersion Include="System.Drawing.Common" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.0"  Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'"/>
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'"  />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'"/>
   </ItemGroup>
 </Project>

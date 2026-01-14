@@ -59,10 +59,12 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
         }
         catch (System.Exception e)
         {
-            editor?.WriteMessage(string.Format(_applicationLoadErrorMessageFormat, e.Message));
+            var message = string.Format(_applicationLoadErrorMessageFormat, e.Message);
+
+            editor?.WriteMessage(message);
             editor?.WriteMessage(string.Format(_stackTraceMessageFormat, e.StackTrace));
 
-            Autodesk.AutoCAD.ApplicationServices.Core.Application.ShowAlertDialog(_applicationLoadErrorMessageFormat);
+            Autodesk.AutoCAD.ApplicationServices.Core.Application.ShowAlertDialog(message);
 
             throw;
         }

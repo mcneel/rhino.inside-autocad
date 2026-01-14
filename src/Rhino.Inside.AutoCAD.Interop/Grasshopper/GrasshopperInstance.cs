@@ -2,7 +2,6 @@
 using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.UI;
 using System.Reflection;
 
 namespace Rhino.Inside.AutoCAD.Interop;
@@ -18,6 +17,7 @@ public class GrasshopperInstance : IGrasshopperInstance
     private const string _grasshopperLibraryFileName = InteropConstants.GrasshopperLibraryFileName;
     private const string _loadGhaMethodNotFound = MessageConstants.LoadGhaMethodNotFound;
     private const string _grasshopperInitializationFailed = MessageConstants.GrasshopperInitializationFailed;
+    private static readonly Guid _grasshopperPlugInId = Guid.Parse("b45a29b1-4343-4035-989e-044e8580d9cf");
 
     /// <inheritdoc />
     public event EventHandler<IGrasshopperObjectModifiedEventArgs>? OnPreviewExpired;
@@ -66,7 +66,7 @@ public class GrasshopperInstance : IGrasshopperInstance
 
         var comparer = new GH_AssemblyInfoStubComparer();
 
-        if (Grasshopper.Instances.ComponentServer.Libraries.Contains(assemblyInfo, comparer) ==
+        if (Instances.ComponentServer.Libraries.Contains(assemblyInfo, comparer) ==
             false)
         {
             var loadGhaMethod = typeof(GH_ComponentServer).GetMethod(
@@ -90,6 +90,8 @@ public class GrasshopperInstance : IGrasshopperInstance
         }
     }
 
+    private int count = 0;
+
     /// <summary>
     /// Loads and initializes the Grasshopper environment.
     /// </summary>
@@ -106,7 +108,6 @@ public class GrasshopperInstance : IGrasshopperInstance
     {
         try
         {
-            this.LoadGrasshopperLibrary();
 
             GooTypeRegistry.Initialize();
 
@@ -125,6 +126,9 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// </summary>
     private void OnCanvasCreated(GH_Canvas canvas)
     {
+
+        this.LoadGrasshopperLibrary();
+
         var activeCanvas = Grasshopper.Instances.ActiveCanvas;
         activeCanvas.DocumentChanged += this.OnDocumentChanged;
     }
@@ -316,23 +320,23 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// </summary>
     public void Shutdown()
     {
-        if (this.ActiveDoc != null && this.ActiveDoc.IsModified)
-        {
-            if (Rhino.UI.Dialogs.ShowMessage("Save changes to Grasshopper Document",
-                     "Grasshopper Save Changes", ShowMessageButton.YesNo,
-                     ShowMessageIcon.Warning) == ShowMessageResult.Yes)
-            {
-                var ghDocumentIo = new GH_DocumentIO(this.ActiveDoc);
-                if (!string.IsNullOrEmpty(this.ActiveDoc.FilePath))
-                {
-                    ghDocumentIo.Save();
-                }
-                else
-                {
-                    ghDocumentIo.SaveAs();
-                }
-            }
-        }
+        /*  if (this.ActiveDoc != null && this.ActiveDoc.IsModified)
+          {
+              if (Rhino.UI.Dialogs.ShowMessage("Save changes to Grasshopper Document",
+                       "Grasshopper Save Changes", ShowMessageButton.YesNo,
+                       ShowMessageIcon.Warning) == ShowMessageResult.Yes)
+              {
+                  var ghDocumentIo = new GH_DocumentIO(this.ActiveDoc);
+                  if (!string.IsNullOrEmpty(this.ActiveDoc.FilePath))
+                  {
+                      ghDocumentIo.Save();
+                  }
+                  else
+                  {
+                      ghDocumentIo.SaveAs();
+                  }
+              }
+          }*/
 
         this.RemoveDocumentSubscriptions();
 

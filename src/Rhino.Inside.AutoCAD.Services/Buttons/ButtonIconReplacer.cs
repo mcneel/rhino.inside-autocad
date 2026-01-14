@@ -1,8 +1,6 @@
-﻿using Autodesk.AutoCAD.BoundaryRepresentation;
-using Autodesk.Windows;
+﻿using Autodesk.Windows;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using System.Windows.Media.Imaging;
-using Exception = Autodesk.AutoCAD.BoundaryRepresentation.Exception;
 
 namespace Rhino.Inside.AutoCAD.Services;
 
@@ -112,7 +110,7 @@ public class ButtonIconReplacer : IButtonIconReplacer
     {
         if (this.FindRhinoInsideTab(out var rhinoInsideTab) == false)
         {
-            throw new Exception(ErrorStatus.InvalidInput, _rhinoInsideTabNotLoadedError);
+            throw new System.Exception(_rhinoInsideTabNotLoadedError);
         }
 
         if (this.FindButton(rhinoInsideTab!, out var button))

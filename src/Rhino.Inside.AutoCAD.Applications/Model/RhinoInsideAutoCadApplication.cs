@@ -3,6 +3,7 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using Rhino.Inside.AutoCAD.Services;
 using Rhino.Inside.AutoCAD.UI.Resources.Models;
+using System.IO;
 using System.Reflection;
 
 namespace Rhino.Inside.AutoCAD.Applications;
@@ -109,6 +110,8 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
             this.Bootstrapper?.AssemblyManager.ShutDown();
 
             RhinoCoreExtension.Instance.Shutdown();
+
+            LoggerService.Instance?.Shutdown();
 
         }
         catch (System.Exception e)

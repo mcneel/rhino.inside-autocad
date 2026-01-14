@@ -141,9 +141,9 @@
 		</DirectoryRef>
 
 
-		<DirectoryRef Id="Win64Folder">
+		<DirectoryRef Id="NET48Folder">
 			<!-- Assemblies -->
-			<Component Id="Win64" Guid="$(var.WinId)"
+			<Component Id="Net48" Guid="$(var.Net48Id)"
 			           Bitness="$(var.Bitness)">
 
 
@@ -157,54 +157,123 @@
 				<RemoveRegistryKey Root="HKCU"
 				                   Key="$(var.RegistryKey)" Action="removeOnUninstall" />
 
-				<RemoveFolder Id='RemoveWin64Folder' On='uninstall' />
+				<RemoveFolder Id='RemoveNet48Folder' On='uninstall' />
 
 
-				<File Id="Serilog.dll" Source="$(var.AssembliesDirectory)Serilog.dll" Vital="yes" />
-				<File Id="Serilog.Settings.Configuration.dll" Source="$(var.AssembliesDirectory)Serilog.Settings.Configuration.dll" Vital="yes" />
-				<File Id="Serilog.Sinks.File.dll" Source="$(var.AssembliesDirectory)Serilog.Sinks.File.dll" Vital="yes" />
-				<File Id="System.Buffers.dll" Source="$(var.AssembliesDirectory)System.Buffers.dll" Vital="yes" />
-				<File Id="System.Collections.Immutable.dll" Source="$(var.AssembliesDirectory)System.Collections.Immutable.dll" Vital="yes" />
-				<File Id="System.ComponentModel.Annotations.dll" Source="$(var.AssembliesDirectory)System.ComponentModel.Annotations.dll" Vital="yes" />
-				<File Id="System.Diagnostics.DiagnosticSource.dll" Source="$(var.AssembliesDirectory)System.Diagnostics.DiagnosticSource.dll" Vital="yes" />
-				<File Id="System.Formats.Nrbf.dll" Source="$(var.AssembliesDirectory)System.Formats.Nrbf.dll" Vital="yes" />
-				<File Id="System.IO.Pipelines.dll" Source="$(var.AssembliesDirectory)System.IO.Pipelines.dll" Vital="yes" />
-				<File Id="System.Memory.dll" Source="$(var.AssembliesDirectory)System.Memory.dll" Vital="yes" />
-				<File Id="System.Numerics.Vectors.dll" Source="$(var.AssembliesDirectory)System.Numerics.Vectors.dll" Vital="yes" />
-				<File Id="System.Reflection.Metadata.dll" Source="$(var.AssembliesDirectory)System.Reflection.Metadata.dll" Vital="yes" />
-				<File Id="System.Resources.Extensions.dll" Source="$(var.AssembliesDirectory)System.Resources.Extensions.dll" Vital="yes" />
-				<File Id="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.AssembliesDirectory)System.Runtime.CompilerServices.Unsafe.dll" Vital="yes" />
-				<File Id="System.Text.Encodings.Web.dll" Source="$(var.AssembliesDirectory)System.Text.Encodings.Web.dll" Vital="yes" />
-				<File Id="System.Text.Json.dll" Source="$(var.AssembliesDirectory)System.Text.Json.dll" Vital="yes" />
-				<File Id="System.Threading.Channels.dll" Source="$(var.AssembliesDirectory)System.Threading.Channels.dll" Vital="yes" />
-				<File Id="System.Threading.Tasks.Extensions.dll" Source="$(var.AssembliesDirectory)System.Threading.Tasks.Extensions.dll" Vital="yes" />
-				<File Id="System.ValueTuple.dll" Source="$(var.AssembliesDirectory)System.ValueTuple.dll" Vital="yes" />
-				<File Id="CommunityToolkit.Mvvm.dll" Source="$(var.AssembliesDirectory)CommunityToolkit.Mvvm.dll" Vital="yes" />
-				<File Id="MaterialDesignColors.dll" Source="$(var.AssembliesDirectory)MaterialDesignColors.dll" Vital="yes" />
-				<File Id="MaterialDesignThemes.Wpf.dll" Source="$(var.AssembliesDirectory)MaterialDesignThemes.Wpf.dll" Vital="yes" />
-				<File Id="Microsoft.Bcl.AsyncInterfaces.dll" Source="$(var.AssembliesDirectory)Microsoft.Bcl.AsyncInterfaces.dll" Vital="yes" />
-				<File Id="Microsoft.Bcl.HashCode.dll" Source="$(var.AssembliesDirectory)Microsoft.Bcl.HashCode.dll" Vital="yes" />
-				<File Id="Microsoft.Extensions.Configuration.Abstractions.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Configuration.Abstractions.dll" Vital="yes" />
-				<File Id="Microsoft.Extensions.Configuration.Binder.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Configuration.Binder.dll" Vital="yes" />
-				<File Id="Microsoft.Extensions.Configuration.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Configuration.dll" Vital="yes" />
-				<File Id="Microsoft.Extensions.Configuration.FileExtensions.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Configuration.FileExtensions.dll" Vital="yes" />
-				<File Id="Microsoft.Extensions.Configuration.Json.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Configuration.Json.dll" Vital="yes" />
-				<File Id="Microsoft.Extensions.DependencyModel.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.DependencyModel.dll" Vital="yes" />
-				<File Id="Microsoft.Extensions.FileProviders.Abstractions.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.FileProviders.Abstractions.dll" Vital="yes" />
-				<File Id="Microsoft.Extensions.FileProviders.Physical.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.FileProviders.Physical.dll" Vital="yes" />
-				<File Id="Microsoft.Extensions.FileSystemGlobbing.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.FileSystemGlobbing.dll" Vital="yes" />
-				<File Id="Microsoft.Extensions.Primitives.dll" Source="$(var.AssembliesDirectory)Microsoft.Extensions.Primitives.dll" Vital="yes" />
-				<File Id="Microsoft.Xaml.Behaviors.dll" Source="$(var.AssembliesDirectory)Microsoft.Xaml.Behaviors.dll" Vital="yes" />
-				<File Id="NaturalSort.Extension.dll" Source="$(var.AssembliesDirectory)NaturalSort.Extension.dll" Vital="yes" />
-				<File Id="Rhino.Inside.AutoCAD.Applications.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.Applications.dll" Vital="yes" />
-				<File Id="Rhino.Inside.AutoCAD.Core.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.Core.dll" Vital="yes" />
-				<File Id="Rhino.Inside.AutoCAD.GrasshopperLibrary.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.GrasshopperLibrary.dll" Vital="yes" />
-				<File Id="Rhino.Inside.AutoCAD.Interop.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.Interop.dll" Vital="yes" />
-				<File Id="Rhino.Inside.AutoCAD.Services.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.Services.dll" Vital="yes" />
-				<File Id="Rhino.Inside.AutoCAD.UI.Resources.dll" Source="$(var.AssembliesDirectory)Rhino.Inside.AutoCAD.UI.Resources.dll" Vital="yes" />
+				<!-- Net 48 Assemblies -->
+				<File Id="Serilog.dll" Source="$(var.AssembliesDirectoryNET48)Serilog.dll" Vital="yes" />
+				<File Id="Serilog.Settings.Configuration.dll" Source="$(var.AssembliesDirectoryNET48)Serilog.Settings.Configuration.dll" Vital="yes" />
+				<File Id="Serilog.Sinks.File.dll" Source="$(var.AssembliesDirectoryNET48)Serilog.Sinks.File.dll" Vital="yes" />
+				<File Id="System.Buffers.dll" Source="$(var.AssembliesDirectoryNET48)System.Buffers.dll" Vital="yes" />
+				<File Id="System.Collections.Immutable.dll" Source="$(var.AssembliesDirectoryNET48)System.Collections.Immutable.dll" Vital="yes" />
+				<File Id="System.ComponentModel.Annotations.dll" Source="$(var.AssembliesDirectoryNET48)System.ComponentModel.Annotations.dll" Vital="yes" />
+				<File Id="System.Diagnostics.DiagnosticSource.dll" Source="$(var.AssembliesDirectoryNET48)System.Diagnostics.DiagnosticSource.dll" Vital="yes" />
+				<File Id="System.Formats.Nrbf.dll" Source="$(var.AssembliesDirectoryNET48)System.Formats.Nrbf.dll" Vital="yes" />
+				<File Id="System.IO.Pipelines.dll" Source="$(var.AssembliesDirectoryNET48)System.IO.Pipelines.dll" Vital="yes" />
+				<File Id="System.Memory.dll" Source="$(var.AssembliesDirectoryNET48)System.Memory.dll" Vital="yes" />
+				<File Id="System.Numerics.Vectors.dll" Source="$(var.AssembliesDirectoryNET48)System.Numerics.Vectors.dll" Vital="yes" />
+				<File Id="System.Reflection.Metadata.dll" Source="$(var.AssembliesDirectoryNET48)System.Reflection.Metadata.dll" Vital="yes" />
+				<File Id="System.Resources.Extensions.dll" Source="$(var.AssembliesDirectoryNET48)System.Resources.Extensions.dll" Vital="yes" />
+				<File Id="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.AssembliesDirectoryNET48)System.Runtime.CompilerServices.Unsafe.dll" Vital="yes" />
+				<File Id="System.Text.Encodings.Web.dll" Source="$(var.AssembliesDirectoryNET48)System.Text.Encodings.Web.dll" Vital="yes" />
+				<File Id="System.Text.Json.dll" Source="$(var.AssembliesDirectoryNET48)System.Text.Json.dll" Vital="yes" />
+				<File Id="System.Threading.Channels.dll" Source="$(var.AssembliesDirectoryNET48)System.Threading.Channels.dll" Vital="yes" />
+				<File Id="System.Threading.Tasks.Extensions.dll" Source="$(var.AssembliesDirectoryNET48)System.Threading.Tasks.Extensions.dll" Vital="yes" />
+				<File Id="System.ValueTuple.dll" Source="$(var.AssembliesDirectoryNET48)System.ValueTuple.dll" Vital="yes" />
+				<File Id="CommunityToolkit.Mvvm.dll" Source="$(var.AssembliesDirectoryNET48)CommunityToolkit.Mvvm.dll" Vital="yes" />
+				<File Id="MaterialDesignColors.dll" Source="$(var.AssembliesDirectoryNET48)MaterialDesignColors.dll" Vital="yes" />
+				<File Id="MaterialDesignThemes.Wpf.dll" Source="$(var.AssembliesDirectoryNET48)MaterialDesignThemes.Wpf.dll" Vital="yes" />
+				<File Id="Microsoft.Bcl.AsyncInterfaces.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Bcl.AsyncInterfaces.dll" Vital="yes" />
+				<File Id="Microsoft.Bcl.HashCode.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Bcl.HashCode.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.Abstractions.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Extensions.Configuration.Abstractions.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.Binder.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Extensions.Configuration.Binder.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Extensions.Configuration.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.FileExtensions.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Extensions.Configuration.FileExtensions.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.Json.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Extensions.Configuration.Json.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.DependencyModel.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Extensions.DependencyModel.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.FileProviders.Abstractions.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Extensions.FileProviders.Abstractions.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.FileProviders.Physical.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Extensions.FileProviders.Physical.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.FileSystemGlobbing.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Extensions.FileSystemGlobbing.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Primitives.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Extensions.Primitives.dll" Vital="yes" />
+				<File Id="Microsoft.Xaml.Behaviors.dll" Source="$(var.AssembliesDirectoryNET48)Microsoft.Xaml.Behaviors.dll" Vital="yes" />
+				<File Id="NaturalSort.Extension.dll" Source="$(var.AssembliesDirectoryNET48)NaturalSort.Extension.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.Applications.dll" Source="$(var.AssembliesDirectoryNET48)Rhino.Inside.AutoCAD.Applications.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.Core.dll" Source="$(var.AssembliesDirectoryNET48)Rhino.Inside.AutoCAD.Core.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.GrasshopperLibrary.dll" Source="$(var.AssembliesDirectoryNET48)Rhino.Inside.AutoCAD.GrasshopperLibrary.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.Interop.dll" Source="$(var.AssembliesDirectoryNET48)Rhino.Inside.AutoCAD.Interop.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.Services.dll" Source="$(var.AssembliesDirectoryNET48)Rhino.Inside.AutoCAD.Services.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.UI.Resources.dll" Source="$(var.AssembliesDirectoryNET48)Rhino.Inside.AutoCAD.UI.Resources.dll" Vital="yes" />
+
+
+			
 				
 			</Component>
 		</DirectoryRef>
 
+
+		<DirectoryRef Id="NET8Folder">
+			<!-- Assemblies -->
+			<Component Id="Net8" Guid="$(var.Net8Id)"
+			           Bitness="$(var.Bitness)">
+
+
+				<RegistryValue Root='HKCU'
+				               Key="$(var.RegistryKey)"
+				               Name='InstallationPath'
+				               Value="$(var.InstallLocationAssemblies)"
+				               Type='string'
+				               KeyPath='yes'/>
+
+				<RemoveRegistryKey Root="HKCU"
+				                   Key="$(var.RegistryKey)" Action="removeOnUninstall" />
+
+				<RemoveFolder Id='RemoveNet8Folder' On='uninstall' />
+
+				<!-- Net 8 Assemblies -->
+				<File Id="SerilogNET8.dll" Source="$(var.AssembliesDirectoryNET8)Serilog.dll" Vital="yes" />
+				<File Id="Serilog.Settings.ConfigurationNET8.dll" Source="$(var.AssembliesDirectoryNET8)Serilog.Settings.Configuration.dll" Vital="yes" />
+				<File Id="Serilog.Sinks.FileNET8.dll" Source="$(var.AssembliesDirectoryNET8)Serilog.Sinks.File.dll" Vital="yes" />
+				<!--<File Id="System.BuffersNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Buffers.dll" Vital="yes" /> -->
+				<File Id="System.Collections.ImmutableNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Collections.Immutable.dll" Vital="yes" />
+				<!--<File Id="System.ComponentModel.AnnotationsNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.ComponentModel.Annotations.dll" Vital="yes" />
+				<File Id="System.Diagnostics.DiagnosticSourceNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Diagnostics.DiagnosticSource.dll" Vital="yes" />-->
+				<File Id="System.Formats.NrbfNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Formats.Nrbf.dll" Vital="yes" />
+				<File Id="System.IO.PipelinesNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.IO.Pipelines.dll" Vital="yes" />
+				<!--<File Id="System.MemoryNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Memory.dll" Vital="yes" />
+				<File Id="System.Numerics.VectorsNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Numerics.Vectors.dll" Vital="yes" />-->
+				<File Id="System.Reflection.MetadataNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Reflection.Metadata.dll" Vital="yes" />
+				<File Id="System.Resources.ExtensionsNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Resources.Extensions.dll" Vital="yes" />
+				<!--<File Id="System.Runtime.CompilerServices.UnsafeNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Runtime.CompilerServices.Unsafe.dll" Vital="yes" />-->
+				<File Id="System.Text.Encodings.WebNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Text.Encodings.Web.dll" Vital="yes" />
+				<File Id="System.Text.JsonNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Text.Json.dll" Vital="yes" />
+				<!--<File Id="System.Threading.ChannelsNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Threading.Channels.dll" Vital="yes" />
+				<File Id="System.Threading.Tasks.ExtensionsNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.Threading.Tasks.Extensions.dll" Vital="yes" />
+				<File Id="System.ValueTupleNET8.dll" Source="$(var.AssembliesDirectoryNET8)System.ValueTuple.dll" Vital="yes" />-->
+				<File Id="CommunityToolkit.MvvmNET8.dll" Source="$(var.AssembliesDirectoryNET8)CommunityToolkit.Mvvm.dll" Vital="yes" />
+				<File Id="MaterialDesignColorsNET8.dll" Source="$(var.AssembliesDirectoryNET8)MaterialDesignColors.dll" Vital="yes" />
+				<File Id="MaterialDesignThemes.WpfNET8.dll" Source="$(var.AssembliesDirectoryNET8)MaterialDesignThemes.Wpf.dll" Vital="yes" />
+				<!--<File Id="Microsoft.Bcl.AsyncInterfacesNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Bcl.AsyncInterfaces.dll" Vital="yes" />
+				<File Id="Microsoft.Bcl.HashCodeNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Bcl.HashCode.dll" Vital="yes" />-->
+				<File Id="Microsoft.Extensions.Configuration.AbstractionsNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Extensions.Configuration.Abstractions.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.BinderNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Extensions.Configuration.Binder.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.ConfigurationNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Extensions.Configuration.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.FileExtensionsNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Extensions.Configuration.FileExtensions.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.Configuration.JsonNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Extensions.Configuration.Json.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.DependencyModelNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Extensions.DependencyModel.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.FileProviders.AbstractionsNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Extensions.FileProviders.Abstractions.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.FileProviders.PhysicalNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Extensions.FileProviders.Physical.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.FileSystemGlobbingNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Extensions.FileSystemGlobbing.dll" Vital="yes" />
+				<File Id="Microsoft.Extensions.PrimitivesNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Extensions.Primitives.dll" Vital="yes" />
+				<File Id="Microsoft.Xaml.BehaviorsNET8.dll" Source="$(var.AssembliesDirectoryNET8)Microsoft.Xaml.Behaviors.dll" Vital="yes" />
+				<File Id="NaturalSort.ExtensionNET8.dll" Source="$(var.AssembliesDirectoryNET8)NaturalSort.Extension.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.ApplicationsNET8.dll" Source="$(var.AssembliesDirectoryNET8)Rhino.Inside.AutoCAD.Applications.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.CoreNET8.dll" Source="$(var.AssembliesDirectoryNET8)Rhino.Inside.AutoCAD.Core.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.GrasshopperLibraryNET8.dll" Source="$(var.AssembliesDirectoryNET8)Rhino.Inside.AutoCAD.GrasshopperLibrary.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.InteropNET8.dll" Source="$(var.AssembliesDirectoryNET8)Rhino.Inside.AutoCAD.Interop.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.ServicesNET8.dll" Source="$(var.AssembliesDirectoryNET8)Rhino.Inside.AutoCAD.Services.dll" Vital="yes" />
+				<File Id="Rhino.Inside.AutoCAD.UI.ResourcesNET8.dll" Source="$(var.AssembliesDirectoryNET8)Rhino.Inside.AutoCAD.UI.Resources.dll" Vital="yes" />
+
+			</Component>
+		</DirectoryRef>
 	</Fragment>
 </Wix>
