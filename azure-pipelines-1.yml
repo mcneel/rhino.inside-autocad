@@ -10,8 +10,8 @@ variables:
   buildPlatform: 'x64'
   solution: 'Rhino.Inside.AutoCAD.sln'
   GITHUB_REPO: 'mcneel/rhino.inside-autocad'
-  # We define a common NoWarn list to keep things clean
-  commonNoWarn: 'CS8600,CS8601,CS8602,CS8603,CS8604,CS8618,CS8625,CS1591,CS1570,CS1574,MSB3270,NU1608,CS0168'
+  # Suppress all the noisy nullability, XML, and architecture warnings
+  commonNoWarn: 'CS8600,CS8601,CS8602,CS8603,CS8604,CS8618,CS8625,CS1591,CS1570,CS1574,MSB3270,NU1608,CS0168,CS0108,CS8766'
 
 stages:
 - stage: Build
@@ -21,7 +21,7 @@ stages:
     displayName: 'Build'
     steps:
     - task: NuGetToolInstaller@1
-      displayName: 'Install NuGet 6.11'
+      displayName: 'Install NuGet'
       inputs:
         versionSpec: '6.11.x'
 
@@ -31,26 +31,55 @@ stages:
         packageType: 'sdk'
         version: '8.0.x'
 
-    # 1. Restore the solution once using the tool that understands WiX v6
     - task: DotNetCoreCLI@2
       displayName: 'Restore Solution'
       inputs:
         command: 'restore'
         projects: '$(solution)'
 
-    # 2. Build the Net48 projects. 
-    # We set BuildInstaller=false so it doesn't try to make the MSI yet.
+    # 1. BUILD NET48 PROJECTS ONLY
+    # We use /t: (targets) to build the DLLs but skip the .wixproj entirely
     - task: VSBuild@1
-      displayName: 'Build Solution (Release - net48)'
+      displayName: 'Build Code (Release - net48)'
       inputs:
         solution: '$(solution)'
         platform: '$(buildPlatform)'
         configuration: 'Release'
         msbuildArchitecture: 'x64'
-        msbuildArgs: '/m /restore /p:BuildInstaller=false /p:NoWarn="$(commonNoWarn)"'
+        msbuildArgs: >
+          /m /restore 
+          /t:Rhino_Inside_AutoCAD_Core;Rhino_Inside_AutoCAD_Interop;Rhino_Inside_AutoCAD_Services;Rhino_Inside_AutoCAD_UI_Resources;Rhino_Inside_AutoCAD_GrasshopperLibrary
+          /p:NoWarn="$(commonNoWarn)"
 
-    # 3. Build the Net8 projects AND the Installer.
-    # The installer will now find the net48 files it needs in the bin folders.
+    # 2. STAGE FILES FOR WIX
+    # This creates the directories and copies icons/XML so the installer finds them
+    - task: PowerShell@2
+      displayName: 'Stage Files for Installer'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $version = "1.0.6"
+          $stagePath = "D:\a\1\s\Deployment\OutputFiles\Rhino.Inside.AutoCAD.$version"
+          
+          # Create Directory Structure
+          New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Large512"
+          New-Item -ItemType Directory -Force -Path "$stagePath\Icons\Small32"
+          New-Item -ItemType Directory -Force -Path "$stagePath\Toolbar"
+          New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET48"
+          New-Item -ItemType Directory -Force -Path "$stagePath\$version\Win64\NET8"
+
+          # Copy Assets from your Installer project folder to the staging folder
+          Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Icons/*" "$stagePath\Icons\" -Recurse -Force -ErrorAction SilentlyContinue
+          Copy-Item "src/Rhino.Inside.AutoCAD.Installer/Toolbar/RhinoInsideAutocad_Toolbar.cuix" "$stagePath\Toolbar\" -Force -ErrorAction SilentlyContinue
+          Copy-Item "src/Rhino.Inside.AutoCAD.Installer/PackageContents.xml" "$stagePath\" -Force
+
+          # Copy the Net48 DLLs we just built into the staging folder
+          Copy-Item "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release/net48/*.dll" "$stagePath\$version\Win64\NET48\" -Force
+          
+          Write-Host "Staging for $version complete."
+
+    # 3. BUILD NET8 AND INSTALLER
+    # Now that the Net48 files and icons are staged, the installer will succeed
     - task: VSBuild@1
       displayName: 'Build Solution (ReleaseNET8 + Installer)'
       inputs:
@@ -58,13 +87,12 @@ stages:
         platform: '$(buildPlatform)'
         configuration: 'ReleaseNET8'
         msbuildArchitecture: 'x64'
-        msbuildArgs: '/m /p:NoWarn="$(commonNoWarn)"'
+        msbuildArgs: '/m /restore /p:NoWarn="$(commonNoWarn)"'
 
-    # 4. Copy and Publish the MSI
+    # 4. PUBLISH MSI
     - task: CopyFiles@2
       displayName: 'Copy MSI to Staging'
       inputs:
-        # Note: WiX v6 usually puts the MSI in the ReleaseNET8 folder if that's the active config
         SourceFolder: 'src/Rhino.Inside.AutoCAD.Installer/bin/x64/ReleaseNET8/en-US'
         Contents: '**.msi'
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
@@ -76,39 +104,28 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'installer'
 
-    # 5. GitHub Release Logic
+    # 5. GITHUB RELEASE
     - task: PowerShell@2
       displayName: 'Create GitHub Release'
       inputs:
         targetType: 'inline'
         script: |
           $msiFile = Get-ChildItem "$(Build.ArtifactStagingDirectory)/*.msi" | Select-Object -First 1
-          if (-not $msiFile) { throw "MSI file not found in staging directory!" }
+          if (-not $msiFile) { throw "MSI not found!" }
           $msiName = $msiFile.Name
           
-          if ($msiName -match 'V(\d+\.\d+\.\d+)') {
-            $version = "v$($Matches[1])"
-          } else {
-            $version = "v$(Get-Date -Format 'yyyy.MM.dd')-build$(Build.BuildId)"
-          }
+          if ($msiName -match 'V(\d+\.\d+\.\d+)') { $version = "v$($Matches[1])" } 
+          else { $version = "v$(Get-Date -Format 'yyyy.MM.dd')-b$(Build.BuildId)" }
           
-          $headers = @{
-            "Authorization" = "token $(GITHUB_PAT)"
-            "Accept" = "application/vnd.github.v3+json"
-          }
-          
-          # Use "master" to match your trigger branch
+          $headers = @{"Authorization" = "token $(GITHUB_PAT)"; "Accept" = "application/vnd.github.v3+json"}
           $releaseBody = @{
             tag_name = $version
-            target_commitish = "master" 
+            target_commitish = "master"
             name = "Release $version"
-            body = "Automated release from Azure DevOps build $(Build.BuildId)"
-            draft = $false
-            prerelease = $false
+            body = "Automated build $(Build.BuildId)"
           } | ConvertTo-Json
           
           $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$(GITHUB_REPO)/releases" -Headers $headers -Method Post -Body $releaseBody -ContentType "application/json"
-          $uploadUrl = $release.upload_url -replace '\{\?name,label\}', ''
-          $uploadUri = "$uploadUrl`?name=$([Uri]::EscapeDataString($msiName))"
+          $uploadUri = ($release.upload_url -replace '\{\?name,label\}', '') + "?name=$([Uri]::EscapeDataString($msiName))"
           
-          Invoke-RestMethod -Uri $uploadUri -Headers @{ "Authorization" = "token $(GITHUB_PAT)"; "Content-Type" = "application/octet-stream" } -Method Post -InFile $msiFile.FullName
+          Invoke-RestMethod -Uri $uploadUri -Headers @{"Authorization" = "token $(GITHUB_PAT)"; "Content-Type" = "application/octet-stream"} -Method Post -InFile $msiFile.FullName
