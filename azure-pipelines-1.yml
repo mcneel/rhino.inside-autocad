@@ -47,7 +47,7 @@ stages:
         platform: '$(buildPlatform)'
         configuration: 'Release'
         msbuildArchitecture: 'x64'
-        msbuildArgs: '/m /p:BuildInstaller=false /p:NoWarn="$(commonNoWarn)"'
+        msbuildArgs: '/m /restore /p:BuildInstaller=false /p:NoWarn="$(commonNoWarn)"'
 
     # 3. Build the Net8 projects AND the Installer.
     # The installer will now find the net48 files it needs in the bin folders.
