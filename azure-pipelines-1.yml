@@ -64,15 +64,27 @@ stages:
         msbuildArchitecture: 'x64'
         msbuildArgs: '/restore /m'
 
-    # 3. BUILD RELEASENET8 (without installer)
-    - task: VSBuild@1
-      displayName: 'Build Solution (ReleaseNET8 - no installer)'
+    # 3. PUBLISH NET8 (to get all dependencies)
+    - task: PowerShell@2
+      displayName: 'Publish NET8 Projects'
       inputs:
-        solution: '$(solution)'
-        platform: '$(buildPlatform)'
-        configuration: 'ReleaseNET8'
-        msbuildArchitecture: 'x64'
-        msbuildArgs: '/restore /m'
+        targetType: 'inline'
+        script: |
+          $projects = @(
+            "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/Rhino.Inside.AutoCAD.GrasshopperLibrary.csproj"
+          )
+          
+          foreach ($project in $projects) {
+            Write-Host "Publishing $project..."
+            dotnet publish $project --configuration ReleaseNET8 --framework net8.0-windows --output "publish/net8" --no-self-contained
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "Publish failed for $project"
+              exit 1
+            }
+          }
+          
+          Write-Host "Published NET8 DLLs:"
+          Get-ChildItem "publish/net8/*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
 
     # 4. STAGE ALL FILES FOR WIX
     - task: PowerShell@2
@@ -85,7 +97,7 @@ stages:
           
           # Source paths
           $net48Path = "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/Release/net48"
-          $net8Path = "src/Rhino.Inside.AutoCAD.GrasshopperLibrary/bin/ReleaseNET8/net8.0-windows"
+          $net8Path = "publish/net8"
           
           Write-Host "Creating directory structure..."
           
@@ -103,27 +115,19 @@ stages:
 
           # Copy NET48 DLLs
           Write-Host "Copying NET48 DLLs from: $net48Path"
-          if (Test-Path "$net48Path/*.dll") {
-            Copy-Item "$net48Path/*.dll" "$stagePath\$version\Win64\NET48\" -Force
-            Write-Host "  Copied $((@(Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll")).Count) DLLs"
-          } else {
-            Write-Error "NET48 DLLs not found at $net48Path"
-            exit 1
-          }
+          Copy-Item "$net48Path/*.dll" "$stagePath\$version\Win64\NET48\" -Force
+          Write-Host "  Copied $((@(Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll")).Count) DLLs"
 
           # Copy NET8 DLLs
           Write-Host "Copying NET8 DLLs from: $net8Path"
-          if (Test-Path "$net8Path/*.dll") {
-            Copy-Item "$net8Path/*.dll" "$stagePath\$version\Win64\NET8\" -Force
-            Write-Host "  Copied $((@(Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll")).Count) DLLs"
-          } else {
-            Write-Error "NET8 DLLs not found at $net8Path"
-            Write-Host "Searching for NET8 output..."
-            Get-ChildItem -Path "src" -Recurse -Filter "*.dll" | Where-Object { $_.FullName -match "net8" } | Select-Object -First 20 | ForEach-Object { Write-Host $_.FullName }
-            exit 1
-          }
+          Copy-Item "$net8Path/*.dll" "$stagePath\$version\Win64\NET8\" -Force
+          Write-Host "  Copied $((@(Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll")).Count) DLLs"
           
-          Write-Host "Staging complete."
+          # List staged files
+          Write-Host "`nNET48 staged:"
+          Get-ChildItem "$stagePath\$version\Win64\NET48\*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
+          Write-Host "`nNET8 staged:"
+          Get-ChildItem "$stagePath\$version\Win64\NET8\*.dll" | ForEach-Object { Write-Host "  - $($_.Name)" }
 
     # 5. ADD INSTALLER PROJECT BACK TO SOLUTION
     - task: PowerShell@2
