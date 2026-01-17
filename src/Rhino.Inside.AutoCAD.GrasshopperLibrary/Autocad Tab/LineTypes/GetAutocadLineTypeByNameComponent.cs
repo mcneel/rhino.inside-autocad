@@ -16,7 +16,7 @@ public class GetAutocadLineTypeByNameComponent : RhinoInsideAutocad_ComponentBas
     public override Guid ComponentGuid => new("f8a9d1e2-5b6c-7a0d-2e4f-1c8d7d0a2f5e");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.GetAutocadLineTypesComponent;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.GetAutocadLineTypesByNameComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetAutocadLineTypeByNameComponent"/> class.

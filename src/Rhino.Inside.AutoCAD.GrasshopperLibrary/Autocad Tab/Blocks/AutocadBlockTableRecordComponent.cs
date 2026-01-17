@@ -16,7 +16,7 @@ public class AutocadBlockTableRecordComponent : RhinoInsideAutocad_ComponentBase
     public override Guid ComponentGuid => new("b19eb942-ce7b-4bb8-a5e3-3596e7517172");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadBlockComponent;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadBlockTableRecordComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AutocadBlockTableRecordComponent"/> class.

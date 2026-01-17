@@ -119,174 +119,195 @@
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="ConvertToAutoCadCurveComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertToAutoCadCurveComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="AutocadLayoutComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadLayoutComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadCurve" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\Param_AutocadCurve.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadPoint" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\Param_AutocadPoint.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadSolid" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\Param_AutocadSolid.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Param_AutocadLinePattern" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Param_AutocadText" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\Param_AutocadText.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="AutocadLineTypeComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\AutocadLineTypeComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadId" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadObjectIdComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadBlockTableRecord" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\GetAutocadBlockTableRecordComponent2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadLayer" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadLayerComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadBlockReference" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\Param_AutocadBlockReferenceComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="AutocadDocumentComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadDocumentComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_BakeSettings" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\Param_BakeSettings.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadDocument" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadDocumentComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadMesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\Param_AutocadMesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Param_AutocadLinePattern" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\Param_AutocadLinePattern.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertFromAutoCadCurveComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertFromAutoCadCurveComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="AutocadExtractBlockGeometryComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadExtractBlockGeometryComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertFromAutoCadMeshComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertFromAutoCadMeshComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertToAutoCadMeshComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertToAutoCadMeshComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertFromAutoCadPointComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertFromAutoCadPointComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="GetAutocadBlockReferenceObjectsComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\GetAutocadBlockReferencesComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="GetAutocadBlockReferencesComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\GetAutocadBlockTableRecordComponent2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="GetAutocadBlockTableRecordsComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\GetAutocadBlockTableRecordComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="AutocadLayerComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadLayerComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertToAutoCadPointComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertToAutoCadPointComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="SetAutocadLayerComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\SetAutocadLayerComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertFromAutoCadSolidComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertFromAutoCadSolidComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertToAutoCadSolidComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertToAutoCadSolidComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertFromAutoCadHatchComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertFromAutoCadHatchComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertToAutoCadHatchComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertToAutoCadHatchComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertFromAutoCadTextComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertFromAutoCadTextComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertToAutoCadTextComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertToAutoCadTextComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="GetAutocadLayoutsComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\GetAutocadLayoutsComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="GetAutocadLayoutsByNameComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\GetAutocadLayoutByNameComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="SetAutocadLayoutInfo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\SetAutocadLayoutComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="GetAutocadDocumentsComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\GetAutocadDocumentsComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="GetAutocadLayersComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\GetAutocadLayersComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AutocadLayerInfo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="GetAutocadLayersByNameComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\GetAutocadLayerByNameComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="AutocadDocumentsInfo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadDocumentComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="SetAutocadDynamicPropertiesComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\GH_DynamicBlockReferenceProperty.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="AddAutocadBlockReferenceComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\CreateAutocadBlockReferenceComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="AutocadBlockReferenceComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\AutocadBlockReferenceComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="AutocadBlockTableRecordComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\AutocadBlockTableRecordComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="AutocadDynamicPropertiesComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\Param_DynamicBlockReferenceProperty.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="AutocadBakeSettingsComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadBakeSettingsComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadLayout" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadLayoutComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadHatch" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\Param_AutocadHatch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="CreateAutocadLayoutComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\CreateAutocadLayoutComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="CreateAutocadLineTypeComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\CreateAutocadLineTypeComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="GetAutocadLineTypesComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\GetAutocadLineTypesComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="GetAutocadLineTypesByNameComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\GetAutocadLayerByNameComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="CreateAutocadLayerComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\CreateAutocadLayerComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="SetAutocadLineTypeComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\SetAutocadLineTypeComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="AutocadObjectIdComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadObjectIdComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AutocadBlockComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Param_AutocadBlockReferenceComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\AutocadBlockReferenceComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="AutocadBakeComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\AutocadBakeComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadDimension" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\Param_AutocadDimension.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertFromAutoCadDimensionComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertFromAutoCadDimensionComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertToAutoCadDimensionComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertToAutoCadDimensionComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Param_AutocadLeader" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\Param_AutocadLeader.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertFromAutoCadLeaderComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertFromAutoCadLeaderComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConvertToAutoCadLeaderComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\ConvertToAutoCadCurveComponent_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Icons\ConvertToAutoCadLeaderComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="GetAutocadByIdComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\GetAutocadByIdComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

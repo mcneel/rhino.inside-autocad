@@ -14,7 +14,7 @@ public class AutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
     public override Guid ComponentGuid => new("1a15933d-7233-47e3-83d3-192d10cb80bb");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.SetAutocadLayoutInfo;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadLayoutComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AutocadLayoutComponent"/> class.

@@ -19,7 +19,7 @@ public class AutocadBlockReferenceComponent : RhinoInsideAutocad_ComponentBase
     public override Guid ComponentGuid => new("ac5cdf28-ef75-4c47-9147-15c12a61ab80");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadBlockComponent;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadBlockReferenceComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AutocadBlockReferenceComponent"/> class.
