@@ -16,7 +16,7 @@ public class GetAutocadLayoutByNameComponent : RhinoInsideAutocad_ComponentBase,
     public override Guid ComponentGuid => new("d6e7b9c0-3e4f-5a8b-0c2d-9f6e5b8d0d3f");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.GetAutocadLayoutsComponent;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.GetAutocadLayoutsByNameComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetAutocadLayoutByNameComponent"/> class.

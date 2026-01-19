@@ -14,7 +14,7 @@ public class CreateAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
     public override Guid ComponentGuid => new("a8f5c3d2-4e7b-4a9c-8d1f-6e3b2c5a8f9d");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.SetAutocadLineTypeComponent;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.CreateAutocadLineTypeComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CreateAutocadLineTypeComponent"/> class.

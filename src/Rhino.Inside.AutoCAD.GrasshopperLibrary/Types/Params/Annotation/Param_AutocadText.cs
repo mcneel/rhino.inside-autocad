@@ -18,7 +18,7 @@ public class Param_AutocadText : Param_AutocadObjectBase<GH_AutocadText, CadMTex
     public override Guid ComponentGuid => new Guid("8d029bfd-f9fa-4c15-b849-9212a2b338e1");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.Param_AutocadSolid;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.Param_AutocadText;
 
     /// <inheritdoc />
     protected override string SingularPromptMessage => "Select a Text Object";

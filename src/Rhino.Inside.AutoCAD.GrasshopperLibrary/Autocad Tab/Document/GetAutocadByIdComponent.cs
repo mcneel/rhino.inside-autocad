@@ -19,7 +19,7 @@ public class GetByAutocadIdComponent : RhinoInsideAutocad_ComponentBase, IRefere
     public override Guid ComponentGuid => new("ab9f48ba-bef6-4646-a3ad-146a92678440");
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.GetAutocadLayersComponent;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.GetAutocadByIdComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
