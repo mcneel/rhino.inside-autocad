@@ -36,7 +36,8 @@ public class AutocadBootstrapperConfig : IBootstrapperConfig
             "System.Memory",
             "System.Collections",
             "PresentationFramework",
-            "System.Diagnostics.DiagnosticSource"
+            "System.Diagnostics.DiagnosticSource",
+            "Serilog"
         ]);
     }
 }
