@@ -12,7 +12,7 @@
     <Company>$(CompanyName)</Company>
     <Copyright>Copyright © $(CompanyName) 2025</Copyright>
 
-    <OutputName>$(AppName) Installer $(RuntimeName) V$(AssemblyVersion)</OutputName>
+    <OutputName>$(AppName) Installer V$(AssemblyVersion)</OutputName>
     <SuppressIces>ICE64</SuppressIces>
 
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>

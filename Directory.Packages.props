@@ -33,11 +33,12 @@
     <!-- Deployment -->
     <PackageVersion Include="WixToolset.UI.wixext" Version="6.0.2" />
     <!--Logging : -Note Net4.8 is Higher-->
-    <PackageVersion Include="Serilog" Version="4.2.0" />
+    <PackageVersion Include="Serilog" Version="4.2.0" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'"/>
+    <PackageVersion Include="Serilog" Version="4.0.0" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'"/>
 
     <PackageVersion Include="Serilog.Settings.Configuration" Version="9.0.0" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'"/>
     <PackageVersion Include="Serilog.Settings.Configuration" Version="8.0.0" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'"/>
-    <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageVersion Include="System.Drawing.Common" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.0"  Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'ReleaseNET8'"/>
