@@ -5,6 +5,8 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using System.Collections;
+using Exception = System.Exception;
+using RhinoBrep = Rhino.Geometry.Brep;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -59,7 +61,7 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
     /// <summary>
     /// Extracts an <see cref="IAutocadBakeable"/> from the input object.
     /// </summary>
-    private IAutocadBakeable? ExtractBakeable(object? obj)
+    private IAutocadBakeable? ExtractBakeable(object? obj, IRhinoConvertibleFactory factory)
     {
         if (obj is IAutocadBakeable bakeable)
             return bakeable;
@@ -74,10 +76,25 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
 
                 if (value is IAutocadBakeable valueBakeable)
                     return valueBakeable;
+
+                if (value is Rhino.Geometry.GeometryBase nativeGeometryBase)
+                {
+                    if (value is RhinoBrep brep)
+                    {
+                        return new GH_AutocadBrepProxy(brep);
+                    }
+
+                    if (factory.MakeConvertible(nativeGeometryBase, out var rhinoConvertible))
+                    {
+                        var converter = new BakableRhinoConverter(rhinoConvertible!);
+                        return converter;
+                    }
+                }
             }
 
             if (goo is IAutocadBakeable gooBakeable)
                 return gooBakeable;
+
         }
 
         return null;
@@ -111,10 +128,12 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
         DA.GetData(2, ref settingsGoo);
         var settings = settingsGoo?.Value;
 
+        var converterFactory = new RhinoConvertibleFactory();
+
         var bakeables = new List<IAutocadBakeable>();
         foreach (var obj in objects)
         {
-            var bakeable = this.ExtractBakeable(obj);
+            var bakeable = this.ExtractBakeable(obj, converterFactory);
             if (bakeable != null)
             {
                 bakeables.Add(bakeable);
