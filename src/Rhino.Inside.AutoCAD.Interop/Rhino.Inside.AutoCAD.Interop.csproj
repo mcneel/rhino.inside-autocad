@@ -23,6 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	<PackageReference Include="AutoCAD.NET.Model" />
 	<PackageReference Include="NaturalSort.Extension" />
 		<PackageReference Include="MaterialDesignThemes" />
 		<PackageReference Include="RhinoCommon">

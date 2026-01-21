@@ -129,7 +129,8 @@ public partial class SupportDialogViewModel : ObservableObject
     [RelayCommand]
     private void UpdateRhinoInside()
     {
-        Autodesk.AutoCAD.ApplicationServices.Application.ShowAlertDialog("Automatic Update is not Implemented yet");
+        Autodesk.AutoCAD.ApplicationServices.Core.Application.ShowAlertDialog("Automatic Update is not Implemented yet");
+
     }
 
     /// <summary>
