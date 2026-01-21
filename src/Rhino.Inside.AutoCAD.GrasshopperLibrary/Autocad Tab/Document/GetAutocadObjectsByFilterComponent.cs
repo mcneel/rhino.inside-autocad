@@ -29,7 +29,7 @@ public class GetAutocadObjectsByFilterComponent : RhinoInsideAutocad_ComponentBa
     /// Initializes a new instance of the <see cref="GetAutocadObjectsByFilterComponent"/> class.
     /// </summary>
     public GetAutocadObjectsByFilterComponent()
-        : base("Get AutoCAD Objects By Filter", "AC-Filter",
+        : base("Get AutoCAD Objects By Filter", "AC-GetByFilter",
             "Returns AutoCAD elements matching a selection filter",
             "AutoCAD", "Document")
     {
