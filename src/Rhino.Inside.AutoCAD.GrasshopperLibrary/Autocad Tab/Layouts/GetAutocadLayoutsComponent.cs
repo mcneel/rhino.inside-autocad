@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
@@ -9,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layouts currently in the AutoCAD document.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.0.5")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.9")]
 public class GetAutocadLayoutsComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
@@ -32,7 +33,8 @@ public class GetAutocadLayoutsComponent : RhinoInsideAutocad_ComponentBase, IRef
     protected override void RegisterInputParams(GH_InputParamManager pManager)
     {
         pManager.AddParameter(new Param_AutocadDocument(GH_ParamAccess.item), "Document",
-            "Doc", "An AutoCAD Document", GH_ParamAccess.item);
+            "Doc", "An AutoCAD Document. If not provided, the active document will be used.", GH_ParamAccess.item);
+        pManager[0].Optional = true;
 
         pManager.AddBooleanParameter("Repopulate", "Repop",
             "There are some modifications to layouts (like renaming outside of grasshopper) which do not correctly trigger the object" +
@@ -56,8 +58,22 @@ public class GetAutocadLayoutsComponent : RhinoInsideAutocad_ComponentBase, IRef
         AutocadDocument? autocadDocument = null;
         var repopulate = false;
 
-        if (!DA.GetData(0, ref autocadDocument)
-            || autocadDocument is null) return;
+        DA.GetData(0, ref autocadDocument);
+
+        if (autocadDocument is null)
+        {
+            var activeDoc = RhinoInsideAutoCadExtension.Application?.RhinoInsideManager?.AutoCadInstance?.ActiveDocument;
+            if (activeDoc is null)
+            {
+                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No active AutoCAD document available");
+                return;
+            }
+            autocadDocument = activeDoc as AutocadDocument;
+        }
+
+        if (autocadDocument is null)
+            return;
+
         DA.GetData(1, ref repopulate);
 
         if (repopulate)

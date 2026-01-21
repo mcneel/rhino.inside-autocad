@@ -92,6 +92,17 @@
                         , contributions are welcome.
                     </TextBlock>
 
+                    <TextBlock TextWrapping="Wrap"
+                               Margin="0 10 10 0"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyMediumTextBlock}">
+                        Join the conversation on the dedicated McNeel Forum for Rhino Inside Autocad to help shape the future road map:
+                        <Hyperlink NavigateUri="https://discourse.mcneel.com/c/rhino-inside/autocad/185"
+                                   RequestNavigate="Hyperlink_RequestNavigate">
+                            https://discourse.mcneel.com/c/rhino-inside/autocad
+                        </Hyperlink>
+                    </TextBlock>
+
 
                     <TextBlock Text="Rhino®, Grasshopper® and Rhino.Inside® are Registered McNeel Trademarks."
                            TextWrapping="Wrap"
@@ -365,6 +376,7 @@
                                    Foreground="{StaticResource PrimaryTextBrush}"
                                    Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
 
+                    <!--
                         <materialDesign:PackIcon Kind="TickCircleOutline"
                                                  Margin="3 0"
                                                  VerticalAlignment="Center"
@@ -385,7 +397,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </materialDesign:PackIcon.Style>
-                        </materialDesign:PackIcon>
+                        </materialDesign:PackIcon>-->
 
                         <StackPanel Orientation="Horizontal">
                             <StackPanel.Style>
@@ -429,7 +441,7 @@
                                    Foreground="{StaticResource PrimaryTextBrush}"
                                    Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
 
-                        <materialDesign:PackIcon Kind="TickCircleOutline"
+                        <!-- <materialDesign:PackIcon Kind="TickCircleOutline"
                                                  Margin="3 0"
                                                  VerticalAlignment="Center"
                                                  Foreground="{StaticResource PrimaryGreenColorBrush}">
@@ -449,7 +461,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </materialDesign:PackIcon.Style>
-                        </materialDesign:PackIcon>
+                        </materialDesign:PackIcon> -->
 
                         <StackPanel Orientation="Horizontal">
                             <StackPanel.Style>
@@ -494,7 +506,7 @@
                                    Foreground="{StaticResource PrimaryTextBrush}"
                                    Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
 
-                        <materialDesign:PackIcon Kind="TickCircleOutline"
+                        <!--   <materialDesign:PackIcon Kind="TickCircleOutline"
                                                  Margin="3 0"
                                                  VerticalAlignment="Center"
                                                  Foreground="{StaticResource PrimaryGreenColorBrush}">
@@ -514,7 +526,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </materialDesign:PackIcon.Style>
-                        </materialDesign:PackIcon>
+                        </materialDesign:PackIcon> -->
 
                         <StackPanel Orientation="Horizontal">
                             <StackPanel.Style>
@@ -557,7 +569,7 @@
                                    Foreground="{StaticResource PrimaryTextBrush}"
                                    Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
 
-                        <materialDesign:PackIcon Kind="TickCircleOutline"
+                        <!--   <materialDesign:PackIcon Kind="TickCircleOutline"
                                                  Margin="3 0"
                                                  VerticalAlignment="Center"
                                                  Foreground="{StaticResource PrimaryGreenColorBrush}">
@@ -577,7 +589,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </materialDesign:PackIcon.Style>
-                        </materialDesign:PackIcon>
+                        </materialDesign:PackIcon> -->
 
                         <StackPanel Orientation="Horizontal">
                             <StackPanel.Style>
@@ -670,13 +682,12 @@
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Margin="0,8,0,8"
-                    Opacity="0.43">
+                    Margin="0,8,0,8">
             <TextBlock Text="Developed in collaboration with"
                        FontStyle="Italic"
                        HorizontalAlignment="Center"
                        FontSize="10"
-                       Foreground="Gainsboro"
+                       Foreground="{StaticResource SecondaryTextBrush}"
                        VerticalAlignment="Center" />
 
             <Image Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Resources/BimorphLogo.png"

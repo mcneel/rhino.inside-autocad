@@ -4,7 +4,6 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using Rhino.Inside.AutoCAD.Services;
 using System.Globalization;
-using System.IO;
 using System.Reflection;
 
 [assembly: ExtensionApplication(typeof(RhinoInsideAutoCadExtension))]
@@ -54,25 +53,12 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
             var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var asm in loadedAssemblies)
             {
-                if (asm.FullName.Contains("Serilog"))
-                {
-                    editor?.WriteMessage($"\nAlready loaded: {asm.FullName}");
-                    editor?.WriteMessage($"\nFrom: {asm.Location}");
-                }
+
+                editor?.WriteMessage($"\nAlready loaded: {asm.FullName}");
+                editor?.WriteMessage($"\nFrom: {asm.Location}");
+
             }
 #endif
-
-            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
-            {
-                if (args.Name.Contains("Serilog"))
-                {
-                    return AppDomain.CurrentDomain.GetAssemblies()
-                                  .FirstOrDefault(a => a.GetName().Name == "Serilog")
-                              ?? Assembly.LoadFrom(Path.Combine(assemblyDir, "Serilog.dll"));
-                }
-                return null;
-            };
 
             // Force RhinoCoreExtension static constructor to run first
             // This sets up the AssemblyResolve handler for RhinoCommon before

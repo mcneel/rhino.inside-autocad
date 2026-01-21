@@ -46,9 +46,19 @@ public partial class LoadingScreenViewModel : ObservableObject, IDisposable
     private string _errorMessage = string.Empty;
 
     /// <summary>
-    /// The version and copyright notice which appears on the splash screen.
+    /// The copyright notice which appears on the splash screen.
     /// </summary>
-    [ObservableProperty] private string _versionCopyrightNotice;
+    [ObservableProperty] private string _copyrightNotice;
+
+    /// <summary>
+    /// The version of the application
+    /// </summary>
+    [ObservableProperty] private string _appVersion;
+
+    /// <summary>
+    /// The version of the rhino
+    /// </summary>
+    [ObservableProperty] private string _rhinoVersion;
 
     /// <summary>
     /// The time elapsed message posted to the UI.
@@ -64,11 +74,13 @@ public partial class LoadingScreenViewModel : ObservableObject, IDisposable
     /// <summary>
     /// Constructs a new <see cref="LoadingScreenViewModel"/>.
     /// </summary>
-    public LoadingScreenViewModel(ILoadingScreenConstants LoadingScreenConstants, IVersionLog versionLog)
+    public LoadingScreenViewModel(ILoadingScreenConstants LoadingScreenConstants, IVersionLog versionLog, Version rhinoVersion)
     {
         var version = versionLog.CurrentVersion;
 
-        _versionCopyrightNotice = $"{LoadingScreenConstants.Copyright} {DateTime.Now.Year} ©. {LoadingScreenConstants.VersionPrefix} {version}";
+        _copyrightNotice = $"{LoadingScreenConstants.Copyright} {DateTime.Now.Year} ©.";
+        _appVersion = $"{LoadingScreenConstants.VersionPrefix} {version}";
+        _rhinoVersion = $"{LoadingScreenConstants.RhinoVersionPrefix} {rhinoVersion}";
 
         _dispatcherTimer = new DispatcherTimer(DispatcherPriority.Background)
         {
@@ -106,7 +118,7 @@ public partial class LoadingScreenViewModel : ObservableObject, IDisposable
     {
         _timeElapsed += _tickIncrement;
 
-        this.TimeElapsedMessage = $"Time elapsed {(int)(_timeElapsed / 1000)}s";
+        this.TimeElapsedMessage = $"{(int)(_timeElapsed / 1000)}s";
     }
 
     /// <summary>
