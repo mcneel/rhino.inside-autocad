@@ -22,6 +22,7 @@
 	<ItemGroup>
 		<None Remove="Resources\BimorphLogo.png" />
 		<None Remove="Resources\RhinoInsideLogo.png" />
+		<None Remove="Resources\Rhino_Full_Logo.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -59,6 +60,7 @@
 	<ItemGroup>
 		<Resource Include="Resources\BimorphLogo.png" />
 		<Resource Include="Resources\RhinoInsideLogo.png" />
+		<Resource Include="Resources\Rhino_Full_Logo.png" />
 	</ItemGroup>
 
 

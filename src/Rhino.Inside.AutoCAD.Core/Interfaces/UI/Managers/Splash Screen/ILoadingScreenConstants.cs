@@ -16,6 +16,11 @@ public interface ILoadingScreenConstants
     string? VersionPrefix { get; set; }
 
     /// <summary>
+    /// The prefix text added to the Rhino Version>.
+    /// </summary>
+    string? RhinoVersionPrefix { get; set; }
+
+    /// <summary>
     /// The message to display to the user in the splash screen if a
     /// there is an error during startup.
     /// </summary>

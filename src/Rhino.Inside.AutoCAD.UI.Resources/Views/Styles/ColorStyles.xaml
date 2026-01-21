@@ -15,23 +15,23 @@
            B="153" />
 
 
-    <Color x:Key="ParagraphWhite"
+    <Color x:Key="ParagraphGrey"
            A="255"
-           R="206"
-           G="206"
-           B="206" />
+           R="128"
+           G="128"
+           B="128" />
 
     <Color x:Key="SecondaryText"
            A="255"
-           R="174"
-           G="174"
-           B="174" />
+           R="180"
+           G="180"
+           B="180" />
 
     <Color x:Key="Background"
            A="255"
-           R="15"
-           G="18"
-           B="22" />
+           R="245"
+           G="245"
+           B="245" />
 
     <Color x:Key="BackgroundMid"
            A="255"
@@ -161,7 +161,7 @@
                      Color="{StaticResource BrandGrey}" />
 
     <SolidColorBrush x:Key="PrimaryTextBrush"
-                     Color="{StaticResource ParagraphWhite}" />
+                     Color="{StaticResource ParagraphGrey}" />
 
     <SolidColorBrush x:Key="SecondaryTextBrush"
                      Color="{StaticResource SecondaryText}" />
