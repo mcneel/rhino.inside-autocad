@@ -30,6 +30,7 @@ public class LoadingScreenManager : ILoadingScreenManager
 
     private readonly object _initLock = new object();
     private bool _isDispatcherReady = false;
+    private readonly Version _rhinoVersion;
 
     /// <summary>
     /// Constructs a new <see cref="LoadingScreenManager"/>.
@@ -39,6 +40,7 @@ public class LoadingScreenManager : ILoadingScreenManager
         _loadingScreenConstants = application.SettingsManager.Core.LoadingScreenConstants;
 
         _versionLog = application.Bootstrapper.VersionLog;
+        _rhinoVersion = application.RhinoInsideManager.RhinoInstance.ApplicationVersion;
     }
 
     /// <summary>
@@ -94,7 +96,7 @@ public class LoadingScreenManager : ILoadingScreenManager
 
             lock (_initLock)
             {
-                _loadingScreenViewModel = new LoadingScreenViewModel(_loadingScreenConstants, _versionLog);
+                _loadingScreenViewModel = new LoadingScreenViewModel(_loadingScreenConstants, _versionLog, _rhinoVersion);
 
                 _loadingScreenWindow = new LoadingScreenWindow(_loadingScreenViewModel!)
                 {

@@ -383,6 +383,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Default {
+            get {
+                object obj = ResourceManager.GetObject("Default", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap GetAutocadBlockReferenceObjectsComponent {
             get {
                 object obj = ResourceManager.GetObject("GetAutocadBlockReferenceObjectsComponent", resourceCulture);
@@ -426,6 +436,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
         internal static System.Drawing.Bitmap GetAutocadDocumentsComponent {
             get {
                 object obj = ResourceManager.GetObject("GetAutocadDocumentsComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap GetAutocadElementsByFilterComponent {
+            get {
+                object obj = ResourceManager.GetObject("GetAutocadElementsByFilterComponent", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -656,6 +676,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
         internal static System.Drawing.Bitmap Param_BakeSettings {
             get {
                 object obj = ResourceManager.GetObject("Param_BakeSettings", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Param_Filter {
+            get {
+                object obj = ResourceManager.GetObject("Param_Filter", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

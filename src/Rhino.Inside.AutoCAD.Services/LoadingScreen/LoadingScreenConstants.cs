@@ -12,5 +12,8 @@ public class LoadingScreenConstants : ILoadingScreenConstants
     public string? VersionPrefix { get; set; }
 
     /// <inheritdoc />
+    public string? RhinoVersionPrefix { get; set; }
+
+    /// <inheritdoc />
     public string? FailedServiceMessage { get; set; }
 }
