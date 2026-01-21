@@ -1,5 +1,6 @@
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
+using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
@@ -10,7 +11,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that bakes AutoCAD objects to the model space.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.9")]
 public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingComponent
 {
     /// <inheritdoc />
@@ -36,7 +37,8 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
     protected override void RegisterInputParams(GH_InputParamManager pManager)
     {
         pManager.AddParameter(new Param_AutocadDocument(GH_ParamAccess.item), "Document",
-            "Doc", "The AutoCAD document to bake to", GH_ParamAccess.item);
+            "Doc", "The AutoCAD document to bake to. If not provided, the active document will be used.", GH_ParamAccess.item);
+        pManager[0].Optional = true;
 
         pManager.AddGenericParameter("Objects", "O",
             "The objects to bake to AutoCAD (curves, points, meshes, solids, block references)",
@@ -85,7 +87,20 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
     protected override void SolveInstance(IGH_DataAccess DA)
     {
         AutocadDocument? autocadDocument = null;
-        if (!DA.GetData(0, ref autocadDocument) || autocadDocument is null)
+        DA.GetData(0, ref autocadDocument);
+
+        if (autocadDocument is null)
+        {
+            var activeDoc = RhinoInsideAutoCadExtension.Application?.RhinoInsideManager?.AutoCadInstance?.ActiveDocument;
+            if (activeDoc is null)
+            {
+                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No active AutoCAD document available");
+                return;
+            }
+            autocadDocument = activeDoc as AutocadDocument;
+        }
+
+        if (autocadDocument is null)
             return;
 
         var objects = new List<object>();

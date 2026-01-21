@@ -1,5 +1,6 @@
 using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
@@ -9,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD BlockTableRecords currently open in the AutoCAD session.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.9")]
 public class GetAutocadBlockReferencesComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
@@ -35,7 +36,8 @@ public class GetAutocadBlockReferencesComponent : RhinoInsideAutocad_ComponentBa
     protected override void RegisterInputParams(GH_InputParamManager pManager)
     {
         pManager.AddParameter(new Param_AutocadDocument(GH_ParamAccess.item), "Document",
-            "Doc", "An AutoCAD Document", GH_ParamAccess.item);
+            "Doc", "An AutoCAD Document. If not provided, the active document will be used.", GH_ParamAccess.item);
+        pManager[0].Optional = true;
 
         pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "BlockTableRecordId",
             "RecordId", "The Block Table Record to get the References of", GH_ParamAccess.item);
@@ -64,8 +66,21 @@ public class GetAutocadBlockReferencesComponent : RhinoInsideAutocad_ComponentBa
         AutocadObjectId? blockTableRecordId = null;
         var directOnly = false;
 
-        if (!DA.GetData(0, ref autocadDocument)
-            || autocadDocument is null) return;
+        DA.GetData(0, ref autocadDocument);
+
+        if (autocadDocument is null)
+        {
+            var activeDoc = RhinoInsideAutoCadExtension.Application?.RhinoInsideManager?.AutoCadInstance?.ActiveDocument;
+            if (activeDoc is null)
+            {
+                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No active AutoCAD document available");
+                return;
+            }
+            autocadDocument = activeDoc as AutocadDocument;
+        }
+
+        if (autocadDocument is null)
+            return;
 
         if (!DA.GetData(1, ref blockTableRecordId)
             || blockTableRecordId is null) return;

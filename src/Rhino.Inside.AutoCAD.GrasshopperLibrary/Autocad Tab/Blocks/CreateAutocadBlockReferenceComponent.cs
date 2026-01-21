@@ -1,6 +1,7 @@
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
@@ -9,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that adds AutoCAD Block References to a document.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.9")]
 public class CreateAutocadBlockReferenceComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
@@ -37,7 +38,8 @@ public class CreateAutocadBlockReferenceComponent : RhinoInsideAutocad_Component
     protected override void RegisterInputParams(GH_InputParamManager pManager)
     {
         pManager.AddParameter(new Param_AutocadDocument(GH_ParamAccess.item), "Document",
-            "Doc", "An AutoCAD Document", GH_ParamAccess.item);
+            "Doc", "An AutoCAD Document. If not provided, the active document will be used.", GH_ParamAccess.item);
+        pManager[0].Optional = true;
 
         pManager.AddParameter(new Param_AutocadBlockTableRecord(GH_ParamAccess.item), "BlockDefinition",
             "BlockDef", "The Block Definition to insert", GH_ParamAccess.item);
@@ -67,7 +69,21 @@ public class CreateAutocadBlockReferenceComponent : RhinoInsideAutocad_Component
     {
         // 1. Get document
         AutocadDocument? autocadDocument = null;
-        if (!DA.GetData(0, ref autocadDocument) || autocadDocument is null) return;
+        DA.GetData(0, ref autocadDocument);
+
+        if (autocadDocument is null)
+        {
+            var activeDoc = RhinoInsideAutoCadExtension.Application?.RhinoInsideManager?.AutoCadInstance?.ActiveDocument;
+            if (activeDoc is null)
+            {
+                this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No active AutoCAD document available");
+                return;
+            }
+            autocadDocument = activeDoc as AutocadDocument;
+        }
+
+        if (autocadDocument is null)
+            return;
 
         // 2. Get BlockTableRecord
         BlockTableRecordWrapper? blockTableRecord = null;

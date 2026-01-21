@@ -21,7 +21,7 @@ public class GetAutocadDocumentsComponent : RhinoInsideAutocad_ComponentBase
     /// </summary>
     public GetAutocadDocumentsComponent()
         : base("Get AutoCAD Documents", "AC-Docs",
-            "Returns the AutoCAD document current open",
+            "Returns the AutoCAD documents current open",
             "AutoCAD", "Document")
     {
     }
