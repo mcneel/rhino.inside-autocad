@@ -15,7 +15,7 @@ public class GH_AssemblyInfoStubComparer : IEqualityComparer<GH_AssemblyInfo>
     /// <returns>True if the assembly names are equal; otherwise, false.</returns>
     public bool Equals(GH_AssemblyInfo? x, GH_AssemblyInfo? y)
     {
-        if (x == null || y == null)
+        if (x == null || y == null || x.Assembly == null)
             return false;
 
         return string.Equals(x.Assembly.GetName().Name, y.Name, StringComparison.OrdinalIgnoreCase);
