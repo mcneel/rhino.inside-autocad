@@ -1,4 +1,7 @@
+using Autodesk.AutoCAD.ApplicationServices.Core;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Types;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
@@ -7,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that extracts properties from an AutoCAD dynamic block reference property.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.11")]
 public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -49,6 +52,25 @@ public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_Component
         pManager.AddGenericParameter("Value", "V", "The value of the property", GH_ParamAccess.item);
     }
 
+    /// <summary>
+    /// Updates the property value, Extracting the value from IGH_Goo if necessary.
+    /// </summary>
+
+    private void UpdatePropertyValue(
+        ITransactionManager transactionManagerWrapper, object value,
+        DynamicBlockReferencePropertyWrapper property)
+    {
+        using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+
+        var valueObject = value is IGH_Goo valueGoo
+            ? valueGoo.GetType().GetProperty("Value").GetValue(valueGoo, null)
+            : value;
+
+        _ = property.SetValue(valueObject, transactionManagerWrapper);
+
+        transaction.Commit();
+    }
+
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
@@ -58,13 +80,21 @@ public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_Component
             return;
 
         var value = property.Value;
-        DA.GetData(2, ref value);
+        DA.GetData(1, ref value);
 
-        _ = property.SetValue(value);
+        var activeDocument = Application.DocumentManager.MdiActiveDocument;
+
+        using var documentLock = activeDocument.LockDocument();
+
+        var database = activeDocument.Database;
+
+        using var transactionManagerWrapper = new TransactionManagerWrapper(database);
+
+        this.UpdatePropertyValue(transactionManagerWrapper, value, property);
 
         var goo = new GH_DynamicBlockReferenceProperty(property);
 
         DA.SetData(0, goo);
-        DA.SetData(2, property.Value);
+        DA.SetData(1, property.Value);
     }
 }

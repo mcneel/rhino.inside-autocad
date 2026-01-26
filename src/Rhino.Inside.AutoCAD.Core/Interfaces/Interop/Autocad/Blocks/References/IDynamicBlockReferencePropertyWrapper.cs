@@ -21,8 +21,18 @@ public interface IDynamicBlockReferencePropertyWrapper
     bool IsReadOnly { get; }
 
     /// <summary>
+    /// A list of allowed values for the dynamic block reference property.
+    /// </summary>
+    public object[] AllowedValues { get; }
+
+    /// <summary>
+    /// The type code of the dynamic block reference property.
+    /// </summary>
+    public DynamicPropertyTypeCode TypeCode { get; }
+
+    /// <summary>
     /// Sets the value of the dynamic block reference property. The value is
     /// converted to the appropriate type.
     /// </summary>
-    bool SetValue(object propertyValue);
+    bool SetValue(object propertyValue, ITransactionManager transactionManager);
 }

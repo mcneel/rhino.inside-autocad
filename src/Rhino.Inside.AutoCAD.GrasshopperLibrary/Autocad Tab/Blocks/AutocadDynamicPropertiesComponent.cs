@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that extracts properties from an AutoCAD dynamic block reference property.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.11")]
 public class AutocadDynamicPropertiesComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -39,6 +39,8 @@ public class AutocadDynamicPropertiesComponent : RhinoInsideAutocad_ComponentBas
         pManager.AddTextParameter("Name", "N", "The name of the property", GH_ParamAccess.item);
         pManager.AddGenericParameter("Value", "V", "The value of the property", GH_ParamAccess.item);
         pManager.AddBooleanParameter("IsReadOnly", "RO", "Whether the property is read-only", GH_ParamAccess.item);
+        pManager.AddGenericParameter("Type", "T", "The type of values allowed.", GH_ParamAccess.item);
+        pManager.AddGenericParameter("AllowedValues", "AV", "The values allowed, if the Property is restricted.", GH_ParamAccess.list);
     }
 
     /// <inheritdoc />
@@ -52,5 +54,7 @@ public class AutocadDynamicPropertiesComponent : RhinoInsideAutocad_ComponentBas
         DA.SetData(0, property.Name);
         DA.SetData(1, property.Value);
         DA.SetData(2, property.IsReadOnly);
+        DA.SetData(3, property.TypeCode.ToString());
+        DA.SetDataList(4, property.AllowedValues);
     }
 }
