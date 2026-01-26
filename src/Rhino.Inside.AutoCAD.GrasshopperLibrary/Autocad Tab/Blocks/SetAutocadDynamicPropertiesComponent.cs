@@ -1,5 +1,7 @@
 using Autodesk.AutoCAD.ApplicationServices.Core;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Types;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
@@ -50,6 +52,25 @@ public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_Component
         pManager.AddGenericParameter("Value", "V", "The value of the property", GH_ParamAccess.item);
     }
 
+    /// <summary>
+    /// Updates the property value, Extracting the value from IGH_Goo if necessary.
+    /// </summary>
+
+    private void UpdatePropertyValue(
+        ITransactionManager transactionManagerWrapper, object value,
+        DynamicBlockReferencePropertyWrapper property)
+    {
+        using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+
+        var valueObject = value is IGH_Goo valueGoo
+            ? valueGoo.GetType().GetProperty("Value").GetValue(valueGoo, null)
+            : value;
+
+        _ = property.SetValue(valueObject, transactionManagerWrapper);
+
+        transaction.Commit();
+    }
+
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
@@ -61,8 +82,6 @@ public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_Component
         var value = property.Value;
         DA.GetData(1, ref value);
 
-
-
         var activeDocument = Application.DocumentManager.MdiActiveDocument;
 
         using var documentLock = activeDocument.LockDocument();
@@ -71,14 +90,7 @@ public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_Component
 
         using var transactionManagerWrapper = new TransactionManagerWrapper(database);
 
-        using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
-
-        _ = property.SetValue(value, transactionManagerWrapper);
-
-
-        transaction.Commit();
-
-
+        this.UpdatePropertyValue(transactionManagerWrapper, value, property);
 
         var goo = new GH_DynamicBlockReferenceProperty(property);
 
