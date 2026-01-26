@@ -1,4 +1,5 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
+using Rhino.Inside.AutoCAD.Core;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
@@ -16,7 +17,13 @@ public class DynamicBlockReferencePropertyWrapper : WrapperBase<DynamicBlockRefe
     public object Value { get; private set; }
 
     /// <inheritdoc />
+    public object[] AllowedValues { get; }
+
+    /// <inheritdoc />
     public bool IsReadOnly { get; }
+
+    /// <inheritdoc />
+    public DynamicPropertyTypeCode TypeCode { get; }
 
     /// <summary>
     /// Constructs a new <see cref="DynamicBlockReferencePropertyWrapper"/>.
@@ -30,24 +37,30 @@ public class DynamicBlockReferencePropertyWrapper : WrapperBase<DynamicBlockRefe
 
         this.IsReadOnly = false;
 
-        this.SetValue(dynamicBlockReferenceProperty.Value);
+        this.Value = _dynamicBlockReferenceProperty.Value;
 
         this.IsReadOnly = dynamicBlockReferenceProperty.ReadOnly;
+
+        this.AllowedValues = dynamicBlockReferenceProperty.GetAllowedValues();
+
+        this.TypeCode = (DynamicPropertyTypeCode)_dynamicBlockReferenceProperty.PropertyTypeCode;
     }
 
     /// <inheritdoc />
-    public bool SetValue(object propertyValue)
+    public bool SetValue(object propertyValue, ITransactionManager transactionManager)
     {
         if (this.IsReadOnly) return false;
 
-        var type = _dynamicBlockReferenceProperty.Value.GetType();
+        var transaction = transactionManager.Unwrap();
 
-        var convertedValue = Convert.ChangeType(propertyValue, type);
+        _ = transaction.GetObject(_dynamicBlockReferenceProperty.BlockId, OpenMode.ForWrite) as BlockReference;
 
-        if (convertedValue == null) return false;
+        if (this.TypeCode.TryConvertValue(propertyValue, out var convertedValue) == false) return false;
 
+        _dynamicBlockReferenceProperty.Value = convertedValue;
         this.Value = convertedValue!;
 
         return true;
     }
 }
+

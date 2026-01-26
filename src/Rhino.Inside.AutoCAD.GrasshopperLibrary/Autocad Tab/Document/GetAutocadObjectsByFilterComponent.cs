@@ -13,7 +13,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns AutoCAD elements matching a selection filter.
 /// </summary>
-[ComponentVersion(introduced: "1.0.9")]
+[ComponentVersion(introduced: "1.0.9", updated: "1.0.11")]
 public class GetAutocadObjectsByFilterComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
@@ -123,10 +123,12 @@ public class GetAutocadObjectsByFilterComponent : RhinoInsideAutocad_ComponentBa
                foreach (SelectedObject selectedObject in selectionSet)
                {
                    if (selectedObject == null) continue;
-                   if (limit > 0 && processedCount >= limit) break;
+                   if (processedCount >= limit) break;
 
                    var entity = transaction.GetObject(selectedObject.ObjectId, OpenMode.ForRead) as CadEntity;
                    if (entity == null) continue;
+
+                   processedCount++;
 
                    var wrappedEntity = new AutocadEntityWrapper(entity);
 
@@ -135,15 +137,20 @@ public class GetAutocadObjectsByFilterComponent : RhinoInsideAutocad_ComponentBa
                    if (goo != null)
                    {
                        result.Add(goo);
-                   }
-                   else
-                   {
-                       // Fall back to GH_AutocadObjectId for unrecognized types
-                       var objectId = new AutocadObjectId(selectedObject.ObjectId);
-                       result.Add(new GH_AutocadObjectId(objectId));
+                       continue;
                    }
 
-                   processedCount++;
+                   if (entity is BlockReference blockReference)
+                   {
+                       var blockWrapper = new BlockReferenceWrapper(blockReference);
+
+                       result.Add(new GH_AutocadBlockReference(blockWrapper));
+                       continue;
+                   }
+
+                   var objectId = new AutocadObjectId(selectedObject.ObjectId);
+                   result.Add(new GH_AutocadObjectId(objectId));
+
                }
                return result;
            });
