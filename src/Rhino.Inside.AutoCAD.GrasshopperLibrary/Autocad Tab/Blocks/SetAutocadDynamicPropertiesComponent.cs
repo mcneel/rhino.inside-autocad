@@ -1,3 +1,4 @@
+using Autodesk.AutoCAD.ApplicationServices.Core;
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
@@ -7,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that extracts properties from an AutoCAD dynamic block reference property.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.11")]
 public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -58,13 +59,30 @@ public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_Component
             return;
 
         var value = property.Value;
-        DA.GetData(2, ref value);
+        DA.GetData(1, ref value);
 
-        _ = property.SetValue(value);
+
+
+        var activeDocument = Application.DocumentManager.MdiActiveDocument;
+
+        using var documentLock = activeDocument.LockDocument();
+
+        var database = activeDocument.Database;
+
+        using var transactionManagerWrapper = new TransactionManagerWrapper(database);
+
+        using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+
+        _ = property.SetValue(value, transactionManagerWrapper);
+
+
+        transaction.Commit();
+
+
 
         var goo = new GH_DynamicBlockReferenceProperty(property);
 
         DA.SetData(0, goo);
-        DA.SetData(2, property.Value);
+        DA.SetData(1, property.Value);
     }
 }
