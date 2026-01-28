@@ -9,9 +9,6 @@ public class BlockReferenceWrapper : AutocadEntityWrapper, IBlockReference
     private readonly BlockReference _blockReference;
 
     /// <inheritdoc />
-    public IDynamicPropertySet DynamicProperties { get; }
-
-    /// <inheritdoc />
     public double Rotation => _blockReference.Rotation;
 
     /// <inheritdoc />
@@ -31,18 +28,22 @@ public class BlockReferenceWrapper : AutocadEntityWrapper, IBlockReference
 
         this.BlockTableRecordId = new AutocadObjectId(blockReference.BlockTableRecord);
 
-        this.DynamicProperties = this.PopulateDynamicProperties(blockReference);
     }
 
     /// <summary>
     /// Obtains the <see cref="DynamicBlockReferenceProperty"/>s of the provided 
     /// <see cref="BlockReference"/>.
     /// </summary>
-    private IDynamicPropertySet PopulateDynamicProperties(BlockReference blockReference)
+    public IDynamicPropertySet GetDynamicProperties(ITransactionManager transactionManager)
     {
+        var transaction = transactionManager.Unwrap();
+
+        var cadBlockReference = transaction.GetObject(_blockReference.ObjectId,
+            OpenMode.ForRead) as BlockReference;
+
         var blockReferenceProperties = new DynamicPropertySet();
 
-        foreach (DynamicBlockReferenceProperty dynamicProperty in blockReference.DynamicBlockReferencePropertyCollection)
+        foreach (DynamicBlockReferenceProperty dynamicProperty in cadBlockReference.DynamicBlockReferencePropertyCollection)
         {
             var wrapped = new DynamicBlockReferencePropertyWrapper(dynamicProperty);
 
@@ -50,15 +51,6 @@ public class BlockReferenceWrapper : AutocadEntityWrapper, IBlockReference
         }
 
         return blockReferenceProperties;
-    }
-
-    /// <inheritdoc />
-    public void AddCustomProperties(IDynamicPropertySet dynamicProperties)
-    {
-        foreach (var customProperty in dynamicProperties)
-        {
-            this.DynamicProperties.Add(customProperty);
-        }
     }
 
     /// <inheritdoc />
