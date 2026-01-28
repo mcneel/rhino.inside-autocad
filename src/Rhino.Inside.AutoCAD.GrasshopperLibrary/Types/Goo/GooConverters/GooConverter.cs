@@ -72,7 +72,7 @@ public class GooConverter
     {
         if (source is IGH_AutocadReferenceDatabaseObject ghAutocadReferenceObject)
         {
-            target = ghAutocadReferenceObject.ObjectValue.Id;
+            target = ghAutocadReferenceObject.Reference.ObjectId;
             return true;
         }
         if (source is IDbObject autocadReferenceObject)

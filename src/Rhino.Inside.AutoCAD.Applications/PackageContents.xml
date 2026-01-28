@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ApplicationPackage AppVersion="1.0.12"
+<ApplicationPackage AppVersion="1.0.13"
 					SchemaVersion="1.0"
                     HelpFile=""
                     OnlineDocumentation=""
@@ -17,7 +17,7 @@
 		<RuntimeRequirements SupportPath="./Icons;./Icons/Small32;./Icons/Large512;./Toolbar;" OS="Win64" Platform="AutoCAD" SeriesMin="24.3" SeriesMax="24.3"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.12/Win64/NET48/Rhino.Inside.AutoCAD.Applications.dll"
+						ModuleName="./1.0.13/Win64/NET48/Rhino.Inside.AutoCAD.Applications.dll"
 						AppDescription="Rhino Inside AutoCAD Main Application"
 						LoadOnAutoCADStartup="True"
 						LoadOnCommandInvocation="True">
@@ -42,22 +42,22 @@
 
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.12/Win64/NET48/Rhino.Inside.AutoCAD.Interop.dll"
+						ModuleName="./1.0.13/Win64/NET48/Rhino.Inside.AutoCAD.Interop.dll"
 						AppDescription="Interop Dependency"
 						AppType="Managed"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.12/Win64/NET48/Rhino.Inside.AutoCAD.Services.dll"
+						ModuleName="./1.0.13/Win64/NET48/Rhino.Inside.AutoCAD.Services.dll"
 						AppDescription="Services Dependency"
 						AppType="Managed"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.12/Win64/NET48/Rhino.Inside.AutoCAD.UI.Resources.dll"
+						ModuleName="./1.0.13/Win64/NET48/Rhino.Inside.AutoCAD.UI.Resources.dll"
 						AppDescription="UI Dependency"
 						AppType="Managed"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.12/Win64/NET48/Rhino.Inside.AutoCAD.GrasshopperLibrary.dll"
+						ModuleName="./1.0.13/Win64/NET48/Rhino.Inside.AutoCAD.GrasshopperLibrary.dll"
 						AppDescription="Grasshopper Component Dependency"
 						AppType="Managed"/>
 
@@ -71,7 +71,7 @@
 		<RuntimeRequirements SupportPath="./Icons;./Icons/Small32;./Icons/Large512;./Toolbar;" OS="Win64" Platform="AutoCAD" SeriesMin="R25.0" SeriesMax="R25.1"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.12/Win64/NET8/Rhino.Inside.AutoCAD.Applications.dll"
+						ModuleName="./1.0.13/Win64/NET8/Rhino.Inside.AutoCAD.Applications.dll"
 						AppDescription="Rhino Inside AutoCAD Main Application"
 						LoadOnAutoCADStartup="True"
 						LoadOnCommandInvocation="True">
@@ -96,22 +96,22 @@
 
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.12/Win64/NET8/Rhino.Inside.AutoCAD.Interop.dll"
+						ModuleName="./1.0.13/Win64/NET8/Rhino.Inside.AutoCAD.Interop.dll"
 						AppDescription="Interop Dependency"
 						AppType="Managed"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.12/Win64/NET8/Rhino.Inside.AutoCAD.Services.dll"
+						ModuleName="./1.0.13/Win64/NET8/Rhino.Inside.AutoCAD.Services.dll"
 						AppDescription="Services Dependency"
 						AppType="Managed"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.12/Win64/NET8/Rhino.Inside.AutoCAD.UI.Resources.dll"
+						ModuleName="./1.0.13/Win64/NET8/Rhino.Inside.AutoCAD.UI.Resources.dll"
 						AppDescription="UI Dependency"
 						AppType="Managed"/>
 
 		<ComponentEntry AppName="Rhino.Inside.AutoCAD"
-						ModuleName="./1.0.12/Win64/NET8/Rhino.Inside.AutoCAD.GrasshopperLibrary.dll"
+						ModuleName="./1.0.13/Win64/NET8/Rhino.Inside.AutoCAD.GrasshopperLibrary.dll"
 						AppDescription="Grasshopper Component Dependency"
 						AppType="Managed"/>
 

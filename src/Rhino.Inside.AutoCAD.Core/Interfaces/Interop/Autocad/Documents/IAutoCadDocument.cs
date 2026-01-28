@@ -100,6 +100,11 @@ public interface IAutocadDocument
     IDbObject GetObjectById(IObjectId objectId);
 
     /// <summary>
+    /// Gets the <see cref="IDbObject"/> by its handle value.
+    /// </summary>
+    IDbObject? GetObjectByHandle(long handle);
+
+    /// <summary>
     /// Shuts down this <see cref="IAutocadDocument"/> instance. This method ensures that
     /// the instance is unhooked from all subscribed database and document events.
     /// </summary>

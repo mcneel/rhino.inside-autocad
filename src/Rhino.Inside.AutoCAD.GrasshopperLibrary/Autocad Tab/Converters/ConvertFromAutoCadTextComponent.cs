@@ -1,5 +1,4 @@
 using Grasshopper.Kernel;
-using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using AutocadText = Autodesk.AutoCAD.DatabaseServices.MText;
 

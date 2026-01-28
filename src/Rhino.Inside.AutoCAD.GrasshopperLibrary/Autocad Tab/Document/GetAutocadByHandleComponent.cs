@@ -2,29 +2,32 @@ using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
-using CadLayer = Autodesk.AutoCAD.DatabaseServices.LayerTableRecord;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
-/// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
+/// A Grasshopper component that returns the AutoCAD documents currently open in the AutoCAD session.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.0.9")]
-public class GetAutocadLayersComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
+[ComponentVersion(introduced: "1.0.13")]
+public class GetByAutocadHandleComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />
-    public override Guid ComponentGuid => new("41c4ed14-3a97-4812-94bc-4950bca8be7d");
+    public override GH_Exposure Exposure => GH_Exposure.secondary;
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => Properties.Resources.GetAutocadLayersComponent;
+    public override Guid ComponentGuid => new("E32B4525-EBD9-4680-A85A-479887A12B69");
+
+    /// <inheritdoc />
+    protected override System.Drawing.Bitmap Icon =>
+        Properties.Resources.GetAutocadByHandleComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GetAutocadLayersComponent"/> class.
     /// </summary>
-    public GetAutocadLayersComponent()
-        : base("Get AutoCAD Layers", "AC-Lyrs",
-            "Returns the list of all the AutoCAD layer in the document",
-            "AutoCAD", "Layers")
+    public GetByAutocadHandleComponent()
+        : base("Get By Handle", "AC-ByHandle",
+            "Returns the the AutoCAD object which matches the Handle",
+            "AutoCAD", "Document")
     {
     }
 
@@ -34,19 +37,24 @@ public class GetAutocadLayersComponent : RhinoInsideAutocad_ComponentBase, IRefe
         pManager.AddParameter(new Param_AutocadDocument(GH_ParamAccess.item), "Document",
             "Doc", "An AutoCAD Document. If not provided, the active document will be used.", GH_ParamAccess.item);
         pManager[0].Optional = true;
+
+        pManager.AddIntegerParameter("ObjectHandle",
+            "Handle", "An AutoCAD ObjectHandle", GH_ParamAccess.item);
     }
 
     /// <inheritdoc />
     protected override void RegisterOutputParams(GH_OutputParamManager pManager)
     {
-        pManager.AddParameter(new Param_AutocadLayer(GH_ParamAccess.list), "Layers", "Layers", "The AutoCAD Layers",
-            GH_ParamAccess.list);
+        pManager.AddGenericParameter("Object", "Obj", "An Autocad Object",
+            GH_ParamAccess.item);
     }
 
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
         AutocadDocument? autocadDocument = null;
+        int? handle = null;
+
         DA.GetData(0, ref autocadDocument);
 
         if (autocadDocument is null)
@@ -63,13 +71,14 @@ public class GetAutocadLayersComponent : RhinoInsideAutocad_ComponentBase, IRefe
         if (autocadDocument is null)
             return;
 
-        var layersRepository = autocadDocument.LayerRepository;
+        if (!DA.GetData(1, ref handle)
+            || handle is null) return;
 
-        var gooLayers = layersRepository
-            .Select(layer => new GH_AutocadLayer(layer))
-            .ToList();
+        var dbObject = autocadDocument.GetObjectByHandle(handle.Value);
 
-        DA.SetDataList(0, gooLayers);
+        var gooObject = new GH_AutocadObject(dbObject);
+
+        DA.SetData(0, gooObject);
     }
 
     /// <inheritdoc />
@@ -78,14 +87,6 @@ public class GetAutocadLayersComponent : RhinoInsideAutocad_ComponentBase, IRefe
         foreach (var ghParam in this.Params.Output.OfType<IReferenceParam>())
         {
             if (ghParam.NeedsToBeExpired(change)) return true;
-        }
-
-        foreach (var changedObject in change)
-        {
-            if (changedObject.UnwrapObject() is CadLayer)
-            {
-                return true;
-            }
         }
 
         return false;

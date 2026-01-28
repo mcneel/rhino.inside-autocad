@@ -1,9 +1,7 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
-using CadLayer = Autodesk.AutoCAD.DatabaseServices.LayerTableRecord;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -88,14 +86,6 @@ public class GetByAutocadIdComponent : RhinoInsideAutocad_ComponentBase, IRefere
         foreach (var ghParam in this.Params.Output.OfType<IReferenceParam>())
         {
             if (ghParam.NeedsToBeExpired(change)) return true;
-        }
-
-        foreach (var changedObject in change)
-        {
-            if (changedObject.UnwrapObject() is CadLayer)
-            {
-                return true;
-            }
         }
 
         return false;
