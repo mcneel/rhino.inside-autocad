@@ -122,12 +122,14 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     /// document remains open. When a new document GUID is created,
     /// we force a save of the document to ensure the ID XData is
     /// preserved for all future interactions of the app and document.
+    /// If there is no file path (i.e. the document has never been saved
+    /// and is not a template), no save is performed.
     /// </summary>
     private void ForceSaveDatabase(Database database)
     {
-        if (_document.IsReadOnly) return;
-
         var filePath = database.Filename;
+
+        if (_document.IsReadOnly || string.IsNullOrEmpty(filePath)) return;
 
         var securityParameters = database.SecurityParameters;
 

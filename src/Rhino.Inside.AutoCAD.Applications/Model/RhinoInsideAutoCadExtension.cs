@@ -54,8 +54,8 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
             foreach (var asm in loadedAssemblies)
             {
 
-                editor?.WriteMessage($"\nAlready loaded: {asm.FullName}");
-                editor?.WriteMessage($"\nFrom: {asm.Location}");
+                editor?.WriteMessage($"Already loaded: {asm.FullName}\n");
+                editor?.WriteMessage($"From: {asm.Location}\n");
 
             }
 #endif
