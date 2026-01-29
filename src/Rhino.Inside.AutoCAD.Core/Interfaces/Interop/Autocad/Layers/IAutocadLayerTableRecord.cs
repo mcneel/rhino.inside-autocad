@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents a wrapped AutoCAD LayerTableRecord
 /// </summary>
-public interface IAutocadLayerTableRecord : IDisposable
+public interface IAutocadLayerTableRecord : IDbObject, IDisposable
 {
     /// <summary>
     /// The <see cref="IColor"/> of the

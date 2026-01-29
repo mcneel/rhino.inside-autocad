@@ -70,7 +70,7 @@ public class AutocadExtractBlockGeometryComponent : RhinoInsideAutocad_Component
 
         foreach (var entityObject in objects)
         {
-            var goo = _gooConverterRegister.CreateGoo(entityObject);
+            var goo = _gooConverterRegister.CreateGeometryGoo(entityObject);
 
             blockObject.Add(goo);
         }

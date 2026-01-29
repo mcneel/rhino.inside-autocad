@@ -11,6 +11,8 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.13")]
 public class GetByAutocadHandleComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
+    private readonly GooConverter _gooConverter;
+
     /// <inheritdoc />
     public override GH_Exposure Exposure => GH_Exposure.secondary;
 
@@ -29,6 +31,7 @@ public class GetByAutocadHandleComponent : RhinoInsideAutocad_ComponentBase, IRe
             "Returns the the AutoCAD object which matches the Handle",
             "AutoCAD", "Document")
     {
+        _gooConverter = new GooConverter();
     }
 
     /// <inheritdoc />
@@ -47,6 +50,7 @@ public class GetByAutocadHandleComponent : RhinoInsideAutocad_ComponentBase, IRe
     {
         pManager.AddGenericParameter("Object", "Obj", "An Autocad Object",
             GH_ParamAccess.item);
+
     }
 
     /// <inheritdoc />
@@ -76,10 +80,12 @@ public class GetByAutocadHandleComponent : RhinoInsideAutocad_ComponentBase, IRe
 
         var dbObject = autocadDocument.GetObjectByHandle(handle.Value);
 
-        var gooObject = new GH_AutocadObject(dbObject);
+        var gooObject = _gooConverter.CreateGoo(dbObject);
 
         DA.SetData(0, gooObject);
     }
+
+
 
     /// <inheritdoc />
     public bool NeedsToBeExpired(IAutocadDocumentChange change)

@@ -35,7 +35,7 @@ public class Param_AutocadBlockReference : GH_PersistentParam<GH_AutocadBlockRef
     {
         var picker = new AutocadObjectPicker();
 
-        var filter = new BlockFilter();
+        var filter = new BlockReferenceFilter();
 
         var selectionFilter = filter.GetSelectionFilter();
 
@@ -59,7 +59,7 @@ public class Param_AutocadBlockReference : GH_PersistentParam<GH_AutocadBlockRef
     {
         var picker = new AutocadObjectPicker();
 
-        var filter = new BlockFilter();
+        var filter = new BlockReferenceFilter();
 
         var selectionFilter = filter.GetSelectionFilter();
 
