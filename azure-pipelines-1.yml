@@ -211,7 +211,7 @@ stages:
         flattenFolders: true
 
     # 8.1 SIGN MSI WITH AZURE TRUSTED SIGNING
-    - task: TrustedSigning@0
+    - task: ArtifactSigning@0
       displayName: 'Sign MSI with Trusted Signing'
       inputs:
         Endpoint: $(AZURE_ENDPOINT)
