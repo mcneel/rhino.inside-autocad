@@ -1,5 +1,5 @@
 {
   "Endpoint": "https://neu.codesigning.azure.net/",
-  "CodeSigningAccountName": "bimorph-signing",
+  "CodeSigningAccountName": "bimorph-RiA",
   "CertificateProfileName": "bimorph-public"
 }
