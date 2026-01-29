@@ -400,6 +400,14 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     }
 
     /// <inheritdoc/>
+    public IDbObject? GetObjectByHandle(long handle)
+    {
+        return this.Database.Unwrap().TryGetObjectId(new Handle(handle), out var id) == false
+            ? null
+            : this.GetObjectById(new AutocadObjectId(id));
+    }
+
+    /// <inheritdoc/>
     public void Close()
     {
         _document.CommandEnded -= this.OnDocumentCommandEnded;

@@ -40,6 +40,7 @@ public class FilterValueList : GH_ValueList
         this.ListItems.Add(new GH_ValueListItem("Leader", "\"Leader\""));
         this.ListItems.Add(new GH_ValueListItem("Block", "\"Block\""));
 
+
         this.SelectItem(0);
     }
 }

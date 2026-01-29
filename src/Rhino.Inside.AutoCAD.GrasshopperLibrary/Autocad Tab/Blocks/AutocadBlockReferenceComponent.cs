@@ -1,5 +1,5 @@
 ﻿using Grasshopper.Kernel;
-using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
+using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.0.11")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.13")]
 public class AutocadBlockReferenceComponent : RhinoInsideAutocad_ComponentBase
 {
     private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
@@ -78,8 +78,17 @@ public class AutocadBlockReferenceComponent : RhinoInsideAutocad_ComponentBase
 
         var id = blockReferenceWrapper.Id;
 
-        var properties = blockReferenceWrapper.DynamicProperties.Select(property =>
+        var document = RhinoInsideAutoCadExtension.Application.RhinoInsideManager
+            .AutoCadInstance.ActiveDocument;
+
+        var gooProperties = document.Transaction((transactionManager) =>
+        {
+            var dynamicProperties =
+                blockReferenceWrapper.GetDynamicProperties(transactionManager);
+
+            return dynamicProperties.Select(property =>
             new GH_DynamicBlockReferenceProperty(property));
+        });
 
         var blockTableRecordIdGoo =
             new GH_AutocadObjectId(blockReferenceWrapper.BlockTableRecordId);
@@ -89,6 +98,6 @@ public class AutocadBlockReferenceComponent : RhinoInsideAutocad_ComponentBase
         DA.SetData(2, origin);
         DA.SetData(3, rotation);
         DA.SetData(4, blockTableRecordIdGoo);
-        DA.SetDataList(5, properties);
+        DA.SetDataList(5, gooProperties);
     }
 }

@@ -1,6 +1,5 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Applications;
-using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;

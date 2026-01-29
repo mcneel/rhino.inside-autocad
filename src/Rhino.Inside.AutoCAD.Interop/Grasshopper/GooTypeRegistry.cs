@@ -183,7 +183,7 @@ public class GooTypeRegistry
     /// An <see cref="IGH_GeometricGoo"/> instance wrapping the entity,
     /// or <see langword="null"/> if no suitable Goo type is registered.
     /// </returns>
-    public IGH_GeometricGoo? CreateGoo(IEntity entity)
+    public IGH_GeometricGoo? CreateGeometryGoo(IEntity entity)
     {
         var cadEntity = entity.Unwrap();
 

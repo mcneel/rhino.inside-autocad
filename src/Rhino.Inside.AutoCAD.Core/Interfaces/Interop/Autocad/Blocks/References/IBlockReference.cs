@@ -6,11 +6,6 @@
 public interface IBlockReference : IEntity
 {
     /// <summary>
-    /// The <see cref="IDynamicPropertySet"/>s of this <see cref="IBlockReference"/>.
-    /// </summary>
-    IDynamicPropertySet DynamicProperties { get; }
-
-    /// <summary>
     /// The rotation of this <see cref="IBlockReference"/> in radians.
     /// </summary>
     double Rotation { get; }
@@ -27,10 +22,12 @@ public interface IBlockReference : IEntity
     IObjectId BlockTableRecordId { get; }
 
     /// <summary>
-    /// Adds <see cref="IDynamicBlockReferencePropertyWrapper"/>s to the <see
-    /// cref="DynamicProperties"/> from the <see cref="IDynamicPropertySet"/>.
+    /// Gets the <see cref="IDynamicPropertySet"/>s of this <see cref="IBlockReference"/>.
+    /// If the block reference is not open for write the properties on the autocad
+    /// internal object are not correctly populated. This method ensures that all
+    /// the properties are retrieved correctly.
     /// </summary>
-    void AddCustomProperties(IDynamicPropertySet customProperties);
+    IDynamicPropertySet GetDynamicProperties(ITransactionManager transactionManager);
 
     /// <summary>
     /// Gets all the objects contained within this <see cref="IBlockReference"/>.

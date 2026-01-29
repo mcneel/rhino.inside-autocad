@@ -2,7 +2,6 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
 using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using System.Collections;
 using Exception = System.Exception;

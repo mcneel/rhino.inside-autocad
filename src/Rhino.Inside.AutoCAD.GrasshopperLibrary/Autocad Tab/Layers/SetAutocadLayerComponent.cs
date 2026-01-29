@@ -3,7 +3,6 @@ using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using Color = System.Drawing.Color;
 

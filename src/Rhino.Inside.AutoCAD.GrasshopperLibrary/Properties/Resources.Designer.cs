@@ -423,6 +423,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap GetAutocadByHandleComponent {
+            get {
+                object obj = ResourceManager.GetObject("GetAutocadByHandleComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap GetAutocadByIdComponent {
             get {
                 object obj = ResourceManager.GetObject("GetAutocadByIdComponent", resourceCulture);

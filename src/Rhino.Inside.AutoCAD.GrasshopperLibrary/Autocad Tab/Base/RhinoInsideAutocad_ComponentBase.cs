@@ -3,7 +3,7 @@ using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
-namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
+namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
 /// The base class for all Rhino.Inside.AutoCAD Grasshopper components.

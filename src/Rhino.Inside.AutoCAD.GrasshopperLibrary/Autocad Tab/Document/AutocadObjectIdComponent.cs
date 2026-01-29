@@ -1,5 +1,7 @@
+using Autodesk.AutoCAD.ApplicationServices.Core;
+using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel;
-using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
+
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -7,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns information about an AutoCAD ObjectId.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.13")]
 public class AutocadObjectIdComponent : RhinoInsideAutocad_ComponentBase
 {
 
@@ -43,12 +45,16 @@ public class AutocadObjectIdComponent : RhinoInsideAutocad_ComponentBase
         pManager.AddIntegerParameter("Value", "Value",
             "The value of the AutoCAD ObjectId.", GH_ParamAccess.item);
 
-        pManager.AddBooleanParameter("IsValid", "IsValid",
+        pManager.AddBooleanParameter("Is Valid", "Valid",
             "Boolean value indicating if the AutoCAD ObjectId is valid",
             GH_ParamAccess.item);
 
-        pManager.AddBooleanParameter("IsErased", "IsErased",
+        pManager.AddBooleanParameter("Is Erased", "Erased",
             "Boolean value indicating if the AutoCAD ObjectId is erased",
+            GH_ParamAccess.item);
+
+        pManager.AddIntegerParameter("Object Handle", "Handle",
+            "The internal Handle which AutoCAD uses to store the object",
             GH_ParamAccess.item);
     }
 
@@ -64,8 +70,25 @@ public class AutocadObjectIdComponent : RhinoInsideAutocad_ComponentBase
         var isValid = objectId.IsValid;
         var isErased = objectId.IsErased;
 
+        var activeDocument = Application.DocumentManager.MdiActiveDocument;
+
+        using var documentLock = activeDocument.LockDocument();
+
+        var database = activeDocument.Database;
+
+        using var transaction = database.TransactionManager.StartTransaction();
+
+        var cadObject =
+            transaction.GetObject(objectId.Unwrap(), OpenMode.ForRead,
+                false) as DBObject;
+
+        var handle = cadObject.Handle.Value;
+
+        transaction.Commit();
+
         DA.SetData(0, value);
         DA.SetData(1, isValid);
         DA.SetData(2, isErased);
+        DA.SetData(3, handle);
     }
 }

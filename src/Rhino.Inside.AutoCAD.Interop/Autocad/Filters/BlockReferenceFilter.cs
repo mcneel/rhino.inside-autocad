@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <summary>
 /// A filter that selects AutoCAD Block entities.
 /// </summary>
-public class BlockFilter : IFilter
+public class BlockReferenceFilter : IFilter
 {
     /// <inheritdoc />
     public ISelectionFilter GetSelectionFilter()

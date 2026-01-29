@@ -4,7 +4,6 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 using CadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
 
@@ -13,9 +12,11 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns AutoCAD elements matching a selection filter.
 /// </summary>
-[ComponentVersion(introduced: "1.0.9", updated: "1.0.11")]
+[ComponentVersion(introduced: "1.0.9", updated: "1.0.13")]
 public class GetAutocadObjectsByFilterComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
+    private readonly GooConverter _gooConverter;
+
     /// <inheritdoc />
     public override Guid ComponentGuid => new("D6E8F0A2-B4C6-4D8E-9F0A-2B4C6D8E0F1A");
 
@@ -33,6 +34,7 @@ public class GetAutocadObjectsByFilterComponent : RhinoInsideAutocad_ComponentBa
             "Returns AutoCAD elements matching a selection filter",
             "AutoCAD", "Document")
     {
+        _gooConverter = new GooConverter();
     }
 
     /// <inheritdoc />
@@ -125,32 +127,19 @@ public class GetAutocadObjectsByFilterComponent : RhinoInsideAutocad_ComponentBa
                    if (selectedObject == null) continue;
                    if (processedCount >= limit) break;
 
-                   var entity = transaction.GetObject(selectedObject.ObjectId, OpenMode.ForRead) as CadEntity;
+                   var entity = transaction.GetObject(selectedObject.ObjectId, OpenMode.ForRead) as DBObject;
                    if (entity == null) continue;
 
                    processedCount++;
 
-                   var wrappedEntity = new AutocadEntityWrapper(entity);
+                   var wrapped = new DbObjectWrapper(entity);
 
-                   var goo = GooTypeRegistry.Instance?.CreateGoo(wrappedEntity);
+                   var goo = _gooConverter.CreateGoo(wrapped);
 
                    if (goo != null)
                    {
                        result.Add(goo);
-                       continue;
                    }
-
-                   if (entity is BlockReference blockReference)
-                   {
-                       var blockWrapper = new BlockReferenceWrapper(blockReference);
-
-                       result.Add(new GH_AutocadBlockReference(blockWrapper));
-                       continue;
-                   }
-
-                   var objectId = new AutocadObjectId(selectedObject.ObjectId);
-                   result.Add(new GH_AutocadObjectId(objectId));
-
                }
                return result;
            });

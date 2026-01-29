@@ -210,6 +210,20 @@ stages:
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
         flattenFolders: true
 
+    # 8.1 SIGN MSI WITH AZURE TRUSTED SIGNING
+    - task: TrustedSigning@0
+      displayName: 'Sign MSI with Trusted Signing'
+      inputs:
+        Endpoint: $(AZURE_ENDPOINT)
+        TrustedSigningAccountName: $(AZURE_CODE_SIGNING_NAME)
+        CertificateProfileName: $(AZURE_CERT_PROFILE_NAME)
+        FilesFolder: $(Build.ArtifactStagingDirectory)
+        FilesFolderFilter: msi
+      env:
+        AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+        AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+        AZURE_TENANT_ID: $(AZURE_TENANT_ID)
+
     - task: PublishBuildArtifacts@1
       displayName: 'Publish MSI Artifact'
       inputs:

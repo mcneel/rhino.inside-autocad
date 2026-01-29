@@ -2,7 +2,6 @@
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.GrasshopperLibrary.Autocad_Tab.Base;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -71,7 +70,7 @@ public class AutocadExtractBlockGeometryComponent : RhinoInsideAutocad_Component
 
         foreach (var entityObject in objects)
         {
-            var goo = _gooConverterRegister.CreateGoo(entityObject);
+            var goo = _gooConverterRegister.CreateGeometryGoo(entityObject);
 
             blockObject.Add(goo);
         }

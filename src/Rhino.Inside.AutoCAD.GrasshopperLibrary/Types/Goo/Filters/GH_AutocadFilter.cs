@@ -95,7 +95,7 @@ public class GH_AutocadFilter : GH_Goo<IFilter>
             "dimension" => new DimensionFilter(),
             "text" => new TextFilter(),
             "leader" => new LeaderFilter(),
-            "block" => new BlockFilter(),
+            "block" => new BlockReferenceFilter(),
             _ => null
         };
 
