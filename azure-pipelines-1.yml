@@ -210,20 +210,7 @@ stages:
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
         flattenFolders: true
 
-    # 8.1 RENAME MSI TO REMOVE SPACES BEFORE SIGNING
-    - task: PowerShell@2
-      displayName: 'Rename MSI for Signing'
-      inputs:
-        targetType: 'inline'
-        script: |
-          $msi = Get-ChildItem "$(Build.ArtifactStagingDirectory)/*.msi" | Select-Object -First 1
-          $newName = $msi.Name -replace ' ', '_'
-          Write-Host "##vso[task.setvariable variable=OriginalMsiName]$($msi.Name)"
-          Write-Host "##vso[task.setvariable variable=RenamedMsiName]$newName"
-          Rename-Item $msi.FullName $newName
-          Write-Host "Renamed '$($msi.Name)' to '$newName'"
-
-    # 8.2 SIGN MSI WITH AZURE TRUSTED SIGNING
+    # 8.1 SIGN MSI WITH AZURE TRUSTED SIGNING
     - task: TrustedSigning@0
       displayName: 'Sign MSI with Trusted Signing'
       inputs:
@@ -236,16 +223,6 @@ stages:
         AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
         AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
         AZURE_TENANT_ID: $(AZURE_TENANT_ID)
-
-    # 8.3 RESTORE ORIGINAL MSI NAME
-    - task: PowerShell@2
-      displayName: 'Restore MSI Name'
-      inputs:
-        targetType: 'inline'
-        script: |
-          $msi = Join-Path "$(Build.ArtifactStagingDirectory)" "$(RenamedMsiName)"
-          Rename-Item $msi "$(OriginalMsiName)"
-          Write-Host "Restored '$(RenamedMsiName)' to '$(OriginalMsiName)'"
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish MSI Artifact'
