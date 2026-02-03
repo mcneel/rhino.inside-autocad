@@ -394,6 +394,26 @@ public partial class GeometryConverter
     }
 
     /// <summary>
+    /// Converts a <see cref="RhinoPolyCurve"/> to a 2d List of <see cref="Curve2d"/>.
+    /// </summary>
+    public IList<Autodesk.AutoCAD.Geometry.Curve2d> ToAutoCadType2d(RhinoPolyCurve polyCurve)
+    {
+        var segmentCount = polyCurve.SegmentCount;
+
+        var curves = new List<Autodesk.AutoCAD.Geometry.Curve2d>();
+        for (var i = 0; i < segmentCount; i++)
+        {
+            var curve = polyCurve.SegmentCurve(i);
+
+            var cadCurve = this.ToAutoCadType2d(curve);
+
+            curves.AddRange(cadCurve);
+        }
+
+        return curves;
+    }
+
+    /// <summary>
     /// Converts a <see cref="RhinoSubD"/> into an <see cref="CadSubDMesh"/> object.
     /// </summary>
     public CadSubDMesh ToAutoCadType(RhinoSubD mesh)
@@ -880,17 +900,24 @@ public partial class GeometryConverter
     {
         var scale = _unitSystemManager.ToAutoCadLength(rhinoHatch.PatternScale);
 
-        var rotation = rhinoHatch.PatternRotation;
-
+        var origin = this.ToAutoCadType2d(rhinoHatch.BasePoint);
         //TODO: Support Hatch pattens/Styles
 
         var cadHatch = new CadHatch()
         {
-            PatternAngle = rotation,
             PatternScale = scale,
-            Origin = this.ToAutoCadType2d(rhinoHatch.BasePoint)
-
+            Origin = origin,
         };
+
+        /* TODO: Support Rotation - currently throws error in AutoCAD
+        var rotation = rhinoHatch.PatternRotation;
+
+        if (rotation > _zeroTolerance)
+        {
+                      cadHatch.PatternAngle = rotation;
+        }*/
+
+        cadHatch.SetHatchPattern(HatchPatternType.PreDefined, "SOLID");
 
         var outerCurves = rhinoHatch.Get3dCurves(true);
 
@@ -900,32 +927,47 @@ public partial class GeometryConverter
             outerCurve.Append(curve);
         }
 
-        var curve2ds = new Curve2dCollection();
-        var edgeTypes = new IntegerCollection();
+        var transaction = transactionManager.Unwrap();
 
-        var curves = this.ToAutoCadType2d(outerCurve);
+        var modelSpace = transactionManager.GetModelSpaceBlockTableRecord(true).UnwrapObject() as BlockTableRecord;
 
-        foreach (var curve in curves)
+        var objectIds = new ObjectIdCollection();
+
+        var outerLoop = this.ToAutoCadType(outerCurve);
+
+        foreach (var curve in outerLoop)
         {
+            modelSpace!.AppendEntity(curve);
 
-            curve2ds.Add(curve);
-            edgeTypes.Add(1);
+            transaction.AddNewlyCreatedDBObject(curve, true);
+
+            objectIds.Add(curve.ObjectId);
+
         }
 
         foreach (var innerCurve in rhinoHatch.Get3dCurves(false))
         {
-            var innerLoop = this.ToAutoCadType2d(innerCurve);
+            var innerLoop = this.ToAutoCadType(innerCurve);
 
             foreach (var curve in innerLoop)
             {
-                curve2ds.Add(curve);
-                edgeTypes.Add(1);
+                modelSpace!.AppendEntity(curve);
+
+                transaction.AddNewlyCreatedDBObject(curve, true);
+
+                objectIds.Add(curve.ObjectId);
             }
         }
 
-        cadHatch.AppendLoop(HatchLoopTypes.External, curve2ds, edgeTypes);
+        cadHatch.AppendLoop(HatchLoopTypes.External, objectIds);
 
         cadHatch.EvaluateHatch(true);
+
+        foreach (ObjectId objectId in objectIds)
+        {
+            var dbObject = transaction.GetObject(objectId, OpenMode.ForWrite);
+            dbObject.Erase(true);
+        }
 
         return cadHatch;
     }
