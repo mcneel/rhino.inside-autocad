@@ -65,9 +65,11 @@ public class Param_AutocadBlockReference : GH_PersistentParam<GH_AutocadBlockRef
 
         var entities = picker.PickObjects(selectionFilter, _pluralPromptMessage);
 
+        values = new List<GH_AutocadBlockReference>();
+
         foreach (var entity in entities)
         {
-            if (entity is BlockReference typedEntity)
+            if (entity.Unwrap() is BlockReference typedEntity)
             {
                 var wrapper = new BlockReferenceWrapper(typedEntity);
 
