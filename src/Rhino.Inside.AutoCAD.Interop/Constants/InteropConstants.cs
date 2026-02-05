@@ -14,7 +14,7 @@ public class InteropConstants
     public const string DefaultLayerName = "0";
 
     /// <summary>
-    /// The internal unit system used by AWI applications.
+    /// The internal unit system used by the applications.
     /// </summary>
     public const UnitSystem FallbackUnitSystem = UnitSystem.Millimeters;
 
