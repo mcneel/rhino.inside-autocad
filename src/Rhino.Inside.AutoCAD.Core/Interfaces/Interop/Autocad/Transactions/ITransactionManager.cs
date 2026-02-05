@@ -5,7 +5,7 @@
 /// </summary>
 /// <remarks>
 /// The <see cref="ITransactionManager"/>s primary purpose is to provide a
-/// bridge between the AutoCAD API and the AWI API. It enables the AWI API
+/// bridge between the AutoCAD API and the Rhino API. It enables the Rhino API
 /// to be decoupled from AutoCAD (no AutoCAD types are exposed inRhino.Inside.AutoCAD.Core),
 /// and serves as the main entry point to the AutoCAD API when it needs to
 /// be called.
