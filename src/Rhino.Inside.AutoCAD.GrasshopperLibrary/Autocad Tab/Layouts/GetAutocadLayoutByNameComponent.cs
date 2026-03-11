@@ -81,11 +81,11 @@ public class GetAutocadLayoutByNameComponent : RhinoInsideAutocad_ComponentBase,
         DA.GetData(2, ref repopulate);
 
         if (repopulate)
-            autocadDocument.LayoutRepository.Repopulate();
+            autocadDocument.LayoutRegister.Repopulate();
 
-        var layoutsRepository = autocadDocument.LayoutRepository;
+        var layoutsRegister = autocadDocument.LayoutRegister;
 
-        if (layoutsRepository.TryGetByName(name, out var layout) == false)
+        if (layoutsRegister.TryGetByName(name, out var layout) == false)
         {
             this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                 $"No layout exists with name: {name}");

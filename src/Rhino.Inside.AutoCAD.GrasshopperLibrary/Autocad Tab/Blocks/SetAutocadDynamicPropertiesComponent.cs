@@ -1,13 +1,13 @@
-using Autodesk.AutoCAD.ApplicationServices.Core;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
+using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
-/// A Grasshopper component that extracts properties from an AutoCAD dynamic block reference property.
+/// A Grasshopper component that set properties from an AutoCAD dynamic block reference property.
 /// </summary>
 [ComponentVersion(introduced: "1.0.0", updated: "1.0.11")]
 public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_ComponentBase
@@ -26,7 +26,7 @@ public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_Component
     /// </summary>
     public SetAutocadDynamicPropertiesComponent()
         : base("Set Dynamic Block Properties", "AC-SetPrp",
-            "Gets information from an AutoCAD Dynamic Block Reference Property",
+            "Sets the properties of an AutoCAD Dynamic Block Reference Property",
             "AutoCAD", "Blocks")
     {
     }
@@ -81,15 +81,15 @@ public class SetAutocadDynamicPropertiesComponent : RhinoInsideAutocad_Component
         var value = property.Value;
         DA.GetData(1, ref value);
 
-        var activeDocument = Application.DocumentManager.MdiActiveDocument;
+        var document = RhinoInsideAutoCadExtension.Application.RhinoInsideManager
+            .AutoCadInstance.ActiveDocument;
 
-        using var documentLock = activeDocument.LockDocument();
+        _ = document.Transaction((transactionManager) =>
+        {
 
-        var database = activeDocument.Database;
-
-        using var transactionManagerWrapper = new TransactionManagerWrapper(database);
-
-        this.UpdatePropertyValue(transactionManagerWrapper, value, property);
+            this.UpdatePropertyValue(transactionManager, value, property);
+            return true;
+        });
 
         var goo = new GH_DynamicBlockReferenceProperty(property);
 

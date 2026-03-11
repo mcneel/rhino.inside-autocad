@@ -84,10 +84,10 @@ public class CreateAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
             return;
         }
 
-        if (!autocadDocument.LayoutRepository.TryAddLayout(name, out var layout) || layout is null)
+        if (!autocadDocument.LayoutRegister.TryAddLayout(name, out var layout) || layout is null)
         {
             this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Layout already exists or could not be created");
-            // layout will be null if it already exists, per the repository implementation
+            // layout will be null if it already exists, per the register implementation
             return;
         }
 

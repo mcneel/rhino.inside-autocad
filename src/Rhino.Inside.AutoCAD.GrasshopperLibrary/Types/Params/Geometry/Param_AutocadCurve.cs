@@ -34,7 +34,7 @@ public class Param_AutocadCurve : Param_AutocadObjectBase<GH_AutocadCurve, CadCu
     { }
 
     /// <inheritdoc />
-    protected override IFilter CreateSelectionFilter() => new CurveFilter();
+    protected override IObjectFilter CreateSelectionFilter() => new CurveFilter();
 
     /// <inheritdoc />
     protected override GH_AutocadCurve WrapEntity(CadCurve entity) => new GH_AutocadCurve(entity);

@@ -9,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class RhinoConvertibleBrep : RhinoConvertibleBase<Rhino.Geometry.Brep>
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <summary>
     /// Constructs a new <see cref="RhinoConvertibleBrep"/> instance.
     /// </summary>
@@ -21,7 +19,7 @@ public class RhinoConvertibleBrep : RhinoConvertibleBase<Rhino.Geometry.Brep>
     /// <inheritdoc />
     protected override List<IEntity> ConvertGeometry(ITransactionManager transactionManager)
     {
-        var cadSolids = _geometryConverter.ToAutoCadType(this.RhinoGeometry);
+        var cadSolids = this.RhinoGeometry.ToAutocadNurbSurfaces();
 
         var entities = new List<IEntity>();
         foreach (var cadSolid in cadSolids)

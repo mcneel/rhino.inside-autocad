@@ -22,13 +22,13 @@ public interface IGrasshopperObjectPreviewServer
 
     /// <summary>
     /// Adds the provided <paramref name="grasshopperPreviewData"/> into this <see cref=
-    /// "ITransientManager"/>.
+    /// "IGrasshopperObjectPreviewServer"/>.
     /// </summary>
     void AddObject(Guid rhinoObjectId, IGrasshopperPreviewData grasshopperPreviewData);
 
     /// <summary>
     /// Removes the provided <paramref name="rhinoObjectId"/> from this <see cref=
-    /// "ITransientManager"/>.
+    /// "IGrasshopperObjectPreviewServer"/>.
     /// </summary>
     void RemoveObject(Guid rhinoObjectId);
 }

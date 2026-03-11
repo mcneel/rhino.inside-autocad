@@ -24,11 +24,6 @@ public class MessageConstants
         "Logger has not been initialized. Call Initialize() first.";
 
     /// <summary>
-    /// The error message when user settings fail to deserialize.
-    /// </summary>
-    public const string UserSettingDeserializeError = "Unable to deserialize user settings";
-
-    /// <summary>
     /// The error message when the Rhino Inside ribbon tab is not loaded.
     /// </summary>
     public const string RhinoInsideTabNotLoadedError = "Rhino Inside Ribbon Tab not loaded";

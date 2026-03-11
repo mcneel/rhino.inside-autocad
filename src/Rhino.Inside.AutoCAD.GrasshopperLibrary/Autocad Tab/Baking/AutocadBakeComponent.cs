@@ -12,7 +12,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that bakes AutoCAD objects to the model space.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.0.9")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.17")]
 public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingComponent
 {
     /// <inheritdoc />
@@ -48,6 +48,10 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
         pManager.AddParameter(new Param_BakeSettings(GH_ParamAccess.item), "Settings",
             "S", "Optional bake settings (layer, linetype, color)", GH_ParamAccess.item);
         pManager[2].Optional = true;
+
+        pManager.AddBooleanParameter("Bake", "Bake",
+            "A boolean when true the Objects will be baked to AutoCAD", GH_ParamAccess.item);
+
     }
 
     /// <inheritdoc />
@@ -102,6 +106,14 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
+        var run = false;
+        DA.GetData(3, ref run);
+
+        if (run == false)
+        {
+            return;
+        }
+
         AutocadDocument? autocadDocument = null;
         DA.GetData(0, ref autocadDocument);
 
@@ -125,6 +137,8 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
 
         GH_BakeSettings? settingsGoo = null;
         DA.GetData(2, ref settingsGoo);
+
+
         var settings = settingsGoo?.Value;
 
         var converterFactory = new RhinoConvertibleFactory();

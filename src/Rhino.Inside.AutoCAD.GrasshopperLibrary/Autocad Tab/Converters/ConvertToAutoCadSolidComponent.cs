@@ -1,5 +1,4 @@
 using Grasshopper.Kernel;
-using Rhino.Inside.AutoCAD.Interop;
 using RhinoBrep = Rhino.Geometry.Brep;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -10,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.0")]
 public class ConvertToAutoCadSolidComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("5b7c9d1e-4f6a-3b8c-7d2e-9f1a5b6c8d3e");
 
@@ -50,7 +47,7 @@ public class ConvertToAutoCadSolidComponent : RhinoInsideAutocad_ComponentBase
         RhinoBrep? rhinoBrep = null;
 
         if (!DA.GetData(0, ref rhinoBrep)
-        || rhinoBrep is null) return;
+            || rhinoBrep is null) return;
 
         var goo = new GH_AutocadBrepProxy(rhinoBrep);
 

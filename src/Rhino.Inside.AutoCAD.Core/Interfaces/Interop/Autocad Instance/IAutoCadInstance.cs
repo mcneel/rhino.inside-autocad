@@ -22,9 +22,9 @@ public interface IAutoCadInstance
     event EventHandler<IAutocadDocumentChangeEventArgs>? DocumentChanged;
 
     /// <summary>
-    /// The <see cref="IValidationLogger"/> for this <see cref="IAutoCadInstance"/>.
+    /// The <see cref="IStartUpLogger"/> for this <see cref="IAutoCadInstance"/>.
     /// </summary>
-    IValidationLogger ValidationLogger { get; }
+    IStartUpLogger StartUpLogger { get; }
 
     /// <summary>
     /// The list of open <see cref="IAutocadDocument"/>s in the AutoCAD application.

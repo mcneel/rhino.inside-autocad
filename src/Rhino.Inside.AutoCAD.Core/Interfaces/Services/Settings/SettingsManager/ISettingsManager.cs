@@ -2,7 +2,7 @@
 
 /// <summary>
 /// The settings manager, This setting manager is used to import the <see
-/// cref="ISettingsCore"/>. The <see cref="ISettingsCore"/> is the location
+/// cref="ISettings"/>. The <see cref="ISettings"/> is the location
 /// of the core settings which are common for all applications.
 /// </summary>
 public interface ISettingsManager
@@ -10,15 +10,5 @@ public interface ISettingsManager
     /// <summary>
     /// The core settings shared by all applications.
     /// </summary>
-    public ISettingsCore Core { get; }
-
-    /// <summary>
-    /// The user specific settings.
-    /// </summary>
-    public IUserSettings User { get; }
-
-    /// <summary>
-    /// Saves the current user settings to the JSON file.
-    /// </summary>
-    void SaveUserSettings();
+    public ISettings Core { get; }
 }

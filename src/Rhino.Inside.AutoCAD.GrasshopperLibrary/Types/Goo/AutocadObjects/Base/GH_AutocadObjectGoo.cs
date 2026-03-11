@@ -3,7 +3,6 @@ using Autodesk.AutoCAD.DatabaseServices;
 using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
-using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -41,8 +40,8 @@ where TWrapperType : IDbObject
     /// Initializes a new instance of the <see cref="GH_AutocadObject"/> class with the
     /// specified AutoCAD Object.
     /// </summary>
-    /// <param name="dbObject">The AutoCAD Object to wrap.</param>
-    protected GH_AutocadObjectGoo(TWrapperType dbObject) : base(dbObject)
+    /// <param name="autocadDbObject">The AutoCAD Object to wrap.</param>
+    protected GH_AutocadObjectGoo(TWrapperType autocadDbObject) : base(autocadDbObject)
     {
     }
 
@@ -149,7 +148,7 @@ where TWrapperType : IDbObject
 
         var referencedObject = transaction.GetObject(newId, OpenMode.ForRead);
 
-        var wrapper = new DbObjectWrapper(referencedObject);
+        var wrapper = new AutocadDbObjectWrapper(referencedObject);
 
         var newWrapper = (GH_AutocadObjectGoo<TWrapperType>)this.CreateInstance(wrapper);
 

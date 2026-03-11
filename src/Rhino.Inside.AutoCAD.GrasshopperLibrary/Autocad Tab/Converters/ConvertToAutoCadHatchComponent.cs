@@ -1,6 +1,5 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Applications;
-using Rhino.Inside.AutoCAD.Interop;
 using RhinoHatch = Rhino.Geometry.Hatch;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -11,8 +10,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.0", updated: "1.0.14")]
 public class ConvertToAutoCadHatchComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("38d9b037-b0ce-41cb-abe8-b8dc4bbba9af");
 
@@ -57,7 +54,7 @@ public class ConvertToAutoCadHatchComponent : RhinoInsideAutocad_ComponentBase
             .AutoCadInstance.ActiveDocument;
 
         var cadHatch = activeDocument.Transaction(transactionManagerWrapper =>
-            _geometryConverter.ToAutoCadType(rhinoHatch, transactionManagerWrapper));
+            rhinoHatch.ToAutocadHatch(transactionManagerWrapper));
 
         if (cadHatch == null)
         {

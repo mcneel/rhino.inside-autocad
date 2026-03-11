@@ -18,20 +18,6 @@ public class InternalColor : IColor
     public byte Alpha { get; }
 
     /// <summary>
-    /// Constructs a new <see cref="InternalColor"/>.
-    /// </summary>
-    public InternalColor(byte red, byte green, byte blue, byte alpha = 255)
-    {
-        this.Red = red;
-
-        this.Green = green;
-
-        this.Blue = blue;
-
-        this.Alpha = alpha;
-    }
-
-    /// <summary>
     /// Constructs a new <see cref="InternalColor"/> from <see cref=
     /// "Autodesk.AutoCAD.Colors.Color"/>.
     /// </summary>

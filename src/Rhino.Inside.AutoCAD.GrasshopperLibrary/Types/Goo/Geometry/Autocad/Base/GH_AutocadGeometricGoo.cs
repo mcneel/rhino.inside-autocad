@@ -6,6 +6,7 @@ using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
+using CadColor = Autodesk.AutoCAD.Colors.Color;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -18,8 +19,6 @@ public abstract class GH_AutocadGeometricGoo<TWrapperType, TRhinoType>
 where TWrapperType : Entity
 where TRhinoType : GeometryBase
 {
-    protected readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-    private readonly AutocadColorConverter _colorConverter = AutocadColorConverter.Instance!;
     private const string _referenceHandleDictionaryName = "AutocadReferenceHandle";
 
     /// <inheritdoc />
@@ -46,7 +45,7 @@ where TRhinoType : GeometryBase
 
             var bounds = this.Value.Bounds;
 
-            return _geometryConverter.ToRhinoType(bounds!.Value);
+            return bounds!.Value.ToRhinoBoundingBox();
         }
     }
 
@@ -270,7 +269,7 @@ where TRhinoType : GeometryBase
         if (settings?.Color != null)
         {
             var color = settings.Color;
-            entity.Color = _colorConverter.ToCadColor(color);
+            entity.Color = CadColor.FromRgb(color.Red, color.Green, color.Blue);
         }
     }
 
@@ -282,7 +281,7 @@ where TRhinoType : GeometryBase
 
         var transaction = transactionManager.Unwrap();
 
-        var modelSpace = transactionManager.GetModelSpaceBlockTableRecord(openForWrite: true);
+        var modelSpace = transactionManager.GetModelSpace(openForWrite: true);
 
         var modelSpaceRecord = modelSpace.Unwrap();
 
@@ -296,7 +295,7 @@ where TRhinoType : GeometryBase
 
         transaction.AddNewlyCreatedDBObject(blockReference, true);
 
-        return [new AutocadObjectId(objectId)];
+        return [new AutocadObjectIdWrapper(objectId)];
     }
 
     /// <inheritdoc />

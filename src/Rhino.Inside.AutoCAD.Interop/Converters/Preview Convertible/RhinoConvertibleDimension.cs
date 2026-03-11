@@ -9,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class RhinoConvertibleDimension : RhinoConvertibleBase<Rhino.Geometry.Dimension>
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <summary>
     /// Constructs a new <see cref="RhinoConvertibleDimension"/> instance.
     /// </summary>
@@ -21,7 +19,7 @@ public class RhinoConvertibleDimension : RhinoConvertibleBase<Rhino.Geometry.Dim
     /// <inheritdoc />
     protected override List<IEntity> ConvertGeometry(ITransactionManager transactionManager)
     {
-        var cadDimension = _geometryConverter.ToAutoCadType(this.RhinoGeometry);
+        var cadDimension = this.RhinoGeometry.ToAutocadDimension();
 
         if (cadDimension == null) return [];
 

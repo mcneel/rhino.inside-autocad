@@ -26,7 +26,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadReferenceDatabaseObject,
     IGH_PreviewData, IGH_AutocadGeometryPreview, IAutocadBakeable
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
     private const string _referenceHandleDictionaryName = "AutocadReferenceHandle";
 
     /// <summary>
@@ -35,9 +34,7 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
     /// </summary>
     public static GH_AutocadBrepProxy CreateFromSolid(Solid3d solid)
     {
-        var geometryConverter = GeometryConverter.Instance!;
-
-        var rhinoBrep = geometryConverter.ToRhinoType(solid).FirstOrDefault();
+        var rhinoBrep = solid.ToRhinoBreps().FirstOrDefault();
 
         return rhinoBrep == null
             ? new GH_AutocadBrepProxy()
@@ -110,7 +107,7 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
     /// </summary>
     private RhinoBrep? Convert(Solid3d solid3d)
     {
-        var rhinoType = _geometryConverter.ToRhinoType(solid3d);
+        var rhinoType = solid3d.ToRhinoBreps();
 
         return rhinoType.FirstOrDefault();
     }
@@ -120,7 +117,7 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
     /// </summary>
     private AutocadBrepProxy? Convert(RhinoBrep rhinoBrep)
     {
-        var rhinoType = _geometryConverter.ToProxyType(rhinoBrep);
+        var rhinoType = rhinoBrep.ToAutocadBrepProxy();
 
         return rhinoType;
     }
@@ -156,7 +153,7 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
             return ids;
 
         var activeDocument = Application.DocumentManager.MdiActiveDocument;
-        IEntityCollection convertedResult = null;
+        IEntitySet convertedResult = null;
 
         var request = new BrepConverterRequest(rhinoGeometry, (result) =>
         {

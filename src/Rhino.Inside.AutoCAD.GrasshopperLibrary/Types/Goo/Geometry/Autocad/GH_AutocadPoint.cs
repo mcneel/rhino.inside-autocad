@@ -51,13 +51,13 @@ public class GH_AutocadPoint : GH_AutocadGeometricGoo<AutocadPoint, RhinoPoint>
     /// <inheritdoc />
     protected override AutocadPoint? Convert(RhinoPoint rhinoType)
     {
-        return _geometryConverter.ToAutoCadType(rhinoType);
+        return rhinoType.ToAutocadDBPoint();
     }
 
     /// <inheritdoc />
     protected override RhinoPoint? Convert(AutocadPoint wrapperType)
     {
-        return _geometryConverter.ToRhinoType(wrapperType);
+        return wrapperType.ToRhinoPoint();
     }
 
     /// <inheritdoc />

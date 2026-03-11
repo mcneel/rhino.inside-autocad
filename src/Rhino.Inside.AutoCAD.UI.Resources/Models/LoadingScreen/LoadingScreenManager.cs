@@ -18,7 +18,7 @@ public class LoadingScreenManager : ILoadingScreenManager
     private readonly ILoggerService _logger = LoggerService.Instance;
 
     private readonly ILoadingScreenConstants _loadingScreenConstants;
-    private readonly IVersionLog _versionLog;
+    private readonly IApplicationVersionHistory _applicationVersionHistory;
 
     private LoadingScreenWindow? _loadingScreenWindow;
     private LoadingScreenViewModel? _loadingScreenViewModel;
@@ -39,7 +39,8 @@ public class LoadingScreenManager : ILoadingScreenManager
     {
         _loadingScreenConstants = application.SettingsManager.Core.LoadingScreenConstants;
 
-        _versionLog = application.Bootstrapper.VersionLog;
+        _applicationVersionHistory = application.Bootstrapper.ApplicationVersionHistory;
+
         _rhinoVersion = application.RhinoInsideManager.RhinoInstance.ApplicationVersion;
     }
 
@@ -96,7 +97,7 @@ public class LoadingScreenManager : ILoadingScreenManager
 
             lock (_initLock)
             {
-                _loadingScreenViewModel = new LoadingScreenViewModel(_loadingScreenConstants, _versionLog, _rhinoVersion);
+                _loadingScreenViewModel = new LoadingScreenViewModel(_loadingScreenConstants, _applicationVersionHistory, _rhinoVersion);
 
                 _loadingScreenWindow = new LoadingScreenWindow(_loadingScreenViewModel!)
                 {
@@ -167,13 +168,13 @@ public class LoadingScreenManager : ILoadingScreenManager
     }
 
     /// <inheritdoc/>
-    public void ShowFailedValidationInfo(IValidationLogger validationLogger)
+    public void ShowFailedValidationInfo(IStartUpLogger startUpLogger)
     {
         this.WaitForDispatcherReady();
 
         _dispatcher?.Invoke(() =>
         {
-            var messageInfo = validationLogger.GetMessage();
+            var messageInfo = startUpLogger.GetLastErrorMessage();
 
             this.ShowFailure(messageInfo);
         });

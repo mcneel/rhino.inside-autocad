@@ -44,8 +44,8 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
     /// <summary>
     /// Creates the filter to use for selecting objects in AutoCAD.
     /// </summary>
-    /// <returns>A filter that implements <see cref="IFilter"/>.</returns>
-    protected abstract IFilter CreateSelectionFilter();
+    /// <returns>A filter that implements <see cref="IObjectFilter"/>.</returns>
+    protected abstract IObjectFilter CreateSelectionFilter();
 
     /// <summary>
     /// Gets the message to display when prompting for a single object.

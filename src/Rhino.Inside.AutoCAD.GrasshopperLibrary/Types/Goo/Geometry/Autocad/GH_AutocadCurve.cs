@@ -62,13 +62,13 @@ public class GH_AutocadCurve : GH_AutocadGeometricGoo<AutocadCurve, RhinoCurve>
     /// <inheritdoc />
     protected override AutocadCurve? Convert(RhinoCurve rhinoType)
     {
-        return _geometryConverter.ToAutoCadSingleCurve(rhinoType);
+        return rhinoType.ToAutocadSingleCurve();
     }
 
     /// <inheritdoc />
     protected override RhinoCurve? Convert(AutocadCurve wrapperType)
     {
-        return _geometryConverter.ToRhinoType(wrapperType);
+        return wrapperType.ToRhinoCurve();
     }
 
     /// <inheritdoc />

@@ -1,5 +1,4 @@
 using Grasshopper.Kernel;
-using Rhino.Inside.AutoCAD.Interop;
 using AutocadMLeader = Autodesk.AutoCAD.DatabaseServices.MLeader;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -10,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.0")]
 public class ConvertFromAutoCadLeaderComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("e8a2b5c6-1f7d-4c9e-d3a0-2b6c5d4e7f8a");
 
@@ -51,7 +48,7 @@ public class ConvertFromAutoCadLeaderComponent : RhinoInsideAutocad_ComponentBas
         if (!DA.GetData(0, ref autocadLeader)
             || autocadLeader is null) return;
 
-        var rhinoLeader = _geometryConverter.ToRhinoType(autocadLeader);
+        var rhinoLeader = autocadLeader.ToRhinoLeader();
 
         if (rhinoLeader == null)
         {

@@ -63,9 +63,9 @@ public class GetAutocadLineTypesComponent : RhinoInsideAutocad_ComponentBase, IR
         if (autocadDocument is null)
             return;
 
-        var lineTypesRepository = autocadDocument.LineTypeRepository;
+        var lineTypesRegister = autocadDocument.LineTypeRegister;
 
-        var gooLineTypes = lineTypesRepository
+        var gooLineTypes = lineTypesRegister
             .Select(lineType => new GH_AutocadLineType(lineType))
             .ToList();
 

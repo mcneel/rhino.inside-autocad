@@ -42,7 +42,7 @@ public interface IGrasshopperInstance
     /// Validates that the Grasshopper library is loaded into the Grasshopper
     /// component server.
     /// </summary>
-    void ValidateGrasshopperLibrary(IValidationLogger validationLogger);
+    void ValidateGrasshopperLibrary(IStartUpLogger startUpLogger);
 
     /// <summary>
     /// Recomputes the Grasshopper solution in the active Grasshopper document.

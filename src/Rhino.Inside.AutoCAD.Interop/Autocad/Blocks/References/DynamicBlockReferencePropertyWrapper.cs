@@ -5,7 +5,7 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 namespace Rhino.Inside.AutoCAD.Interop;
 
 /// <inheritdoc cref="IDynamicBlockReferencePropertyWrapper"/>
-public class DynamicBlockReferencePropertyWrapper : WrapperBase<DynamicBlockReferenceProperty>,
+public class DynamicBlockReferencePropertyWrapper : AutocadWrapperBase<DynamicBlockReferenceProperty>,
     IDynamicBlockReferencePropertyWrapper
 {
     private readonly DynamicBlockReferenceProperty _dynamicBlockReferenceProperty;
@@ -26,7 +26,7 @@ public class DynamicBlockReferencePropertyWrapper : WrapperBase<DynamicBlockRefe
     public DynamicPropertyTypeCode TypeCode { get; }
 
     /// <summary>
-    /// Constructs a new <see cref="DynamicBlockReferencePropertyWrapper"/>.
+    /// Constructs a new <see cref="IDynamicBlockReferencePropertyWrapper"/>.
     /// </summary>
     public DynamicBlockReferencePropertyWrapper(DynamicBlockReferenceProperty dynamicBlockReferenceProperty)
         : base(dynamicBlockReferenceProperty)

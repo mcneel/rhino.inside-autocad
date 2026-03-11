@@ -34,7 +34,7 @@ public class Param_AutocadHatch : Param_AutocadObjectBase<GH_AutocadHatch, CadHa
     { }
 
     /// <inheritdoc />
-    protected override IFilter CreateSelectionFilter() => new HatchFilter();
+    protected override IObjectFilter CreateSelectionFilter() => new HatchFilter();
 
     /// <inheritdoc />
     protected override GH_AutocadHatch WrapEntity(CadHatch entity) => new GH_AutocadHatch(entity);

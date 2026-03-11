@@ -55,7 +55,7 @@ public class GetByAutocadIdComponent : RhinoInsideAutocad_ComponentBase, IRefere
     protected override void SolveInstance(IGH_DataAccess DA)
     {
         AutocadDocument? autocadDocument = null;
-        AutocadObjectId? id = null;
+        AutocadObjectIdWrapper? id = null;
 
         DA.GetData(0, ref autocadDocument);
 

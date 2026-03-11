@@ -9,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class RhinoConvertibleLeader : RhinoConvertibleBase<Rhino.Geometry.Leader>
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <summary>
     /// Constructs a new <see cref="RhinoConvertibleLeader"/> instance.
     /// </summary>
@@ -21,7 +19,7 @@ public class RhinoConvertibleLeader : RhinoConvertibleBase<Rhino.Geometry.Leader
     /// <inheritdoc />
     protected override List<IEntity> ConvertGeometry(ITransactionManager transactionManager)
     {
-        var cadLeader = _geometryConverter.ToAutoCadType(this.RhinoGeometry);
+        var cadLeader = this.RhinoGeometry.ToAutocadMLeader();
 
         if (cadLeader == null) return [];
 

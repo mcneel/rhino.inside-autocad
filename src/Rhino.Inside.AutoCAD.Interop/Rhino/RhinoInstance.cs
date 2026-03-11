@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="IRhinoInstance"/>
 public class RhinoInstance : IRhinoInstance
 {
-    private readonly IApplicationDirectories _applicationDirectories;
+    private readonly IInstallationDirectories _installationDirectories;
 
     /// <inheritdoc />
     public event EventHandler? DocumentCreated;
@@ -40,9 +40,9 @@ public class RhinoInstance : IRhinoInstance
     /// the Rhino Inside lifecycle and document. Use <see cref="IRhinoLauncher"/> to
     /// create a running Rhino instance.
     /// </summary>
-    public RhinoInstance(IApplicationDirectories applicationDirectories)
+    public RhinoInstance(IInstallationDirectories installationDirectories)
     {
-        _applicationDirectories = applicationDirectories;
+        _installationDirectories = installationDirectories;
         this.RhinoCore = RhinoCoreExtension.Instance;
         this.ApplicationVersion = Rhino.RhinoApp.Version;
 
@@ -52,11 +52,11 @@ public class RhinoInstance : IRhinoInstance
     /// Initializes the Rhino Inside instance and returns true if it has successfully
     /// launched otherwise false indicating a failure.
     /// </summary>
-    private RhinoDoc CreateRhinoDoc(IValidationLogger validationLogger,
+    private RhinoDoc CreateRhinoDoc(IStartUpLogger logger,
         RhinoInsideMode mode)
     {
         var template =
-            $"{_applicationDirectories.Resources}Large Objects - Millimeters.3dm";
+            $"{_installationDirectories.Resources}Large Objects - Millimeters.3dm";
 
         try
         {
@@ -80,7 +80,7 @@ public class RhinoInstance : IRhinoInstance
         }
         catch
         {
-            validationLogger.AddMessage("Failed to initialize Rhino Doc.");
+            logger.AddError("Failed to initialize Rhino Doc.");
 
             throw;
         }
@@ -128,11 +128,11 @@ public class RhinoInstance : IRhinoInstance
     }
 
     /// <inheritdoc />
-    public void ValidateRhinoDoc(RhinoInsideMode mode, IValidationLogger validationLogger)
+    public void ValidateRhinoDoc(RhinoInsideMode mode, IStartUpLogger logger)
     {
         if (this.ActiveDoc == null)
         {
-            this.ActiveDoc = this.CreateRhinoDoc(validationLogger, mode);
+            this.ActiveDoc = this.CreateRhinoDoc(logger, mode);
         }
     }
 
@@ -154,15 +154,6 @@ public class RhinoInstance : IRhinoInstance
     /// <inheritdoc />
     public void Shutdown()
     {
-        /*   if (this.ActiveDoc != null && this.ActiveDoc.Modified)
-           {
-               if (Rhino.UI.Dialogs.ShowMessage("Save changes to Rhino Document",
-                       "Rhino Save Changes", ShowMessageButton.YesNo,
-                       ShowMessageIcon.Warning) == ShowMessageResult.Yes)
-               {
-                   this.ActiveDoc.Save();
-               }
-           }*/
 
         RhinoDoc.DocumentPropertiesChanged -= this.OnDocumentPropertiesModified;
 

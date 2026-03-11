@@ -69,9 +69,9 @@ public class GetAutocadLayerByNameComponent : RhinoInsideAutocad_ComponentBase, 
 
         DA.GetData(1, ref name);
 
-        var layersRepository = autocadDocument.LayerRepository;
+        var layersRegister = autocadDocument.LayerRegister;
 
-        if (layersRepository.TryGetByName(name, out var layer) == false)
+        if (layersRegister.TryGetByName(name, out var layer) == false)
         {
             this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                 $"No layer exists with name: {name}");

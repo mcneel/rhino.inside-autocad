@@ -9,9 +9,6 @@ namespace Rhino.Inside.AutoCAD.Services;
 public class AutocadBootstrapperConfig : IBootstrapperConfig
 {
     /// <inheritdoc />
-    public IWindowConfig WindowConfig { get; }
-
-    /// <inheritdoc />
     public IAssemblyRedirectsSet AssemblyRedirectsSet { get; }
 
     /// <inheritdoc />
@@ -21,10 +18,8 @@ public class AutocadBootstrapperConfig : IBootstrapperConfig
     /// The constructor for the <see cref="AutocadBootstrapperConfig"/>. A config for the <see
     /// cref="IBootstrapper"/> in AutoCAD applications.
     /// </summary>
-    public AutocadBootstrapperConfig(IntPtr parentWindowHandle, IApplicationConfig applicationConfig)
+    public AutocadBootstrapperConfig(IApplicationConfig applicationConfig)
     {
-        this.WindowConfig = new AutocadWindowConfig(parentWindowHandle);
-
         this.ApplicationConfig = applicationConfig;
 
         this.AssemblyRedirectsSet = new AssemblyRedirectsSet([

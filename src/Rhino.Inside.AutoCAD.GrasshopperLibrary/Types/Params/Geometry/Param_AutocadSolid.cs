@@ -34,7 +34,7 @@ public class Param_AutocadSolid : Param_AutocadObjectBase<GH_AutocadBrepProxy, C
     { }
 
     /// <inheritdoc />
-    protected override IFilter CreateSelectionFilter() => new SolidFilter();
+    protected override IObjectFilter CreateSelectionFilter() => new SolidFilter();
 
     /// <inheritdoc />
     protected override GH_AutocadBrepProxy WrapEntity(CadSolid entity)

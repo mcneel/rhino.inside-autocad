@@ -36,6 +36,16 @@
 	</ItemGroup>
 
 
+	<ItemGroup>
+	  <Folder Include="Interfaces\Interop\Autocad\AssocNetworks\" />
+	  <Folder Include="Interfaces\Interop\Autocad\Blocks\Table Records\" />
+	  <Folder Include="Interfaces\Interop\Autocad\Document Meta\" />
+	  <Folder Include="Interfaces\Services\Directories\" />
+	  <Folder Include="Interfaces\Services\Filepath\" />
+	  <Folder Include="Interfaces\Services\Settings\Importer\" />
+	</ItemGroup>
+
+
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;" />
 	</Target>

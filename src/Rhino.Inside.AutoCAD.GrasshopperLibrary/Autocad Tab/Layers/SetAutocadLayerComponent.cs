@@ -97,9 +97,7 @@ public class SetAutocadLayerComponent : RhinoInsideAutocad_ComponentBase
 
             var database = activeDocument.Database;
 
-            using var transactionManagerWrapper = new TransactionManagerWrapper(database);
-
-            using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+            using var transaction = database.TransactionManager.StartTransaction();
 
             var cadLayer =
                 transaction.GetObject(cadLayerId, OpenMode.ForWrite) as LayerTableRecord;
@@ -134,7 +132,7 @@ public class SetAutocadLayerComponent : RhinoInsideAutocad_ComponentBase
             || autocadLayer is null) return;
 
         var newName = autocadLayer.Name;
-        var newPattenId = autocadLayer.LinePattenId;
+        var newPattenId = autocadLayer.LineTypeId;
         var newColor = autocadLayer.Color;
         var newIsLocked = autocadLayer.IsLocked;
 
@@ -144,7 +142,7 @@ public class SetAutocadLayerComponent : RhinoInsideAutocad_ComponentBase
         DA.GetData(4, ref newIsLocked);
 
         var change = newName != autocadLayer.Name
-                     || newPattenId != autocadLayer.LinePattenId
+                     || newPattenId != autocadLayer.LineTypeId
                      || newColor != autocadLayer.Color
                      || newIsLocked != autocadLayer.IsLocked;
 
@@ -153,7 +151,7 @@ public class SetAutocadLayerComponent : RhinoInsideAutocad_ComponentBase
             autocadLayer = this.UpdateLayout(autocadLayer, newName, newPattenId, newColor, newIsLocked);
         }
 
-        var linePatten = autocadLayer.LinePattenId;
+        var linePatten = autocadLayer.LineTypeId;
 
         var name = autocadLayer.Name;
 

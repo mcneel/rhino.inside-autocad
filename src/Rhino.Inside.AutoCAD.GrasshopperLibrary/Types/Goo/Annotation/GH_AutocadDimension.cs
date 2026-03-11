@@ -52,13 +52,13 @@ public class GH_AutocadDimension : GH_AutocadGeometricGoo<AutocadDimension, Rhin
     /// <inheritdoc />
     protected override AutocadDimension? Convert(RhinoDimension rhinoType)
     {
-        return _geometryConverter.ToAutoCadType(rhinoType);
+        return rhinoType.ToAutocadDimension();
     }
 
     /// <inheritdoc />
     protected override RhinoDimension? Convert(AutocadDimension wrapperType)
     {
-        return _geometryConverter.ToRhinoType(wrapperType);
+        return wrapperType.ToRhinoDimension();
     }
 
     /// <inheritdoc />

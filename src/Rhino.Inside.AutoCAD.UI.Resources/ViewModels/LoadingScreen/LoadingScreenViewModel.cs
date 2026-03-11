@@ -6,7 +6,7 @@ using System.Windows.Threading;
 namespace Rhino.Inside.AutoCAD.UI.Resources.ViewModels;
 
 /// <summary>
-/// The view model for the MFE Formwork software splash screen.
+/// The view model for the software splash screen.
 /// </summary>
 public partial class LoadingScreenViewModel : ObservableObject, IDisposable
 {
@@ -68,15 +68,15 @@ public partial class LoadingScreenViewModel : ObservableObject, IDisposable
 #if DEBUG
     public bool ShowHideButton => true;
 #else
-        public bool ShowHideButton => false;
+    public bool ShowHideButton => false;
 #endif
 
     /// <summary>
     /// Constructs a new <see cref="LoadingScreenViewModel"/>.
     /// </summary>
-    public LoadingScreenViewModel(ILoadingScreenConstants LoadingScreenConstants, IVersionLog versionLog, Version rhinoVersion)
+    public LoadingScreenViewModel(ILoadingScreenConstants LoadingScreenConstants, IApplicationVersionHistory versionHistory, Version rhinoVersion)
     {
-        var version = versionLog.CurrentVersion;
+        var version = versionHistory.GetCurrentVersion();
 
         _copyrightNotice = $"{LoadingScreenConstants.Copyright} {DateTime.Now.Year} ©.";
         _appVersion = $"{LoadingScreenConstants.VersionPrefix} {version}";

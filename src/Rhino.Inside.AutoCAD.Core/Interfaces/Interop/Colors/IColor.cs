@@ -1,27 +1,37 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// Represents a color with red, green, and blue components.
+/// Represents an RGBA color used for entity and layer visualization.
 /// </summary>
+/// <remarks>
+/// Provides a platform-independent color representation for converting between AutoCAD
+/// colors (ACI or true color) and Rhino/Grasshopper colors. Used by layer and entity
+/// wrappers such as <see cref="IAutocadLayerTableRecord"/> to expose color properties.
+/// </remarks>
+/// <seealso cref="IAutocadLayerTableRecord.Color"/>
 public interface IColor
 {
     /// <summary>
-    /// The red component of the <see cref="IColor"/>.
+    /// Gets the red component of the color (0-255).
     /// </summary>
     byte Red { get; }
 
     /// <summary>
-    /// The green component of the <see cref="IColor"/>.
+    /// Gets the green component of the color (0-255).
     /// </summary>
     byte Green { get; }
 
     /// <summary>
-    /// The blue component of the <see cref="IColor"/>.
+    /// Gets the blue component of the color (0-255).
     /// </summary>
     byte Blue { get; }
 
     /// <summary>
-    /// The alpha component of the <see cref="IColor"/>.
+    /// Gets the alpha (opacity) component of the color (0-255).
     /// </summary>
+    /// <remarks>
+    /// A value of 255 represents fully opaque; 0 represents fully transparent.
+    /// AutoCAD entities typically use fully opaque colors.
+    /// </remarks>
     byte Alpha { get; }
 }

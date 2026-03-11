@@ -9,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class RhinoConvertibleCurve : RhinoConvertibleBase<Rhino.Geometry.Curve>
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <summary>
     /// Constructs a new <see cref="RhinoConvertibleCurve"/> instance.
     /// </summary>
@@ -21,7 +19,7 @@ public class RhinoConvertibleCurve : RhinoConvertibleBase<Rhino.Geometry.Curve>
     /// <inheritdoc />
     protected override List<IEntity> ConvertGeometry(ITransactionManager transactionManager)
     {
-        var cadCurves = _geometryConverter.ToAutoCadType(this.RhinoGeometry);
+        var cadCurves = this.RhinoGeometry.ToAutocadCurves();
 
         var entities = new List<IEntity>();
         foreach (var cadCurve in cadCurves)

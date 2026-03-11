@@ -34,11 +34,11 @@ public class RhinoLauncher : IRhinoLauncher
         {
             var rhinoCoreExtension = RhinoCoreExtension.Instance;
 
-            var validationLogger = rhinoCoreExtension.ValidationLogger;
+            var validationLogger = rhinoCoreExtension.StartUpLogger;
 
-            if (validationLogger.HasValidationErrors)
+            if (validationLogger.HasError)
             {
-                _application.ShowAlertDialog(validationLogger.GetMessage());
+                _application.ShowAlertDialog(validationLogger.GetLastErrorMessage());
 
                 return;
             }

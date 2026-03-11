@@ -1,5 +1,4 @@
 using Grasshopper.Kernel;
-using Rhino.Inside.AutoCAD.Interop;
 using AutocadPoint = Autodesk.AutoCAD.DatabaseServices.DBPoint;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -10,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.0")]
 public class ConvertFromAutoCadPointComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("6d8e1f2a-5b7c-4d9e-2f3a-7b9c5d1e8f4a");
 
@@ -51,7 +48,7 @@ public class ConvertFromAutoCadPointComponent : RhinoInsideAutocad_ComponentBase
         if (!DA.GetData(0, ref autocadPoint)
             || autocadPoint is null) return;
 
-        var rhinoPoint = _geometryConverter.ToRhinoType(autocadPoint);
+        var rhinoPoint = autocadPoint.ToRhinoPoint();
 
         DA.SetData(0, rhinoPoint.Location);
     }

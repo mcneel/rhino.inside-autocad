@@ -1,117 +1,200 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// Represents a document object from AutoCAD.
+/// Represents an AutoCAD document (DWG file) and provides access to its database,
+/// repositories, and transactional operations.
 /// </summary>
+/// <remarks>
+/// This interface wraps an AutoCAD Document object and exposes functionality needed
+/// by Rhino.Inside.AutoCAD components. It manages event subscriptions for document
+/// changes and provides register access for layers, layouts, line types, and blocks.
+/// Used extensively by Grasshopper components such as AutocadDocumentComponent and
+/// GetAutocadDocumentsComponent for document-level operations.
+/// </remarks>
+/// <seealso cref="IDatabase"/>
+/// <seealso cref="IAutocadDocumentChangeEventArgs"/>
 public interface IAutocadDocument
 {
     /// <summary>
-    /// The unique Id of this document. 
-    /// </summary>
-    Guid Id { get; }
-
-    /// <summary>
-    /// Event handler triggered when a command within this document has successfully
-    /// completed.
+    /// Occurs when a command within this document completes successfully.
     /// </summary>
     /// <remarks>
-    /// This event only triggers when a command concludes successfully. If a command
-    /// is cancelled, this event will not fire. For example, when a user is creating
-    /// a polyline by adding vertices, if they hit the "esc" key after the final vertex, 
-    /// the command is cancelled, and this event won't be triggered. However, if they
-    /// press "Enter", the command completes successfully and this event will be
-    /// triggered.
+    /// This event only fires when a command concludes successfully, not when cancelled.
+    /// For example, if a user creates a polyline and presses "Esc" after the final vertex,
+    /// the command is cancelled and this event will not fire. Pressing "Enter" completes
+    /// the command and triggers this event.
     /// </remarks>
     event EventHandler<IAutocadDocumentChangeEventArgs>? DocumentChanged;
 
     /// <summary>
-    /// Event raised when the units of the Autocad document change.
+    /// Gets the unique identifier for this document instance.
     /// </summary>
-    event EventHandler? OnUnitsChanged;
+    /// <remarks>
+    /// This ID is generated when the wrapper is created and remains constant for the
+    /// lifetime of this instance. It is distinct from the AutoCAD document handle.
+    /// </remarks>
+    IAutocadDocumentId DocumentId { get; }
 
     /// <summary>
-    /// The <see cref="IDatabase"/> of the
-    /// <see cref="IAutocadDocument"/>.
+    /// Gets the <see cref="IDatabase"/> containing all objects in this document.
     /// </summary>
+    /// <remarks>
+    /// The database provides low-level access to AutoCAD's object storage and is used
+    /// for operations that require direct database manipulation.
+    /// </remarks>
     IDatabase Database { get; }
 
     /// <summary>
-    /// Provides file information about this <see cref="IAutocadDocument"/>.
+    /// Gets file information for this document, including path and name.
     /// </summary>
-    IAutocadDocumentFileInfo FileInfo { get; }
+    IAutocadDocumentFileMetadata FileMetadata { get; }
 
     /// <summary>
-    /// The <see cref="ILayerRepository"/> of this <see cref="IAutocadDocument"/>.
+    /// Gets the <see cref="ILayerRegister"/> for managing layers in this document.
     /// </summary>
-    ILayerRepository LayerRepository { get; }
+    /// <remarks>
+    /// Used by Grasshopper layer components such as GetAutocadLayersComponent and
+    /// CreateAutocadLayerComponent to query and create layers.
+    /// </remarks>
+    ILayerRegister LayerRegister { get; }
 
     /// <summary>
-    /// The <see cref="ILineTypeRepository"/> of this <see cref="IAutocadDocument"/>.
+    /// Gets the <see cref="ILineTypeRegister"/> for managing line types in this document.
     /// </summary>
-    ILineTypeRepository LineTypeRepository { get; }
+    /// <remarks>
+    /// Used by Grasshopper line type components such as GetAutocadLineTypesComponent and
+    /// CreateAutocadLineTypeComponent to query and create line types.
+    /// </remarks>
+    ILineTypeRegister LineTypeRegister { get; }
 
     /// <summary>
-    /// The <see cref="ILayoutRepository"/> of this <see cref="IAutocadDocument"/>.
+    /// Gets the <see cref="ILayoutRegister"/> for managing layouts in this document.
     /// </summary>
-    ILayoutRepository LayoutRepository { get; }
+    /// <remarks>
+    /// Used by Grasshopper layout components such as GetAutocadLayoutsComponent and
+    /// CreateAutocadLayoutComponent to query and create layouts.
+    /// </remarks>
+    ILayoutRegister LayoutRegister { get; }
 
     /// <summary>
-    /// The <see cref="IBlockTableRecordRepository"/> of this <see cref="IAutocadDocument"/>.
+    /// Gets the <see cref="IBlockTableRecordRegister"/> for managing block definitions in this document.
     /// </summary>
-    IBlockTableRecordRepository BlockTableRecordRepository { get; }
+    /// <remarks>
+    /// Used by Grasshopper block components such as GetAutocadBlockTableRecordsComponent
+    /// to query block table records.
+    /// </remarks>
+    IBlockTableRecordRegister BlockTableRecordRegister { get; }
 
     /// <summary>
-    /// The <see cref="UnitSystem"/> of this <see cref="IAutocadDocument"/>.
+    /// Gets the <see cref="UnitSystem"/> representing the drawing units of this document.
     /// </summary>
+    /// <remarks>
+    /// Returns the Rhino UnitSystem equivalent of the AutoCAD INSUNITS setting.
+    /// Important for geometry conversion between Rhino and AutoCAD coordinate systems.
+    /// </remarks>
     UnitSystem UnitSystem { get; }
 
     /// <summary>
-    /// Returns true if this <see cref="IAutocadDocument"/>s <see cref="CloseActionType"/>
-    /// has been set to save, meaning the underlying AutoCAD document will be saved
-    /// when <see cref="Close"/> is called.
+    /// A boolean flag indicating whether this document is read-only.
     /// </summary>
-    bool IsSaveOnClose { get; }
+    bool IsReadOnly { get; }
 
     /// <summary>
-    /// Opens a transaction to read or modify this <see cref="IAutocadDocument"/>
-    /// and returns the result <typeparamref name="T"/>. If <paramref name="abort"/>
-    /// is set to true aborts the transaction to roll back any changes - this is
-    /// useful when the transaction is being used to read data from the document
-    /// that requires a change to obtain it. By default, all transactions are committed.
-    /// Use the optional <paramref name="saveChanges"/> parameter to save any changes
-    /// back to the underlying AutoCAD document.
+    /// Executes a function within a database transaction and returns the result.
     /// </summary>
-    public T Transaction<T>(Func<ITransactionManager, T> function, bool saveChanges = false, bool abort = false);
+    /// <typeparam name="T">
+    /// The type of value returned by the transaction function.
+    /// </typeparam>
+    /// <param name="function">
+    /// The function to execute within the transaction scope.
+    /// </param>
+    /// <param name="abort">
+    /// When <c>true</c>, aborts the transaction to roll back changes. Useful for
+    /// read operations that temporarily modify the database to obtain data.
+    /// </param>
+    /// <returns>
+    /// The value returned by <paramref name="function"/>.
+    /// </returns>
+    /// <remarks>
+    /// All database modifications in AutoCAD must occur within a transaction.
+    /// By default, transactions are committed. Set <paramref name="abort"/> to
+    /// <c>true</c> when reading data that requires temporary modifications.
+    /// </remarks>
+    public T Transaction<T>(Func<ITransactionManager, T> function, bool abort = false);
 
     /// <summary>
-    /// Refreshes the screen.
+    /// Forces a screen refresh to display pending visual changes.
     /// </summary>
-    void UpdateScreen();
+    /// <remarks>
+    /// Call this after modifying geometry or visual properties to ensure the
+    /// viewport reflects the current state of the document.
+    /// </remarks>
+    void UpdateEditorScreen();
 
     /// <summary>
-    /// Creates a shallow clone of this <see cref="IAutocadDocument"/>. This clone has
-    /// the same underlying autocad document but is inside a new wrapper.
+    /// Regenerates the document to update all computed geometry and display.
     /// </summary>
+    /// <remarks>
+    /// Performs a full regeneration (REGEN command equivalent) to recalculate
+    /// geometry, update block references, and refresh associative networks.
+    /// More thorough than <see cref="UpdateEditorScreen"/> but also more expensive.
+    /// </remarks>
+    /// <seealso cref="UpdateEditorScreen"/>
+    void Regenerate();
+
+    /// <summary>
+    /// Creates a shallow clone that wraps the same underlying AutoCAD document.
+    /// </summary>
+    /// <returns>
+    /// A new <see cref="IAutocadDocument"/> instance referencing the same AutoCAD document.
+    /// </returns>
+    /// <remarks>
+    /// The cloned wrapper has independent event subscriptions but shares the same
+    /// underlying AutoCAD document and database.
+    /// </remarks>
     IAutocadDocument ShallowClone();
 
     /// <summary>
-    /// Gets the <see cref="IDbObject"/> by its <see cref="IObjectId"/>.
+    /// Retrieves a database object by its <see cref="IObjectId"/>.
     /// </summary>
-    IDbObject GetObjectById(IObjectId objectId);
+    /// <param name="objectId">
+    /// The object identifier to look up.
+    /// </param>
+    /// <returns>
+    /// The <see cref="IDbObject"/> corresponding to the specified ID.
+    /// </returns>
+    /// <remarks>
+    /// Used by Grasshopper components such as GetByAutocadIdComponent to retrieve
+    /// objects from the database. The returned object provides access to common
+    /// database object properties and methods.
+    /// </remarks>
+    /// <seealso cref="IObjectId"/>
+    /// <seealso cref="IDbObject"/>
+    IDbObject? GetObjectById(IObjectId objectId);
 
     /// <summary>
-    /// Gets the <see cref="IDbObject"/> by its handle value.
+    /// Retrieves a database object by its handle value.
     /// </summary>
+    /// <param name="handle">
+    /// The numeric handle value of the object.
+    /// </param>
+    /// <returns>
+    /// The <see cref="IDbObject"/> if found; otherwise, <c>null</c>.
+    /// </returns>
+    /// <remarks>
+    /// Handle values are persistent across save/load cycles, unlike ObjectIds.
+    /// Used by GetAutocadByHandleComponent to locate objects by their handle string.
+    /// </remarks>
+    /// <seealso cref="IDbObject"/>
     IDbObject? GetObjectByHandle(long handle);
 
     /// <summary>
-    /// Shuts down this <see cref="IAutocadDocument"/> instance. This method ensures that
-    /// the instance is unhooked from all subscribed database and document events.
+    /// Closes this document wrapper and unsubscribes from all events.
     /// </summary>
-    void Close();
-
-    /// <summary>
-    /// Regenerates the document.
-    /// </summary>
-    void Regenerate();
+    /// <remarks>
+    /// This method unhooks from database and document events to prevent memory leaks
+    /// and invalid callbacks. Call this when the document wrapper is no longer needed.
+    /// This does not close the underlying AutoCAD document.
+    /// </remarks>
+    void CloseDocument();
 }

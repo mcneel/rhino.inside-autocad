@@ -1,8 +1,4 @@
 {
-    "DeploymentDirectory": {
-        "Release": "Update",
-        "Debug": "Update"
-    },
     "LoadingScreenConstants": {
         "Copyright": "Rhino.Inside.Autocad Copyright",
         "VersionPrefix": "Software version",

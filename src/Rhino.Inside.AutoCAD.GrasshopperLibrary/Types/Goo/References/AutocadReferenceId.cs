@@ -29,7 +29,7 @@ public class AutocadReferenceId : IAutocadReferenceId
     /// </summary>
     private AutocadReferenceId()
     {
-        this.ObjectId = new AutocadObjectId();
+        this.ObjectId = AutocadObjectIdWrapper.DefaultId;
         _objectHandle = new Handle();
     }
 
@@ -38,7 +38,6 @@ public class AutocadReferenceId : IAutocadReferenceId
     /// </summary>
     public AutocadReferenceId(IDbObject objectToReference)
     {
-
         this.ObjectId = objectToReference.Id;
         _objectHandle = objectToReference.UnwrapObject().Handle;
     }
@@ -49,7 +48,7 @@ public class AutocadReferenceId : IAutocadReferenceId
     public AutocadReferenceId(DBObject objectToReference)
     {
 
-        this.ObjectId = new AutocadObjectId(objectToReference.Id);
+        this.ObjectId = new AutocadObjectIdWrapper(objectToReference.Id);
         _objectHandle = objectToReference.Handle;
     }
 

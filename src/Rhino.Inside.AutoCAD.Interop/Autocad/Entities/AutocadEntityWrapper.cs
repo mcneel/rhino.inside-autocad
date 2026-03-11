@@ -3,25 +3,26 @@ using AutoCADEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
-/// <summary>
-/// A class which represents a <see cref="AutoCADEntity"/>.
-/// </summary>
-public class AutocadEntityWrapper : DbObjectWrapper, IEntity
+/// <inheritdoc cref="IEntity"/>
+/// <remarks>
+/// Extends <see cref="AutocadDbObjectWrapper"/> to provide entity-specific properties such as
+/// <see cref="LayerName"/>. Used throughout the Grasshopper library when working with
+/// geometric entities retrieved from AutoCAD selections or filters.
+/// </remarks>
+/// <seealso cref="AutocadDbObjectWrapper"/>
+public class AutocadEntityWrapper : AutocadDbObjectWrapper, IEntity
 {
-    /// <inheritdoc/>
-    public string TypeName { get; }
-
     /// <inheritdoc/>
     public string LayerName { get; }
 
     /// <summary>
-    /// Constructs a new <see cref="AutocadEntityWrapper"/> based on an
-    /// <see cref="Autodesk.AutoCAD.DatabaseServices.Entity"/>.
+    /// Initializes a new instance of <see cref="AutocadEntityWrapper"/>.
     /// </summary>
+    /// <param name="autoCadEntity">
+    /// The AutoCAD <see cref="AutoCADEntity"/> to wrap.
+    /// </param>
     public AutocadEntityWrapper(AutoCADEntity autoCadEntity) : base(autoCadEntity)
     {
         this.LayerName = autoCadEntity.Layer;
-
-        this.TypeName = autoCadEntity.GetRXClass().Name;
     }
 }

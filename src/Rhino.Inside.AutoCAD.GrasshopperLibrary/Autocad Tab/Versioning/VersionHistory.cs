@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
-/// <inheritdoc cref="IVersionHistory"/>
+/// <inheritdoc cref="Rhino.Inside.AutoCAD.Core.Interfaces.IVersionHistory"/>
 public class VersionHistory : IVersionHistory
 {
     /// <summary>
@@ -26,7 +26,7 @@ public class VersionHistory : IVersionHistory
     public bool IsDeprecated { get; }
 
     /// <summary>
-    /// Constructs a new <see cref="IVersionHistory"/>.
+    /// Constructs a new <see cref="Rhino.Inside.AutoCAD.Core.Interfaces.IVersionHistory"/>.
     /// </summary>
     public VersionHistory(Version introduced, Version? updatedVersion, Version? deprecatedVersion)
     {

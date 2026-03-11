@@ -73,10 +73,10 @@ public class AutocadDocumentComponent : RhinoInsideAutocad_ComponentBase
         if (autocadDocument is null)
             return;
 
-        var filePath = autocadDocument.FileInfo.FilePath;
-        var fileName = autocadDocument.FileInfo.FileName;
-        var isActive = autocadDocument.FileInfo.IsActive;
-        var isReadOnly = autocadDocument.FileInfo.IsReadOnly;
+        var filePath = autocadDocument.FileMetadata.FilePath;
+        var fileName = autocadDocument.FileMetadata.FileName;
+        var isActive = autocadDocument.FileMetadata.IsActive;
+        var isReadOnly = autocadDocument.FileMetadata.IsReadOnly;
 
         DA.SetData(0, fileName);
         DA.SetData(1, filePath);

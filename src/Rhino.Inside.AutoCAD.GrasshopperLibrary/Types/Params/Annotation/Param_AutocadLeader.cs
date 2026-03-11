@@ -35,7 +35,7 @@ public class Param_AutocadLeader : Param_AutocadObjectBase<GH_AutocadLeader, Cad
     { }
 
     /// <inheritdoc />
-    protected override IFilter CreateSelectionFilter() => new LeaderFilter();
+    protected override IObjectFilter CreateSelectionFilter() => new LeaderFilter();
 
     /// <inheritdoc />
     protected override GH_AutocadLeader WrapEntity(CadMLeader entity) => new GH_AutocadLeader(entity);
@@ -45,7 +45,7 @@ public class Param_AutocadLeader : Param_AutocadObjectBase<GH_AutocadLeader, Cad
     {
         if (entity is CadLeader legacyLeader)
         {
-            var mleader = ConvertLegacyLeaderToMLeader(legacyLeader);
+            var mleader = this.ConvertLegacyLeaderToMLeader(legacyLeader);
             supportedGoo = new GH_AutocadLeader(mleader);
             return true;
         }

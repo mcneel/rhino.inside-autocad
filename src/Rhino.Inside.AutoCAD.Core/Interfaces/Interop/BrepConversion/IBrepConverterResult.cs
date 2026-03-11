@@ -8,7 +8,7 @@ public interface IBrepConverterResult
     /// <summary>
     /// A collection of converted solids. Only Autocad Solid3d entities are included.
     /// </summary>
-    IEntityCollection ConvertedSolids { get; }
+    IEntitySet ConvertedSolids { get; }
 
     /// <summary>
     /// A boolean indicating whether the conversion was successful.

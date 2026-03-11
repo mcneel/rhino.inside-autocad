@@ -1,5 +1,4 @@
-﻿using Rhino.Inside.AutoCAD.Core;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
 using System.Collections;
 
 namespace Rhino.Inside.AutoCAD.Interop;
@@ -62,7 +61,7 @@ public class AutocadDocumentChange : IAutocadDocumentChange
     {
         if (_changes.TryGetValue(changeType, out var objects))
             return objects;
-        return Array.Empty<DbObjectWrapper>();
+        return Array.Empty<AutocadDbObjectWrapper>();
     }
 
     /// <inheritdoc />

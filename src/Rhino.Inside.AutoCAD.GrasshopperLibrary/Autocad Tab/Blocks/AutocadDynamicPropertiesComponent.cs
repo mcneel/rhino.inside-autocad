@@ -13,6 +13,9 @@ public class AutocadDynamicPropertiesComponent : RhinoInsideAutocad_ComponentBas
     public override Guid ComponentGuid => new("B8C4D2E1-6F3A-4B9C-8D5E-2A1F9B7C3D6E");
 
     /// <inheritdoc />
+    public override GH_Exposure Exposure => GH_Exposure.quarternary;
+
+    /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.AutocadDynamicPropertiesComponent;
 
     /// <summary>

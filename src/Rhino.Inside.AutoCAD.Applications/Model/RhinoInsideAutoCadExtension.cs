@@ -33,21 +33,21 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
 
         var currentDate = System.DateTime.Now;
 
-        var compliedDate = this.GetCompliedDate();
-
-        var limitDate = compliedDate.AddDays(90);
-
-        if (currentDate > limitDate)
-        {
-            editor?.WriteMessage(_expiredMessage);
-
-            Autodesk.AutoCAD.ApplicationServices.Core.Application.ShowAlertDialog(_expiredMessage);
-
-            return;
-        }
-
         try
         {
+
+            var compliedDate = this.GetCompliedDate();
+
+            var limitDate = compliedDate.AddDays(90);
+
+            if (currentDate > limitDate)
+            {
+                editor?.WriteMessage(_expiredMessage);
+
+                Autodesk.AutoCAD.ApplicationServices.Core.Application.ShowAlertDialog(_expiredMessage);
+
+                return;
+            }
 
 #if DEBUGNET8 || DEGBUG
             var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();

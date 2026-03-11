@@ -9,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class RhinoConvertibleExtrusion : RhinoConvertibleBase<Rhino.Geometry.Extrusion>
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <summary>
     /// Constructs a new <see cref="RhinoConvertibleExtrusion"/> instance.
     /// </summary>
@@ -21,7 +19,7 @@ public class RhinoConvertibleExtrusion : RhinoConvertibleBase<Rhino.Geometry.Ext
     /// <inheritdoc />
     protected override List<IEntity> ConvertGeometry(ITransactionManager transactionManager)
     {
-        var cadSolids = _geometryConverter.ToAutoCadType(this.RhinoGeometry, transactionManager);
+        var cadSolids = this.RhinoGeometry.ToAutocadSolid3ds(transactionManager);
 
         var entities = new List<IEntity>();
         foreach (var cadSolid in cadSolids)

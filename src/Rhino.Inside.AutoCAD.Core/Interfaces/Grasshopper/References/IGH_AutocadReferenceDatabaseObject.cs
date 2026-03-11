@@ -1,4 +1,4 @@
-﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
 /// A Grasshopper Goo reference to an AutoCAD database object.

@@ -34,7 +34,7 @@ public class Param_AutocadPoint : Param_AutocadObjectBase<GH_AutocadPoint, CadPo
     { }
 
     /// <inheritdoc />
-    protected override IFilter CreateSelectionFilter() => new PointFilter();
+    protected override IObjectFilter CreateSelectionFilter() => new PointFilter();
 
     /// <inheritdoc />
     protected override GH_AutocadPoint WrapEntity(CadPoint entity) => new GH_AutocadPoint(entity);

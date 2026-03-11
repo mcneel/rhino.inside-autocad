@@ -50,7 +50,7 @@ public interface IRhinoInstance
     /// <summary>
     /// Validates that the Rhino document is created and ready to use.
     /// </summary>
-    void ValidateRhinoDoc(RhinoInsideMode mode, IValidationLogger validationLogger);
+    void ValidateRhinoDoc(RhinoInsideMode mode, IStartUpLogger logger);
 
     /// <summary>
     /// Runs a Rhino command in the active Rhino document.

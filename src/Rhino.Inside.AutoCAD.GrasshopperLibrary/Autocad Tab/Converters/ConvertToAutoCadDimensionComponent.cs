@@ -1,6 +1,5 @@
 using Grasshopper.Kernel;
 using Rhino.Geometry;
-using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -10,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.0")]
 public class ConvertToAutoCadDimensionComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("c6e0f3a4-9d5b-4a7c-b1e8-0f4a3c2d5e6f");
 
@@ -52,7 +49,7 @@ public class ConvertToAutoCadDimensionComponent : RhinoInsideAutocad_ComponentBa
         if (!DA.GetData(0, ref rhinoDimension)
             || rhinoDimension is null) return;
 
-        var cadDimension = _geometryConverter.ToAutoCadType(rhinoDimension);
+        var cadDimension = rhinoDimension.ToAutocadDimension();
 
         if (cadDimension == null)
         {

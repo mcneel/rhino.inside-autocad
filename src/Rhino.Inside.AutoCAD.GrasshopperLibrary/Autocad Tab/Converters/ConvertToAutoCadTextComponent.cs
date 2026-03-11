@@ -1,6 +1,5 @@
 using Grasshopper.Kernel;
 using Rhino.Geometry;
-using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -10,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.0")]
 public class ConvertToAutoCadTextComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("cd3fae72-b5de-4cc2-b6b3-b11281345624");
 
@@ -52,7 +49,7 @@ public class ConvertToAutoCadTextComponent : RhinoInsideAutocad_ComponentBase
         if (!DA.GetData(0, ref rhinoText)
             || rhinoText is null) return;
 
-        var cadText = _geometryConverter.ToAutoCadType(rhinoText);
+        var cadText = rhinoText.ToAutocadMText();
 
         if (cadText == null)
         {

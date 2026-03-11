@@ -1,47 +1,25 @@
 ﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
-using System.Text.Json;
 
 namespace Rhino.Inside.AutoCAD.Services;
 
 /// <inheritdoc cref="ISettingsManager"/>
 public class SettingManager : ISettingsManager
 {
-    private readonly IApplicationDirectories _applicationDirectories;
+    private readonly IInstallationDirectories _installationDirectories;
 
     /// <inheritdoc />
-    public ISettingsCore Core { get; }
-
-    /// <inheritdoc />
-    public IUserSettings User { get; }
+    public ISettings Core { get; }
 
     /// <summary>
     /// Constructor for the <see cref="SettingManager"/>.
     /// </summary>
-    public SettingManager(IApplicationDirectories applicationDirectories)
+    public SettingManager(IInstallationDirectories installationDirectories)
     {
-        _applicationDirectories = applicationDirectories;
+        _installationDirectories = installationDirectories;
 
-        var coreSettingImporter = new SettingCoreImporter();
+        var coreSettingImporter = new SettingsImporter();
 
-        var userSettingImporter = new UserSettingImporter();
+        this.Core = coreSettingImporter.Import(installationDirectories);
 
-        this.Core = coreSettingImporter.Import(applicationDirectories);
-
-        this.User = userSettingImporter.Import(applicationDirectories);
-    }
-
-    /// <inheritdoc />
-    public void SaveUserSettings()
-    {
-        var serializerOptions = new JsonSerializerOptions
-        {
-            WriteIndented = true
-        };
-
-        var userSettingsPath = $"{_applicationDirectories.UserLocal}{ApplicationConstants.UserSettingsJsonName}";
-
-        var jsonString = JsonSerializer.Serialize((UserSettings)this.User, serializerOptions);
-
-        File.WriteAllText(userSettingsPath, jsonString);
     }
 }

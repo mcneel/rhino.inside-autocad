@@ -1,4 +1,5 @@
 ﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+using UnitConverterClass = Rhino.Inside.AutoCAD.Interop.UnitConverter;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -20,7 +21,7 @@ public class RhinoInsideManager : IRhinoInsideManager
     public IGrasshopperInstance GrasshopperInstance { get; }
 
     /// <inheritdoc />
-    public IUnitSystemManager UnitSystemManager { get; private set; }
+    public IUnitConverter UnitConverter { get; private set; }
 
     /// <inheritdoc />
     public IRhinoObjectPreviewServer RhinoPreviewServer { get; }
@@ -32,7 +33,7 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// Constructs a new <see cref="IRhinoInsideManager"/> instance.
     /// </summary>
     public RhinoInsideManager(IRhinoInstance rhinoInstance, IGrasshopperInstance grasshopperInstance,
-        IAutoCadInstance autoCadInstance )
+        IAutoCadInstance autoCadInstance)
     {
         var previewGeometryConverter = new PreviewGeometryConverter(autoCadInstance);
 
@@ -64,11 +65,9 @@ public class RhinoInsideManager : IRhinoInsideManager
         grasshopperInstance.OnPreviewExpired += this.UpdateGrasshopperPreview;
         grasshopperInstance.OnObjectRemoved += this.OnGrasshopperObjectRemoved;
 
-        var unitsSystemManager = new UnitSystemManager(_defaultUnitSystem, _defaultUnitSystem);
+        UnitConverterClass.Initialize(_defaultUnitSystem, _defaultUnitSystem);
 
-        GeometryConverter.Initialize(unitsSystemManager);
-
-        this.UnitSystemManager = unitsSystemManager;
+        this.UnitConverter = UnitConverterClass.Instance!;
         _grasshopperGeometryExtractor = new GrasshopperGeometryExtractor(_rhinoConvertibleFactory);
         _grasshopperChangeResponder = new GrasshopperChangeResponder();
     }
@@ -122,7 +121,7 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         this.GrasshopperPreviewServer.AddObject(instanceGuid, previewGeometryData);
 
-        this.AutoCadInstance.ActiveDocument?.UpdateScreen();
+        this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
 
     }
 
@@ -135,7 +134,7 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         this.RhinoPreviewServer.RemoveObject(rhinoObject.Id);
 
-        this.AutoCadInstance.ActiveDocument?.UpdateScreen();
+        this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
     }
 
     /// <summary>
@@ -154,22 +153,19 @@ public class RhinoInsideManager : IRhinoInsideManager
             this.RhinoPreviewServer.AddObject(rhinoObject.Id, newSet);
         }
 
-        this.AutoCadInstance.ActiveDocument?.UpdateScreen();
+        this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
     }
 
     private void UpdateUnitSystem(object sender, EventArgs e)
     {
-        var autoCadUnits = this.AutoCadInstance.ActiveDocument?.UnitSystem ?? _defaultUnitSystem;
-        var rhinoUnits = this.RhinoInstance.ActiveDoc?.ModelUnitSystem ?? _defaultUnitSystem;
+        var autoCadUnits = new UnitScale(this.AutoCadInstance.ActiveDocument?.UnitSystem ?? _defaultUnitSystem);
+        var rhinoUnits = new UnitScale(this.RhinoInstance.ActiveDoc?.ModelUnitSystem ?? _defaultUnitSystem);
 
-        if (this.UnitSystemManager.AutoCadUnits != autoCadUnits ||
-            this.UnitSystemManager.RhinoUnits != rhinoUnits)
+        if (autoCadUnits.IsEqualTo(this.UnitConverter.AutoCadUnits) == false ||
+            rhinoUnits.IsEqualTo(this.UnitConverter.RhinoUnits) == false)
         {
-            var unitsSystemManager = new UnitSystemManager(autoCadUnits, rhinoUnits);
-            this.UnitSystemManager = unitsSystemManager;
-
-            GeometryConverter.Initialize(unitsSystemManager);
-
+            UnitConverterClass.Initialize(autoCadUnits, rhinoUnits);
+            this.UnitConverter = UnitConverterClass.Instance!;
         }
     }
 

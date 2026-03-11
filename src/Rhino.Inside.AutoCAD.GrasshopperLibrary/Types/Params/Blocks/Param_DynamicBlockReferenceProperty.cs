@@ -14,7 +14,7 @@ public class Param_DynamicBlockReferenceProperty : GH_Param<GH_DynamicBlockRefer
     public override GH_Exposure Exposure => GH_Exposure.hidden;
 
     /// <inheritdoc />
-    protected override System.Drawing.Bitmap Icon => null;
+    protected override System.Drawing.Bitmap Icon => Properties.Resources.Param_DynamicBlockReferenceProperty;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Param_DynamicBlockReferenceProperty"/> class with the

@@ -4,47 +4,63 @@ using System.Text.Json.Serialization;
 namespace Rhino.Inside.AutoCAD.Services;
 
 /// <summary>
-/// A <see cref="JsonConverterFactory"/> which is used to inject concrete
-/// types into interface declarations for the <see cref="JsonSerializer"/>.
+/// Factory that creates JSON converters for deserializing interface types into their concrete implementations.
 /// </summary>
+/// <remarks>
+/// This factory enables the <see cref="JsonSerializer"/> to deserialize JSON data directly into interface-typed
+/// properties by mapping them to their concrete implementations at runtime. The factory automatically selects
+/// <see cref="InterfaceConverter{TClass, TInterface}"/> for reference types or
+/// <see cref="InterfaceStructConverter{TStruct, TInterface}"/> for value types based on the concrete type provided.
+/// </remarks>
+/// <seealso cref="InterfaceConverter{TClass, TInterface}"/>
+/// <seealso cref="InterfaceStructConverter{TStruct, TInterface}"/>
 public class InterfaceConverterFactory : JsonConverterFactory
 {
     /// <summary>
-    /// The concrete type to inject.
+    /// The concrete implementation type used during deserialization.
     /// </summary>
-    public Type ConcreteType { get; }
+    /// <remarks>
+    /// This type must implement <see cref="Interface"/>. When deserializing, JSON data will be
+    /// converted to an instance of this type and returned as the interface type.
+    /// </remarks>
+    public Type Concrete { get; }
 
     /// <summary>
-    /// The interface which the <see cref="ConcreteType"/> implements.
+    /// The interface type that <see cref="Concrete"/> implements.
     /// </summary>
-    public Type InterfaceType { get; }
+    /// <remarks>
+    /// This is the type that the <see cref="JsonSerializer"/> will recognize and delegate to this factory
+    /// when encountered during deserialization.
+    /// </remarks>
+    public Type Interface { get; }
 
     /// <summary>
-    /// Creates a new <see cref="InterfaceConverterFactory"/>.
+    /// Initializes a new instance of the <see cref="InterfaceConverterFactory"/> class.
     /// </summary>
+    /// <param name="concrete">
+    /// The concrete type to instantiate during deserialization.
+    /// </param>
+    /// <param name="interfaceType">
+    /// The interface type that <paramref name="concrete"/> implements.
+    /// </param>
     public InterfaceConverterFactory(Type concrete, Type interfaceType)
     {
-        this.ConcreteType = concrete;
-        this.InterfaceType = interfaceType;
+        this.Concrete = concrete;
+        this.Interface = interfaceType;
     }
 
-    /// <summary>
-    /// Returns true if the <see cref="ConcreteType"/> is a <see cref="InterfaceType"/>.
-    /// </summary>
+    /// <inheritdoc/>
     public override bool CanConvert(Type typeToConvert)
     {
-        return typeToConvert == this.InterfaceType;
+        return typeToConvert == this.Interface;
     }
 
-    /// <summary>
-    /// Instantiates the required <see cref="JsonConverter"/> to deserialize
-    /// to an interface type using a concretion. 
-    /// </summary>
+    /// <inheritdoc/>
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
-        var converterType = this.ConcreteType.IsValueType ?
-            typeof(InterfaceStructConverter<,>).MakeGenericType(this.ConcreteType, this.InterfaceType) :
-            typeof(InterfaceConverter<,>).MakeGenericType(this.ConcreteType, this.InterfaceType);
+        var converterType = this.Concrete.IsValueType ?
+            typeof(InterfaceStructConverter<,>).MakeGenericType(this.Concrete, this.Interface) :
+            typeof(InterfaceConverter<,>).MakeGenericType(this.Concrete, this.Interface);
 
         return (JsonConverter)Activator.CreateInstance(converterType);
     }

@@ -39,9 +39,9 @@ public class RhinoCoreExtension : IRhinoCoreExtension
     public static RhinoCoreExtension Instance { get; }
 
     /// <summary>
-    /// The <see cref="IValidationLogger"/>.
+    /// The <see cref="IStartUpLogger"/>.
     /// </summary>
-    public IValidationLogger ValidationLogger { get; }
+    public IStartUpLogger StartUpLogger { get; }
 
     /// <summary>
     /// Access to the Rhino window manager.
@@ -69,7 +69,7 @@ public class RhinoCoreExtension : IRhinoCoreExtension
     /// </summary>
     private RhinoCoreExtension()
     {
-        this.ValidationLogger = new ValidationLogger();
+        this.StartUpLogger = new StartUpLogger();
         this.WindowManager = new RhinoWindowManager();
     }
 
@@ -83,13 +83,13 @@ public class RhinoCoreExtension : IRhinoCoreExtension
         if (_rhinoInstallDirectoryExists)
         {
 
-#if DEBUGNET8  || RELEASENET8
+#if DEBUGNET8 || RELEASENET8
             RegisterAssemblyResolver(_rhinoCommonAssemblyName, Path.Combine(_systemDir, "netcore", _rhinoCommonDllName));
             RegisterAssemblyResolver("Rhino.UI", Path.Combine(_systemDir, "netcore", "Rhino.UI.dll"));
             RegisterAssemblyResolver("Mono.Cecil", Path.Combine(_systemDir, "netcore", "Mono.Cecil.dll"));
 #else
-       RegisterAssemblyResolver(_rhinoCommonAssemblyName, Path.Combine(_systemDir, _rhinoCommonDllName));
-         
+            RegisterAssemblyResolver(_rhinoCommonAssemblyName, Path.Combine(_systemDir, _rhinoCommonDllName));
+
 #endif
 
             RegisterAssemblyResolver(_grasshopperAssemblyName, Path.Combine(_pluginDir, _grasshopperDllRelativePath));
@@ -100,7 +100,7 @@ public class RhinoCoreExtension : IRhinoCoreExtension
         }
         else
         {
-            Instance.ValidationLogger.AddMessage(_rhinoNotInstalledErrorMessage);
+            Instance.StartUpLogger.AddError(_rhinoNotInstalledErrorMessage);
         }
     }
 
@@ -159,10 +159,10 @@ public class RhinoCoreExtension : IRhinoCoreExtension
                 string.Format(_rhinoSchemeArgumentFormat, schemeName)
             };
 
-#if DEBUGNET8  || RELEASENET8
+#if DEBUGNET8 || RELEASENET8
             args.Add("/netcore");
 #else
-        args.Add("/netfx");
+            args.Add("/netfx");
 #endif
 
             _rhinoCore ??= new RhinoCore(args.ToArray(), style, autocadHandle);
@@ -176,7 +176,7 @@ public class RhinoCoreExtension : IRhinoCoreExtension
         }
         catch
         {
-            this.ValidationLogger.AddMessage(_rhinoCoreInitializationFailedErrorMessage);
+            this.StartUpLogger.AddError(_rhinoCoreInitializationFailedErrorMessage);
 
             throw;
         }

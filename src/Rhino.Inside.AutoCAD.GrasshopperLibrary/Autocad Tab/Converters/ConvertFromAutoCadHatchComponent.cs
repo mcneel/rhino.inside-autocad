@@ -1,5 +1,4 @@
 using Grasshopper.Kernel;
-using Rhino.Inside.AutoCAD.Interop;
 using CadHatch = Autodesk.AutoCAD.DatabaseServices.Hatch;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -10,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.0")]
 public class ConvertFromAutoCadHatchComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("83e7d2d6-915e-45e4-887d-4cbe19b38d93");
 
@@ -51,7 +48,7 @@ public class ConvertFromAutoCadHatchComponent : RhinoInsideAutocad_ComponentBase
         if (!DA.GetData(0, ref autocadHatch)
             || autocadHatch is null) return;
 
-        var rhinoHatch = _geometryConverter.ToRhinoType(autocadHatch);
+        var rhinoHatch = autocadHatch.ToRhinoHatch();
 
         if (rhinoHatch == null)
         {
