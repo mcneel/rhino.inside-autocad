@@ -1,6 +1,7 @@
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadDimension = Autodesk.AutoCAD.DatabaseServices.Dimension;
 using RhinoCurve = Rhino.Geometry.Curve;
 using RhinoDimension = Rhino.Geometry.Dimension;

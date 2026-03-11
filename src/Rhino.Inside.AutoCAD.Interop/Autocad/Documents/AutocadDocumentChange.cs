@@ -1,4 +1,5 @@
-﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Rhino.Inside.AutoCAD.Core;
+using Rhino.Inside.AutoCAD.Core.Interfaces;
 using System.Collections;
 
 namespace Rhino.Inside.AutoCAD.Interop;

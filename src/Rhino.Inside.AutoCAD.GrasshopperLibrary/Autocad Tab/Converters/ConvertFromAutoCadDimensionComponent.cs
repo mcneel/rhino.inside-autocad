@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadDimension = Autodesk.AutoCAD.DatabaseServices.Dimension;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;

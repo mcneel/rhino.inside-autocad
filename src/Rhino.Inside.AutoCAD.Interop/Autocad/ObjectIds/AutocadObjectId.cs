@@ -1,66 +1,63 @@
-﻿using Autodesk.AutoCAD.DatabaseServices;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
 using CadObjectId = Autodesk.AutoCAD.DatabaseServices.ObjectId;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
-/// <summary>
-/// A class which wraps the AutoCAD
-/// <see cref="Autodesk.AutoCAD.DatabaseServices.ObjectId"/>.
-/// </summary>
-public class AutocadObjectId : WrapperBase<CadObjectId>, IObjectId
+/// <inheritdoc cref="IObjectId"/>
+/// <remarks>
+/// Wraps an AutoCAD <see cref="CadObjectId"/> to provide a stable handle-based identifier.
+/// The <see cref="Value"/> property stores the handle value rather than the runtime ObjectId,
+/// ensuring consistency across sessions. Used extensively throughout the Grasshopper library
+/// in components like <c>AutocadObjectIdComponent</c> and <c>GetByAutocadIdComponent</c>.
+/// </remarks>
+/// <seealso cref="IObjectIdCollection"/>
+public class AutocadObjectIdWrapper : AutocadWrapperBase<CadObjectId>, IObjectId
 {
     private readonly CadObjectId _nullId = CadObjectId.Null;
 
     /// <summary>
-    /// The <see cref="AutocadObjectId"/> value.
+    /// Gets a default instance representing a null ObjectId.
     /// </summary>
-    /// <remarks>
-    /// This value corresponds to the <see cref="Handle.Value"/> of the
-    /// encapsulated <see cref="Autodesk.AutoCAD.DatabaseServices.ObjectId"/>.
-    /// This value is persistent even if the <see cref="IAutocadDocument"/> is closed.
-    /// </remarks>
+    public static IObjectId DefaultId => new AutocadObjectIdWrapper(CadObjectId.Null);
+
+    /// <inheritdoc/>
     public long Value { get; }
 
     /// <inheritdoc/>
-    public bool IsValid => _wrappedValue.IsNull == false && _wrappedValue.Equals(_nullId) == false;
+    public bool IsValid => _wrappedAutocadObject.IsNull == false && _wrappedAutocadObject.Equals(_nullId) == false;
 
     /// <inheritdoc/>
-    public bool IsErased => _wrappedValue.IsErased;
+    public bool IsErased => _wrappedAutocadObject.IsErased;
 
     /// <summary>
-    /// Constructs a default/invalid <see cref="AutocadObjectId"/>.
+    /// Initializes a new instance of <see cref="AutocadObjectIdWrapper"/>.
     /// </summary>
-    public AutocadObjectId() : base(CadObjectId.Null)
-    {
-        this.Value = _nullId.Handle.Value;
-    }
-
-    /// <summary>
-    /// Constructs a new <see cref="AutocadObjectId"/>.
-    /// </summary>
-    public AutocadObjectId(CadObjectId id) : base(id)
+    /// <param name="id">
+    /// The AutoCAD <see cref="CadObjectId"/> to wrap.
+    /// </param>
+    public AutocadObjectIdWrapper(CadObjectId id) : base(id)
     {
         this.Value = id.Handle.Value;
-
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     public IObjectId ShallowClone()
     {
-        return new AutocadObjectId(_wrappedValue);
+        return new AutocadObjectIdWrapper(_wrappedAutocadObject);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     public bool IsEqualTo(IObjectId other)
     {
         return this.Value == other.Value;
     }
 
     /// <summary>
-    /// Overrides the default <see cref="Object.ToString"/> method with
-    /// the <see cref="IObjectId"/> value.
+    /// Returns the handle value formatted as a parenthesized string.
     /// </summary>
+    /// <returns>
+    /// A string in the format "(handle_value)".
+    /// </returns>
     public override string ToString()
     {
         return $"({this.Value})";

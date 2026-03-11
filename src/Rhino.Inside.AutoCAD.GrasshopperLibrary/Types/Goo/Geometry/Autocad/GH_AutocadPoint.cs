@@ -1,5 +1,6 @@
 ﻿using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadPoint = Autodesk.AutoCAD.DatabaseServices.DBPoint;
 using RhinoPoint = Rhino.Geometry.Point;
 

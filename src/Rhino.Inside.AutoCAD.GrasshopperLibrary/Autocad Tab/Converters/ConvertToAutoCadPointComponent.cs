@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Interop;
 using Point3d = Rhino.Geometry.Point3d;
 using RhinoPoint = Rhino.Geometry.Point;
 

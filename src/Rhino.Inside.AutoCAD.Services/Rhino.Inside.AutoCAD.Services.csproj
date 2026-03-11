@@ -18,9 +18,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Documents\**" />
-	  <EmbeddedResource Remove="Documents\**" />
-	  <None Remove="Documents\**" />
+		<Compile Remove="Documents\**" />
+		<EmbeddedResource Remove="Documents\**" />
+		<None Remove="Documents\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -36,10 +36,13 @@
 		<PackageReference Include="AutoCAD.NET">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>
-		</ItemGroup>
+	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj" />
+		<ProjectReference Include="..\Rhino.Inside.AutoCAD.Core\Rhino.Inside.AutoCAD.Core.csproj">
+			<Private>False</Private>
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</ProjectReference>
 	</ItemGroup>
 
 

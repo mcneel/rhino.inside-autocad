@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Interop;
 using CadHatch = Autodesk.AutoCAD.DatabaseServices.Hatch;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;

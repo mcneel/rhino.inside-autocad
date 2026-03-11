@@ -3,6 +3,7 @@ using Autodesk.AutoCAD.DatabaseServices;
 using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 

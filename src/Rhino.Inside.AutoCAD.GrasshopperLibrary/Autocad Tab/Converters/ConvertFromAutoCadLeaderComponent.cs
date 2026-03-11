@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadMLeader = Autodesk.AutoCAD.DatabaseServices.MLeader;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;

@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadMesh = Autodesk.AutoCAD.DatabaseServices.PolyFaceMesh;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;

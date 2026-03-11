@@ -1,4 +1,5 @@
 ﻿using Grasshopper.Kernel;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadCurve = Autodesk.AutoCAD.DatabaseServices.Curve;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;

@@ -1,5 +1,6 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Applications;
+using Rhino.Inside.AutoCAD.Interop;
 using RhinoHatch = Rhino.Geometry.Hatch;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;

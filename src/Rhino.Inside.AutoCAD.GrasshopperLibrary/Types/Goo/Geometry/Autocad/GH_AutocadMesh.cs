@@ -1,6 +1,7 @@
 ﻿using Grasshopper.Kernel;
 using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadMesh = Autodesk.AutoCAD.DatabaseServices.PolyFaceMesh;
 using RhinoMesh = Rhino.Geometry.Mesh;
 
