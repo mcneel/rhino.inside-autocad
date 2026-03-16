@@ -34,7 +34,7 @@ public class Param_AutocadDimension : Param_AutocadObjectBase<GH_AutocadDimensio
     { }
 
     /// <inheritdoc />
-    protected override IFilter CreateSelectionFilter() => new DimensionFilter();
+    protected override IObjectFilter CreateSelectionFilter() => new DimensionFilter();
 
     /// <inheritdoc />
     protected override GH_AutocadDimension WrapEntity(CadDimension entity) => new GH_AutocadDimension(entity);

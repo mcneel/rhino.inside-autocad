@@ -19,10 +19,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="Autocad\Transient\PreviewServers\RhinoObjectPreviewServer.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 	<PackageReference Include="AutoCAD.NET.Model" />
 	<PackageReference Include="NaturalSort.Extension" />
 		<PackageReference Include="MaterialDesignThemes" />
@@ -58,6 +54,11 @@
 		  <Private>False</Private>
 		  <ExcludeAssets>runtime</ExcludeAssets>
 		</ProjectReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Autocad\Scale\" />
+	  <Folder Include="Converters\Geometry\" />
 	</ItemGroup>
 
 

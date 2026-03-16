@@ -34,7 +34,7 @@ public class Param_AutocadMesh : Param_AutocadObjectBase<GH_AutocadMesh, CadMesh
     { }
 
     /// <inheritdoc />
-    protected override IFilter CreateSelectionFilter() => new MeshFilter();
+    protected override IObjectFilter CreateSelectionFilter() => new MeshFilter();
 
     /// <inheritdoc />
     protected override GH_AutocadMesh WrapEntity(CadMesh entity) => new GH_AutocadMesh(entity);

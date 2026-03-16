@@ -9,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class RhinoConvertibleHatch : RhinoConvertibleBase<Rhino.Geometry.Hatch>
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <summary>
     /// Constructs a new <see cref="RhinoConvertibleHatch"/> instance.
     /// </summary>
@@ -21,7 +19,7 @@ public class RhinoConvertibleHatch : RhinoConvertibleBase<Rhino.Geometry.Hatch>
     /// <inheritdoc />
     protected override List<IEntity> ConvertGeometry(ITransactionManager transactionManager)
     {
-        var cadSolid = _geometryConverter.ToAutoCadType(this.RhinoGeometry, transactionManager);
+        var cadSolid = this.RhinoGeometry.ToAutocadHatch(transactionManager);
 
         var entity = new AutocadEntityWrapper(cadSolid);
 

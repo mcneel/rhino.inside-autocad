@@ -62,7 +62,7 @@ public class GetAutocadBlockReferencesComponent : RhinoInsideAutocad_ComponentBa
     protected override void SolveInstance(IGH_DataAccess DA)
     {
         AutocadDocument? autocadDocument = null;
-        AutocadObjectId? blockTableRecordId = null;
+        AutocadObjectIdWrapper? blockTableRecordId = null;
         var directOnly = false;
 
         DA.GetData(0, ref autocadDocument);
@@ -85,9 +85,9 @@ public class GetAutocadBlockReferencesComponent : RhinoInsideAutocad_ComponentBa
             || blockTableRecordId is null) return;
         DA.GetData(2, ref directOnly);
 
-        var blockTableRecordsRepository = autocadDocument.BlockTableRecordRepository;
+        var blockTableRecordsRegister = autocadDocument.BlockTableRecordRegister;
 
-        if (blockTableRecordsRepository.TryGetById(blockTableRecordId, out var blockTableRecord) == false)
+        if (blockTableRecordsRegister.TryGetById(blockTableRecordId, out var blockTableRecord) == false)
         {
             this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No Block Table Found with that Id");
             return;
@@ -112,7 +112,7 @@ public class GetAutocadBlockReferencesComponent : RhinoInsideAutocad_ComponentBa
 
                 if (block is not null)
                     normalReferences.Add(
-                        new GH_AutocadBlockReference(new BlockReferenceWrapper(block)));
+                        new GH_AutocadBlockReference(new AutocadBlockReferenceWrapper(block)));
             }
 
             foreach (ObjectId dynamicId in dynamicBlocks)
@@ -122,7 +122,7 @@ public class GetAutocadBlockReferencesComponent : RhinoInsideAutocad_ComponentBa
 
                 if (block is not null)
                     dynamicReferences.Add(
-                        new GH_AutocadBlockReference(new BlockReferenceWrapper(block)));
+                        new GH_AutocadBlockReference(new AutocadBlockReferenceWrapper(block)));
             }
 
             return true;

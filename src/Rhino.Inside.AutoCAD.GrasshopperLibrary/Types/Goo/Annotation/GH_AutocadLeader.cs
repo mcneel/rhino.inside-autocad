@@ -1,5 +1,6 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadMLeader = Autodesk.AutoCAD.DatabaseServices.MLeader;
 using RhinoLeader = Rhino.Geometry.Leader;
 
@@ -50,13 +51,13 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadMLeader, RhinoLead
     /// <inheritdoc />
     protected override AutocadMLeader? Convert(RhinoLeader rhinoType)
     {
-        return _geometryConverter.ToAutoCadType(rhinoType);
+        return rhinoType.ToAutocadMLeader();
     }
 
     /// <inheritdoc />
     protected override RhinoLeader? Convert(AutocadMLeader wrapperType)
     {
-        return _geometryConverter.ToRhinoType(wrapperType);
+        return wrapperType.ToRhinoLeader();
     }
 
     /// <inheritdoc />

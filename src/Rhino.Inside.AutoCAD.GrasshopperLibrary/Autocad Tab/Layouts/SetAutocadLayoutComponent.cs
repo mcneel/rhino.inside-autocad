@@ -76,9 +76,7 @@ public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
 
             var database = activeDocument.Database;
 
-            using var transactionManagerWrapper = new TransactionManagerWrapper(database);
-
-            using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+            using var transaction = database.TransactionManager.StartTransaction();
 
             var cadLayout =
                 transaction.GetObject(cadLayoutId, OpenMode.ForWrite) as Layout;
@@ -90,7 +88,7 @@ public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
             activeDocument.Editor.Regen();
 
             //Renaming a layout does not trigger a modified event
-            RhinoInsideAutoCadExtension.Application.RhinoInsideManager.AutoCadInstance.ActiveDocument.LayoutRepository.Repopulate();
+            RhinoInsideAutoCadExtension.Application.RhinoInsideManager.AutoCadInstance.ActiveDocument.LayoutRegister.Repopulate();
 
             return new AutocadLayoutWrapper(cadLayout);
 

@@ -1,6 +1,5 @@
 using Grasshopper.Kernel;
 using Rhino.Geometry;
-
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -11,8 +10,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.0")]
 public class ConvertToAutoCadLeaderComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("f9b3c6d7-2a8e-4d0f-e4b1-3c7d6e5f8a9b");
 
@@ -53,7 +50,7 @@ public class ConvertToAutoCadLeaderComponent : RhinoInsideAutocad_ComponentBase
         if (!DA.GetData(0, ref rhinoLeader)
             || rhinoLeader is null) return;
 
-        var cadLeader = _geometryConverter.ToAutoCadType(rhinoLeader);
+        var cadLeader = rhinoLeader.ToAutocadMLeader();
 
         if (cadLeader == null)
         {

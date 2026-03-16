@@ -86,7 +86,7 @@ public class SetAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
     /// Note: When modifying dash pattern properties, the dash lengths would need to be recalculated
     /// For now, we update the properties. A full implementation would regenerate the dash pattern.
     /// </summary>
-    private AutocadLinetypeTableRecord UpdateLayout(AutocadLinetypeTableRecord linetype, string newName,
+    private AutocadLinetypeTableRecordWrapper UpdateLayout(AutocadLinetypeTableRecordWrapper linetype, string newName,
      double newPatternLength, int newNumberOfDashes, bool newScaleToFit, string newComments)
     {
         try
@@ -99,9 +99,7 @@ public class SetAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
 
             var database = activeDocument.Database;
 
-            using var transactionManagerWrapper = new TransactionManagerWrapper(database);
-
-            using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
+            using var transaction = database.TransactionManager.StartTransaction();
 
             var cadLineType =
                 transaction.GetObject(cadLinetypeId, OpenMode.ForWrite) as LinetypeTableRecord;
@@ -116,7 +114,7 @@ public class SetAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
 
             activeDocument.Editor.Regen();
 
-            return new AutocadLinetypeTableRecord(cadLineType);
+            return new AutocadLinetypeTableRecordWrapper(cadLineType);
 
         }
         catch (Exception e)
@@ -129,7 +127,7 @@ public class SetAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        AutocadLinetypeTableRecord? lineType = null;
+        AutocadLinetypeTableRecordWrapper? lineType = null;
 
         if (!DA.GetData(0, ref lineType) || lineType is null) return;
 

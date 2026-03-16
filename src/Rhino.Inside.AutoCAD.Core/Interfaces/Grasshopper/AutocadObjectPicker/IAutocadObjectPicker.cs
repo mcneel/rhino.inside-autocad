@@ -10,14 +10,14 @@ public interface IAutocadObjectPicker
     /// will force the autoCAD application to be focused and then display the prompt.
     /// This method returns null if no object was picked.
     /// </summary>
-    IEntity? PickObject(ISelectionFilter filter, string message);
+    IEntity? PickObject(IAutocadSelectionFilterWrapper filterWrapper, string message);
 
     /// <summary>
     /// Displays a prompt to pick a multiple objects from the AutoCAD document. This
     /// method will force the autoCAD application to be focused and then display the
     /// prompt. This method returns an empty list if no objects were picked.
     /// </summary>
-    IList<IEntity> PickObjects(ISelectionFilter filter, string message);
+    IList<IEntity> PickObjects(IAutocadSelectionFilterWrapper filterWrapper, string message);
 
     /// <summary>
     /// Tries to get the updated object represented by the given <paramref name="objectId"/>.

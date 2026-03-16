@@ -5,10 +5,10 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <summary>
 /// A filter that selects AutoCAD Point entities.
 /// </summary>
-public class PointFilter : IFilter
+public class PointFilter : IObjectFilter
 {
     /// <inheritdoc />
-    public ISelectionFilter GetSelectionFilter()
+    public IAutocadSelectionFilterWrapper GetSelectionFilter()
     {
         var filterCriteria = new[]
         {
@@ -17,6 +17,6 @@ public class PointFilter : IFilter
 
         var selectionFilter = new SelectionFilter(filterCriteria);
 
-        return new SelectionFilterWrapper(selectionFilter);
+        return new AutocadSelectionFilterWrapper(selectionFilter);
     }
 }

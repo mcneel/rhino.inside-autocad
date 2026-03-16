@@ -1,7 +1,7 @@
 ﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// Represents a collection of the <see cref="ICustomProperty"/>s.
+/// Represents a collection of the <see cref="IDynamicBlockReferencePropertyWrapper"/>s.
 /// </summary>
 public interface IDynamicPropertySet : IEnumerable<IDynamicBlockReferencePropertyWrapper>
 {

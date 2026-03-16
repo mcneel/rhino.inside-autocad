@@ -97,6 +97,6 @@ public class GH_AutocadDocument : GH_Goo<AutocadDocument>
         if (this.Value == null)
             return "Null AutocadDocument";
 
-        return $"AutocadDocument [Name: {this.Value.FileInfo.FileName}, Id: {this.Value.Id} ]";
+        return $"AutocadDocument [Name: {this.Value.FileMetadata.FileName}, Id: {this.Value.DocumentId} ]";
     }
 }

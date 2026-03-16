@@ -7,8 +7,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public class BrepConverterResult : IBrepConverterResult
 {
     /// <inheritdoc />
-    public IEntityCollection ConvertedSolids { get; }
-
+    public IEntitySet ConvertedSolids { get; }
 
     /// <inheritdoc />
     public bool Success { get; }
@@ -18,7 +17,7 @@ public class BrepConverterResult : IBrepConverterResult
     /// </summary>
     public BrepConverterResult(List<Solid3d> solids)
     {
-        this.ConvertedSolids = new EntityCollection();
+        this.ConvertedSolids = new EntitySet();
 
         foreach (var solid in solids)
         {

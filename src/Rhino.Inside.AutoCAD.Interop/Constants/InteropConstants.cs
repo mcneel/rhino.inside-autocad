@@ -24,7 +24,7 @@ public class InteropConstants
     public const string ApplicationName = "RHINO.INSIDE.AUTOCAD";
 
     /// <summary>
-    /// The length in <see cref="IUnitSystemManager.RhinoUnits"/> of a pattern point
+    /// The length in <see cref="IUnitConverter.RhinoUnits"/> of a pattern point
     /// in a <see cref="IAutocadLinetypeTableRecord"/> that is 0-length. The length is used to represent
     /// the point as a line internally.
     /// </summary>

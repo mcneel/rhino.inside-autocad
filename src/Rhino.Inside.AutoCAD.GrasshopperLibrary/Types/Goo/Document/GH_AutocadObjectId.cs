@@ -7,13 +7,13 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD ObjectIds.
 /// </summary>
-public class GH_AutocadObjectId : GH_Goo<AutocadObjectId>
+public class GH_AutocadObjectId : GH_Goo<AutocadObjectIdWrapper>
 {
     /// <inheritdoc />
     public override bool IsValid => this.Value is { IsValid: true };
 
     /// <inheritdoc />
-    public override string TypeName => nameof(AutocadObjectId);
+    public override string TypeName => nameof(AutocadObjectIdWrapper);
 
     /// <inheritdoc />
     public override string TypeDescription => "Represents an AutoCAD ObjectId";
@@ -29,8 +29,8 @@ public class GH_AutocadObjectId : GH_Goo<AutocadObjectId>
     /// Initializes a new instance of the <see cref="GH_AutocadObjectId"/> class with the
     /// specified AutoCAD ObjectId.
     /// </summary>
-    /// <param name="objectId">The AutoCAD ObjectId to wrap.</param>
-    public GH_AutocadObjectId(AutocadObjectId objectId) : base(objectId)
+    /// <param name="objectIdWrapper">The AutoCAD ObjectId to wrap.</param>
+    public GH_AutocadObjectId(AutocadObjectIdWrapper objectIdWrapper) : base(objectIdWrapper)
     {
     }
 
@@ -48,7 +48,7 @@ public class GH_AutocadObjectId : GH_Goo<AutocadObjectId>
     /// Constructs a new <see cref="IObjectId"/> via the interface.
     /// </summary>
     public GH_AutocadObjectId(IObjectId objectId)
-        : base((objectId as AutocadObjectId)!)
+        : base((objectId as AutocadObjectIdWrapper)!)
     {
 
     }
@@ -70,7 +70,7 @@ public class GH_AutocadObjectId : GH_Goo<AutocadObjectId>
             return true;
         }
 
-        if (source is AutocadObjectId objectId)
+        if (source is AutocadObjectIdWrapper objectId)
         {
             this.Value = objectId;
             return true;
@@ -80,7 +80,7 @@ public class GH_AutocadObjectId : GH_Goo<AutocadObjectId>
 
         if (converter.TryConvertGetId(source, out var target))
         {
-            this.Value = new AutocadObjectId(target!.Unwrap());
+            this.Value = new AutocadObjectIdWrapper(target!.Unwrap());
             return true;
         }
 
@@ -90,7 +90,7 @@ public class GH_AutocadObjectId : GH_Goo<AutocadObjectId>
     /// <inheritdoc />
     public override bool CastTo<Q>(ref Q target)
     {
-        if (typeof(Q).IsAssignableFrom(typeof(AutocadObjectId)))
+        if (typeof(Q).IsAssignableFrom(typeof(AutocadObjectIdWrapper)))
         {
             target = (Q)(object)this.Value;
             return true;

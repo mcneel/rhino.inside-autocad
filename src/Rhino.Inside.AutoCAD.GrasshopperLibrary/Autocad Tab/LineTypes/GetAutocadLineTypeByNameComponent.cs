@@ -69,9 +69,9 @@ public class GetAutocadLineTypeByNameComponent : RhinoInsideAutocad_ComponentBas
 
         DA.GetData(1, ref name);
 
-        var lineTypesRepository = autocadDocument.LineTypeRepository;
+        var lineTypesRegister = autocadDocument.LineTypeRegister;
 
-        if (lineTypesRepository.TryGetByName(name, out var lineType) == false)
+        if (lineTypesRegister.TryGetByName(name, out var lineType) == false)
         {
             this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                 $"No line type exists with name: {name}");

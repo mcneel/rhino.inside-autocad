@@ -6,10 +6,10 @@
 public interface ILoadingScreenManager : IDisposable
 {
     /// <summary>
-    /// Displays the <paramref name="validationLogger"/> error message
+    /// Displays the <paramref name="startUpLogger"/> error message
     /// to the user in the splash screen UI.
     /// </summary>
-    void ShowFailedValidationInfo(IValidationLogger validationLogger);
+    void ShowFailedValidationInfo(IStartUpLogger startUpLogger);
 
     /// <summary>
     /// Displays the exception message to the user in the splash screen UI.

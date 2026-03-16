@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD block definitions.
 /// </summary>
-public class GH_AutocadBlockTableRecord : GH_AutocadObjectGoo<BlockTableRecordWrapper>
+public class GH_AutocadBlockTableRecord : GH_AutocadObjectGoo<AutocadBlockTableRecordWrapper>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadBlockTableRecord"/> class with no value.
@@ -20,8 +20,8 @@ public class GH_AutocadBlockTableRecord : GH_AutocadObjectGoo<BlockTableRecordWr
     /// Initializes a new instance of the <see cref="GH_AutocadBlockTableRecord"/> class with the
     /// specified AutoCAD block definition.
     /// </summary>
-    /// <param name="blockWrapper">The AutoCAD block definition to wrap.</param>
-    public GH_AutocadBlockTableRecord(BlockTableRecordWrapper blockWrapper) : base(blockWrapper)
+    /// <param name="autocadBlockWrapper">The AutoCAD block definition to wrap.</param>
+    public GH_AutocadBlockTableRecord(AutocadBlockTableRecordWrapper autocadBlockWrapper) : base(autocadBlockWrapper)
     { }
 
     /// <summary>
@@ -37,8 +37,8 @@ public class GH_AutocadBlockTableRecord : GH_AutocadObjectGoo<BlockTableRecordWr
     /// <summary>
     /// Constructs a new <see cref="GH_AutocadBlockTableRecord"/> via the interface.
     /// </summary>
-    public GH_AutocadBlockTableRecord(IBlockTableRecord blockTableRecord)
-        : base((blockTableRecord as BlockTableRecordWrapper)!)
+    public GH_AutocadBlockTableRecord(IAutocadBlockTableRecord autocadBlockTableRecord)
+        : base((autocadBlockTableRecord as AutocadBlockTableRecordWrapper)!)
     {
     }
 
@@ -50,7 +50,7 @@ public class GH_AutocadBlockTableRecord : GH_AutocadObjectGoo<BlockTableRecordWr
     {
         var unwrapped = dbObject.UnwrapObject();
 
-        var newWrapper = new BlockTableRecordWrapper(unwrapped as BlockTableRecord);
+        var newWrapper = new AutocadBlockTableRecordWrapper(unwrapped as BlockTableRecord);
 
         return new GH_AutocadBlockTableRecord(newWrapper);
     }

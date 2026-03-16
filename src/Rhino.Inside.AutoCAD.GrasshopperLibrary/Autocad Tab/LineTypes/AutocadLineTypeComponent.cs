@@ -46,7 +46,7 @@ public class AutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        AutocadLinetypeTableRecord? linePattern = null;
+        AutocadLinetypeTableRecordWrapper? linePattern = null;
 
         if (!DA.GetData(0, ref linePattern)
             || linePattern is null) return;

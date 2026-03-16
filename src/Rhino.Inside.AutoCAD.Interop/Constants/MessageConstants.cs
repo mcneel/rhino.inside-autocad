@@ -21,12 +21,6 @@ public class MessageConstants
     public const string Void = "VOID";
 
     /// <summary>
-    /// An error message for the <see cref="IAutoCadInstance"/> for when an unsaved document
-    /// is used.
-    /// </summary>
-    public const string UnsavedNotSupported = "Warning: Unsaved documents are not supported. Save your file to run the application.";
-
-    /// <summary>
     /// An error message for the <see cref="IAutoCadInstance"/> for when a readonly document
     /// is used.
     /// </summary>
@@ -35,7 +29,7 @@ public class MessageConstants
     /// <summary>
     /// An error message for the <see cref="IAutoCadInstance"/> for when unsupported units
     /// are used.
-    /// </summary
+    /// </summary>
     public const string FileUnitsNotSupported = "Warning: unsupported document file units ({0}). Set a valid metric or imperial unit system and try again.";
 
     /// <summary>

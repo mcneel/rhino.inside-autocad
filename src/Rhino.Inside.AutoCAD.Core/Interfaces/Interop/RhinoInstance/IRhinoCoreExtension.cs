@@ -6,9 +6,9 @@
 public interface IRhinoCoreExtension
 {
     /// <summary>
-    /// The <see cref="IValidationLogger"/> a logger used for validation.
+    /// The <see cref="IStartUpLogger"/> a logger used for validation.
     /// </summary>
-    IValidationLogger ValidationLogger { get; }
+    IStartUpLogger StartUpLogger { get; }
 
     /// <summary>
     /// Access to the Rhino window manager.

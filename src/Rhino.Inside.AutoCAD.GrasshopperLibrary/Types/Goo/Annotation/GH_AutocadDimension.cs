@@ -1,6 +1,7 @@
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadDimension = Autodesk.AutoCAD.DatabaseServices.Dimension;
 using RhinoCurve = Rhino.Geometry.Curve;
 using RhinoDimension = Rhino.Geometry.Dimension;
@@ -52,13 +53,13 @@ public class GH_AutocadDimension : GH_AutocadGeometricGoo<AutocadDimension, Rhin
     /// <inheritdoc />
     protected override AutocadDimension? Convert(RhinoDimension rhinoType)
     {
-        return _geometryConverter.ToAutoCadType(rhinoType);
+        return rhinoType.ToAutocadDimension();
     }
 
     /// <inheritdoc />
     protected override RhinoDimension? Convert(AutocadDimension wrapperType)
     {
-        return _geometryConverter.ToRhinoType(wrapperType);
+        return wrapperType.ToRhinoDimension();
     }
 
     /// <inheritdoc />

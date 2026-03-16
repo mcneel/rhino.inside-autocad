@@ -21,11 +21,6 @@ public interface IRhinoInsideAutoCadApplication
     ISettingsManager SettingsManager { get; }
 
     /// <summary>
-    /// The file resource manager for obtaining essential file resources.
-    /// </summary>
-    IFileResourceManager FileResourceManager { get; }
-
-    /// <summary>
     /// The principal controller for Rhino.Inside functionality. This manager
     /// provides access to both Rhino and autocad, and the AutoCAD-Rhino bridge.
     /// </summary>

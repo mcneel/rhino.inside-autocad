@@ -2,15 +2,15 @@ using Autodesk.AutoCAD.DatabaseServices;
 using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
+using CadColor = Autodesk.AutoCAD.Colors.Color;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD block instances.
 /// </summary>
-public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrapper>, IAutocadBakeable
+public class GH_AutocadBlockReference : GH_AutocadObjectGoo<AutocadBlockReferenceWrapper>, IAutocadBakeable
 {
-    private readonly AutocadColorConverter _colorConverter = AutocadColorConverter.Instance;
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadBlockReference"/> class with no value.
     /// </summary>
@@ -21,8 +21,8 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
     /// Initializes a new instance of the <see cref="GH_AutocadBlockReference"/> class with the
     /// specified AutoCAD block instance.
     /// </summary>
-    /// <param name="blockRefWrapper">The AutoCAD block instance to wrap.</param>
-    public GH_AutocadBlockReference(BlockReferenceWrapper blockRefWrapper) : base(blockRefWrapper)
+    /// <param name="autocadBlockRefWrapper">The AutoCAD block instance to wrap.</param>
+    public GH_AutocadBlockReference(AutocadBlockReferenceWrapper autocadBlockRefWrapper) : base(autocadBlockRefWrapper)
     { }
 
     /// <summary>
@@ -38,8 +38,8 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
     /// <summary>
     /// Constructs a new <see cref="GH_AutocadBlockReference"/> via the interface.
     /// </summary>
-    public GH_AutocadBlockReference(IBlockReference blockReference)
-        : base((blockReference as BlockReferenceWrapper)!)
+    public GH_AutocadBlockReference(IAutocadBlockReference autocadBlockReference)
+        : base((autocadBlockReference as AutocadBlockReferenceWrapper)!)
     {
     }
 
@@ -51,7 +51,7 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
     {
         var unwrapped = dbObject.UnwrapObject();
 
-        var newWrapper = new BlockReferenceWrapper(unwrapped as BlockReference);
+        var newWrapper = new AutocadBlockReferenceWrapper(unwrapped as BlockReference);
 
         return new GH_AutocadBlockReference(newWrapper);
     }
@@ -72,7 +72,7 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
         if (settings?.Color != null)
         {
             var color = settings.Color;
-            blockReference.Color = _colorConverter.ToCadColor(color);
+            blockReference.Color = CadColor.FromRgb(color.Red, color.Green, color.Blue);
         }
     }
 
@@ -84,7 +84,7 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
 
         var transaction = transactionManager.Unwrap();
 
-        var modelSpace = transactionManager.GetModelSpaceBlockTableRecord(openForWrite: true);
+        var modelSpace = transactionManager.GetModelSpace(openForWrite: true);
 
         var modelSpaceRecord = modelSpace.Unwrap();
 
@@ -98,6 +98,6 @@ public class GH_AutocadBlockReference : GH_AutocadObjectGoo<BlockReferenceWrappe
 
         transaction.AddNewlyCreatedDBObject(blockReference, true);
 
-        return [new AutocadObjectId(objectId)];
+        return [new AutocadObjectIdWrapper(objectId)];
     }
 }

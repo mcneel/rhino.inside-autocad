@@ -64,7 +64,7 @@ public class AutocadLayerComponent : RhinoInsideAutocad_ComponentBase
         if (!DA.GetData(0, ref autocadLayer)
             || autocadLayer is null) return;
 
-        var linePatten = autocadLayer.LinePattenId;
+        var linePatten = autocadLayer.LineTypeId;
 
         var name = autocadLayer.Name;
 

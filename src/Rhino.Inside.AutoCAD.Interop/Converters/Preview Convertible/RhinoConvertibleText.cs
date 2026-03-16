@@ -9,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class RhinoConvertibleText : RhinoConvertibleBase<Rhino.Geometry.TextEntity>
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <summary>
     /// Constructs a new <see cref="RhinoConvertibleText"/> instance.
     /// </summary>
@@ -21,7 +19,7 @@ public class RhinoConvertibleText : RhinoConvertibleBase<Rhino.Geometry.TextEnti
     /// <inheritdoc />
     protected override List<IEntity> ConvertGeometry(ITransactionManager transactionManager)
     {
-        var cadText = _geometryConverter.ToAutoCadType(this.RhinoGeometry);
+        var cadText = this.RhinoGeometry.ToAutocadMText();
 
         return [new AutocadEntityWrapper(cadText)];
     }

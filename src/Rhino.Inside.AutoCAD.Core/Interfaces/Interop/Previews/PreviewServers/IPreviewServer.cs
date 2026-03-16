@@ -12,13 +12,13 @@ public interface IPreviewServer
 
     /// <summary>
     /// Adds the provided <paramref name="rhinoConvertibleSet"/> into this <see cref=
-    /// "ITransientManager"/>.
+    /// "IPreviewServer"/>.
     /// </summary>
     void AddObject(Guid rhinoObjectId, IRhinoConvertibleSet rhinoConvertibleSet);
 
     /// <summary>
     /// Removes the provided <paramref name="rhinoObjectId"/> from this <see cref=
-    /// "ITransientManager"/>.
+    /// "IPreviewServer"/>.
     /// </summary>
     void RemoveObject(Guid rhinoObjectId);
 

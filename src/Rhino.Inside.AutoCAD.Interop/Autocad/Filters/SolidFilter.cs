@@ -6,10 +6,10 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <summary>
 /// A filter that selects AutoCAD Solid3d entities.
 /// </summary>
-public class SolidFilter : IFilter
+public class SolidFilter : IObjectFilter
 {
     /// <inheritdoc />
-    public ISelectionFilter GetSelectionFilter()
+    public IAutocadSelectionFilterWrapper GetSelectionFilter()
     {
         var filterCriteria = new[]
         {
@@ -18,6 +18,6 @@ public class SolidFilter : IFilter
 
         var selectionFilter = new SelectionFilter(filterCriteria);
 
-        return new SelectionFilterWrapper(selectionFilter);
+        return new AutocadSelectionFilterWrapper(selectionFilter);
     }
 }

@@ -43,9 +43,9 @@ public interface IRhinoInsideManager
     IGrasshopperInstance GrasshopperInstance { get; }
 
     /// <summary>
-    /// The <see cref="IUnitSystemManager"/> for managing unit systems between Rhino and AutoCAD.
+    /// The <see cref="IUnitConverter"/> for managing unit systems between Rhino and AutoCAD.
     /// </summary>
-    IUnitSystemManager UnitSystemManager { get; }
+    IUnitConverter UnitConverter { get; }
 
     /// <summary>
     /// The <see cref="IRhinoObjectPreviewServer"/> for previewing objects between Rhino and

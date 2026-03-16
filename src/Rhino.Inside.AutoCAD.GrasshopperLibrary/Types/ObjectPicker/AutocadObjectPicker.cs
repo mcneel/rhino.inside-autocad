@@ -26,7 +26,7 @@ public class AutocadObjectPicker : IAutocadObjectPicker
     }
 
     /// <inheritdoc/>
-    public IEntity? PickObject(ISelectionFilter filter, string message)
+    public IEntity? PickObject(IAutocadSelectionFilterWrapper filterWrapper, string message)
     {
         Application.MainWindow.Focus();
 
@@ -43,7 +43,7 @@ public class AutocadObjectPicker : IAutocadObjectPicker
                 SingleOnly = true,
             };
 
-            var selectionFilter = filter.Unwrap();
+            var selectionFilter = filterWrapper.Unwrap();
 
             var promptSelectionResult = _document.Unwrap().Editor.GetSelection(options, selectionFilter);
 
@@ -71,7 +71,7 @@ public class AutocadObjectPicker : IAutocadObjectPicker
     }
 
     /// <inheritdoc/>
-    public IList<IEntity> PickObjects(ISelectionFilter filter, string message)
+    public IList<IEntity> PickObjects(IAutocadSelectionFilterWrapper filterWrapper, string message)
     {
         Application.MainWindow.Focus();
 
@@ -88,7 +88,7 @@ public class AutocadObjectPicker : IAutocadObjectPicker
                 SingleOnly = false,
             };
 
-            var selectionFilter = filter.Unwrap();
+            var selectionFilter = filterWrapper.Unwrap();
 
             var promptSelectionResult = _document.Unwrap().Editor
                 .GetSelection(options, selectionFilter);
@@ -120,23 +120,23 @@ public class AutocadObjectPicker : IAutocadObjectPicker
     public bool TryGetUpdatedObject(IObjectId objectId, out IEntity? entity)
     {
         entity = _document.Transaction((transactionManager) =>
-         {
-             if (objectId.IsValid == false) return null;
-             try
-             {
-                 var transaction = transactionManager.Unwrap();
+        {
+            if (objectId.IsValid == false) return null;
+            try
+            {
+                var transaction = transactionManager.Unwrap();
 
-                 var cadEntity = transaction.GetObject(objectId.Unwrap(),
-                        OpenMode.ForRead) as CadEntity;
+                var cadEntity = transaction.GetObject(objectId.Unwrap(),
+                       OpenMode.ForRead) as CadEntity;
 
-                 return new AutocadEntityWrapper(cadEntity);
-             }
-             catch (Exception e)
-             {
+                return new AutocadEntityWrapper(cadEntity);
+            }
+            catch (Exception e)
+            {
 
-                 return null;
-             }
-         });
+                return null;
+            }
+        });
 
         return entity != null;
     }

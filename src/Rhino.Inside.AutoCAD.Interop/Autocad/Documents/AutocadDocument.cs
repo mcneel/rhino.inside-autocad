@@ -10,235 +10,132 @@ using CadLineType = Autodesk.AutoCAD.DatabaseServices.LinetypeTableRecord;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
-/// <summary>
-/// A class which provides a wrapped version of the AutoCAD
-/// <see cref="Document"/>.
-/// </summary>
-public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
+/// <inheritdoc cref="IAutocadDocument"/>
+public class AutocadDocument : AutocadWrapperBase<Document>, IAutocadDocument
 {
-    private readonly string _applicationName = InteropConstants.ApplicationName;
-
-    private readonly DwgVersion _dwgVersion = DwgVersion.Current;
-
     private readonly Document _document;
 
-    private readonly IDocumentCloseAction _documentCloseAction;
     private readonly Dispatcher _dispatcher;
 
-    private const short _applicationNameKey = XRecordKeys.ApplicationNameKey;
-    private const short _documentIdKey = XRecordKeys.DocumentIdKey;
-
     /// <summary>
-    /// Used as a flag for document changed events. Used to defer the invocation of the
-    /// <see cref="DocumentChanged"/> event otherwise the application forces the
-    /// underlying AutoCAD document to update while a command is executing which causes
-    /// peculiar behavior such as losing visibility of all entities in the active
-    /// viewport.
+    /// Accumulates document changes during command execution.
     /// </summary>
+    /// <remarks>
+    /// Defers <see cref="DocumentChanged"/> invocation until command completion to prevent
+    /// forcing document updates mid-command, which causes viewport visibility issues.
+    /// </remarks>
     private IAutocadDocumentChange _documentChange;
 
     /// <inheritdoc/>
     public event EventHandler<IAutocadDocumentChangeEventArgs>? DocumentChanged;
 
     /// <inheritdoc/>
-    public event EventHandler? OnUnitsChanged;
+    public ILayerRegister LayerRegister { get; }
 
     /// <inheritdoc/>
-    public Guid Id { get; }
+    public ILineTypeRegister LineTypeRegister { get; }
+
+    /// <inheritdoc/>
+    public ILayoutRegister LayoutRegister { get; }
+
+    /// <inheritdoc/>
+    public IBlockTableRecordRegister BlockTableRecordRegister { get; }
+
+    /// <inheritdoc/>
+    public IAutocadDocumentId DocumentId { get; }
 
     /// <inheritdoc/>
     public IDatabase Database { get; }
 
     /// <inheritdoc/>
-    public IAutocadDocumentFileInfo FileInfo { get; }
-
-    /// <inheritdoc/>
-    public ILayerRepository LayerRepository { get; }
-
-    /// <inheritdoc/>
-    public ILineTypeRepository LineTypeRepository { get; }
-
-    /// <inheritdoc/>
-    public ILayoutRepository LayoutRepository { get; }
-
-    /// <inheritdoc/>
-    public IBlockTableRecordRepository BlockTableRecordRepository { get; }
+    public IAutocadDocumentFileMetadata FileMetadata { get; }
 
     /// <inheritdoc/>
     public UnitSystem UnitSystem { get; private set; }
 
     /// <inheritdoc/>
-    public bool IsSaveOnClose { get; private set; }
+    public bool IsReadOnly { get; }
 
     /// <summary>
-    /// Constructs a new <see cref="AutocadDocument"/>.
+    /// Initializes a new instance of <see cref="AutocadDocument"/>.
     /// </summary>
-    public AutocadDocument(Document document,
-        IDocumentCloseAction documentCloseAction,
-        Dispatcher dispatcher) : base(document)
+    /// <param name="document">
+    /// The AutoCAD <see cref="Document"/> to wrap.
+    /// </param>
+    /// <param name="dispatcher">
+    /// The WPF <see cref="Dispatcher"/> for marshalling UI operations.
+    /// </param>
+    public AutocadDocument(Document document, Dispatcher dispatcher) : base(document)
     {
         _document = document;
-
-        var database = document.Database;
+        _document.CommandEnded += this.OnCommandEnded;
+        _document.CommandCancelled += this.OnCommandEnded;
 
         _dispatcher = dispatcher;
 
-        _document.CommandEnded += this.OnDocumentCommandEnded;
-        _document.CommandCancelled += this.OnDocumentCommandEnded;
+        var database = document.Database;
 
-        database.ObjectAppended += this.OnDatabaseObjectAppended;
-        database.ObjectModified += this.OnDatabaseObjectModified;
-        database.ObjectErased += this.OnDatabaseObjectErased;
+        var documentUnits = this.ExtractUnitSystem(database.Insunits);
 
-        _documentCloseAction = documentCloseAction;
-
-        var id = this.RegisterApplication(document);
-
-        var documentUnits = database.Insunits.ToUnitSystem();
-
-        var databaseWrapper = new DatabaseWrapper(database);
-
-        this.Id = id;
+        var databaseWrapper = new AutocadDatabaseWrapper(database);
 
         this.Database = databaseWrapper;
 
-        this.FileInfo = new AutocadDocumentFileInfo(document, id);
+        this.FileMetadata = new AutocadDocumentFileMetadata(document);
 
         this.UnitSystem = documentUnits;
 
-        this.LayerRepository = new LayerRepository(this);
+        this.LayerRegister = new LayerRegister(this);
 
-        this.LineTypeRepository = new LineTypeRepository(this);
+        this.LineTypeRegister = new LineTypeRegister(this);
 
-        this.LayoutRepository = new LayoutRepository(this);
+        this.LayoutRegister = new LayoutRegister(this);
 
-        this.BlockTableRecordRepository = new BlockTableRecordRepository(this);
+        this.BlockTableRecordRegister = new BlockTableRecordRegister(this);
 
         _documentChange = new AutocadDocumentChange(this);
+
+        this.DocumentId = new AutocadDocumentId(this);
+
+        //Delay Subscription to database events until after document Id
+        // is created to ensure changes are tracked from the moment they occur.
+        database.ObjectAppended += this.OnObjectAppended;
+        database.ObjectModified += this.OnObjectModified;
+        database.ObjectErased += this.OnObjectErased;
+
+        this.IsReadOnly = document.IsReadOnly;
     }
 
     /// <summary>
-    /// Saves the <see cref="Database"/>. The underlying AutoCAD
-    /// document remains open. When a new document GUID is created,
-    /// we force a save of the document to ensure the ID XData is
-    /// preserved for all future interactions of the app and document.
-    /// If there is no file path (i.e. the document has never been saved
-    /// and is not a template), no save is performed.
+    /// Converts an Autocad <see cref="UnitsValue"/> to a <see cref="UnitSystem"/>.
     /// </summary>
-    private void ForceSaveDatabase(Database database)
+    private UnitSystem ExtractUnitSystem(UnitsValue unitsValue)
     {
-        var filePath = database.Filename;
+        var unitSystemResult = Enum.TryParse(unitsValue.ToString(), out UnitSystem documentUnitSystem);
 
-        if (_document.IsReadOnly || string.IsNullOrEmpty(filePath)) return;
+        return unitSystemResult ? documentUnitSystem : UnitSystem.Unset;
 
-        var securityParameters = database.SecurityParameters;
-
-        database.SaveAs(filePath, true, _dwgVersion, securityParameters);
     }
 
     /// <summary>
-    /// Returns the document ID from the model space XData. If the document ID
-    /// does not exist, a new one is created and stored in the model space XData.
+    /// Handles command completion to process accumulated document changes.
     /// </summary>
     /// <remarks>
-    /// Only called after <see cref="RegisterApplication"/> has been called.
+    /// Subscribed to both <see cref="Document.CommandEnded"/> and
+    /// <see cref="Document.CommandCancelled"/> because modifications can occur
+    /// even when a command is cancelled (e.g., copy then escape).
+    /// Ignores startup application commands.
     /// </remarks>
-    private Guid GetId(Database database)
-    {
-        var transactionManager = database.TransactionManager;
-
-        using var transaction = transactionManager.StartTransaction();
-
-        var blockModelSpaceId = SymbolUtilityServices.GetBlockModelSpaceId(database);
-
-        using var modelSpace = (BlockTableRecord)blockModelSpaceId.GetObject(OpenMode.ForRead);
-
-        using var xData = modelSpace.XData == null ? new ResultBuffer() : modelSpace.XData;
-
-        var idKey = (short)_documentIdKey;
-
-        var typedValues = xData.AsArray().Where(v => v.TypeCode == idKey);
-
-        var documentId = Guid.Empty;
-        foreach (var typedValue in typedValues)
-        {
-            if (Guid.TryParse(typedValue.Value.ToString(), out documentId))
-                break;
-        }
-
-        if (documentId == Guid.Empty)
-        {
-            documentId = Guid.NewGuid();
-
-            xData.Add(new Autodesk.AutoCAD.DatabaseServices.TypedValue((short)_applicationNameKey, _applicationName));
-            xData.Add(new Autodesk.AutoCAD.DatabaseServices.TypedValue(idKey, documentId.ToString()));
-
-            modelSpace.UpgradeOpen();
-
-            modelSpace.XData = xData;
-
-            this.ForceSaveDatabase(database);
-        }
-
-        transaction.Commit();
-
-        return documentId;
-    }
-
-    /// <summary>
-    /// Registers this application with the <see cref="RegAppTable"/>.
-    /// Required for functions such as writing XData to the database.
-    /// </summary>
-    private Guid RegisterApplication(Document document)
-    {
-        var database = document.Database;
-
-        using var documentLock = _document.LockDocument();
-
-        using var transaction = document.TransactionManager.StartTransaction();
-
-        using var regAppTable = (RegAppTable)transaction.GetObject(database.RegAppTableId, OpenMode.ForRead);
-
-        if (regAppTable.Has(_applicationName) == false)
-        {
-            regAppTable.UpgradeOpen();
-
-            using var regAppTableRecord = new RegAppTableRecord();
-
-            regAppTableRecord.Name = _applicationName;
-
-            regAppTable.Add(regAppTableRecord);
-
-            transaction.AddNewlyCreatedDBObject(regAppTableRecord, true);
-        }
-
-        transaction.Commit();
-
-        return this.GetId(database);
-    }
-
-    /// <summary>
-    /// Event handler which fires when a command is ended or cancelled. If the
-    /// <see cref="_documentChange"/> flag is true, <see cref="DocumentChanged"/>
-    /// is invoked and the flag is set back to false ready for any future changes.
-    /// </summary>
-    /// <remarks>
-    /// It is possible to modify the document and cancel the command. For example,
-    /// if an entity is copied and the escape key is pressed, the command is cancelled
-    /// yet the document has changed. For this reason, both the
-    /// <see cref="Document.CommandEnded"/> and <see cref="Document.CommandCancelled"/>
-    /// events are subscribed to.
-    /// </remarks>
-    private void OnDocumentCommandEnded(object sender, CommandEventArgs e)
+    private void OnCommandEnded(object sender, CommandEventArgs e)
     {
         // On startup the first ending command is the application which is ignored.
         if (Enum.GetNames(typeof(ButtonApplicationId)).Any(appId => e.GlobalCommandName.Contains(appId)))
             return;
 
-        this.CheckUnits();
-
         if (_documentChange.HasChanges)
         {
+            this.CheckUnits();
+
             this.CheckRepositories();
 
             this.TriggerDocumentChanged();
@@ -246,86 +143,78 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     }
 
     /// <summary>
-    /// Checks the repositories to see if they need to be updated based on the
-    /// current <see cref="_documentChange"/>.
+    /// Repopulates affected repositories based on accumulated changes.
     /// </summary>
+    /// <remarks>
+    /// Checks each register type against <see cref="_documentChange"/> and
+    /// refreshes those that contain modified object types. Block changes
+    /// additionally trigger a viewport regeneration.
+    /// </remarks>
     private void CheckRepositories()
     {
         if (_documentChange.DoesEffectType(typeof(CadLayer)))
-            this.LayerRepository.Repopulate();
+            this.LayerRegister.Repopulate();
 
         if (_documentChange.DoesEffectType(typeof(CadLayout)))
-            this.LayoutRepository.Repopulate();
+            this.LayoutRegister.Repopulate();
 
         if (_documentChange.DoesEffectType(typeof(CadLineType)))
-            this.LineTypeRepository.Repopulate();
+            this.LineTypeRegister.Repopulate();
 
         if (_documentChange.DoesEffectType(typeof(CadBlockTableRecord)))
-            this.BlockTableRecordRepository.Repopulate();
-    }
-
-    /// <summary>
-    /// Checks the document units against the stored units to see if they have changed.
-    /// If they have, the <see cref="OnUnitsChanged"/> event is invoked.
-    /// </summary>
-    private void CheckUnits()
-    {
-        var database = _document.Database;
-
-        var documentUnits = database.Insunits.ToUnitSystem();
-
-        if (this.UnitSystem != documentUnits)
         {
-
-            this.UnitSystem = documentUnits;
-
-            _documentChange.AddChange(ChangeType.UnitsChanged);
-
-            OnUnitsChanged?.Invoke(this, EventArgs.Empty);
+            this.BlockTableRecordRegister.Repopulate();
+            this.Regenerate();
         }
     }
 
     /// <summary>
-    /// Event handler which fires when an object is modified in the database.
-    /// Sets the <see cref="_documentChange"/> to true. 
+    /// Detects and records unit system changes.
     /// </summary>
-    private void OnDatabaseObjectModified(object sender, ObjectEventArgs e)
+    /// <remarks>
+    /// Compares current INSUNITS against cached <see cref="UnitSystem"/> and
+    /// adds <see cref="ChangeType.UnitsChanged"/> to the change tracker if different.
+    /// </remarks>
+    private void CheckUnits()
     {
-        _documentChange?.AddObjectChange(ChangeType.ObjectModified, new DbObjectWrapper(e.DBObject));
+        var database = _document.Database;
+
+        var documentUnits = this.ExtractUnitSystem(database.Insunits);
+
+        if (this.UnitSystem != documentUnits)
+        {
+            this.UnitSystem = documentUnits;
+
+            _documentChange.AddChange(ChangeType.UnitsChanged);
+        }
     }
 
     /// <summary>
-    /// Event handler which fires when an object is appended  in the database.
-    /// Sets the <see cref="_documentChange"/> to true. 
+    /// Records object modification in the change tracker.
     /// </summary>
-    private void OnDatabaseObjectAppended(object sender, ObjectEventArgs e)
+    private void OnObjectModified(object sender, ObjectEventArgs e)
     {
-        _documentChange?.AddObjectChange(ChangeType.ObjectCreated, new DbObjectWrapper(e.DBObject));
+        _documentChange?.AddObjectChange(ChangeType.ObjectModified, new AutocadDbObjectWrapper(e.DBObject));
     }
 
     /// <summary>
-    /// Event handler which fires when an object is erased from the database.
-    /// Sets the <see cref="_documentChange"/> to true. 
+    /// Records object creation in the change tracker.
     /// </summary>
-    private void OnDatabaseObjectErased(object sender, ObjectErasedEventArgs e)
+    private void OnObjectAppended(object sender, ObjectEventArgs e)
     {
-        _documentChange?.AddObjectChange(ChangeType.ObjectCreated, new DbObjectWrapper(e.DBObject));
+        _documentChange?.AddObjectChange(ChangeType.ObjectCreated, new AutocadDbObjectWrapper(e.DBObject));
     }
 
     /// <summary>
-    /// Sets the <see cref="CloseActionType"/> of this <see cref="IAutocadDocument"/>,
-    /// to <see cref="CloseActionType.Save"/> to ensure any changes made to the
-    /// document are saved in the underlying AutoCAD document.
+    /// Records object deletion in the change tracker.
     /// </summary>
-    private void SaveChanges()
+    private void OnObjectErased(object sender, ObjectErasedEventArgs e)
     {
-        this.IsSaveOnClose = true;
-
-        _documentCloseAction.SetCloseAction(CloseActionType.Save);
+        _documentChange?.AddObjectChange(ChangeType.ObjectCreated, new AutocadDbObjectWrapper(e.DBObject));
     }
 
     /// <inheritdoc/>
-    public T Transaction<T>(Func<ITransactionManager, T> function, bool saveChanges = false, bool abort = false)
+    public T Transaction<T>(Func<ITransactionManager, T> function, bool abort = false)
     {
         using var documentLock = _document.LockDocument();
 
@@ -345,15 +234,11 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
         {
             transaction.Commit();
         }
-
-        if (saveChanges)
-            this.SaveChanges();
-
         return result;
     }
 
     /// <inheritdoc/>
-    public async void UpdateScreen()
+    public async void UpdateEditorScreen()
     {
         await _dispatcher.InvokeAsync(_document.Editor.UpdateScreen, DispatcherPriority.ContextIdle);
     }
@@ -365,7 +250,7 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     }
 
     /// <summary>
-    /// Raises the <see cref="DocumentChanged"/> event.
+    /// Raises <see cref="DocumentChanged"/> and resets the change tracker.
     /// </summary>
     private void TriggerDocumentChanged()
     {
@@ -379,7 +264,7 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     /// <inheritdoc/>
     public IAutocadDocument ShallowClone()
     {
-        return new AutocadDocument(_document, _documentCloseAction, _dispatcher);
+        return new AutocadDocument(_document, _dispatcher);
     }
 
     /// <inheritdoc/>
@@ -395,7 +280,7 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
 
             var dbObject = transactionManager.GetObject(cadObjectId, OpenMode.ForRead);
 
-            return new DbObjectWrapper(dbObject);
+            return new AutocadDbObjectWrapper(dbObject);
         });
     }
 
@@ -404,28 +289,23 @@ public class AutocadDocument : WrapperBase<Document>, IAutocadDocument
     {
         return this.Database.Unwrap().TryGetObjectId(new Handle(handle), out var id) == false
             ? null
-            : this.GetObjectById(new AutocadObjectId(id));
+            : this.GetObjectById(new AutocadObjectIdWrapper(id));
     }
 
     /// <inheritdoc/>
-    public void Close()
+    public void CloseDocument()
     {
-        _document.CommandEnded -= this.OnDocumentCommandEnded;
-        _document.CommandCancelled -= this.OnDocumentCommandEnded;
+        _document.CommandEnded -= this.OnCommandEnded;
+        _document.CommandCancelled -= this.OnCommandEnded;
         var database = _document.Database;
-        database.ObjectAppended -= this.OnDatabaseObjectAppended;
-        database.ObjectModified -= this.OnDatabaseObjectModified;
-        database.ObjectErased -= this.OnDatabaseObjectErased;
-
-        _documentCloseAction.Invoke(this.FileInfo);
+        database.ObjectAppended -= this.OnObjectAppended;
+        database.ObjectModified -= this.OnObjectModified;
+        database.ObjectErased -= this.OnObjectErased;
 
         this.Database.Dispose();
-        this.LayerRepository?.Dispose();
+        this.LayerRegister?.Dispose();
 
         if (_document.IsDisposed)
             return;
-
-        _documentCloseAction.Invoke(this.FileInfo);
     }
 }
-

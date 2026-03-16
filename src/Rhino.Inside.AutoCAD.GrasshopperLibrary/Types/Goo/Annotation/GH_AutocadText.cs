@@ -1,6 +1,7 @@
 ﻿using Grasshopper.Kernel;
 using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadText = Autodesk.AutoCAD.DatabaseServices.MText;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -22,8 +23,8 @@ public class GH_AutocadText : GH_AutocadGeometricGoo<AutocadText, TextEntity>
     /// specified AutoCAD Text. Internally, the curve is cloned, but the autocad
     /// reference ID is maintained.
     /// </summary>
-    /// <param name="Text">The AutoCAD Text to wrap.</param>
-    public GH_AutocadText(AutocadText Text) : base(Text)
+    /// <param name="text">The AutoCAD Text to wrap.</param>
+    public GH_AutocadText(AutocadText text) : base(text)
     {
 
     }
@@ -32,7 +33,7 @@ public class GH_AutocadText : GH_AutocadGeometricGoo<AutocadText, TextEntity>
     /// A private constructor used to create a reference Goo which is a clone of the
     /// input curve.
     /// </summary>
-    private GH_AutocadText(AutocadText curve, IAutocadReferenceId referenceId) : base(curve, referenceId)
+    private GH_AutocadText(AutocadText text, IAutocadReferenceId referenceId) : base(text, referenceId)
     {
     }
 
@@ -51,13 +52,13 @@ public class GH_AutocadText : GH_AutocadGeometricGoo<AutocadText, TextEntity>
     /// <inheritdoc />
     protected override AutocadText? Convert(TextEntity rhinoType)
     {
-        return _geometryConverter.ToAutoCadType(rhinoType);
+        return rhinoType.ToAutocadMText();
     }
 
     /// <inheritdoc />
     protected override TextEntity? Convert(AutocadText wrapperType)
     {
-        return _geometryConverter.ToRhinoType(wrapperType);
+        return wrapperType.ToRhinoTextEntity();
     }
 
     /// <inheritdoc />

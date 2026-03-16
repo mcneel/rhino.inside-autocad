@@ -63,7 +63,7 @@ public class Param_AutocadText : Param_AutocadObjectBase<GH_AutocadText, CadMTex
     }
 
     /// <inheritdoc />
-    protected override IFilter CreateSelectionFilter() => new TextFilter();
+    protected override IObjectFilter CreateSelectionFilter() => new TextFilter();
 
     /// <inheritdoc />
     protected override GH_AutocadText WrapEntity(CadMText entity) => new GH_AutocadText(entity);

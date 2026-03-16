@@ -1,5 +1,6 @@
 ﻿using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadPoint = Autodesk.AutoCAD.DatabaseServices.DBPoint;
 using RhinoPoint = Rhino.Geometry.Point;
 
@@ -51,13 +52,13 @@ public class GH_AutocadPoint : GH_AutocadGeometricGoo<AutocadPoint, RhinoPoint>
     /// <inheritdoc />
     protected override AutocadPoint? Convert(RhinoPoint rhinoType)
     {
-        return _geometryConverter.ToAutoCadType(rhinoType);
+        return rhinoType.ToAutocadDBPoint();
     }
 
     /// <inheritdoc />
     protected override RhinoPoint? Convert(AutocadPoint wrapperType)
     {
-        return _geometryConverter.ToRhinoType(wrapperType);
+        return wrapperType.ToRhinoPoint();
     }
 
     /// <inheritdoc />

@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// Represents a Grasshopper Goo object for AutoCAD selection filters.
 /// </summary>
-public class GH_AutocadFilter : GH_Goo<IFilter>
+public class GH_AutocadFilter : GH_Goo<IObjectFilter>
 {
     /// <inheritdoc />
     public override bool IsValid => this.Value != null;
@@ -30,7 +30,7 @@ public class GH_AutocadFilter : GH_Goo<IFilter>
     /// specified filter.
     /// </summary>
     /// <param name="filter">The filter to wrap.</param>
-    public GH_AutocadFilter(IFilter filter) : base(filter)
+    public GH_AutocadFilter(IObjectFilter filter) : base(filter)
     {
     }
 
@@ -59,7 +59,7 @@ public class GH_AutocadFilter : GH_Goo<IFilter>
             return true;
         }
 
-        if (source is IFilter filter)
+        if (source is IObjectFilter filter)
         {
             this.Value = filter;
             return true;
@@ -87,7 +87,7 @@ public class GH_AutocadFilter : GH_Goo<IFilter>
     {
         var filter = filterName.ToLowerInvariant() switch
         {
-            "curve" => new CurveFilter() as IFilter,
+            "curve" => new CurveFilter() as IObjectFilter,
             "point" => new PointFilter(),
             "mesh" => new MeshFilter(),
             "solid" => new SolidFilter(),
@@ -109,7 +109,7 @@ public class GH_AutocadFilter : GH_Goo<IFilter>
     /// <inheritdoc />
     public override bool CastTo<Q>(ref Q target)
     {
-        if (typeof(Q).IsAssignableFrom(typeof(IFilter)))
+        if (typeof(Q).IsAssignableFrom(typeof(IObjectFilter)))
         {
             target = (Q)this.Value;
             return true;

@@ -63,9 +63,9 @@ public class GetAutocadLayersComponent : RhinoInsideAutocad_ComponentBase, IRefe
         if (autocadDocument is null)
             return;
 
-        var layersRepository = autocadDocument.LayerRepository;
+        var layersRegister = autocadDocument.LayerRegister;
 
-        var gooLayers = layersRepository
+        var gooLayers = layersRegister
             .Select(layer => new GH_AutocadLayer(layer))
             .ToList();
 

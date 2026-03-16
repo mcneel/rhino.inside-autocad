@@ -8,11 +8,6 @@
 public interface IBootstrapperConfig
 {
     /// <summary>
-    /// The configuration for the application window.
-    /// </summary>
-    IWindowConfig WindowConfig { get; }
-
-    /// <summary>
     /// The set of assembly redirects required by the host application.
     /// </summary>
     IAssemblyRedirectsSet AssemblyRedirectsSet { get; }

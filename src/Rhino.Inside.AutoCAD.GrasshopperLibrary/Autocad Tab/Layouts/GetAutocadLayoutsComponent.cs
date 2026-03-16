@@ -76,11 +76,11 @@ public class GetAutocadLayoutsComponent : RhinoInsideAutocad_ComponentBase, IRef
         DA.GetData(1, ref repopulate);
 
         if (repopulate)
-            autocadDocument.LayoutRepository.Repopulate();
+            autocadDocument.LayoutRegister.Repopulate();
 
-        var layoutsRepository = autocadDocument.LayoutRepository;
+        var layoutsRegister = autocadDocument.LayoutRegister;
 
-        var gooLayouts = layoutsRepository
+        var gooLayouts = layoutsRegister
             .Select(layout => new GH_AutocadLayout(layout))
             .ToList();
 

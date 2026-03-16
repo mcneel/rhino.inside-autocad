@@ -6,16 +6,6 @@
 public class ApplicationConstants
 {
     /// <summary>
-    /// The name of the Rhino.Inside.AutoCAD.Core settings JSON file.
-    /// </summary>
-    public const string SettingCoreJsonName = "SettingsCore.json";
-
-    /// <summary>
-    /// The name of the user settings JSON file.
-    /// </summary>
-    public const string UserSettingsJsonName = "UserSettings.json";
-
-    /// <summary>
     /// The folder storing the application assemblies.
     /// </summary>
     public const string AssemblyFolderName = "Win64";
@@ -40,6 +30,11 @@ public class ApplicationConstants
     /// The name of the application resources folder.
     /// </summary>
     public const string ResourcesFolderName = "Resources";
+
+    /// <summary>
+    /// The name of the Rhino.Inside.AutoCAD.Core settings JSON file.
+    /// </summary>
+    public const string SettingJsonName = "SettingsCore.json";
 
     /// <summary>
     /// The name of the material design assembly.

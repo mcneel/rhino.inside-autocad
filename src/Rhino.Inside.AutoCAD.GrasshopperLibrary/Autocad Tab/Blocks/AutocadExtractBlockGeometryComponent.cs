@@ -1,6 +1,6 @@
-﻿using Autodesk.AutoCAD.ApplicationServices;
-using Grasshopper.Kernel;
+﻿using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
+using Rhino.Inside.AutoCAD.Applications;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 
@@ -15,7 +15,7 @@ public class AutocadExtractBlockGeometryComponent : RhinoInsideAutocad_Component
     private readonly GooTypeRegistry _gooConverterRegister = GooTypeRegistry.Instance!;
 
     /// <inheritdoc />
-    public override GH_Exposure Exposure => GH_Exposure.secondary;
+    public override GH_Exposure Exposure => GH_Exposure.tertiary;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new("390c61af-4b81-475e-9907-598a42d95634");
@@ -50,21 +50,12 @@ public class AutocadExtractBlockGeometryComponent : RhinoInsideAutocad_Component
     /// <summary>
     /// Loads the geometry from a Block Table Record or Block Reference.
     /// </summary>
-    private IEnumerable<IGH_GeometricGoo> LoadBlockObjects(Func<TransactionManagerWrapper, IEntityCollection> getObjectsFunc)
+    private IEnumerable<IGH_GeometricGoo> LoadBlockObjects(Func<ITransactionManager, IEntitySet> getObjectsFunc)
     {
-        var activeDocument = Application.DocumentManager.MdiActiveDocument;
+        var document = RhinoInsideAutoCadExtension.Application.RhinoInsideManager
+            .AutoCadInstance.ActiveDocument;
 
-        using var documentLock = activeDocument.LockDocument();
-
-        var database = activeDocument.Database;
-
-        using var transactionManagerWrapper = new TransactionManagerWrapper(database);
-
-        using var transaction = transactionManagerWrapper.Unwrap().StartTransaction();
-
-        var objects = getObjectsFunc.Invoke(transactionManagerWrapper);
-
-        transaction.Commit();
+        var objects = document.Transaction(getObjectsFunc.Invoke);
 
         var blockObject = new List<IGH_GeometricGoo>();
 
@@ -96,10 +87,10 @@ public class AutocadExtractBlockGeometryComponent : RhinoInsideAutocad_Component
             case GH_AutocadBlockTableRecord gooBlockTableRecord:
                 gooObjects.AddRange(this.LoadBlockObjects(gooBlockTableRecord.Value.GetObjects));
                 break;
-            case BlockReferenceWrapper blockReferenceWrapper:
+            case AutocadBlockReferenceWrapper blockReferenceWrapper:
                 gooObjects.AddRange(this.LoadBlockObjects(blockReferenceWrapper.GetObjects));
                 break;
-            case BlockTableRecordWrapper blockTableRecordWrapper:
+            case AutocadBlockTableRecordWrapper blockTableRecordWrapper:
                 gooObjects.AddRange(this.LoadBlockObjects(blockTableRecordWrapper.GetObjects));
                 break;
             default:

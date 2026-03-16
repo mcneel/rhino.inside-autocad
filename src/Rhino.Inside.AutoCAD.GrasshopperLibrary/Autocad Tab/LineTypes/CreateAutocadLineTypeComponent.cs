@@ -114,7 +114,7 @@ public class CreateAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
             return;
         }
 
-        if (!autocadDocument.LineTypeRepository.TryAddLineType(name, patternLength, numberOfDashes, scaleToFit, out var lineType))
+        if (!autocadDocument.LineTypeRegister.TryAddLineType(name, patternLength, numberOfDashes, scaleToFit, out var lineType))
         {
             this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "LineType already exists");
             // Still output existing linetype info

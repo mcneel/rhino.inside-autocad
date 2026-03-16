@@ -9,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class RhinoConvertibleSubD : RhinoConvertibleBase<Rhino.Geometry.SubD>
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <summary>
     /// Constructs a new <see cref="RhinoConvertibleSubD"/> instance.
     /// </summary>
@@ -21,7 +19,7 @@ public class RhinoConvertibleSubD : RhinoConvertibleBase<Rhino.Geometry.SubD>
     /// <inheritdoc />
     protected override List<IEntity> ConvertGeometry(ITransactionManager transactionManager)
     {
-        var cadMesh = _geometryConverter.ToAutoCadType(this.RhinoGeometry);
+        var cadMesh = this.RhinoGeometry.ToAutocadSubDMesh();
 
         var entity = new AutocadEntityWrapper(cadMesh);
 

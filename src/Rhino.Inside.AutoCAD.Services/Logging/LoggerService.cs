@@ -41,16 +41,16 @@ public class LoggerService : ILoggerService
     /// <summary>
     /// Constructs a new <see cref="LoggerService"/>.
     /// </summary>
-    private LoggerService(IApplicationDirectories applicationDirectories)
+    private LoggerService(IInstallationDirectories installationDirectories)
     {
-        var filePage = Path.Combine(applicationDirectories.Resources,
+        var filePage = Path.Combine(installationDirectories.Resources,
              _serilogConfigFileName);
 
         var json = File.ReadAllText(filePage);
 
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         var escapedAppDataPath = appDataPath.Replace(@"\", @"\\");
-        var productName = applicationDirectories.ProductName;
+        var productName = installationDirectories.ProductName;
         json = json.Replace("%AppData%", escapedAppDataPath);
         json = json.Replace("%ProductName%", productName);
 
@@ -68,7 +68,7 @@ public class LoggerService : ILoggerService
     /// <summary>
     /// Initializes the singleton instance of the <see cref="Logger"/>.
     /// </summary>
-    public static void Initialize(IApplicationDirectories applicationDirectories)
+    public static void Initialize(IInstallationDirectories installationDirectories)
     {
         lock (Lock)
         {
@@ -77,7 +77,7 @@ public class LoggerService : ILoggerService
                 throw new InvalidOperationException(_loggerServiceAlreadyInitialized);
             }
 
-            _instance = new LoggerService(applicationDirectories);
+            _instance = new LoggerService(installationDirectories);
         }
     }
 

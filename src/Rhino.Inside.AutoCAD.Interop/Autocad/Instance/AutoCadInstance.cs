@@ -13,7 +13,6 @@ public class AutoCadInstance : IAutoCadInstance
 
     private readonly DocumentCollection? _documentManager;
 
-    private readonly string _unsavedNotSupported = MessageConstants.UnsavedNotSupported;
     private readonly string _readOnlyNotSupported = MessageConstants.ReadOnlyNotSupported;
     private readonly string _fileUnitsNotSupported = MessageConstants.FileUnitsNotSupported;
 
@@ -27,7 +26,7 @@ public class AutoCadInstance : IAutoCadInstance
     public event EventHandler<IAutocadDocumentChangeEventArgs>? DocumentChanged;
 
     /// <inheritdoc/>
-    public IValidationLogger ValidationLogger { get; }
+    public IStartUpLogger StartUpLogger { get; }
 
     /// <inheritdoc/>
     public List<IAutocadDocument> Documents { get; }
@@ -52,9 +51,7 @@ public class AutoCadInstance : IAutoCadInstance
         {
             if (documentObject is Document document == false) continue;
 
-            var documentCloseAction = new DocumentCloseAction(document, _documentManager);
-
-            var documentFile = new AutocadDocument(document, documentCloseAction, _dispatcher);
+            var documentFile = new AutocadDocument(document, _dispatcher);
 
             this.SubscribeToDocumentEvents(documentFile);
 
@@ -65,7 +62,7 @@ public class AutoCadInstance : IAutoCadInstance
 
         this.Documents = documentFiles;
 
-        this.ValidationLogger = new ValidationLogger();
+        this.StartUpLogger = new StartUpLogger();
 
         this.ApplicationVersion = Application.Version;
 
@@ -125,8 +122,7 @@ public class AutoCadInstance : IAutoCadInstance
 
     /// <summary>
     /// Event handler which fires when the <see cref=" DocumentCollection.DocumentActivated"/>
-    /// is raised. Raises the <see cref="DocumentClosingOrActivated"/> event. If the document
-    /// is closing, the event is not raised.
+    /// is raised. Raises the <see cref="DocumentCreated"/> event.
     /// </summary>
     protected void OnDocumentActivated(object sender, DocumentCollectionEventArgs e)
     {
@@ -134,9 +130,7 @@ public class AutoCadInstance : IAutoCadInstance
 
         if (document != null)
         {
-            var documentCloseAction = new DocumentCloseAction(document, _documentManager!);
-
-            var documentFile = new AutocadDocument(document, documentCloseAction, _dispatcher);
+            var documentFile = new AutocadDocument(document, _dispatcher);
 
             document.BeginDocumentClose += this.OnDocumentClosing;
 
@@ -150,12 +144,14 @@ public class AutoCadInstance : IAutoCadInstance
 
     /// <summary>
     /// Event handler which fires when the <see cref="Document.BeginDocumentClose"/>
-    /// event is raised. Veto's the Raises the <see cref="DocumentClosingOrActivated"/> event.
+    /// event is raised.
     /// </summary>
     protected void OnDocumentClosing(object sender, DocumentBeginCloseEventArgs e)
     {
         var document = sender as Document;
+
         var autoCadDocument = this.Documents.FirstOrDefault(d => d.Unwrap() == document);
+
         if (autoCadDocument != null)
         {
             document!.BeginDocumentClose -= this.OnDocumentClosing;
@@ -165,31 +161,25 @@ public class AutoCadInstance : IAutoCadInstance
 
     /// <summary>
     /// Validates this service by posting any known invalid states to the
-    /// <see cref="ValidationLogger"/>.
+    /// <see cref="StartUpLogger"/>.
     /// </summary>
     private void Validate(List<IAutocadDocument> autoCadDocuments)
     {
         foreach (var autoCadDocument in autoCadDocuments)
         {
-            var validationLogger = this.ValidationLogger;
+            var validationLogger = this.StartUpLogger;
 
             var cadDocument = autoCadDocument.Unwrap();
 
-            // If the file is not saved, the document is not named.
-            if (cadDocument.IsNamedDrawing == false)
-            {
-                validationLogger.AddMessage(_unsavedNotSupported);
-            }
-
             if (cadDocument.IsReadOnly)
             {
-                validationLogger.AddMessage(_readOnlyNotSupported);
+                validationLogger.AddError(_readOnlyNotSupported);
             }
 
             var unitSystem = autoCadDocument.UnitSystem;
             if (unitSystem == UnitSystem.Unset)
             {
-                validationLogger.AddMessage(string.Format(_fileUnitsNotSupported,
+                validationLogger.AddError(string.Format(_fileUnitsNotSupported,
                     unitSystem));
 
             }
@@ -207,7 +197,7 @@ public class AutoCadInstance : IAutoCadInstance
             {
                 this.UnsubscribeToDocumentEvents(autoCadDocument);
 
-                autoCadDocument.Close();
+                autoCadDocument.CloseDocument();
             }
         }
     }

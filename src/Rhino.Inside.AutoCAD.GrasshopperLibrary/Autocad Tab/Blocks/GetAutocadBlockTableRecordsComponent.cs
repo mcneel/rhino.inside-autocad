@@ -65,9 +65,9 @@ public class GetAutocadBlockTableRecordsComponent : RhinoInsideAutocad_Component
         if (autocadDocument is null)
             return;
 
-        var blockTableRecordsRepository = autocadDocument.BlockTableRecordRepository;
+        var blockTableRecordsRegister = autocadDocument.BlockTableRecordRegister;
 
-        var gooBlockTableRecords = blockTableRecordsRepository
+        var gooBlockTableRecords = blockTableRecordsRegister
             .Select(autocadLayerTableRecord =>
                 new GH_AutocadBlockTableRecord(autocadLayerTableRecord))
             .ToList();

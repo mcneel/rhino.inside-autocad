@@ -43,7 +43,7 @@ public class Param_AutocadBlockReference : GH_PersistentParam<GH_AutocadBlockRef
 
         if (entity.Unwrap() is BlockReference typedEntity)
         {
-            var wrapper = new BlockReferenceWrapper(typedEntity);
+            var wrapper = new AutocadBlockReferenceWrapper(typedEntity);
 
             value = new GH_AutocadBlockReference(wrapper);
 
@@ -71,7 +71,7 @@ public class Param_AutocadBlockReference : GH_PersistentParam<GH_AutocadBlockRef
         {
             if (entity.Unwrap() is BlockReference typedEntity)
             {
-                var wrapper = new BlockReferenceWrapper(typedEntity);
+                var wrapper = new AutocadBlockReferenceWrapper(typedEntity);
 
                 values.Add(new GH_AutocadBlockReference(wrapper));
             }

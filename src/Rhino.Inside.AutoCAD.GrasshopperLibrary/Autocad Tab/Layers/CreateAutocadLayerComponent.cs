@@ -96,13 +96,13 @@ public class CreateAutocadLayerComponent : RhinoInsideAutocad_ComponentBase
 
         var cadColor = new InternalColor(newColor);
 
-        if (autocadDocument.LayerRepository.TryAddLayer(cadColor, newName, out var autocadLayer) == false)
+        if (autocadDocument.LayerRegister.TryAddLayer(cadColor, newName, out var autocadLayer) == false)
         {
             this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Unable to create layer");
             return;
         }
 
-        var linePatten = autocadLayer.LinePattenId;
+        var linePatten = autocadLayer.LineTypeId;
 
         var name = autocadLayer.Name;
 

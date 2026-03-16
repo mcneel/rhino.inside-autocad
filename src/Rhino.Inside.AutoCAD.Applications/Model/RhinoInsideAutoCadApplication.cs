@@ -1,5 +1,4 @@
-﻿using Autodesk.AutoCAD.ApplicationServices.Core;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using Rhino.Inside.AutoCAD.Services;
 using Rhino.Inside.AutoCAD.UI.Resources.Models;
@@ -15,9 +14,6 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
 
     /// <inheritdoc/>
     public ISettingsManager SettingsManager { get; }
-
-    /// <inheritdoc/>
-    public IFileResourceManager FileResourceManager { get; }
 
     /// <inheritdoc/>
     public IBootstrapper Bootstrapper { get; }
@@ -41,15 +37,13 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
     {
         var applicationConfig = new RhinoInsideAutoCadApplicationConfig();
 
-        var bootstrapConfig = new AutocadBootstrapperConfig(Application.MainWindow.Handle, applicationConfig);
+        var bootstrapConfig = new AutocadBootstrapperConfig(applicationConfig);
 
         var bootstrapper = new Bootstrapper(bootstrapConfig);
 
-        var applicationDirectories = bootstrapper.ApplicationDirectories;
+        var applicationDirectories = bootstrapper.InstallationDirectories;
 
         var settingManager = new SettingManager(applicationDirectories);
-
-        var fileResourceManager = new FileResourceManager(applicationDirectories, settingManager);
 
         var rhinoInstance = new RhinoInstance(applicationDirectories);
 
@@ -62,8 +56,6 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
         var rhinoInsideManager = new RhinoInsideManager(rhinoInstance, grasshopperInstance, autocadInstance);
 
         this.SettingsManager = settingManager;
-
-        this.FileResourceManager = fileResourceManager;
 
         this.Bootstrapper = bootstrapper;
 
@@ -83,11 +75,11 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
     /// exceptions as it's not automatically loaded as the calls to the library are always
     /// from XAML. This method guarantees its loaded.
     /// </summary>
-    private void LoadMaterialDesign(IApplicationDirectories applicationDirectories)
+    private void LoadMaterialDesign(IInstallationDirectories installationDirectories)
     {
         foreach (var names in _materialDesignAssemblyNames)
         {
-            var assemblyPath = Path.Combine(applicationDirectories.Assemblies, names);
+            var assemblyPath = Path.Combine(installationDirectories.VersionedAssemblies, names);
             var assemblyName = AssemblyName.GetAssemblyName(assemblyPath);
 
             Assembly.Load(assemblyName);
@@ -107,7 +99,7 @@ public class RhinoInsideAutoCadApplication : IRhinoInsideAutoCadApplication
         {
             this.RhinoInsideManager?.Shutdown();
 
-            this.Bootstrapper?.AssemblyManager.ShutDown();
+            this.Bootstrapper?.AssemblyResolver.Terminate();
 
             RhinoCoreExtension.Instance.Shutdown();
 

@@ -73,7 +73,8 @@ public class SupportDialogManager : ISupportDialogManager
     /// </summary>
     private void UpdateVersions()
     {
-        var rhinoInsideVersion = _application.Bootstrapper.VersionLog.CurrentVersion;
+        var rhinoInsideVersion = _application.Bootstrapper.ApplicationVersionHistory
+            .GetCurrentVersion();
 
         var rhinoInsideManager = _application.RhinoInsideManager;
 

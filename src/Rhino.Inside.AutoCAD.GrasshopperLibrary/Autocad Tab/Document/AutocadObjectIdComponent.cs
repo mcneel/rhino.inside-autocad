@@ -61,7 +61,7 @@ public class AutocadObjectIdComponent : RhinoInsideAutocad_ComponentBase
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        AutocadObjectId? objectId = null;
+        AutocadObjectIdWrapper? objectId = null;
 
         if (!DA.GetData(0, ref objectId)
             || objectId is null) return;

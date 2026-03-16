@@ -21,7 +21,6 @@ public interface IGrasshopperPreviewData
     /// </summary>
     List<Rhino.Geometry.Point> Points { get; }
 
-
     /// <summary>
     /// Gets the collection of text representing the preview geometry.
     /// </summary>
@@ -46,6 +45,6 @@ public interface IGrasshopperPreviewData
     /// <summary>
     /// Retrieves the set of wireframe objects from the preview data as a
     /// <see cref="IRhinoConvertibleSet"/>.
-    /// </summary
+    /// </summary>
     IRhinoConvertibleSet GetWireframeObjects();
 }

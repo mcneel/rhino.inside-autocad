@@ -10,8 +10,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.0")]
 public class ConvertFromAutoCadMeshComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("3c5d7e9f-2a4b-5c6d-8e1f-4a7b9c2d5e8f");
 
@@ -51,7 +49,7 @@ public class ConvertFromAutoCadMeshComponent : RhinoInsideAutocad_ComponentBase
         if (!DA.GetData(0, ref autocadMesh)
             || autocadMesh is null) return;
 
-        var rhinoMesh = _geometryConverter.ToRhinoType(autocadMesh);
+        var rhinoMesh = autocadMesh.ToRhinoMesh();
 
         DA.SetData(0, rhinoMesh);
     }

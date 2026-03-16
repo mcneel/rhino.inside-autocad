@@ -9,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class RhinoConvertiblePoint : RhinoConvertibleBase<Rhino.Geometry.Point>
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <summary>
     /// Constructs a new <see cref="RhinoConvertiblePoint"/> instance.
     /// </summary>
@@ -21,7 +19,7 @@ public class RhinoConvertiblePoint : RhinoConvertibleBase<Rhino.Geometry.Point>
     /// <inheritdoc />
     protected override List<IEntity> ConvertGeometry(ITransactionManager transactionManager)
     {
-        var cadPoint3d = _geometryConverter.ToAutoCadType(this.RhinoGeometry.Location);
+        var cadPoint3d = this.RhinoGeometry.Location.ToAutocadPoint3d();
 
         var dbPoint = new Autodesk.AutoCAD.DatabaseServices.DBPoint(cadPoint3d);
 

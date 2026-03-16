@@ -9,8 +9,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.0")]
 public class AutocadBlockTableRecordComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("b19eb942-ce7b-4bb8-a5e3-3596e7517172");
 
@@ -48,24 +46,24 @@ public class AutocadBlockTableRecordComponent : RhinoInsideAutocad_ComponentBase
             "The origin point of the Block Table Record. Note this has been converted to the Rhino Units",
             GH_ParamAccess.item);
 
+        pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "ExtensionDictionaryId", "ExDictId",
+            "The Id of the Extension Dictionary for this AutoCAD Block Table Record.", GH_ParamAccess.item);
+
     }
 
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        BlockTableRecordWrapper? blockTableRecordWrapper = null;
+        AutocadBlockTableRecordWrapper? blockTableRecordWrapper = null;
 
         if (!DA.GetData(0, ref blockTableRecordWrapper)
             || blockTableRecordWrapper is null) return;
 
-        var origin = _geometryConverter.ToRhinoType(blockTableRecordWrapper.Unwrap().Origin);
+        var origin = blockTableRecordWrapper.Unwrap().Origin.ToRhinoPoint3d();
 
-        var name = blockTableRecordWrapper.Name;
-
-        var id = blockTableRecordWrapper.Id;
-
-        DA.SetData(0, name);
-        DA.SetData(1, id);
+        DA.SetData(0, blockTableRecordWrapper.Name);
+        DA.SetData(1, blockTableRecordWrapper.Id);
         DA.SetData(2, origin);
+        DA.SetData(3, blockTableRecordWrapper.ExtensionDictionary);
     }
 }

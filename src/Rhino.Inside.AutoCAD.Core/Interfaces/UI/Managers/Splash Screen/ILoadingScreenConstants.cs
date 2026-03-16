@@ -11,7 +11,7 @@ public interface ILoadingScreenConstants
     string? Copyright { get; set; }
 
     /// <summary>
-    /// The prefix text added to the <see cref="IVersionLog.CurrentVersion"/>.
+    /// The prefix text added to the <see cref="Rhino.Inside.AutoCAD.Core.Interfaces.IVersionHistory.CurrentVersion"/>.
     /// </summary>
     string? VersionPrefix { get; set; }
 

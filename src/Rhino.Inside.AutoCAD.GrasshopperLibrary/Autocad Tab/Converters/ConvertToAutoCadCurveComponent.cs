@@ -10,8 +10,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 [ComponentVersion(introduced: "1.0.0")]
 public class ConvertToAutoCadCurveComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
-
     /// <inheritdoc />
     public override Guid ComponentGuid => new("12345678-1234-1234-1234-123456789ABC");
 
@@ -52,7 +50,7 @@ public class ConvertToAutoCadCurveComponent : RhinoInsideAutocad_ComponentBase
         if (!DA.GetData(0, ref rhinoCurve)
         || rhinoCurve is null) return;
 
-        var cadCurves = _geometryConverter.ToAutoCadType(rhinoCurve);
+        var cadCurves = rhinoCurve.ToAutocadCurves();
 
         if (cadCurves == null || cadCurves.Count == 0)
         {

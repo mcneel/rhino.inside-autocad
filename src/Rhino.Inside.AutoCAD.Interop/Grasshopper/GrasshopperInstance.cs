@@ -13,7 +13,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class GrasshopperInstance : IGrasshopperInstance
 {
-    private readonly IApplicationDirectories _applicationDirectories;
+    private readonly IInstallationDirectories _installationDirectories;
     private const string _grasshopperLibraryFileName = InteropConstants.GrasshopperLibraryFileName;
     private const string _loadGhaMethodNotFound = MessageConstants.LoadGhaMethodNotFound;
     private const string _grasshopperInitializationFailed = MessageConstants.GrasshopperInitializationFailed;
@@ -37,12 +37,12 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <summary>
     /// Initializes a new instance of the <see cref="GrasshopperInstance"/> class.
     /// </summary>
-    /// <param name="applicationDirectories">
+    /// <param name="installationDirectories">
     /// The application directories used to locate resources.
     /// </param>
-    public GrasshopperInstance(IApplicationDirectories applicationDirectories)
+    public GrasshopperInstance(IInstallationDirectories installationDirectories)
     {
-        _applicationDirectories = applicationDirectories;
+        _installationDirectories = installationDirectories;
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// </exception>
     private void LoadGrasshopperLibrary()
     {
-        var assembliesFolder = _applicationDirectories.Assemblies;
+        var assembliesFolder = _installationDirectories.VersionedAssemblies;
         var grasshopperLibraryPath = System.IO.Path.Combine(assembliesFolder, _grasshopperLibraryFileName);
 
         var assembly = Assembly.LoadFrom(grasshopperLibraryPath);
@@ -95,7 +95,7 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <summary>
     /// Loads and initializes the Grasshopper environment.
     /// </summary>
-    /// <param name="validationLogger">
+    /// <param name="startUpLogger">
     /// The logger to record validation messages.
     /// </param>
     /// <returns>
@@ -104,7 +104,7 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <exception cref="Exception">
     /// Thrown if Grasshopper fails to initialize.
     /// </exception>
-    private void LoadGrasshopper(IValidationLogger validationLogger)
+    private void LoadGrasshopper(IStartUpLogger startUpLogger)
     {
         try
         {
@@ -116,7 +116,7 @@ public class GrasshopperInstance : IGrasshopperInstance
         }
         catch
         {
-            validationLogger.AddMessage(_grasshopperInitializationFailed);
+            startUpLogger.AddError(_grasshopperInitializationFailed);
             throw;
         }
     }
@@ -280,12 +280,12 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <summary>
     /// Validates that the Grasshopper library is loaded into the Grasshopper component server.
     /// </summary>
-    /// <param name="validationLogger">
+    /// <param name="startUpLogger">
     /// The logger to record validation messages.
     /// </param>
-    public void ValidateGrasshopperLibrary(IValidationLogger validationLogger)
+    public void ValidateGrasshopperLibrary(IStartUpLogger startUpLogger)
     {
-        this.LoadGrasshopper(validationLogger);
+        this.LoadGrasshopper(startUpLogger);
     }
 
     /// <summary>
@@ -320,24 +320,6 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// </summary>
     public void Shutdown()
     {
-        /*  if (this.ActiveDoc != null && this.ActiveDoc.IsModified)
-          {
-              if (Rhino.UI.Dialogs.ShowMessage("Save changes to Grasshopper Document",
-                       "Grasshopper Save Changes", ShowMessageButton.YesNo,
-                       ShowMessageIcon.Warning) == ShowMessageResult.Yes)
-              {
-                  var ghDocumentIo = new GH_DocumentIO(this.ActiveDoc);
-                  if (!string.IsNullOrEmpty(this.ActiveDoc.FilePath))
-                  {
-                      ghDocumentIo.Save();
-                  }
-                  else
-                  {
-                      ghDocumentIo.SaveAs();
-                  }
-              }
-          }*/
-
         this.RemoveDocumentSubscriptions();
 
         this.ActiveDoc?.Dispose();

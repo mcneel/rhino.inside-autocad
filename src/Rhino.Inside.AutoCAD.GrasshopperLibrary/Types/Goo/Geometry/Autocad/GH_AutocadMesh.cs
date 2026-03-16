@@ -1,6 +1,7 @@
 ﻿using Grasshopper.Kernel;
 using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
+using Rhino.Inside.AutoCAD.Interop;
 using AutocadMesh = Autodesk.AutoCAD.DatabaseServices.PolyFaceMesh;
 using RhinoMesh = Rhino.Geometry.Mesh;
 
@@ -52,13 +53,13 @@ public class GH_AutocadMesh : GH_AutocadGeometricGoo<AutocadMesh, RhinoMesh>
     /// <inheritdoc />
     protected override AutocadMesh? Convert(RhinoMesh rhinoType)
     {
-        return _geometryConverter.ToAutoCadType(rhinoType);
+        return rhinoType.ToAutocadPolyFaceMesh();
     }
 
     /// <inheritdoc />
     protected override RhinoMesh? Convert(AutocadMesh wrapperType)
     {
-        return _geometryConverter.ToRhinoType(wrapperType);
+        return wrapperType.ToRhinoMesh();
     }
 
     /// <inheritdoc />

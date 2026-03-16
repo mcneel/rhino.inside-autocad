@@ -1,6 +1,7 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
+using CadColor = Autodesk.AutoCAD.Colors.Color;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -9,8 +10,6 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// </summary>
 public class BakableRhinoConverter : IAutocadBakeable
 {
-    private readonly AutocadColorConverter _colorConverter = AutocadColorConverter.Instance!;
-
     private readonly IRhinoConvertible rhinoConvertible;
 
     /// <summary>
@@ -38,7 +37,7 @@ public class BakableRhinoConverter : IAutocadBakeable
         if (settings?.Color != null)
         {
             var color = settings.Color;
-            entity.Color = _colorConverter.ToCadColor(color);
+            entity.Color = CadColor.FromRgb(color.Red, color.Green, color.Blue);
         }
     }
 
@@ -50,7 +49,7 @@ public class BakableRhinoConverter : IAutocadBakeable
 
         var transaction = transactionManager.Unwrap();
 
-        var modelSpace = transactionManager.GetModelSpaceBlockTableRecord(openForWrite: true);
+        var modelSpace = transactionManager.GetModelSpace(openForWrite: true);
 
         var modelSpaceRecord = modelSpace.Unwrap();
 
@@ -64,7 +63,7 @@ public class BakableRhinoConverter : IAutocadBakeable
 
             var objectId = modelSpaceRecord.AppendEntity(cadEntity);
 
-            idList.Add(new AutocadObjectId(objectId));
+            idList.Add(new AutocadObjectIdWrapper(objectId));
 
             transaction.AddNewlyCreatedDBObject(cadEntity, true);
         }

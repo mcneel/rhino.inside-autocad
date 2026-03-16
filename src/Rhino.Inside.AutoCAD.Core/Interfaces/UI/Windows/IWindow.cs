@@ -1,30 +1,15 @@
-﻿using System.ComponentModel;
-
-namespace Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 
 /// <summary>
-/// An interface which provides a wrapper around a WPF Window,
-/// enabling loosely coupled interactions within the application.
+/// Marker interface for WPF windows within the application.
 /// </summary>
+/// <remarks>
+/// Provides a common abstraction for windows that need to be managed or referenced
+/// in a loosely coupled manner. Implemented by UI windows such as the splash screen
+/// and support dialog to enable dependency injection and testability.
+/// </remarks>
+/// <seealso cref="ILoadingScreenManager"/>
+/// <seealso cref="ISupportDialogManager"/>
 public interface IWindow
 {
-    /// <summary>
-    /// The closing window event handler.
-    /// </summary>
-    event CancelEventHandler Closing;
-
-    /// <summary>
-    /// The max height of the window.
-    /// </summary>
-    double MaxHeight { get; set; }
-
-    /// <summary>
-    /// The close window method.
-    /// </summary>
-    void Close();
-
-    /// <summary>
-    /// Displays a non-modal window to the user.
-    /// </summary>
-    void Show();
 }

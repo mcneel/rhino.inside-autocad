@@ -9,16 +9,15 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that adds AutoCAD Block References to a document.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.0.9")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.0.16")]
 public class CreateAutocadBlockReferenceComponent : RhinoInsideAutocad_ComponentBase
 {
-    private readonly GeometryConverter _geometryConverter = GeometryConverter.Instance!;
 
     /// <inheritdoc />
     public override Guid ComponentGuid => new("c7f3a2e8-9d4b-5c6f-8e1a-2b3c4d5e6f7a");
 
     /// <inheritdoc />
-    public override GH_Exposure Exposure => GH_Exposure.tertiary;
+    public override GH_Exposure Exposure => GH_Exposure.secondary;
 
     /// <inheritdoc />
     protected override System.Drawing.Bitmap Icon => Properties.Resources.AddAutocadBlockReferenceComponent;
@@ -50,8 +49,8 @@ public class CreateAutocadBlockReferenceComponent : RhinoInsideAutocad_Component
             "The rotation angle in radians", GH_ParamAccess.item, 0.0);
         pManager[3].Optional = true;
 
-        pManager.AddNumberParameter("Scale", "Scale",
-            "The uniform scale factor", GH_ParamAccess.item, 1.0);
+        pManager.AddParameter(new Param_AutocadScale(GH_ParamAccess.item), "Scale", "Scale", "The Scale of the Block Reference. This will take either one uniform number or three numbers for a non uniform scale",
+            GH_ParamAccess.item);
         pManager[4].Optional = true;
     }
 
@@ -66,7 +65,6 @@ public class CreateAutocadBlockReferenceComponent : RhinoInsideAutocad_Component
     /// <inheritdoc />
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        // 1. Get document
         AutocadDocument? autocadDocument = null;
         DA.GetData(0, ref autocadDocument);
 
@@ -84,28 +82,17 @@ public class CreateAutocadBlockReferenceComponent : RhinoInsideAutocad_Component
         if (autocadDocument is null)
             return;
 
-        // 2. Get BlockTableRecord
-        BlockTableRecordWrapper? blockTableRecord = null;
+        AutocadBlockTableRecordWrapper? blockTableRecord = null;
         if (!DA.GetData(1, ref blockTableRecord) || blockTableRecord is null) return;
 
-        // 3. Get insertion points (list)
         var insertionPoints = new List<Rhino.Geometry.Point3d>();
         if (!DA.GetDataList(2, insertionPoints) || insertionPoints.Count == 0) return;
 
-        // 4. Get optional rotation and scale
         var rotation = 0.0;
-        var scale = 1.0;
+        var scale = new AutocadScale(1);
         DA.GetData(3, ref rotation);
         DA.GetData(4, ref scale);
 
-        // Validate scale
-        if (scale <= 0)
-        {
-            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Scale must be greater than 0");
-            return;
-        }
-
-        // 5. Create block references in transaction
         var blockReferences = new List<GH_AutocadBlockReference>();
 
         using var documentLock = autocadDocument.Unwrap().LockDocument();
@@ -115,22 +102,21 @@ public class CreateAutocadBlockReferenceComponent : RhinoInsideAutocad_Component
             foreach (var rhinoPoint in insertionPoints)
             {
 
-                var insertionPoint = _geometryConverter.ToAutoCadType(rhinoPoint);
+                var insertionPoint = rhinoPoint.ToAutocadPoint3d();
 
                 var blockRef = new BlockReference(
                     insertionPoint,
                     blockTableRecord.Id.Unwrap());
                 blockRef.Rotation = rotation;
-                blockRef.ScaleFactors = new Scale3d(scale, scale, scale);
+                blockRef.ScaleFactors = new Scale3d(scale.X, scale.Y, scale.Z);
 
                 blockReferences.Add(
-                    new GH_AutocadBlockReference(new BlockReferenceWrapper(blockRef)));
+                    new GH_AutocadBlockReference(new AutocadBlockReferenceWrapper(blockRef)));
             }
 
             return true;
         });
 
-        // 6. Output as list
         DA.SetDataList(0, blockReferences);
     }
 }

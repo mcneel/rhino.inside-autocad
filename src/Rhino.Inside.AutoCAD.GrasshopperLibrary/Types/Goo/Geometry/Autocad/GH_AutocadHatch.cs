@@ -62,13 +62,13 @@ public class GH_AutocadHatch : GH_AutocadGeometricGoo<CadHatch, RhinoHatch>
     /// <inheritdoc />
     protected override CadHatch? Convert(RhinoHatch rhinoType)
     {
-        return _geometryConverter.ToAutoCadType(rhinoType, null!);
+        return rhinoType.ToAutocadHatch(null!);
     }
 
     /// <inheritdoc />
     protected override RhinoHatch? Convert(CadHatch wrapperType)
     {
-        return _geometryConverter.ToRhinoType(wrapperType);
+        return wrapperType.ToRhinoHatch();
     }
 
     /// <inheritdoc />
