@@ -110,7 +110,7 @@
 
 				<RemoveFolder Id='RemoveResourcesFolder' On='uninstall' />
 
-				<File Id="SettingsCore.json" Name="UserSettings.json" DiskId="1" Source="$(var.ResourcesDirectory)SettingsCore.json" Vital="yes" />
+				<File Id="SettingsCore.json" Name="SettingsCore.json" DiskId="1" Source="$(var.ResourcesDirectory)SettingsCore.json" Vital="yes" />
 				<File Id="SerilogConfig.json" Name="SerilogConfig.json" DiskId="1" Source="$(var.ResourcesDirectory)SerilogConfig.json" Vital="yes" />
 
 
