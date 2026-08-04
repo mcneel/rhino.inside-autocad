@@ -936,6 +936,25 @@ public static class AutocadCurveExtensions
     /// </summary>
     public static RhinoCurve? ToRhinoCurve(this Polyline2d polyline2d)
     {
+        // A non-database-resident polyline (e.g. a clone or a newly created entity)
+        // enumerates its vertices directly instead of yielding ObjectIds, and has no
+        // document to lock.
+        if (polyline2d.Database == null)
+        {
+            var points = new List<RhinoPoint3d>();
+
+            foreach (var item in polyline2d)
+            {
+                if (item is Vertex2d vertex)
+                {
+                    var rhinoPoint = vertex.Position.ToRhinoPoint3d();
+                    points.Add(rhinoPoint);
+                }
+            }
+
+            return points.ToRhinoPolylineCurve();
+        }
+
         var activeDocument = Application.DocumentManager.GetDocument(polyline2d.Database);
 
         using var documentLock = activeDocument.LockDocument();
@@ -960,17 +979,14 @@ public static class AutocadCurveExtensions
 
         foreach (ObjectId vertexId in polyline2d)
         {
-            if (transactionManager.Unwrap().GetObject(vertexId, OpenMode.ForRead) is PolylineVertex3d vertex)
+            if (transactionManager.Unwrap().GetObject(vertexId, OpenMode.ForRead) is Vertex2d vertex)
             {
                 var rhinoPoint = vertex.Position.ToRhinoPoint3d();
                 points.Add(rhinoPoint);
             }
         }
 
-        if (points.Count < 2)
-            return null;
-
-        return new RhinoPolylineCurve(points);
+        return points.ToRhinoPolylineCurve();
     }
 
     /// <summary>
@@ -978,6 +994,24 @@ public static class AutocadCurveExtensions
     /// </summary>
     public static RhinoCurve? ToRhinoCurve(this Polyline3d polyline3d)
     {
+        // A non-database-resident polyline (e.g. a clone or a newly created entity)
+        // enumerates its vertices directly instead of yielding ObjectIds, and has no
+        // document to lock.
+        if (polyline3d.Database == null)
+        {
+            var points = new List<RhinoPoint3d>();
+
+            foreach (var item in polyline3d)
+            {
+                if (item is PolylineVertex3d vertex)
+                {
+                    var rhinoPoint = vertex.Position.ToRhinoPoint3d();
+                    points.Add(rhinoPoint);
+                }
+            }
+
+            return points.ToRhinoPolylineCurve();
+        }
 
         var activeDocument = Application.DocumentManager.GetDocument(polyline3d.Database);
 
@@ -1010,6 +1044,15 @@ public static class AutocadCurveExtensions
             }
         }
 
+        return points.ToRhinoPolylineCurve();
+    }
+
+    /// <summary>
+    /// Creates a Rhino polyline curve from the given points, or null if there are
+    /// fewer than two points.
+    /// </summary>
+    private static RhinoCurve? ToRhinoPolylineCurve(this List<RhinoPoint3d> points)
+    {
         if (points.Count < 2)
             return null;
 

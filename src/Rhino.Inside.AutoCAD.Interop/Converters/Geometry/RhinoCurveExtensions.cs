@@ -20,6 +20,7 @@ using RhinoEllipse = Rhino.Geometry.Ellipse;
 using RhinoLineCurve = Rhino.Geometry.LineCurve;
 using RhinoNurbsCurve = Rhino.Geometry.NurbsCurve;
 using RhinoPoint = Rhino.Geometry.Point;
+using RhinoPoint3d = Rhino.Geometry.Point3d;
 using RhinoPolyCurve = Rhino.Geometry.PolyCurve;
 using RhinoPolyLineCurve = Rhino.Geometry.PolylineCurve;
 
@@ -30,6 +31,8 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public static class RhinoCurveExtensions
 {
+    private const double _zeroTolerance = GeometryConstants.ZeroTolerance;
+
     /// <summary>
     /// Converts a Rhino LineCurve to an AutoCAD Line, applying unit conversion.
     /// </summary>
@@ -227,6 +230,73 @@ public static class RhinoCurveExtensions
     }
 
     /// <summary>
+    /// Converts a Rhino PolylineCurve to the most appropriate AutoCAD polyline type:
+    /// a 2D <see cref="CadPolyline"/> when all vertices share the same elevation,
+    /// otherwise a <see cref="CadPolyline3d"/>.
+    /// </summary>
+    /// <param name="polyLineCurve">The Rhino polyline curve to convert.</param>
+    /// <returns>An AutoCAD Polyline or Polyline3d with vertices scaled to AutoCAD units.</returns>
+    public static CadCurve ToAutocadPolylineCurve(this RhinoPolyLineCurve polyLineCurve)
+    {
+        var pointCount = polyLineCurve.PointCount;
+        var points = new List<RhinoPoint3d>();
+
+        for (var j = 0; j < pointCount; j++)
+        {
+            var rhinoPoint = polyLineCurve.Point(j);
+            points.Add(rhinoPoint);
+        }
+
+        if (TryGetSharedElevation(points, out var elevation))
+            return ToAutocadPolyline(points, elevation, polyLineCurve.IsClosed);
+
+        return polyLineCurve.ToAutocadPolyline3d();
+    }
+
+    /// <summary>
+    /// Determines whether all points share the same Z value within tolerance,
+    /// returning that Z value when they do.
+    /// </summary>
+    private static bool TryGetSharedElevation(IReadOnlyList<RhinoPoint3d> points, out double elevation)
+    {
+        elevation = points.Count > 0 ? points[0].Z : 0;
+
+        foreach (var point in points)
+        {
+            if (Math.Abs(point.Z - elevation) > _zeroTolerance)
+                return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Creates an AutoCAD 2D <see cref="CadPolyline"/> at the given elevation from
+    /// points sharing that elevation, applying unit conversion.
+    /// </summary>
+    private static CadPolyline ToAutocadPolyline(IReadOnlyList<RhinoPoint3d> points, double elevation, bool closed)
+    {
+        var polyline = new CadPolyline();
+        var vertexCount = points.Count;
+
+        // A closed Rhino curve repeats its first point at the end; skip the duplicate
+        // so the closing segment is not zero-length.
+        if (closed && vertexCount > 1 && points[0].DistanceTo(points[vertexCount - 1]) < _zeroTolerance)
+            vertexCount--;
+
+        for (var i = 0; i < vertexCount; i++)
+        {
+            var cadPoint = points[i].ToAutocadPoint2d();
+            polyline.AddVertexAt(i, cadPoint, 0, 0, 0);
+        }
+
+        polyline.Elevation = UnitConverter.ToAutoCadLength(elevation);
+        polyline.Closed = closed;
+
+        return polyline;
+    }
+
+    /// <summary>
     /// Converts a Rhino PolylineCurve to an AutoCAD Polyline3d, applying unit conversion.
     /// </summary>
     /// <param name="polyLineCurve">The Rhino polyline curve to convert.</param>
@@ -277,26 +347,22 @@ public static class RhinoCurveExtensions
         // Degree 1 NURBS curves become polylines
         if (nurbsCurve.Degree == 1)
         {
-            var points = nurbsCurve.Points.Select(controlPoint => controlPoint.Location);
-            var is2d = true;
+            var points = nurbsCurve.Points
+                .Select(controlPoint => controlPoint.Location)
+                .ToList();
+
+            if (TryGetSharedElevation(points, out var elevation))
+                return ToAutocadPolyline(points, elevation, nurbsCurve.IsClosed);
+
             var pointCollection = new Point3dCollection();
-            var polyline2d = new CadPolyline();
-            var i = 0;
 
             foreach (var point3d in points)
             {
-                if (point3d.Z > GeometryConstants.ZeroTolerance) is2d = false;
-
                 var cadPoint = point3d.ToAutocadPoint3d();
-                var cadPoint2d = point3d.ToAutocadPoint2d();
-
                 pointCollection.Add(cadPoint);
-                polyline2d.AddVertexAt(i, cadPoint2d, 0, 0, 0);
-                i++;
             }
 
-            return is2d ? polyline2d :
-                new CadPolyline3d(Poly3dType.SimplePoly, pointCollection, nurbsCurve.IsClosed);
+            return new CadPolyline3d(Poly3dType.SimplePoly, pointCollection, nurbsCurve.IsClosed);
         }
 
         // Check circles before arcs as Rhino Circles are arcs
@@ -350,7 +416,7 @@ public static class RhinoCurveExtensions
                 return [nurbsCurve.ToAutocadCurve()];
 
             case RhinoPolyLineCurve polyLineCurve:
-                return [polyLineCurve.ToAutocadPolyline3d()];
+                return [polyLineCurve.ToAutocadPolylineCurve()];
 
             case RhinoPolyCurve polyCurve:
                 return polyCurve.ToAutocadCurveList();
