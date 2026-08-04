@@ -16,19 +16,25 @@ public class BakeSettings : IBakeSettings
     /// <inheritdoc/>
     public IAutocadColor? Color { get; }
 
+    /// <inheritdoc/>
+    public double? LinetypeScale { get; }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="BakeSettings"/> class.
     /// </summary>
     /// <param name="layer">The layer to assign to baked entities.</param>
     /// <param name="lineType">The line type to assign to baked entities.</param>
     /// <param name="color">The color to assign to baked entities.</param>
+    /// <param name="linetypeScale">The linetype scale to assign to baked entities.</param>
     public BakeSettings(
         IAutocadLayerTableRecord? layer = null,
         IAutocadLinetypeTableRecord? lineType = null,
-        IAutocadColor? color = null)
+        IAutocadColor? color = null,
+        double? linetypeScale = null)
     {
         this.Layer = layer;
         this.LineType = lineType;
         this.Color = color;
+        this.LinetypeScale = linetypeScale;
     }
 }

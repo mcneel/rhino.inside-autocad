@@ -23,7 +23,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// deletes previously baked objects when Replace mode is enabled, and persists the
 /// connection to baked objects across sessions.
 /// </summary>
-[ComponentVersion(introduced: "1.3.0")]
+[ComponentVersion(introduced: "1.3.0", updated: "1.3.2")]
 public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBakingComponent
 {
     /// <inheritdoc />
@@ -234,6 +234,10 @@ public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBak
         builder.Add(settings?.Layer?.Id);
         builder.Add(settings?.LineType?.Id);
         builder.AddColor(settings?.Color);
+
+        var linetypeScaleText = settings?.LinetypeScale?.ToString("F6");
+
+        builder.Add(linetypeScaleText);
         builder.Add(document.FileMetadata.FileName);
 
         return builder.Build();

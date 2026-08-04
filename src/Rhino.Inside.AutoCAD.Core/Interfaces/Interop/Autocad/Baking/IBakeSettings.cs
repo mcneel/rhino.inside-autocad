@@ -19,4 +19,9 @@ public interface IBakeSettings
     /// Gets the color to assign to baked entities. Null means use ByLayer.
     /// </summary>
     IAutocadColor? Color { get; }
+
+    /// <summary>
+    /// Gets the linetype scale to assign to baked entities. Null means use the default scale.
+    /// </summary>
+    double? LinetypeScale { get; }
 }

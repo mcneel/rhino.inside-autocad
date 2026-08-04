@@ -38,6 +38,9 @@ public class BakableRhinoConverter : IAutocadBakeable
             var color = settings.Color;
             entity.Color = color.Unwrap();
         }
+
+        if (settings?.LinetypeScale is double linetypeScale)
+            entity.LinetypeScale = linetypeScale;
     }
 
     /// <inheritdoc />

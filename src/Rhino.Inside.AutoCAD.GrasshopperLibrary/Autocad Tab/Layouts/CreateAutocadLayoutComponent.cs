@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that creates a new AutoCAD layout.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.0.20")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.3.2")]
 public class CreateAutocadLayoutComponent : Layout_BaseComponent
 {
     /// <inheritdoc />
@@ -40,6 +40,9 @@ public class CreateAutocadLayoutComponent : Layout_BaseComponent
     /// <inheritdoc />
     protected override void RegisterOutputParams(GH_OutputParamManager pManager)
     {
+        pManager.AddParameter(new Param_AutocadLayout(GH_ParamAccess.item), "Layout", "Layout",
+            "The created AutoCAD Layout", GH_ParamAccess.item);
+
         pManager.AddTextParameter("Name", "Name",
             "The name of the AutoCAD Layout", GH_ParamAccess.item);
 
@@ -99,9 +102,12 @@ public class CreateAutocadLayoutComponent : Layout_BaseComponent
             return AutocadLayoutWrapper.Create(autocadDocument, name);
         });
 
-        DA.SetData(0, layout.Name);
-        DA.SetData(1, layout.Id);
-        DA.SetData(2, layout.TabOrder);
-        DA.SetData(3, layout.BlockTableRecordId);
+        var layoutGoo = new GH_AutocadLayout(layout);
+
+        DA.SetData(0, layoutGoo);
+        DA.SetData(1, layout.Name);
+        DA.SetData(2, layout.Id);
+        DA.SetData(3, layout.TabOrder);
+        DA.SetData(4, layout.BlockTableRecordId);
     }
 }

@@ -6,7 +6,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns information about an AutoCAD Line Pattern.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.3.2")]
 public class AutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -41,6 +41,18 @@ public class AutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
         pManager.AddParameter(new Param_AutocadObjectId(GH_ParamAccess.item), "Id", "Id",
             "The Id of the AutoCAD Line Pattern.", GH_ParamAccess.item);
 
+        pManager.AddNumberParameter("PatternLength", "Length",
+            "Total length of the linetype pattern", GH_ParamAccess.item);
+
+        pManager.AddIntegerParameter("NumberOfDashes", "Dashes",
+            "Number of dash segments in the pattern", GH_ParamAccess.item);
+
+        pManager.AddBooleanParameter("ScaleToFit", "Scale",
+            "Whether the pattern is scaled to fit geometry", GH_ParamAccess.item);
+
+        pManager.AddTextParameter("Comments", "Comments",
+            "Comments associated with the linetype", GH_ParamAccess.item);
+
     }
 
     /// <inheritdoc />
@@ -53,9 +65,17 @@ public class AutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
 
         var id = linePattern.Id;
         var name = linePattern.Name;
+        var patternLength = linePattern.PatternLength;
+        var numberOfDashes = linePattern.NumDashes;
+        var scaleToFit = linePattern.IsScaledToFit;
+        var comments = linePattern.Comments;
 
         DA.SetData(0, name);
         DA.SetData(1, id);
+        DA.SetData(2, patternLength);
+        DA.SetData(3, numberOfDashes);
+        DA.SetData(4, scaleToFit);
+        DA.SetData(5, comments);
 
     }
 }
