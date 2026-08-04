@@ -82,6 +82,21 @@ public class GH_CivilTinVolumeSurface : GH_AutocadGeometricGoo<CivilVolumeSurfac
     }
 
     /// <inheritdoc />
+    public override void AppendInputSignature(IInputSignatureBuilder inputSignatureBuilder)
+    {
+        var adapter = this.RhinoGeometry;
+
+        if (adapter == null)
+        {
+            inputSignatureBuilder.Add(this.ToString());
+            return;
+        }
+
+        inputSignatureBuilder.AddMesh(adapter.BaseMesh);
+        inputSignatureBuilder.AddMesh(adapter.ComparisonMesh);
+    }
+
+    /// <inheritdoc />
     public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
     {
         var adapter = this.RhinoGeometry;

@@ -1,6 +1,7 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
+using RhinoGeometryBase = Rhino.Geometry.GeometryBase;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -10,14 +11,17 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 public class BakableRhinoConverter : IAutocadBakeable
 {
     private readonly IRhinoConvertible rhinoConvertible;
+    private readonly RhinoGeometryBase _sourceGeometry;
 
     /// <summary>
     /// Constructs a new <see cref="BakableRhinoConverter"/> instance.
     /// </summary>
-    /// <param name="rhinoConvertible"></param>
-    public BakableRhinoConverter(IRhinoConvertible rhinoConvertible)
+    /// <param name="rhinoConvertible">The convertible that produces the baked AutoCAD entities.</param>
+    /// <param name="sourceGeometry">The Rhino geometry the convertible wraps, used for input signatures.</param>
+    public BakableRhinoConverter(IRhinoConvertible rhinoConvertible, RhinoGeometryBase sourceGeometry)
     {
         this.rhinoConvertible = rhinoConvertible;
+        _sourceGeometry = sourceGeometry;
     }
 
     /// <summary>
@@ -71,5 +75,11 @@ public class BakableRhinoConverter : IAutocadBakeable
         }
 
         return idList;
+    }
+
+    /// <inheritdoc />
+    public void AppendInputSignature(IInputSignatureBuilder inputSignatureBuilder)
+    {
+        inputSignatureBuilder.AddGeometry(_sourceGeometry);
     }
 }

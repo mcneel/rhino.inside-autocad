@@ -13,4 +13,12 @@ public interface IAutocadBakeable
     /// </returns>
     List<IObjectId> BakeToAutocad(IAutocadTransactionManager autocadTransactionManager,
         IBakingComponent bakingComponent, IBakeSettings? settings = null);
+
+    /// <summary>
+    /// Appends the geometry this object would bake to the signature builder, used by
+    /// tracked components to detect input changes between solves. Must fingerprint the
+    /// same geometry that <see cref="BakeToAutocad"/> writes so that any change to the
+    /// baked output changes the signature.
+    /// </summary>
+    void AppendInputSignature(IInputSignatureBuilder inputSignatureBuilder);
 }

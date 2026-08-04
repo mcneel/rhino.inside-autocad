@@ -8,8 +8,21 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <inheritdoc cref="IInputSignatureBuilder"/>
 public class InputSignatureBuilder : IInputSignatureBuilder
 {
-    private readonly StringBuilder _stringBuilder = new();
     private const char _separator = '|';
+    private const string _signatureFormatVersion = SignatureConstants.SignatureFormatVersion;
+    private const int _hashedSignatureLengthThreshold = SignatureConstants.HashedSignatureLengthThreshold;
+    private const string _coordinateFormat = SignatureConstants.CoordinateFormat;
+
+    private readonly StringBuilder _stringBuilder = new();
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InputSignatureBuilder"/> class.
+    /// </summary>
+    public InputSignatureBuilder()
+    {
+        _stringBuilder.Append(_signatureFormatVersion);
+        _stringBuilder.Append(_separator);
+    }
 
     /// <inheritdoc />
     public IInputSignatureBuilder Add(string? value)
@@ -46,100 +59,13 @@ public class InputSignatureBuilder : IInputSignatureBuilder
     /// <inheritdoc />
     public IInputSignatureBuilder AddCurve(Rhino.Geometry.Curve? curve)
     {
-        if (curve == null)
-        {
-            _stringBuilder.Append("null");
-            _stringBuilder.Append(_separator);
-            return this;
-        }
-
-        var bbox = curve.GetBoundingBox(false);
-        this.AddBoundingBox(bbox);
-
-        _stringBuilder.Append(curve.Domain.T0.ToString("F6"));
-        _stringBuilder.Append(',');
-        _stringBuilder.Append(curve.Domain.T1.ToString("F6"));
-        _stringBuilder.Append(',');
-        _stringBuilder.Append(curve.Degree);
-        _stringBuilder.Append(',');
-
-        // Add control point count for NURBS curves
-        if (curve is Rhino.Geometry.NurbsCurve nurbsCurve)
-        {
-            _stringBuilder.Append(nurbsCurve.Points.Count);
-            _stringBuilder.Append(',');
-
-            // Sample a few control points for more robust comparison
-            var step = Math.Max(1, nurbsCurve.Points.Count / 5);
-            for (var i = 0; i < nurbsCurve.Points.Count; i += step)
-            {
-                var pt = nurbsCurve.Points[i].Location;
-                _stringBuilder.Append(pt.X.ToString("F4"));
-                _stringBuilder.Append(',');
-                _stringBuilder.Append(pt.Y.ToString("F4"));
-                _stringBuilder.Append(',');
-                _stringBuilder.Append(pt.Z.ToString("F4"));
-                _stringBuilder.Append(',');
-            }
-        }
-        else
-        {
-            // For non-NURBS curves, sample points along the curve
-            _stringBuilder.Append("polyline,");
-            var divisions = 10;
-            var parameters = curve.DivideByCount(divisions, true);
-            if (parameters != null)
-            {
-                foreach (var t in parameters)
-                {
-                    var pt = curve.PointAt(t);
-                    _stringBuilder.Append(pt.X.ToString("F4"));
-                    _stringBuilder.Append(',');
-                    _stringBuilder.Append(pt.Y.ToString("F4"));
-                    _stringBuilder.Append(',');
-                    _stringBuilder.Append(pt.Z.ToString("F4"));
-                    _stringBuilder.Append(',');
-                }
-            }
-        }
-
-        _stringBuilder.Append(_separator);
-        return this;
+        return this.AddGeometry(curve);
     }
 
     /// <inheritdoc />
     public IInputSignatureBuilder AddMesh(Rhino.Geometry.Mesh? mesh)
     {
-        if (mesh == null)
-        {
-            _stringBuilder.Append("null");
-            _stringBuilder.Append(_separator);
-            return this;
-        }
-
-        var bbox = mesh.GetBoundingBox(false);
-        this.AddBoundingBox(bbox);
-
-        _stringBuilder.Append(mesh.Vertices.Count);
-        _stringBuilder.Append(',');
-        _stringBuilder.Append(mesh.Faces.Count);
-        _stringBuilder.Append(',');
-
-        // Sample vertices for comparison (every Nth vertex based on size)
-        var step = Math.Max(1, mesh.Vertices.Count / 10);
-        for (var i = 0; i < mesh.Vertices.Count; i += step)
-        {
-            var pt = mesh.Vertices[i];
-            _stringBuilder.Append(pt.X.ToString("F4"));
-            _stringBuilder.Append(',');
-            _stringBuilder.Append(pt.Y.ToString("F4"));
-            _stringBuilder.Append(',');
-            _stringBuilder.Append(pt.Z.ToString("F4"));
-            _stringBuilder.Append(',');
-        }
-
-        _stringBuilder.Append(_separator);
-        return this;
+        return this.AddGeometry(mesh);
     }
 
     /// <summary>
@@ -147,11 +73,11 @@ public class InputSignatureBuilder : IInputSignatureBuilder
     /// </summary>
     public IInputSignatureBuilder AddPoint(Rhino.Geometry.Point3d point)
     {
-        _stringBuilder.Append(point.X.ToString("F6"));
+        _stringBuilder.Append(point.X.ToString(_coordinateFormat));
         _stringBuilder.Append(',');
-        _stringBuilder.Append(point.Y.ToString("F6"));
+        _stringBuilder.Append(point.Y.ToString(_coordinateFormat));
         _stringBuilder.Append(',');
-        _stringBuilder.Append(point.Z.ToString("F6"));
+        _stringBuilder.Append(point.Z.ToString(_coordinateFormat));
         _stringBuilder.Append(_separator);
         return this;
     }
@@ -159,49 +85,20 @@ public class InputSignatureBuilder : IInputSignatureBuilder
     /// <inheritdoc />
     public IInputSignatureBuilder AddGeometry(Rhino.Geometry.GeometryBase? geometry)
     {
-        switch (geometry)
+        if (geometry == null)
         {
-            case null:
-                _stringBuilder.Append("null");
-                _stringBuilder.Append(_separator);
-                return this;
-            case Rhino.Geometry.Curve curve:
-                return this.AddCurve(curve);
-            case Rhino.Geometry.Mesh mesh:
-                return this.AddMesh(mesh);
-            case Rhino.Geometry.Point point:
-                return this.AddPoint(point.Location);
+            _stringBuilder.Append("null");
+            _stringBuilder.Append(_separator);
+            return this;
         }
 
+        // DataCRC hashes the complete geometry data (control points, knots, vertices,
+        // faces, orientation), so any edit that affects the baked output - including
+        // a direction flip, whose reversed control point order changes the data -
+        // produces a different value.
         _stringBuilder.Append(geometry.GetType().Name);
         _stringBuilder.Append(',');
-
-        var bbox = geometry.GetBoundingBox(false);
-        this.AddBoundingBox(bbox);
-
-        if (geometry is Rhino.Geometry.Brep brep)
-        {
-            _stringBuilder.Append(brep.Faces.Count);
-            _stringBuilder.Append(',');
-            _stringBuilder.Append(brep.Edges.Count);
-            _stringBuilder.Append(',');
-            _stringBuilder.Append(brep.Vertices.Count);
-            _stringBuilder.Append(',');
-
-            // Sample vertices for comparison (every Nth vertex based on size)
-            var step = Math.Max(1, brep.Vertices.Count / 10);
-            for (var i = 0; i < brep.Vertices.Count; i += step)
-            {
-                var pt = brep.Vertices[i].Location;
-                _stringBuilder.Append(pt.X.ToString("F4"));
-                _stringBuilder.Append(',');
-                _stringBuilder.Append(pt.Y.ToString("F4"));
-                _stringBuilder.Append(',');
-                _stringBuilder.Append(pt.Z.ToString("F4"));
-                _stringBuilder.Append(',');
-            }
-        }
-
+        _stringBuilder.Append(geometry.DataCRC(0));
         _stringBuilder.Append(_separator);
         return this;
     }
@@ -221,11 +118,11 @@ public class InputSignatureBuilder : IInputSignatureBuilder
 
         foreach (var point in points)
         {
-            _stringBuilder.Append(point.X.ToString("F6"));
+            _stringBuilder.Append(point.X.ToString(_coordinateFormat));
             _stringBuilder.Append(',');
-            _stringBuilder.Append(point.Y.ToString("F6"));
+            _stringBuilder.Append(point.Y.ToString(_coordinateFormat));
             _stringBuilder.Append(',');
-            _stringBuilder.Append(point.Z.ToString("F6"));
+            _stringBuilder.Append(point.Z.ToString(_coordinateFormat));
             _stringBuilder.Append(',');
         }
 
@@ -236,11 +133,11 @@ public class InputSignatureBuilder : IInputSignatureBuilder
     /// <inheritdoc />
     public IInputSignatureBuilder AddScale(IAutocadScale scale)
     {
-        _stringBuilder.Append(scale.X.ToString("F6"));
+        _stringBuilder.Append(scale.X.ToString(_coordinateFormat));
         _stringBuilder.Append(',');
-        _stringBuilder.Append(scale.Y.ToString("F6"));
+        _stringBuilder.Append(scale.Y.ToString(_coordinateFormat));
         _stringBuilder.Append(',');
-        _stringBuilder.Append(scale.Z.ToString("F6"));
+        _stringBuilder.Append(scale.Z.ToString(_coordinateFormat));
         _stringBuilder.Append(_separator);
         return this;
     }
@@ -312,11 +209,11 @@ public class InputSignatureBuilder : IInputSignatureBuilder
             }
             else
             {
-                _stringBuilder.Append(scale.X.ToString("F6"));
+                _stringBuilder.Append(scale.X.ToString(_coordinateFormat));
                 _stringBuilder.Append(',');
-                _stringBuilder.Append(scale.Y.ToString("F6"));
+                _stringBuilder.Append(scale.Y.ToString(_coordinateFormat));
                 _stringBuilder.Append(',');
-                _stringBuilder.Append(scale.Z.ToString("F6"));
+                _stringBuilder.Append(scale.Z.ToString(_coordinateFormat));
             }
             _stringBuilder.Append(',');
         }
@@ -386,29 +283,13 @@ public class InputSignatureBuilder : IInputSignatureBuilder
         return this;
     }
 
-    private void AddBoundingBox(Rhino.Geometry.BoundingBox bbox)
-    {
-        _stringBuilder.Append(bbox.Min.X.ToString("F4"));
-        _stringBuilder.Append(',');
-        _stringBuilder.Append(bbox.Min.Y.ToString("F4"));
-        _stringBuilder.Append(',');
-        _stringBuilder.Append(bbox.Min.Z.ToString("F4"));
-        _stringBuilder.Append(',');
-        _stringBuilder.Append(bbox.Max.X.ToString("F4"));
-        _stringBuilder.Append(',');
-        _stringBuilder.Append(bbox.Max.Y.ToString("F4"));
-        _stringBuilder.Append(',');
-        _stringBuilder.Append(bbox.Max.Z.ToString("F4"));
-        _stringBuilder.Append(',');
-    }
-
     /// <inheritdoc />
     public string Build()
     {
         var raw = _stringBuilder.ToString();
 
         // For large signatures, use MD5 hash to keep serialization reasonable
-        if (raw.Length > 1000)
+        if (raw.Length > _hashedSignatureLengthThreshold)
         {
             using var md5 = MD5.Create();
             var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(raw));

@@ -158,6 +158,9 @@ where TRhinoType : class, IRhinoAdapter
     public abstract void DrawAutocadPreview(IGrasshopperPreviewData previewData);
 
     /// <inheritdoc />
+    public abstract void AppendInputSignature(IInputSignatureBuilder inputSignatureBuilder);
+
+    /// <inheritdoc />
     public override IGH_Goo Duplicate() => (IGH_Goo)this.CreateClonedInstance(this.Value);
 
     /// <inheritdoc />

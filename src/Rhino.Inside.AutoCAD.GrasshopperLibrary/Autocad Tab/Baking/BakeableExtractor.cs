@@ -43,7 +43,7 @@ public class BakeableExtractor
         if (_factory.MakeConvertible(geometry, out var rhinoConvertible) == false)
             return null;
 
-        return new BakableRhinoConverter(rhinoConvertible!);
+        return new BakableRhinoConverter(rhinoConvertible!, geometry);
     }
 
     /// <summary>
