@@ -25,6 +25,9 @@
 
 	<ItemGroup>
 		<Reference Include="PresentationCore" />
+		<PackageReference Include="AutoCAD.NET.Core">
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</PackageReference>
 		<PackageReference Include="System.Drawing.Common" />
 		<PackageReference Include="Serilog" />
 		<PackageReference Include="System.Text.Json" />
