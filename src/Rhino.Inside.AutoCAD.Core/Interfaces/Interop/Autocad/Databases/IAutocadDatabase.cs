@@ -5,12 +5,12 @@ namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 /// </summary>
 /// <remarks>
 /// This interface abstracts the underlying AutoCAD database object, enabling access to essential
-/// table identifiers such as blocks, layers, linetypes, and layouts. Implementations should ensure
-/// proper disposal of database resources.
+/// table identifiers such as blocks, layers, linetypes, and layouts. Wrappers of this kind never
+/// own the database they wrap - a document's database belongs to AutoCAD - so this interface is
+/// deliberately not <see cref="IDisposable"/>.
 /// </remarks>
 /// <seealso cref="IObjectId"/>
-/// <seealso cref="IDisposable"/>
-public interface IAutocadDatabase : IDisposable
+public interface IAutocadDatabase
 {
     /// <summary>
     /// Gets the <see cref="IObjectId"/> for the Block Table in this database.

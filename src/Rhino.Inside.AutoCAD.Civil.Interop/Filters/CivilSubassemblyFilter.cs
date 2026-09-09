@@ -29,7 +29,7 @@ public class CivilSubassemblyFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is CivilSubassembly)
+            if (changedObject.IsOfType<CivilSubassembly>())
                 return true;
         }
         return false;

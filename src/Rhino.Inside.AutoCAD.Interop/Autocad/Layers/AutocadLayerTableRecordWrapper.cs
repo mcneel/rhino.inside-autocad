@@ -66,7 +66,7 @@ public class AutocadLayerTableRecordWrapper : AutocadDbObjectWrapper, IAutocadLa
                 Color = color.Unwrap()
             };
 
-            using var layerTable = (LayerTable)transactionManager.GetObject(
+            var layerTable = (LayerTable)transactionManager.GetObject(
                 document.AutocadDatabase.LayerTableId.Unwrap(), OpenMode.ForWrite);
 
             layerTable.Add(newLayer);

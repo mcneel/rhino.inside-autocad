@@ -33,19 +33,28 @@ public interface IGeometryPreviewSettings
     /// <summary>
     /// Creates the preview material in the AutoCAD database if it does not already exist.
     /// </summary>
+    /// <remarks>
+    /// This writes to the document's database and so takes a document lock, which AutoCAD
+    /// only grants between commands. Call it from an AutoCAD command, or through
+    /// <see cref="IPreviewMaterialScheduler"/>, which defers it to the application's idle
+    /// loop. Code running under a reactor asks <see cref="HasMaterialFor"/> instead.
+    /// </remarks>
     void CreateMaterial(IAutocadDocument document);
 
     /// <summary>
-    /// Ensures <see cref="MaterialId"/> references a live material in the given document's
-    /// database, recreating the material if the cached id is stale.
+    /// Returns whether <see cref="MaterialId"/> already references a live material in the
+    /// given document's database.
     /// </summary>
     /// <remarks>
-    /// The cached id goes stale when the material's document is closed, the material
-    /// creation is undone, or a PURGE erases it (transient entities do not count as
-    /// database references). It is also stale when it belongs to a different document
-    /// than the one previewed into.
+    /// A pure test with no side effect, so it is safe to call from the preview path, which
+    /// runs under native reactors. The cached id goes stale when the material's document is
+    /// closed, the material creation is undone, or a PURGE erases it (transient entities do
+    /// not count as database references). It is also stale when it belongs to a different
+    /// document than the one previewed into. Previews drawn while this is <c>false</c> are
+    /// simply not shaded; <see cref="IPreviewMaterialScheduler"/> creates the material at
+    /// the next idle and restyles them.
     /// </remarks>
-    void EnsureMaterial(IAutocadDocument document);
+    bool HasMaterialFor(IAutocadDocument document);
 
     /// <summary>
     /// Applies these preview settings to the given entity.

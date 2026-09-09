@@ -126,7 +126,7 @@ public class GetSitesComponent : RhinoInsideAutocad_ComponentBase, IReferenceCom
         {
             foreach (var changedObject in change)
             {
-                if (changedObject.UnwrapObject() is Site)
+                if (changedObject.IsOfType<Site>())
                     return true;
             }
         }

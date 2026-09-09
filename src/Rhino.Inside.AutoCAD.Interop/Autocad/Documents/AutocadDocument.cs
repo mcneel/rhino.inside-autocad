@@ -189,12 +189,17 @@ public class AutocadDocument : AutocadWrapperBase<Document>, IAutocadDocument
     /// <remarks>
     /// Reached from AutoCAD database reactors, which fire for every entity in a drawing
     /// operation, so this is the highest-frequency managed/native boundary in the wrapper.
+    /// <para>
+    /// The change is recorded as a <see cref="DetachedDbObject"/> rather than as a wrapper
+    /// around <paramref name="dbObject"/>: AutoCAD closes that object the moment this handler
+    /// returns, while the change it belongs to is not read until the command ends.
+    /// </para>
     /// </remarks>
     private void RecordObjectChange(ChangeType changeType, DBObject dbObject)
     {
-        var dbObjectWrapper = new AutocadDbObjectWrapper(dbObject);
+        var detachedDbObject = new DetachedDbObject(dbObject);
 
-        _documentChange?.AddObjectChange(changeType, dbObjectWrapper);
+        _documentChange?.AddObjectChange(changeType, detachedDbObject);
     }
 
     /// <inheritdoc/>
@@ -277,6 +282,7 @@ public class AutocadDocument : AutocadWrapperBase<Document>, IAutocadDocument
         database.ObjectModified -= this.OnObjectModified;
         database.ObjectErased -= this.OnObjectErased;
 
-        this.AutocadDatabase?.Dispose();
+        // Nothing to dispose: the database belongs to the document, and AutoCAD destroys it
+        // when it closes the document. See AutocadDatabaseWrapper.
     }
 }

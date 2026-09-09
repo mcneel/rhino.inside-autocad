@@ -119,7 +119,7 @@ public class GetAlignmentStylesComponent : RhinoInsideAutocad_ComponentBase, IRe
         {
             foreach (var changedObject in change)
             {
-                if (changedObject.UnwrapObject() is AlignmentStyle)
+                if (changedObject.IsOfType<AlignmentStyle>())
                     return true;
             }
         }

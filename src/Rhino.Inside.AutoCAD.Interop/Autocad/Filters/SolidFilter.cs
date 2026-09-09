@@ -26,7 +26,7 @@ public class SolidFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is Solid3d)
+            if (changedObject.IsOfType<Solid3d>())
                 return true;
         }
         return false;

@@ -51,6 +51,8 @@ public class RhinoLauncher : IRhinoLauncher
             var grasshopperInstance = _rhinoInsideManager.GrasshopperInstance;
             grasshopperInstance.ValidateGrasshopperLibrary(validationLogger);
 
+            _rhinoInsideManager.EnsurePreviewMaterials();
+
             if (mode != RhinoInsideMode.Headless)
             {
                 rhinoCoreExtension.WindowManager.ShowWindow();

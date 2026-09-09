@@ -118,7 +118,7 @@ public class GetAlignmentsComponent : RhinoInsideAutocad_ComponentBase, IReferen
         {
             foreach (var changedObject in change)
             {
-                if (changedObject.UnwrapObject() is Alignment)
+                if (changedObject.IsOfType<Alignment>())
                     return true;
             }
         }

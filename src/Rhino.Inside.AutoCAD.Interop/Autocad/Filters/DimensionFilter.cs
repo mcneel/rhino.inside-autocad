@@ -27,7 +27,7 @@ public class DimensionFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is Dimension)
+            if (changedObject.IsOfType<Dimension>())
                 return true;
         }
         return false;

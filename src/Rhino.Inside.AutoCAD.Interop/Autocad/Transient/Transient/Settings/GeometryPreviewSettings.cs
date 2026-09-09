@@ -86,9 +86,10 @@ public class GeometryPreviewSettings : IGeometryPreviewSettings
         {
             var transactionManager = transactionManagerWrapper.Unwrap();
 
-            using var dbDictionary =
-                (DBDictionary)transactionManager.GetObject(document.AutocadDatabase.Unwrap().MaterialDictionaryId,
-                    OpenMode.ForWrite);
+            var materialDictionaryId = document.AutocadDatabase.Unwrap().MaterialDictionaryId;
+
+            var dbDictionary =
+                (DBDictionary)transactionManager.GetObject(materialDictionaryId, OpenMode.ForWrite);
 
             if (dbDictionary.Contains(this.MaterialName))
             {
@@ -108,15 +109,23 @@ public class GeometryPreviewSettings : IGeometryPreviewSettings
                 Name = this.MaterialName,
             };
 
-            var materialColor =
-                new MaterialColor(Method.Override, 1.0, new EntityColor(this.ColorIndex));
+            var entityColor = new EntityColor(this.ColorIndex);
 
-            material.Diffuse = new MaterialDiffuseComponent(materialColor, null);
+            var materialColor = new MaterialColor(Method.Override, 1.0, entityColor);
 
+            var diffuseComponent = new MaterialDiffuseComponent(materialColor, null);
+
+            var materialMap = new MaterialMap();
+
+            var specularComponent =
+                new MaterialSpecularComponent(materialColor, materialMap, 0.5);
+
+            var opacityComponent = new MaterialOpacityComponent(0.5, null);
+
+            material.Diffuse = diffuseComponent;
             material.Ambient = materialColor;
-            material.Specular =
-                new MaterialSpecularComponent(materialColor, new MaterialMap(), 0.5);
-            material.Opacity = new MaterialOpacityComponent(0.5, null);
+            material.Specular = specularComponent;
+            material.Opacity = opacityComponent;
 
             _ = dbDictionary.SetAt(material.Name, material);
             transactionManager.AddNewlyCreatedDBObject(material, true);
@@ -127,17 +136,12 @@ public class GeometryPreviewSettings : IGeometryPreviewSettings
     }
 
     /// <inheritdoc/>
-    public void EnsureMaterial(IAutocadDocument document)
+    public bool HasMaterialFor(IAutocadDocument document)
     {
         var materialId = this.MaterialId.Unwrap();
 
-        if (materialId is { IsNull: false, IsValid: true, IsErased: false } &&
-            materialId.Database == document.AutocadDatabase.Unwrap())
-        {
-            return;
-        }
-
-        this.CreateMaterial(document);
+        return materialId is { IsNull: false, IsValid: true, IsErased: false } &&
+               materialId.Database == document.AutocadDatabase.Unwrap();
     }
 
     /// <inheritdoc/>

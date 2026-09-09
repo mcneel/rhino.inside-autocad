@@ -26,7 +26,7 @@ public class PointFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is DBPoint)
+            if (changedObject.IsOfType<DBPoint>())
                 return true;
         }
         return false;

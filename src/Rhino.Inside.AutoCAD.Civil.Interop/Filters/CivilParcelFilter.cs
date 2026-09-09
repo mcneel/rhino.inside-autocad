@@ -30,7 +30,7 @@ public class CivilParcelFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is Parcel)
+            if (changedObject.IsOfType<Parcel>())
                 return true;
         }
         return false;

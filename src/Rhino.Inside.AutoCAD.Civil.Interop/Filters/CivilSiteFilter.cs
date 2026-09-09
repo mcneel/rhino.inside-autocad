@@ -30,7 +30,7 @@ public class CivilSiteFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is Site)
+            if (changedObject.IsOfType<Site>())
                 return true;
         }
         return false;

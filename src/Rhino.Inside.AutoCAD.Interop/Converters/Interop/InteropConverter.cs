@@ -51,7 +51,7 @@ public static class InteropConverter
     /// </returns>
     public static Database Unwrap(this IAutocadDatabase autocadDatabase)
     {
-        var databaseWrapper = (AutocadWrapperDisposableBase<Database>)autocadDatabase;
+        var databaseWrapper = (AutocadWrapperBase<Database>)autocadDatabase;
 
         return databaseWrapper.AutocadObject;
     }
@@ -90,6 +90,26 @@ public static class InteropConverter
         var dbObjectWrapper = (AutocadWrapperDisposableBase<CadDbObject>)dbObject;
 
         return dbObjectWrapper.AutocadObject;
+    }
+
+    /// <summary>
+    /// Returns whether the wrapped AutoCAD object is of the given type.
+    /// </summary>
+    /// <typeparam name="TDbObject">
+    /// The type to test for. Base types match, exactly as <c>is</c> would.
+    /// </typeparam>
+    /// <param name="dbObject">
+    /// The database object wrapper to test.
+    /// </param>
+    /// <remarks>
+    /// Answered from <see cref="IDbObject.Type"/> rather than by unwrapping and testing the
+    /// object itself, so it also works for a <see cref="DetachedDbObject"/>, which has no
+    /// object to unwrap. Document changes are recorded as those, so this is how a change
+    /// filter tests what a change affected.
+    /// </remarks>
+    public static bool IsOfType<TDbObject>(this IDbObject dbObject)
+    {
+        return typeof(TDbObject).IsAssignableFrom(dbObject.Type);
     }
 
     /// <summary>

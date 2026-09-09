@@ -27,7 +27,7 @@ public class HatchFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is Hatch)
+            if (changedObject.IsOfType<Hatch>())
                 return true;
         }
         return false;

@@ -12,6 +12,17 @@ public class RhinoInsideManager : IRhinoInsideManager
     private readonly IGrasshopperGeometryExtractor _grasshopperGeometryExtractor;
     private readonly IGrasshopperChangeResponder _grasshopperChangeResponder;
     private readonly IRhinoConvertibleFactory _rhinoConvertibleFactory;
+    private readonly IPreviewMaterialScheduler _previewMaterialScheduler;
+
+    /// <summary>
+    /// Contains failures raised inside the handlers below.
+    /// </summary>
+    /// <remarks>
+    /// Every handler in this class is reached from a Rhino, Grasshopper or AutoCAD reactor,
+    /// which is native code. An exception escaping one has no managed frame above it to be
+    /// caught by and terminates the host, so each handler body is run through this.
+    /// </remarks>
+    private readonly IAutocadGuard _autocadGuard = new AutocadGuard();
 
     /// <inheritdoc />
     public IRhinoInstance RhinoInstance { get; }
@@ -88,13 +99,65 @@ public class RhinoInsideManager : IRhinoInsideManager
         this.UnitConverter = UnitConverterClass.Instance!;
         _grasshopperGeometryExtractor = new GrasshopperGeometryExtractor(_rhinoConvertibleFactory);
         _grasshopperChangeResponder = new GrasshopperChangeResponder();
+        _previewMaterialScheduler = new PreviewMaterialScheduler(this.RefreshPreviewAppearance);
     }
 
     /// <summary>
-    /// Handles AutoCAD document switching and creates preview materials in both Rhino and Grasshopper
-    /// preview servers.
+    /// Restyles every drawn preview so it picks up a material created after it was drawn.
     /// </summary>
+    private void RefreshPreviewAppearance()
+    {
+        this.RhinoPreviewServer.RefreshAppearance();
+
+        this.GrasshopperPreviewServer.RefreshAppearance();
+    }
+
+    /// <summary>
+    /// Requests the preview materials for the given document, creating any that are missing
+    /// once AutoCAD is idle.
+    /// </summary>
+    /// <remarks>
+    /// The two servers share one settings instance for the selected state, so the selected
+    /// settings are taken from the Rhino server only. All three are requested together so
+    /// that none is left to be created on first use, which happens under a reactor.
+    /// </remarks>
+    private void EnsurePreviewMaterials(IAutocadDocument document)
+    {
+        _previewMaterialScheduler.EnsureCreated(document,
+            this.RhinoPreviewServer.UnSelectedSettings,
+            this.GrasshopperPreviewServer.UnSelectedSettings,
+            this.RhinoPreviewServer.SelectedSettings);
+    }
+
+    /// <inheritdoc />
+    public void EnsurePreviewMaterials()
+    {
+        var document = this.AutoCadInstance.ActiveDocument;
+
+        if (document == null) return;
+
+        this.EnsurePreviewMaterials(document);
+    }
+
+    /// <summary>
+    /// Handles AutoCAD document switching, syncing units and requesting the preview materials
+    /// for the newly activated document.
+    /// </summary>
+    /// <remarks>
+    /// Raised from AutoCAD's own document-activation reactor, so the materials are only
+    /// requested here, never created: the creation is deferred to the idle loop by
+    /// <see cref="IPreviewMaterialScheduler"/>.
+    /// </remarks>
     private void AutocadDocumentSwitched(object sender, EventArgs e)
+    {
+        _autocadGuard.Run(() => this.HandleAutocadDocumentSwitched(sender, e),
+            nameof(this.AutocadDocumentSwitched));
+    }
+
+    /// <summary>
+    /// Syncs units and requests the preview materials for the newly activated document.
+    /// </summary>
+    private void HandleAutocadDocumentSwitched(object sender, EventArgs e)
     {
         if (ApplicationState.IsShuttingDown) return;
 
@@ -104,9 +167,7 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         if (document == null) return;
 
-        this.RhinoPreviewServer.UnSelectedSettings.CreateMaterial(document);
-
-        this.GrasshopperPreviewServer.UnSelectedSettings.CreateMaterial(document);
+        this.EnsurePreviewMaterials(document);
     }
 
     /// <inheritdoc />
@@ -125,19 +186,18 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         var document = this.AutoCadInstance.ActiveDocument;
 
-        // Each color has its own material, so the one for the new color has to exist in this
-        // document before the previews are redrawn. Without an open document there is nothing
-        // to draw into either, and the material is created when a document is next activated.
+        // Each color has its own material, so setting the color above dropped the old one and
+        // the material for the new color has to be created before previews can be shaded with
+        // it. That is scheduled rather than done here: previews restyle immediately in the new
+        // color and pick the material up when the scheduler has created it. Without an open
+        // document there is nothing to draw into either, and the materials are requested again
+        // when a document is next activated.
         if (document != null)
         {
-            this.RhinoPreviewServer.UnSelectedSettings.CreateMaterial(document);
-
-            this.GrasshopperPreviewServer.UnSelectedSettings.CreateMaterial(document);
+            this.EnsurePreviewMaterials(document);
         }
 
-        this.RhinoPreviewServer.RefreshAppearance();
-
-        this.GrasshopperPreviewServer.RefreshAppearance();
+        this.RefreshPreviewAppearance();
     }
 
     /// <summary>
@@ -145,9 +205,12 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// </summary>
     private void AutocadDocumentChange(object sender, IAutocadDocumentChangeEventArgs e)
     {
-        if (ApplicationState.IsShuttingDown) return;
+        _autocadGuard.Run(() =>
+        {
+            if (ApplicationState.IsShuttingDown) return;
 
-        _grasshopperChangeResponder.Respond(e.Change);
+            _grasshopperChangeResponder.Respond(e.Change);
+        }, nameof(this.AutocadDocumentChange));
     }
 
     /// <summary>
@@ -156,9 +219,12 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// </summary>
     private void OnGrasshopperObjectRemoved(object sender, IGrasshopperObjectModifiedEventArgs e)
     {
-        if (ApplicationState.IsShuttingDown) return;
+        _autocadGuard.Run(() =>
+        {
+            if (ApplicationState.IsShuttingDown) return;
 
-        this.GrasshopperPreviewServer.RemoveObject(e.GrasshopperObject.InstanceGuid);
+            this.GrasshopperPreviewServer.RemoveObject(e.GrasshopperObject.InstanceGuid);
+        }, nameof(this.OnGrasshopperObjectRemoved));
     }
 
     /// <summary>
@@ -181,14 +247,19 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// </summary>
     private void OnGrasshopperSelectionChanged(object? sender, IGrasshopperSelectionEventArgs e)
     {
-        if (ApplicationState.IsShuttingDown) return;
-
-        foreach (var ghDocumentObject in e.Objects)
+        _autocadGuard.Run(() =>
         {
-            this.UpdateGrasshopperPreview(ghDocumentObject);
-        }
+            if (ApplicationState.IsShuttingDown) return;
 
-        this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+            foreach (var ghDocumentObject in e.Objects)
+            {
+                this.UpdateGrasshopperPreview(ghDocumentObject);
+            }
+
+            this.EnsurePreviewMaterials();
+
+            this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+        }, nameof(this.OnGrasshopperSelectionChanged));
     }
 
     /// <summary>
@@ -196,13 +267,18 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// </summary>
     private void OnUpdateGrasshopperPreview(object sender, IGrasshopperObjectModifiedEventArgs e)
     {
-        if (ApplicationState.IsShuttingDown) return;
+        _autocadGuard.Run(() =>
+        {
+            if (ApplicationState.IsShuttingDown) return;
 
-        var ghDocumentObject = e.GrasshopperObject;
+            var ghDocumentObject = e.GrasshopperObject;
 
-        this.UpdateGrasshopperPreview(ghDocumentObject);
+            this.UpdateGrasshopperPreview(ghDocumentObject);
 
-        this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+            this.EnsurePreviewMaterials();
+
+            this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+        }, nameof(this.OnUpdateGrasshopperPreview));
     }
 
     /// <summary>
@@ -210,13 +286,16 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// </summary>
     private void RhinoObjectRemoved(object sender, IRhinoObjectModifiedEventArgs e)
     {
-        if (ApplicationState.IsShuttingDown) return;
+        _autocadGuard.Run(() =>
+        {
+            if (ApplicationState.IsShuttingDown) return;
 
-        var rhinoObject = e.RhinoObject;
+            var rhinoObject = e.RhinoObject;
 
-        this.RhinoPreviewServer.RemoveObject(rhinoObject.Id);
+            this.RhinoPreviewServer.RemoveObject(rhinoObject.Id);
 
-        this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+            this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+        }, nameof(this.RhinoObjectRemoved));
     }
 
     /// <summary>
@@ -224,20 +303,25 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// </summary>
     private void RhinoObjectModifiedOrAppended(object sender, IRhinoObjectModifiedEventArgs e)
     {
-        if (ApplicationState.IsShuttingDown) return;
-
-        var rhinoObject = e.RhinoObject;
-
-        this.RhinoPreviewServer.RemoveObject(rhinoObject.Id);
-
-        if (_rhinoConvertibleFactory.MakeConvertible(rhinoObject.Geometry, out var rhinoConvertible))
+        _autocadGuard.Run(() =>
         {
-            var newSet = new RhinoConvertibleSet { rhinoConvertible };
+            if (ApplicationState.IsShuttingDown) return;
 
-            this.RhinoPreviewServer.AddObject(rhinoObject.Id, newSet, rhinoObject.IsSelected(false) > 0);
-        }
+            var rhinoObject = e.RhinoObject;
 
-        this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+            this.RhinoPreviewServer.RemoveObject(rhinoObject.Id);
+
+            if (_rhinoConvertibleFactory.MakeConvertible(rhinoObject.Geometry, out var rhinoConvertible))
+            {
+                var newSet = new RhinoConvertibleSet { rhinoConvertible };
+
+                this.RhinoPreviewServer.AddObject(rhinoObject.Id, newSet, rhinoObject.IsSelected(false) > 0);
+            }
+
+            this.EnsurePreviewMaterials();
+
+            this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+        }, nameof(this.RhinoObjectModifiedOrAppended));
     }
 
     /// <summary>
@@ -245,26 +329,32 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// </summary>
     private void DeselectAllRhinoPreview(object? sender, EventArgs e)
     {
-        if (ApplicationState.IsShuttingDown) return;
+        _autocadGuard.Run(() =>
+        {
+            if (ApplicationState.IsShuttingDown) return;
 
-        this.RhinoPreviewServer.DeselectAll();
+            this.RhinoPreviewServer.DeselectAll();
 
-        this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+            this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+        }, nameof(this.DeselectAllRhinoPreview));
     }
 
     private void UpdateUnitSystem(object sender, EventArgs e)
     {
-        if (ApplicationState.IsShuttingDown) return;
-
-        var autoCadUnits = new UnitScale(this.AutoCadInstance.ActiveDocument?.UnitSystem ?? _defaultUnitSystem);
-        var rhinoUnits = new UnitScale(this.RhinoInstance.ActiveDoc?.ModelUnitSystem ?? _defaultUnitSystem);
-
-        if (autoCadUnits.IsEqualTo(this.UnitConverter.AutoCadUnits) == false ||
-            rhinoUnits.IsEqualTo(this.UnitConverter.RhinoUnits) == false)
+        _autocadGuard.Run(() =>
         {
-            UnitConverterClass.Initialize(autoCadUnits, rhinoUnits);
-            this.UnitConverter = UnitConverterClass.Instance!;
-        }
+            if (ApplicationState.IsShuttingDown) return;
+
+            var autoCadUnits = new UnitScale(this.AutoCadInstance.ActiveDocument?.UnitSystem ?? _defaultUnitSystem);
+            var rhinoUnits = new UnitScale(this.RhinoInstance.ActiveDoc?.ModelUnitSystem ?? _defaultUnitSystem);
+
+            if (autoCadUnits.IsEqualTo(this.UnitConverter.AutoCadUnits) == false ||
+                rhinoUnits.IsEqualTo(this.UnitConverter.RhinoUnits) == false)
+            {
+                UnitConverterClass.Initialize(autoCadUnits, rhinoUnits);
+                this.UnitConverter = UnitConverterClass.Instance!;
+            }
+        }, nameof(this.UpdateUnitSystem));
     }
 
     /// <inheritdoc />
@@ -286,6 +376,8 @@ public class RhinoInsideManager : IRhinoInsideManager
         this.AutoCadInstance.DocumentActivated -= this.AutocadDocumentSwitched;
         this.AutoCadInstance.UnitsChanged -= this.UpdateUnitSystem;
         this.AutoCadInstance.DocumentChanged -= this.AutocadDocumentChange;
+
+        _previewMaterialScheduler.Shutdown();
 
         // Clear preview servers with isolated exception handling
         try

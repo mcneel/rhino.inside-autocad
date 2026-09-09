@@ -31,8 +31,7 @@ public class TextFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            var dbObj = changedObject.UnwrapObject();
-            if (dbObj is DBText || dbObj is MText)
+            if (changedObject.IsOfType<DBText>() || changedObject.IsOfType<MText>())
                 return true;
         }
         return false;

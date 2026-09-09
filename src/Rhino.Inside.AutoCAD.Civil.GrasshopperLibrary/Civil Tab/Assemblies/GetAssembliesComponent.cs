@@ -118,7 +118,7 @@ public class GetAssembliesComponent : RhinoInsideAutocad_ComponentBase, IReferen
         {
             foreach (var changedObject in change)
             {
-                if (changedObject.UnwrapObject() is Assembly)
+                if (changedObject.IsOfType<Assembly>())
                     return true;
             }
         }

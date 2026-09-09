@@ -28,13 +28,22 @@ public class PreviewGeometryConverter : IPreviewGeometryConverter
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// The preview material is not created here: this runs under Rhino and Grasshopper
+    /// reactors, where the database write creating it needs is not permitted.
+    /// <see cref="IPreviewMaterialScheduler"/> creates it out of band, and until it exists
+    /// the entities are drawn unshaded.
+    /// <para>
+    /// The transaction still takes a document lock, because the conversion is not purely a
+    /// read: converting a hatch appends its boundary curves to model space to evaluate the
+    /// hatch, then erases them again.
+    /// </para>
+    /// </remarks>
     public List<IEntity> Convert(IRhinoConvertibleSet rhinoGeometries, IGeometryPreviewSettings previewSettings)
     {
         if (this.TryGetActiveDocument(out var activeDocument) == false) return new List<IEntity>();
 
-        previewSettings.EnsureMaterial(activeDocument!);
-
-        var transactionManagerWrapper = activeDocument.CreateTransactionManager();
+        var transactionManagerWrapper = activeDocument!.CreateTransactionManager();
 
         return transactionManagerWrapper.PerformTask(() =>
         {
