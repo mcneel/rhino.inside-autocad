@@ -29,7 +29,7 @@ public class CivilCorridorFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is Corridor)
+            if (changedObject.IsOfType<Corridor>())
                 return true;
         }
         return false;

@@ -27,14 +27,12 @@ public interface IInputSignatureBuilder
     IInputSignatureBuilder Add(IObjectId? objectId);
 
     /// <summary>
-    /// Adds a Rhino curve geometry to the signature.
-    /// Uses bounding box corners, domain, degree, and control point count for comparison.
+    /// Adds a Rhino curve geometry to the signature via <see cref="AddGeometry"/>.
     /// </summary>
     IInputSignatureBuilder AddCurve(Rhino.Geometry.Curve? curve);
 
     /// <summary>
-    /// Adds a Rhino mesh geometry to the signature.
-    /// Uses bounding box corners, vertex count, face count, and sampled vertex positions.
+    /// Adds a Rhino mesh geometry to the signature via <see cref="AddGeometry"/>.
     /// </summary>
     IInputSignatureBuilder AddMesh(Rhino.Geometry.Mesh? mesh);
 
@@ -44,10 +42,10 @@ public interface IInputSignatureBuilder
     IInputSignatureBuilder AddPoint(Rhino.Geometry.Point3d point);
 
     /// <summary>
-    /// Adds any Rhino geometry to the signature, dispatching to the most specific
-    /// method available (curve, mesh, point). Breps use bounding box corners,
-    /// face/edge/vertex counts, and sampled vertex positions; other geometry types
-    /// fall back to type name and bounding box corners.
+    /// Adds any Rhino geometry to the signature using its type name and its
+    /// <see cref="Rhino.Geometry.GeometryBase.DataCRC"/>, a bit-exact hash of the
+    /// complete geometry data - so any edit affecting the baked output, including
+    /// direction flips, changes the signature.
     /// </summary>
     IInputSignatureBuilder AddGeometry(Rhino.Geometry.GeometryBase? geometry);
 

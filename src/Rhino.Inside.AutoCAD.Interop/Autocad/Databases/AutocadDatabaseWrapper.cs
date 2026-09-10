@@ -6,13 +6,17 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <inheritdoc cref="IAutocadDatabase"/>
 /// <remarks>
 /// Wraps an AutoCAD <see cref="Database"/> to expose symbol table IDs for blocks,
-/// layers, linetypes, and layouts. Owned by <see cref="IAutocadDocument"/> and
-/// provides access to the core database structures needed by repositories.
+/// layers, linetypes, and layouts, providing access to the core database structures
+/// needed by repositories.
+/// </remarks>
+/// <remarks>
+/// Derived from the non-disposable wrapper base deliberately: the database wrapped here
+/// belongs to an open <see cref="Document"/>, which AutoCAD owns and destroys itself.
 /// </remarks>
 /// <seealso cref="IAutocadDocument"/>
 /// <seealso cref="IBlockTableRecordRegister"/>
 /// <seealso cref="ILayerRegister"/>
-public class AutocadDatabaseWrapper : AutocadWrapperDisposableBase<Database>, IAutocadDatabase
+public class AutocadDatabaseWrapper : AutocadWrapperBase<Database>, IAutocadDatabase
 {
     /// <inheritdoc/>
     public IObjectId BlockTableId { get; }

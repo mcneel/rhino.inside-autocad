@@ -50,8 +50,7 @@ public class ObjectByLayerFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            var dbObj = changedObject.UnwrapObject();
-            if (dbObj is Entity || dbObj is LayerTableRecord)
+            if (changedObject.IsOfType<Entity>() || changedObject.IsOfType<LayerTableRecord>())
                 return true;
         }
         return false;

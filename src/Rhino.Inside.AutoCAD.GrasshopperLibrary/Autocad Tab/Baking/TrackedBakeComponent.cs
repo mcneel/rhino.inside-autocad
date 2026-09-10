@@ -1,19 +1,9 @@
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
-using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using System.Collections;
 using Exception = System.Exception;
-using RhinoArc = Rhino.Geometry.Arc;
-using RhinoArcCurve = Rhino.Geometry.ArcCurve;
-using RhinoBox = Rhino.Geometry.Box;
-using RhinoCircle = Rhino.Geometry.Circle;
-using RhinoGeometryBase = Rhino.Geometry.GeometryBase;
-using RhinoLine = Rhino.Geometry.Line;
-using RhinoLineCurve = Rhino.Geometry.LineCurve;
-using RhinoPoint3d = Rhino.Geometry.Point3d;
-using RhinoRectangle3d = Rhino.Geometry.Rectangle3d;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -23,7 +13,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// deletes previously baked objects when Replace mode is enabled, and persists the
 /// connection to baked objects across sessions.
 /// </summary>
-[ComponentVersion(introduced: "1.3.0")]
+[ComponentVersion(introduced: "1.3.0", updated: "1.3.2")]
 public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBakingComponent
 {
     /// <inheritdoc />
@@ -127,7 +117,7 @@ public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBak
         }
 
         // Build input signature for change detection
-        var signature = this.BuildInputSignature(objects, settings, document);
+        var signature = this.BuildInputSignature(bakeables, settings, document);
 
         // Check for reuse to prevent infinite loops (bake -> AutoCAD change events ->
         // downstream Get components expire -> this component expires again)
@@ -183,57 +173,27 @@ public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBak
     }
 
     /// <summary>
-    /// Builds a signature from the input objects, bake settings and target document,
-    /// used to detect input changes between solves. The geometry normalization mirrors
-    /// <see cref="BakeableExtractor.ExtractBakeable"/> so that anything affecting the
-    /// baked output contributes to the signature.
+    /// Builds a signature from the bakeables, bake settings and target document, used
+    /// to detect input changes between solves. Each bakeable fingerprints the same
+    /// geometry it bakes, so anything affecting the baked output contributes to the
+    /// signature.
     /// </summary>
-    private string BuildInputSignature(List<object> objects, IBakeSettings? settings, IAutocadDocument document)
+    private string BuildInputSignature(List<IAutocadBakeable> bakeables, IBakeSettings? settings, IAutocadDocument document)
     {
         var builder = new InputSignatureBuilder();
 
-        foreach (var obj in objects)
+        foreach (var bakeable in bakeables)
         {
-            var value = obj;
-
-            if (obj is IGH_Goo goo)
-            {
-                var valueProperty = goo.GetType().GetProperty("Value");
-                value = valueProperty?.GetValue(goo) ?? obj;
-            }
-
-            switch (value)
-            {
-                case RhinoLine line:
-                    builder.AddCurve(new RhinoLineCurve(line));
-                    break;
-                case RhinoArc arc:
-                    builder.AddCurve(new RhinoArcCurve(arc));
-                    break;
-                case RhinoCircle circle:
-                    builder.AddCurve(new RhinoArcCurve(circle));
-                    break;
-                case RhinoRectangle3d rectangle:
-                    builder.AddCurve(rectangle.ToNurbsCurve());
-                    break;
-                case RhinoPoint3d point:
-                    builder.AddPoint(point);
-                    break;
-                case RhinoBox box:
-                    builder.AddGeometry(box.ToBrep());
-                    break;
-                case RhinoGeometryBase geometry:
-                    builder.AddGeometry(geometry);
-                    break;
-                default:
-                    builder.Add(value?.ToString());
-                    break;
-            }
+            bakeable.AppendInputSignature(builder);
         }
 
         builder.Add(settings?.Layer?.Id);
         builder.Add(settings?.LineType?.Id);
         builder.AddColor(settings?.Color);
+
+        var linetypeScaleText = settings?.LinetypeScale?.ToString("F6");
+
+        builder.Add(linetypeScaleText);
         builder.Add(document.FileMetadata.FileName);
 
         return builder.Build();

@@ -118,7 +118,7 @@ public class GetCorridorsComponent : RhinoInsideAutocad_ComponentBase, IReferenc
         {
             foreach (var changedObject in change)
             {
-                if (changedObject.UnwrapObject() is Corridor)
+                if (changedObject.IsOfType<Corridor>())
                     return true;
             }
         }

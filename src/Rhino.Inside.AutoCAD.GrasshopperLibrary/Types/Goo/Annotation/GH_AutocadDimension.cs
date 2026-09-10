@@ -78,6 +78,20 @@ public class GH_AutocadDimension : GH_AutocadGeometricGoo<AutocadDimension, Rhin
     }
 
     /// <inheritdoc />
+    public override void AppendInputSignature(IInputSignatureBuilder inputSignatureBuilder)
+    {
+        var geometry = this.RhinoGeometry?.Geometry;
+
+        if (geometry == null)
+        {
+            inputSignatureBuilder.Add(this.ToString());
+            return;
+        }
+
+        inputSignatureBuilder.AddGeometry(geometry);
+    }
+
+    /// <inheritdoc />
     public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
     {
         var geometry = this.RhinoGeometry?.Geometry;

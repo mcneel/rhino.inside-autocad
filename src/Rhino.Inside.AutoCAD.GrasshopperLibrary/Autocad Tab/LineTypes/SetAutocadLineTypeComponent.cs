@@ -7,9 +7,11 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that sets properties for an AutoCAD linetype.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.0.4")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.3.2")]
 public class SetAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
 {
+    private const double _zeroTolerance = GeometryConstants.ZeroTolerance;
+
     /// <inheritdoc />
     public override Guid ComponentGuid => new("b3e7d9f1-5c8a-4b6d-9e2f-7a4c3d6e8b1f");
 
@@ -58,6 +60,9 @@ public class SetAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
     /// <inheritdoc />
     protected override void RegisterOutputParams(GH_OutputParamManager pManager)
     {
+        pManager.AddParameter(new Param_AutocadLineType(GH_ParamAccess.item), "LineType",
+            "LineType", "The updated AutoCAD LineType", GH_ParamAccess.item);
+
         pManager.AddTextParameter("Name", "Name",
             "The name of the AutoCAD LineType", GH_ParamAccess.item);
 
@@ -117,7 +122,7 @@ public class SetAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
         }
 
         var change = newName != lineType.Name
-                     || Math.Abs(newPatternLength - lineType.PatternLength) < GeometryConstants.ZeroTolerance
+                     || Math.Abs(newPatternLength - lineType.PatternLength) > _zeroTolerance
                      || newNumberOfDashes != lineType.NumDashes
                      || newScaleToFit != lineType.IsScaledToFit
                      || newComments != lineType.Comments;
@@ -151,11 +156,14 @@ public class SetAutocadLineTypeComponent : RhinoInsideAutocad_ComponentBase
         }
 
         // Output updated values
-        DA.SetData(0, lineType.Name);
-        DA.SetData(1, lineType.Id);
-        DA.SetData(2, lineType.PatternLength);
-        DA.SetData(3, lineType.NumDashes);
-        DA.SetData(4, lineType.IsScaledToFit);
-        DA.SetData(5, lineType.Comments);
+        var lineTypeGoo = new GH_AutocadLineType(lineType);
+
+        DA.SetData(0, lineTypeGoo);
+        DA.SetData(1, lineType.Name);
+        DA.SetData(2, lineType.Id);
+        DA.SetData(3, lineType.PatternLength);
+        DA.SetData(4, lineType.NumDashes);
+        DA.SetData(5, lineType.IsScaledToFit);
+        DA.SetData(6, lineType.Comments);
     }
 }

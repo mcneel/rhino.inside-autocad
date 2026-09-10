@@ -75,6 +75,17 @@ public interface IRhinoInsideManager
         int selectedColorIndex);
 
     /// <summary>
+    /// Requests the preview materials for the active document, creating any that are missing
+    /// once AutoCAD is idle.
+    /// </summary>
+    /// <remarks>
+    /// Called from the AutoCAD command that launches Rhino. Materials are otherwise only
+    /// requested when a document is activated, which does not happen for the document that
+    /// is already active, so without this the first preview of the session finds none.
+    /// </remarks>
+    void EnsurePreviewMaterials();
+
+    /// <summary>
     /// Shuts down the Rhino.Inside.AutoCAD manager, ensuring all document are saved and
     /// releasing any resources.
     /// </summary>

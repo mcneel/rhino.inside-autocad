@@ -29,7 +29,7 @@ public class CivilAlignmentFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is Alignment)
+            if (changedObject.IsOfType<Alignment>())
                 return true;
         }
         return false;

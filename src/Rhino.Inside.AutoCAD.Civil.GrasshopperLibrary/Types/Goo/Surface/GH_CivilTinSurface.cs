@@ -75,6 +75,20 @@ public class GH_CivilTinSurface : GH_AutocadGeometricGoo<CivilSurface, RhinoGeom
     }
 
     /// <inheritdoc />
+    public override void AppendInputSignature(IInputSignatureBuilder inputSignatureBuilder)
+    {
+        var geometry = this.RhinoGeometry?.Geometry;
+
+        if (geometry == null)
+        {
+            inputSignatureBuilder.Add(this.ToString());
+            return;
+        }
+
+        inputSignatureBuilder.AddMesh(geometry);
+    }
+
+    /// <inheritdoc />
     public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
     {
         var geometry = this.RhinoGeometry?.Geometry;

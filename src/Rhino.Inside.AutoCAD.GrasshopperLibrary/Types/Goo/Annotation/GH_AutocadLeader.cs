@@ -80,6 +80,20 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadMLeader, RhinoGeom
     }
 
     /// <inheritdoc />
+    public override void AppendInputSignature(IInputSignatureBuilder inputSignatureBuilder)
+    {
+        var geometry = this.RhinoGeometry?.Geometry;
+
+        if (geometry == null)
+        {
+            inputSignatureBuilder.Add(this.ToString());
+            return;
+        }
+
+        inputSignatureBuilder.AddGeometry(geometry);
+    }
+
+    /// <inheritdoc />
     public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
     {
         var geometry = this.RhinoGeometry?.Geometry;

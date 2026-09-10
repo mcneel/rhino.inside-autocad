@@ -84,6 +84,20 @@ public class GH_AutocadCurve : GH_AutocadGeometricGoo<AutocadCurve, RhinoGeometr
     }
 
     /// <inheritdoc />
+    public override void AppendInputSignature(IInputSignatureBuilder inputSignatureBuilder)
+    {
+        var geometry = this.RhinoGeometry?.Geometry;
+
+        if (geometry == null)
+        {
+            inputSignatureBuilder.Add(this.ToString());
+            return;
+        }
+
+        inputSignatureBuilder.AddCurve(geometry);
+    }
+
+    /// <inheritdoc />
     public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
     {
         var geometry = this.RhinoGeometry?.Geometry;

@@ -114,15 +114,18 @@ public class GH_BakeSettings : GH_Goo<BakeSettings>
         if (this.Value == null)
             return "Null Bake Settings";
 
-        var color = this.Value.Color.Unwrap();
-
         var parts = new List<string>();
         if (this.Value.Layer != null)
             parts.Add($"Layer: {this.Value.Layer.Name}");
         if (this.Value.LineType != null)
             parts.Add($"LineType: {this.Value.LineType.Name}");
         if (this.Value.Color != null)
+        {
+            var color = this.Value.Color.Unwrap();
             parts.Add($"Color: RGB({color.Red},{color.Green},{color.Blue})");
+        }
+        if (this.Value.LinetypeScale is double linetypeScale)
+            parts.Add($"LinetypeScale: {linetypeScale}");
 
         return parts.Count > 0
             ? $"Bake Settings [{string.Join(", ", parts)}]"

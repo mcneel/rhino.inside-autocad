@@ -109,7 +109,7 @@ public class GetProfileViewsFromAlignmentComponent : RhinoInsideAutocad_Componen
 
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is ProfileView)
+            if (changedObject.IsOfType<ProfileView>())
             {
                 return true;
             }

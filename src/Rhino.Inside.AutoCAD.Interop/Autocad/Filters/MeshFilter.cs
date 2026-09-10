@@ -29,8 +29,7 @@ public class MeshFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            var dbObj = changedObject.UnwrapObject();
-            if (dbObj is PolygonMesh || dbObj is PolyFaceMesh)
+            if (changedObject.IsOfType<PolygonMesh>() || changedObject.IsOfType<PolyFaceMesh>())
                 return true;
         }
         return false;

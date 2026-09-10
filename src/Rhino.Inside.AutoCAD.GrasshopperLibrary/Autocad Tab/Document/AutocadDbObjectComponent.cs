@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that extracts information from an AutoCAD DBObject.
 /// </summary>
-[ComponentVersion(introduced: "1.0.16", updated: "1.2.25")]
+[ComponentVersion(introduced: "1.0.16", updated: "1.3.2")]
 public class AutocadDbObjectComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -72,6 +72,9 @@ public class AutocadDbObjectComponent : RhinoInsideAutocad_ComponentBase
 
         pManager.AddIntegerParameter("LineWeight", "LW",
             "The lineweight of the Entity in 1/100mm. -1=ByLayer, -2=ByBlock, -3=Default. Null if not an Entity.", GH_ParamAccess.item);
+
+        pManager.AddNumberParameter("LinetypeScale", "LTS",
+            "The linetype scale of the Entity. Null if not an Entity.", GH_ParamAccess.item);
     }
 
     /// <inheritdoc />
@@ -119,7 +122,10 @@ public class AutocadDbObjectComponent : RhinoInsideAutocad_ComponentBase
 
             // LineWeight (cast enum to int)
             DA.SetData(11, (int)entity.LineWeight);
+
+            // LinetypeScale
+            DA.SetData(12, entity.LinetypeScale);
         }
-        // If not Entity, outputs 4-11 remain null (default behavior)
+        // If not Entity, outputs 4-12 remain null (default behavior)
     }
 }

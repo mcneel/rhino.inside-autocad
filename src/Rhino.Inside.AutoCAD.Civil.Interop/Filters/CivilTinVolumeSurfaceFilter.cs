@@ -29,7 +29,7 @@ public class CivilTinVolumeSurfaceFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is TinVolumeSurface)
+            if (changedObject.IsOfType<TinVolumeSurface>())
                 return true;
         }
         return false;

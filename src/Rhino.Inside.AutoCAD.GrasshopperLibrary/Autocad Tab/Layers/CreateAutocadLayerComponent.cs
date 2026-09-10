@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns the AutoCAD layers currently open in the AutoCAD session.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.0.20")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.3.2")]
 public class CreateAutocadLayerComponent : Layer_BaseComponent
 {
     /// <inheritdoc />
@@ -46,6 +46,9 @@ public class CreateAutocadLayerComponent : Layer_BaseComponent
     /// <inheritdoc />
     protected override void RegisterOutputParams(GH_OutputParamManager pManager)
     {
+        pManager.AddParameter(new Param_AutocadLayer(GH_ParamAccess.item), "Layer", "Layer",
+            "The created AutoCAD Layer", GH_ParamAccess.item);
+
         pManager.AddTextParameter("Name", "Name",
             "The name of the AutoCAD Layer.", GH_ParamAccess.item);
 
@@ -121,10 +124,13 @@ public class CreateAutocadLayerComponent : Layer_BaseComponent
 
         var isLocked = autocadLayer.IsLocked;
 
-        DA.SetData(0, name);
-        DA.SetData(1, id);
-        DA.SetData(2, linePatten);
-        DA.SetData(3, gooColor);
-        DA.SetData(4, isLocked);
+        var layerGoo = new GH_AutocadLayer(autocadLayer);
+
+        DA.SetData(0, layerGoo);
+        DA.SetData(1, name);
+        DA.SetData(2, id);
+        DA.SetData(3, linePatten);
+        DA.SetData(4, gooColor);
+        DA.SetData(5, isLocked);
     }
 }

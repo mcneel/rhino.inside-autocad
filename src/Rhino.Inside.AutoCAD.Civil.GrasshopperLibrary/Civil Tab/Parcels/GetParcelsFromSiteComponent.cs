@@ -99,7 +99,7 @@ public class GetParcelsFromSiteComponent : RhinoInsideAutocad_ComponentBase, IRe
 
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is Parcel)
+            if (changedObject.IsOfType<Parcel>())
             {
                 return true;
             }

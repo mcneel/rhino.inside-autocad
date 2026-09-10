@@ -196,6 +196,9 @@ public class BrepConverterRunner : IBrepConverterRunner
 
         if (settings?.Color != null)
             entity.Color = settings.Color.Unwrap();
+
+        if (settings?.LinetypeScale is double linetypeScale)
+            entity.LinetypeScale = linetypeScale;
     }
 
     /// <summary>

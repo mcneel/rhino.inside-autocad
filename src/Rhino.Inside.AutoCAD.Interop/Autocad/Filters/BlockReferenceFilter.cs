@@ -27,7 +27,7 @@ public class BlockReferenceFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is BlockReference)
+            if (changedObject.IsOfType<BlockReference>())
                 return true;
         }
         return false;

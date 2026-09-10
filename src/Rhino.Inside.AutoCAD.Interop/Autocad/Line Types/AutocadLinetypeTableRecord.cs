@@ -202,7 +202,7 @@ public class AutocadLinetypeTableRecordWrapper : AutocadDbObjectWrapper, IAutoca
             // Set the dash pattern array
             SetSimpleDashPattern(linetypeTableRecord, patternLength, numberOfDashes);
 
-            using var linetypeTable = (LinetypeTable)transactionManager.GetObject(
+            var linetypeTable = (LinetypeTable)transactionManager.GetObject(
                 document.AutocadDatabase.LinetypeTableId.Unwrap(), OpenMode.ForWrite);
 
             linetypeTable.Add(linetypeTableRecord);

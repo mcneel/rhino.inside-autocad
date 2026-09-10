@@ -64,7 +64,7 @@ public class AutocadLayoutWrapper : AutocadDbObjectWrapper, IAutocadLayout
                 LayoutName = name
             };
 
-            using var layoutDictionary = (DBDictionary)transactionManager.GetObject(
+            var layoutDictionary = (DBDictionary)transactionManager.GetObject(
                 document.AutocadDatabase.LayoutDictionaryId.Unwrap(), OpenMode.ForWrite);
 
             layoutDictionary[name] = layout;

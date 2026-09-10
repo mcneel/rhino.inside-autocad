@@ -34,7 +34,7 @@ public class CurveFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is Curve)
+            if (changedObject.IsOfType<Curve>())
                 return true;
         }
         return false;

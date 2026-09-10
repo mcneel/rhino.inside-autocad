@@ -9,7 +9,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that sets properties for an AutoCAD layout.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.0.5")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.3.2")]
 public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -45,6 +45,9 @@ public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
     /// <inheritdoc />
     protected override void RegisterOutputParams(GH_OutputParamManager pManager)
     {
+        pManager.AddParameter(new Param_AutocadLayout(GH_ParamAccess.item), "Layout", "Layout",
+            "The updated AutoCAD Layout", GH_ParamAccess.item);
+
         pManager.AddTextParameter("Name", "Name",
             "The name of the AutoCAD Layout", GH_ParamAccess.item);
 
@@ -120,10 +123,13 @@ public class SetAutocadLayoutComponent : RhinoInsideAutocad_ComponentBase
             layout = this.UpdateLayout(layout, newName);
         }
 
+        var layoutGoo = new GH_AutocadLayout(layout);
+
         // Output updated values
-        DA.SetData(0, layout.Name);
-        DA.SetData(1, layout.Id);
-        DA.SetData(2, layout.TabOrder);
-        DA.SetData(3, layout.BlockTableRecordId);
+        DA.SetData(0, layoutGoo);
+        DA.SetData(1, layout.Name);
+        DA.SetData(2, layout.Id);
+        DA.SetData(3, layout.TabOrder);
+        DA.SetData(4, layout.BlockTableRecordId);
     }
 }

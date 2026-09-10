@@ -9,9 +9,16 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <remarks>
 /// Provides the standard dispose pattern for wrapper classes that manage AutoCAD database objects
 /// such as <see cref="Autodesk.AutoCAD.DatabaseServices.DBObject"/> and its derivatives.
-/// When disposed, the underlying AutoCAD object is also disposed. Derived classes include
-/// <see cref="AutocadDbObjectWrapper"/>, <see cref="AutocadEntityWrapper"/>, and
-/// <see cref="AutocadTransactionManagerWrapper"/>.
+/// When disposed, the underlying AutoCAD object is also disposed.
+/// </remarks>
+/// <remarks>
+/// Only derive from this when the wrapper genuinely <em>owns</em> the object it wraps - one this
+/// code created and nothing else will close. AutoCAD owns everything else: a document's
+/// <see cref="Autodesk.AutoCAD.DatabaseServices.Database"/>, an object opened by a transaction,
+/// and the objects handed out by database reactors are all closed by AutoCAD itself and must not
+/// be closed again. Wrappers for those derive from
+/// <see cref="AutocadWrapperBase{T}"/> instead. The non-database-resident entities built for
+/// transient previews are the main thing this base is right for.
 /// </remarks>
 /// <seealso cref="AutocadWrapperBase{T}"/>
 /// <seealso cref="AutocadDbObjectWrapper"/>

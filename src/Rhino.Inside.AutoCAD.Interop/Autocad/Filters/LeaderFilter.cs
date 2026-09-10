@@ -30,8 +30,7 @@ public class LeaderFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            var dbObj = changedObject.UnwrapObject();
-            if (dbObj is Leader || dbObj is MLeader)
+            if (changedObject.IsOfType<Leader>() || changedObject.IsOfType<MLeader>())
                 return true;
         }
         return false;

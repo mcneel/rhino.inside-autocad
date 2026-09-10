@@ -185,6 +185,12 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
         return ids;
     }
 
+    /// <inheritdoc />
+    public void AppendInputSignature(IInputSignatureBuilder inputSignatureBuilder)
+    {
+        inputSignatureBuilder.AddGeometry(this.Value);
+    }
+
     /// <summary>
     /// News up a new <see cref="IGH_Goo"/> instance wrapping the specified <see
     /// cref="IDbObject"/>. The internal entity should be cloned, but the reference ID

@@ -1,4 +1,5 @@
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Types;
 using Rhino.Inside.AutoCAD.Interop;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -6,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that creates bake settings for AutoCAD objects.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.3.2")]
 public class AutocadBakeSettingsComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -39,6 +40,10 @@ public class AutocadBakeSettingsComponent : RhinoInsideAutocad_ComponentBase
         pManager.AddParameter(new Param_AutocadColor(GH_ParamAccess.item), "Color", "C",
             "The color to assign to baked objects", GH_ParamAccess.item);
         pManager[2].Optional = true;
+
+        pManager.AddNumberParameter("LinetypeScale", "LTS",
+            "The linetype scale to assign to baked objects", GH_ParamAccess.item);
+        pManager[3].Optional = true;
     }
 
     /// <inheritdoc />
@@ -60,12 +65,18 @@ public class AutocadBakeSettingsComponent : RhinoInsideAutocad_ComponentBase
         GH_AutocadColor? colorGoo = null;
         DA.GetData(2, ref colorGoo);
 
+        GH_Number? linetypeScaleGoo = null;
+        DA.GetData(3, ref linetypeScaleGoo);
+
         var layer = layerGoo?.Value;
         var lineType = lineTypeGoo?.Value;
         var color = colorGoo?.Value;
+        var linetypeScale = linetypeScaleGoo?.Value;
 
-        var settings = new BakeSettings(layer, lineType, color);
+        var settings = new BakeSettings(layer, lineType, color, linetypeScale);
 
-        DA.SetData(0, new GH_BakeSettings(settings));
+        var settingsGoo = new GH_BakeSettings(settings);
+
+        DA.SetData(0, settingsGoo);
     }
 }

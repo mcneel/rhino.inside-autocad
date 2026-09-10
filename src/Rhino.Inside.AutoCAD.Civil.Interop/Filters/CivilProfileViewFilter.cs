@@ -29,7 +29,7 @@ public class CivilProfileViewFilter : IObjectFilter
     {
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is ProfileView)
+            if (changedObject.IsOfType<ProfileView>())
                 return true;
         }
         return false;

@@ -158,6 +158,9 @@ where TRhinoType : class, IRhinoAdapter
     public abstract void DrawAutocadPreview(IGrasshopperPreviewData previewData);
 
     /// <inheritdoc />
+    public abstract void AppendInputSignature(IInputSignatureBuilder inputSignatureBuilder);
+
+    /// <inheritdoc />
     public override IGH_Goo Duplicate() => (IGH_Goo)this.CreateClonedInstance(this.Value);
 
     /// <inheritdoc />
@@ -293,6 +296,9 @@ where TRhinoType : class, IRhinoAdapter
             var color = settings.Color;
             entity.Color = color.Unwrap();
         }
+
+        if (settings?.LinetypeScale is double linetypeScale)
+            entity.LinetypeScale = linetypeScale;
     }
 
     /// <inheritdoc />

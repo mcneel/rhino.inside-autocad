@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that creates a new AutoCAD linetype.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.0.20")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.3.2")]
 public class CreateAutocadLineTypeComponent : LineType_BaseComponent
 {
     /// <inheritdoc />
@@ -53,6 +53,9 @@ public class CreateAutocadLineTypeComponent : LineType_BaseComponent
     /// <inheritdoc />
     protected override void RegisterOutputParams(GH_OutputParamManager pManager)
     {
+        pManager.AddParameter(new Param_AutocadLineType(GH_ParamAccess.item), "LineType",
+            "LineType", "The created AutoCAD LineType", GH_ParamAccess.item);
+
         pManager.AddTextParameter("Name", "Name",
             "The name of the AutoCAD LineType", GH_ParamAccess.item);
 
@@ -138,11 +141,14 @@ public class CreateAutocadLineTypeComponent : LineType_BaseComponent
                 autocadDocument, name, patternLength, numberOfDashes, scaleToFit);
         });
 
-        DA.SetData(0, lineType.Name);
-        DA.SetData(1, lineType.Id);
-        DA.SetData(2, lineType.PatternLength);
-        DA.SetData(3, lineType.NumDashes);
-        DA.SetData(4, lineType.IsScaledToFit);
-        DA.SetData(5, lineType.Comments);
+        var lineTypeGoo = new GH_AutocadLineType(lineType);
+
+        DA.SetData(0, lineTypeGoo);
+        DA.SetData(1, lineType.Name);
+        DA.SetData(2, lineType.Id);
+        DA.SetData(3, lineType.PatternLength);
+        DA.SetData(4, lineType.NumDashes);
+        DA.SetData(5, lineType.IsScaledToFit);
+        DA.SetData(6, lineType.Comments);
     }
 }

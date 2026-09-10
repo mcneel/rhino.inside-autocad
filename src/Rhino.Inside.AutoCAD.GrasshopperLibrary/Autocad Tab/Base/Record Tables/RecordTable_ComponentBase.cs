@@ -43,7 +43,7 @@ public abstract class RecordTable_ComponentBase<TWrapper, TCad> : RhinoInsideAut
     /// </summary>
     protected void EnableStaleTracking()
     {
-        _staleTracker = new StaleDataTracker(this, o => o.UnwrapObject() is TCad);
+        _staleTracker = new StaleDataTracker(this, o => o.IsOfType<TCad>());
     }
 
     /// <inheritdoc />
@@ -209,7 +209,7 @@ public abstract class RecordTable_ComponentBase<TWrapper, TCad> : RhinoInsideAut
 
         foreach (var changedObject in change)
         {
-            if (changedObject.UnwrapObject() is TCad)
+            if (changedObject.IsOfType<TCad>())
             {
                 return true;
             }
