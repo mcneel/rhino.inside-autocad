@@ -278,50 +278,29 @@ where TRhinoType : class, IRhinoAdapter
         }
     }
 
-    /// <summary>
-    /// Applies the given settings to the block reference.
-    /// </summary>
-    protected void ApplySettings(IBakeSettings? settings, Entity entity)
-    {
-        if (settings is null) return;
-
-        if (settings.Layer != null)
-            entity.LayerId = settings.Layer.Id.Unwrap();
-
-        if (settings?.LineType != null)
-            entity.LinetypeId = settings.LineType.Id.Unwrap();
-
-        if (settings?.Color != null)
-        {
-            var color = settings.Color;
-            entity.Color = color.Unwrap();
-        }
-
-        if (settings?.LinetypeScale is double linetypeScale)
-            entity.LinetypeScale = linetypeScale;
-    }
-
     /// <inheritdoc />
-    public virtual List<IObjectId> BakeToAutocad(IAutocadTransactionManager autocadTransactionManager, IBakingComponent bakingComponent, IBakeSettings? settings = null)
+    public virtual List<IObjectId> BakeToAutocad(IAutocadTransactionManager autocadTransactionManager,
+        IBakingComponent bakingComponent, IBakeSettings? settings = null,
+        IAutocadBlockTableRecord? targetBlockTableRecord = null)
     {
         if (this.Value == null)
-            throw new InvalidOperationException("Cannot bake a null block reference");
+            throw new InvalidOperationException("Cannot bake a null entity");
 
         var transaction = autocadTransactionManager.Unwrap();
 
-        var modelSpace = autocadTransactionManager.GetModelSpace(openForWrite: true);
-
-        var modelSpaceRecord = modelSpace.Unwrap();
+        var targetRecord = BakeTarget.Resolve(autocadTransactionManager, targetBlockTableRecord);
 
         var source = this.Value;
 
-        var blockReference = (Entity)source.Clone();
+        // The wrapped entity may already be database resident, so the bake appends a clone
+        // and leaves the original where it is.
+        var entity = (Entity)source.Clone();
 
-        this.ApplySettings(settings, blockReference);
+        BakeTarget.ApplySettings(settings, entity);
 
-        var objectId = modelSpaceRecord.AppendEntity(blockReference);
+        var objectId = targetRecord.AppendEntity(entity);
 
-        transaction.AddNewlyCreatedDBObject(blockReference, true);
+        transaction.AddNewlyCreatedDBObject(entity, true);
 
         return [new AutocadObjectIdWrapper(objectId)];
     }

@@ -1,5 +1,4 @@
-﻿using Autodesk.AutoCAD.DatabaseServices;
-using Rhino.Inside.AutoCAD.Core.Interfaces;
+﻿using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using RhinoGeometryBase = Rhino.Geometry.GeometryBase;
 
@@ -24,40 +23,16 @@ public class BakableRhinoConverter : IAutocadBakeable
         _sourceGeometry = sourceGeometry;
     }
 
-    /// <summary>
-    /// Applies the given settings to the block reference.
-    /// </summary>
-    protected void ApplySettings(IBakeSettings? settings, Entity entity)
-    {
-        if (settings is null) return;
-
-        if (settings.Layer != null)
-            entity.LayerId = settings.Layer.Id.Unwrap();
-
-        if (settings?.LineType != null)
-            entity.LinetypeId = settings.LineType.Id.Unwrap();
-
-        if (settings?.Color != null)
-        {
-            var color = settings.Color;
-            entity.Color = color.Unwrap();
-        }
-
-        if (settings?.LinetypeScale is double linetypeScale)
-            entity.LinetypeScale = linetypeScale;
-    }
-
     /// <inheritdoc />
     public List<IObjectId> BakeToAutocad(IAutocadTransactionManager autocadTransactionManager,
-        IBakingComponent bakingComponent, IBakeSettings? settings = null)
+        IBakingComponent bakingComponent, IBakeSettings? settings = null,
+        IAutocadBlockTableRecord? targetBlockTableRecord = null)
     {
         var convert = rhinoConvertible.Convert(autocadTransactionManager);
 
         var transaction = autocadTransactionManager.Unwrap();
 
-        var modelSpace = autocadTransactionManager.GetModelSpace(openForWrite: true);
-
-        var modelSpaceRecord = modelSpace.Unwrap();
+        var targetRecord = BakeTarget.Resolve(autocadTransactionManager, targetBlockTableRecord);
 
         var idList = new List<IObjectId>();
         foreach (var entity in convert)
@@ -65,9 +40,9 @@ public class BakableRhinoConverter : IAutocadBakeable
 
             var cadEntity = entity.Unwrap();
 
-            this.ApplySettings(settings, cadEntity);
+            BakeTarget.ApplySettings(settings, cadEntity);
 
-            var objectId = modelSpaceRecord.AppendEntity(cadEntity);
+            var objectId = targetRecord.AppendEntity(cadEntity);
 
             idList.Add(new AutocadObjectIdWrapper(objectId));
 

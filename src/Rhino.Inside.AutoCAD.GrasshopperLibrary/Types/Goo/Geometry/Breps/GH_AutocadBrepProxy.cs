@@ -145,7 +145,9 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
 
     /// <inheritdoc />
     /// For true brep baking, we need to convert the brep to AutoCAD solids asynchronously.
-    public List<IObjectId> BakeToAutocad(IAutocadTransactionManager autocadTransactionManager, IBakingComponent bakingComponent, IBakeSettings? settings = null)
+    public List<IObjectId> BakeToAutocad(IAutocadTransactionManager autocadTransactionManager,
+        IBakingComponent bakingComponent, IBakeSettings? settings = null,
+        IAutocadBlockTableRecord? targetBlockTableRecord = null)
     {
         var ids = new List<IObjectId>();
 
@@ -156,6 +158,10 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
 
         var activeDocument = Application.DocumentManager.MdiActiveDocument;
         IEntitySet convertedResult = null;
+
+        // The conversion runs after this transaction has committed, so the target block
+        // definition is passed by ObjectId for the runner to resolve in its own transaction.
+        var targetBlockTableRecordId = targetBlockTableRecord?.Id;
 
         var request = new BrepConverterRequest(rhinoGeometry, (result) =>
         {
@@ -172,7 +178,7 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
             bakingComponent.AppendDataList(goo);
 
             return true;
-        }, settings);
+        }, settings, targetBlockTableRecordId);
 
         var application = RhinoInsideAutoCadExtension.Application;
 

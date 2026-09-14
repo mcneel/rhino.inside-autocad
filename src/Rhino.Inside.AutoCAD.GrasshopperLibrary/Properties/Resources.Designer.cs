@@ -73,6 +73,16 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap CreateAutocadBlockTableRecordComponent {
+            get {
+                object obj = ResourceManager.GetObject("CreateAutocadBlockTableRecordComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap AndFilterComponent {
             get {
                 object obj = ResourceManager.GetObject("AndFilterComponent", resourceCulture);
