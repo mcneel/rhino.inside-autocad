@@ -23,4 +23,11 @@ public interface IBrepConverterRequest
     /// entities. When null the defaults are used: layer 0 with ByLayer properties.
     /// </summary>
     IBakeSettings? Settings { get; }
+
+    /// <summary>
+    /// Optional block table record to take ownership of the converted solids once they
+    /// have been imported. When null the solids remain in model space, which is the
+    /// behaviour used by the bake components.
+    /// </summary>
+    IObjectId? TargetBlockTableRecordId { get; }
 }

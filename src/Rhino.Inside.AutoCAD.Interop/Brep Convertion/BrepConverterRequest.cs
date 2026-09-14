@@ -15,6 +15,9 @@ public class BrepConverterRequest : IBrepConverterRequest
     /// <inheritdoc />
     public IBakeSettings? Settings { get; }
 
+    /// <inheritdoc />
+    public IObjectId? TargetBlockTableRecordId { get; }
+
     /// <summary>
     /// Constructs a new <see cref="IBrepConverterRequest"/>
     /// </summary>
@@ -27,10 +30,16 @@ public class BrepConverterRequest : IBrepConverterRequest
     /// <param name="settings">
     /// Optional bake settings (layer, linetype, color) applied to the converted entities.
     /// </param>
-    public BrepConverterRequest(Brep brep, Func<IBrepConverterResult, bool> callback, IBakeSettings? settings = null)
+    /// <param name="targetBlockTableRecordId">
+    /// Optional block table record to take ownership of the converted solids. When null
+    /// the solids remain in model space.
+    /// </param>
+    public BrepConverterRequest(Brep brep, Func<IBrepConverterResult, bool> callback,
+        IBakeSettings? settings = null, IObjectId? targetBlockTableRecordId = null)
     {
         this.BrepToConvert = brep;
         this.Callback = callback;
         this.Settings = settings;
+        this.TargetBlockTableRecordId = targetBlockTableRecordId;
     }
 }

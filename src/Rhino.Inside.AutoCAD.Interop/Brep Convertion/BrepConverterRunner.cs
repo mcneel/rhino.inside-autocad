@@ -18,6 +18,12 @@ public class BrepConverterRunner : IBrepConverterRunner
     private const string _batchLayerPrefix = InteropConstants.BrepBatchLayerPrefix;
 
     /// <summary>
+    /// The linetype scale a newly constructed AutoCAD entity has, restored on imported
+    /// entities when the bake settings do not specify one.
+    /// </summary>
+    private const double DefaultLinetypeScale = 1.0;
+
+    /// <summary>
     /// Queue of pending <see cref="IBrepConverterRequest"/> items awaiting conversion.
     /// </summary>
     private readonly Queue<IBrepConverterRequest> _requests = new Queue<IBrepConverterRequest>();
@@ -124,9 +130,15 @@ public class BrepConverterRunner : IBrepConverterRunner
 
             var solidsPerRequest = new List<Solid3d>[requests.Count];
 
+            // Every entity matched back to a request, solid or not. Requests that target a
+            // block definition hand their whole import to that record, not just the solids.
+            var entityIdsPerRequest = new ObjectIdCollection[requests.Count];
+
             for (var index = 0; index < solidsPerRequest.Length; index++)
             {
                 solidsPerRequest[index] = new List<Solid3d>();
+
+                entityIdsPerRequest[index] = new ObjectIdCollection();
             }
 
             foreach (var objectId in appendedObjectIds)
@@ -149,12 +161,19 @@ public class BrepConverterRunner : IBrepConverterRunner
 
                 ApplySettings(requests[requestIndex].Settings, entity, database);
 
+                entityIdsPerRequest[requestIndex].Add(objectId);
+
                 // Non-solid imports (e.g. open Breps arriving as surfaces) remain in the
                 // drawing on their target layer but are not reported back to the request.
                 if (entity is Solid3d solid)
                 {
                     solidsPerRequest[requestIndex].Add(solid);
                 }
+            }
+
+            foreach (var message in TransferOwnershipToTargetRecords(transaction, requests, entityIdsPerRequest, database))
+            {
+                editor.WriteMessage(message);
             }
 
             PurgeBatchLayers(transaction, appendedObjectIds, layerPrefix);
@@ -181,24 +200,90 @@ public class BrepConverterRunner : IBrepConverterRunner
     }
 
     /// <summary>
-    /// Applies the request's bake settings to a converted entity. When no layer is
-    /// specified the entity is moved to layer 0, matching the convention used by the
-    /// other bakeable types and freeing the temporary import layer for purging.
+    /// Hands the entities imported for each request over to the block table record that
+    /// request targets, leaving requests without a target in model space.
     /// </summary>
+    /// <remarks>
+    /// Ownership is transferred rather than the entities being cloned and erased, so the
+    /// ObjectIds reported back through <see cref="IBrepConverterResult"/> stay valid and
+    /// the temporary layer purge that follows is unaffected. Any existing references to a
+    /// target block are marked as modified so they redraw with the new geometry. A failure
+    /// on one request is reported and skipped so it cannot abort the rest of the batch.
+    /// </remarks>
+    private static IReadOnlyList<string> TransferOwnershipToTargetRecords(Transaction transaction,
+        IReadOnlyList<IBrepConverterRequest> requests, IReadOnlyList<ObjectIdCollection> entityIdsPerRequest,
+        Database database)
+    {
+        var messages = new List<string>();
+
+        BlockTableRecord? modelSpace = null;
+
+        for (var index = 0; index < requests.Count; index++)
+        {
+            var targetId = requests[index].TargetBlockTableRecordId;
+
+            if (targetId is null || targetId.IsValid == false) continue;
+
+            var entityIds = entityIdsPerRequest[index];
+
+            if (entityIds.Count == 0) continue;
+
+            try
+            {
+                if (transaction.GetObject(targetId.Unwrap(), OpenMode.ForWrite) is not BlockTableRecord targetRecord)
+                    continue;
+
+                // The entities were appended to model space by the import, so their current
+                // owner has to be open for write before ownership can be taken from it.
+                modelSpace ??= (BlockTableRecord)transaction.GetObject(
+                    SymbolUtilityServices.GetBlockModelSpaceId(database), OpenMode.ForWrite);
+
+                targetRecord.AssumeOwnershipOf(entityIds);
+
+                foreach (ObjectId blockReferenceId in targetRecord.GetBlockReferenceIds(true, false))
+                {
+                    if (transaction.GetObject(blockReferenceId, OpenMode.ForWrite) is BlockReference blockReference)
+                        blockReference.RecordGraphicsModified(true);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                messages.Add($"{_brepConversionErrorMessage}{ex.Message}");
+            }
+        }
+
+        return messages;
+    }
+
+    /// <summary>
+    /// Applies the request's bake settings to a converted entity.
+    /// </summary>
+    /// <remarks>
+    /// Every property is assigned, not just the ones the settings name. The other bakeable
+    /// types build their entities from scratch, so anything the settings leave out starts
+    /// out as AutoCAD's default - layer 0, ByLayer colour and linetype. An imported solid
+    /// instead arrives carrying whatever the IMPORT stamped on it, usually an explicit
+    /// colour brought across from Rhino, so the defaults have to be restored explicitly for
+    /// it to match the geometry baked alongside it. This matters most inside a block
+    /// definition, where ByLayer entities take on the block reference's layer and colour and
+    /// an explicitly coloured one does not. Moving the entity off the temporary import layer
+    /// is also what frees that layer for purging.
+    /// </remarks>
     private static void ApplySettings(IBakeSettings? settings, Entity entity, Database database)
     {
         entity.LayerId = settings?.Layer != null
             ? settings.Layer.Id.Unwrap()
             : database.LayerZero;
 
-        if (settings?.LineType != null)
-            entity.LinetypeId = settings.LineType.Id.Unwrap();
+        entity.LinetypeId = settings?.LineType != null
+            ? settings.LineType.Id.Unwrap()
+            : database.ByLayerLinetype;
 
-        if (settings?.Color != null)
-            entity.Color = settings.Color.Unwrap();
+        entity.Color = settings?.Color != null
+            ? settings.Color.Unwrap()
+            : AutocadColorWrapper.CreateByLayer().Unwrap();
 
-        if (settings?.LinetypeScale is double linetypeScale)
-            entity.LinetypeScale = linetypeScale;
+        entity.LinetypeScale = settings?.LinetypeScale ?? DefaultLinetypeScale;
     }
 
     /// <summary>
