@@ -14,7 +14,7 @@ public class HatchFilter : IObjectFilter
     {
         var filterCriteria = new[]
         {
-            new TypedValue((int)DxfCode.Start, "HATCH")
+            new TypedValue((int)DxfCode.Start, DxfName.Of<Hatch>())
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

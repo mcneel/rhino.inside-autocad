@@ -13,7 +13,7 @@ public class SolidFilter : IObjectFilter
     {
         var filterCriteria = new[]
         {
-            new TypedValue((int)DxfCode.Start, "3DSOLID")
+            new TypedValue((int)DxfCode.Start, DxfName.Of<Solid3d>())
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

@@ -8,15 +8,21 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public class MeshFilter : IObjectFilter
 {
+    /// <summary>
+    /// The POLYLINE flag bit marking a polyface mesh.
+    /// </summary>
+    /// <remarks>Carried on DXF group code 70, <see cref="DxfCode.Int16"/>.</remarks>
+    private const int PolyfaceMeshFlag = 64;
+
     /// <inheritdoc />
     public IAutocadSelectionFilterWrapper GetSelectionFilter()
     {
         var filterCriteria = new[]
         {
-            new TypedValue(-4, "<AND"),
-            new TypedValue((int)DxfCode.Start, "POLYLINE"),
-            new TypedValue(70, 64),
-            new TypedValue(-4, "AND>")
+            new TypedValue((int)DxfCode.Operator, "<AND"),
+            new TypedValue((int)DxfCode.Start, DxfName.Of<PolyFaceMesh>()),
+            new TypedValue((int)DxfCode.Int16, PolyfaceMeshFlag),
+            new TypedValue((int)DxfCode.Operator, "AND>")
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

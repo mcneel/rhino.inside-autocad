@@ -13,7 +13,7 @@ public class PointFilter : IObjectFilter
     {
         var filterCriteria = new[]
         {
-            new TypedValue(0, "POINT")
+            new TypedValue((int)DxfCode.Start, DxfName.Of<DBPoint>())
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);
