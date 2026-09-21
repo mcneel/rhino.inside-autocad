@@ -11,11 +11,15 @@ using CadOrdinateDimension = Autodesk.AutoCAD.DatabaseServices.OrdinateDimension
 using CadPoint3AngularDimension = Autodesk.AutoCAD.DatabaseServices.Point3AngularDimension;
 using CadRadialDimension = Autodesk.AutoCAD.DatabaseServices.RadialDimension;
 using CadRotatedDimension = Autodesk.AutoCAD.DatabaseServices.RotatedDimension;
+using DimensionStyle = Rhino.DocObjects.DimensionStyle;
 using RhinoAngularDimension = Rhino.Geometry.AngularDimension;
+using RhinoAnnotationBase = Rhino.Geometry.AnnotationBase;
+using RhinoArrowType = Rhino.DocObjects.DimensionStyle.ArrowType;
 using RhinoAnnotationType = Rhino.Geometry.AnnotationType;
 using RhinoCentermark = Rhino.Geometry.Centermark;
 using RhinoDimension = Rhino.Geometry.Dimension;
 using RhinoLeader = Rhino.Geometry.Leader;
+using RhinoLeaderCurveStyle = Rhino.DocObjects.DimensionStyle.LeaderCurveStyle;
 using RhinoLinearDimension = Rhino.Geometry.LinearDimension;
 using RhinoMeasuredDirection = Rhino.Geometry.OrdinateDimension.MeasuredDirection;
 using RhinoOrdinateDimension = Rhino.Geometry.OrdinateDimension;
@@ -356,16 +360,89 @@ public static class AutocadDimensionExtensions
         var normal = cadLeader.Normal.ToRhinoVector3d();
         var plane = new RhinoPlane(vertices[0], normal);
 
-        var dimension = RhinoLeader.Create(
+        var dimensionStyle = CreateLeaderDimensionStyle();
+
+        dimensionStyle.LeaderArrowLength = UnitConverter.ToRhinoLength(cadLeader.Dimasz);
+        dimensionStyle.LeaderLandingLength = UnitConverter.ToRhinoLength(cadLeader.Dimgap);
+        dimensionStyle.LeaderHasLanding = cadLeader.HasHookLine;
+        dimensionStyle.LeaderCurveType = cadLeader.IsSplined
+            ? RhinoLeaderCurveStyle.Spline
+            : RhinoLeaderCurveStyle.Polyline;
+        dimensionStyle.TextHeight = UnitConverter.ToRhinoLength(cadLeader.Dimtxt);
+
+        if (cadLeader.HasArrowHead == false)
+            dimensionStyle.LeaderArrowType = RhinoArrowType.None;
+
+        // Created against the document's own style, not the override: an annotation with no
+        // document-resident parent style silently rejects the override that follows.
+        var parentStyle = AnnotationStyleMapping.GetParentStyle();
+
+        var leader = RhinoLeader.Create(
             string.Empty,
             plane,
-            RhinoDoc.ActiveDoc.DimStyles.Current,
+            parentStyle ?? dimensionStyle,
             vertices.ToArray());
 
-        if (dimension != null)
-            dimension.DimensionScale = 1.0;
+        if (leader == null)
+            return null;
 
-        return dimension;
+        leader.SetOverrideDimStyle(dimensionStyle);
+
+        leader.DimensionScale = cadLeader.Dimscale;
+
+        return leader;
+    }
+
+    /// <summary>
+    /// Creates the Rhino dimension style an AutoCAD leader's properties are written onto.
+    /// </summary>
+    /// <returns>
+    /// A copy of the document's current style, so that properties AutoCAD does not supply
+    /// keep sensible values rather than the bare defaults of a new style.
+    /// </returns>
+    /// <remarks>
+    /// Rhino keeps a leader's arrowhead, landing and text alignment on its dimension style
+    /// rather than on the geometry, so carrying those properties across means giving the
+    /// leader a style of its own through
+    /// <see cref="RhinoAnnotationBase.SetOverrideDimStyle"/>.
+    /// </remarks>
+    private static DimensionStyle CreateLeaderDimensionStyle()
+    {
+        return AnnotationStyleMapping.CreateOverrideStyle();
+    }
+
+    /// <summary>
+    /// Reads the name of the block an AutoCAD multileader draws its arrowhead with.
+    /// </summary>
+    /// <param name="cadMLeader">The multileader to read the arrowhead of.</param>
+    /// <returns>
+    /// The arrowhead block's name, or an empty string when the multileader uses the
+    /// drawing's default arrowhead.
+    /// </returns>
+    /// <remarks>
+    /// The arrowhead is an <see cref="ObjectId"/>, so reading its name needs a transaction.
+    /// The converters are not given one, so a short transaction is opened on the entity's
+    /// own database.
+    /// </remarks>
+    private static string GetArrowBlockName(CadMLeader cadMLeader)
+    {
+        var arrowSymbolId = cadMLeader.ArrowSymbolId;
+
+        if (arrowSymbolId.IsNull || arrowSymbolId.IsValid == false) return string.Empty;
+
+        var database = cadMLeader.Database;
+
+        if (database == null) return string.Empty;
+
+        using var transaction = database.TransactionManager.StartTransaction();
+
+        var blockRecord = transaction.GetObject(arrowSymbolId, OpenMode.ForRead) as BlockTableRecord;
+
+        var name = blockRecord?.Name ?? string.Empty;
+
+        transaction.Commit();
+
+        return name;
     }
 
     /// <summary>
@@ -408,20 +485,74 @@ public static class AutocadDimensionExtensions
         var normal = cadMLeader.Normal.ToRhinoVector3d();
         var plane = new RhinoPlane(vertices[0], normal);
 
-        var text = cadMLeader.ContentType == ContentType.MTextContent
+        // The unformatted text, deliberately. Routing leader text through the MText code
+        // parser and back through the RTF parser does not round trip: Rhino always holds
+        // rich text internally, so the return leg re-emits formatting codes the original
+        // never had and the contents stop matching.
+        var plainText = cadMLeader.ContentType == ContentType.MTextContent
             ? cadMLeader.MText?.Text ?? string.Empty
             : string.Empty;
 
-        var dimension = RhinoLeader.Create(
-            text,
+        var dimensionStyle = CreateLeaderDimensionStyle();
+
+        dimensionStyle.LeaderArrowLength = UnitConverter.ToRhinoLength(cadMLeader.ArrowSize);
+
+        // The palette's "Landing distance" is the dogleg; its "Landing gap" is the gap
+        // between the landing and the text, which Rhino calls the text gap.
+        dimensionStyle.LeaderLandingLength = UnitConverter.ToRhinoLength(cadMLeader.DoglegLength);
+        dimensionStyle.TextGap = UnitConverter.ToRhinoLength(cadMLeader.LandingGap);
+        dimensionStyle.LeaderHasLanding = cadMLeader.EnableLanding;
+        dimensionStyle.TextHeight = UnitConverter.ToRhinoLength(cadMLeader.TextHeight);
+
+        dimensionStyle.LeaderCurveType =
+            AnnotationStyleMapping.ToRhinoLeaderCurveStyle(cadMLeader.LeaderLineType);
+        dimensionStyle.LeaderContentAngleType =
+            AnnotationStyleMapping.ToRhinoLeaderAngleStyle(cadMLeader.TextAngleType);
+        // The left attachment specifically: AutoCAD keeps one per leader direction, whereas
+        // Rhino has a single alignment, so only the left one can be represented.
+        dimensionStyle.LeaderTextVerticalAlignment =
+            AnnotationStyleMapping.ToRhinoTextVerticalAlignment(
+                cadMLeader.GetTextAttachmentType(LeaderDirectionType.LeftLeader));
+        dimensionStyle.LeaderTextHorizontalAlignment =
+            AnnotationStyleMapping.ToRhinoTextHorizontalAlignment(cadMLeader.TextAlignmentType);
+
+        // An arrowhead block with no Rhino equivalent leaves the style's own arrowhead alone
+        // rather than being approximated by a different shape.
+        var arrowType = AnnotationStyleMapping.ToRhinoArrowType(GetArrowBlockName(cadMLeader));
+
+        if (arrowType.HasValue)
+            dimensionStyle.LeaderArrowType = arrowType.Value;
+
+        // Created against the document's own style, not the override: an annotation with no
+        // document-resident parent style silently rejects the override that follows.
+        var parentStyle = AnnotationStyleMapping.GetParentStyle();
+
+        var leader = RhinoLeader.Create(
+            plainText,
             plane,
-            RhinoDoc.ActiveDoc.DimStyles.Current,
+            parentStyle ?? dimensionStyle,
             vertices.ToArray());
 
-        if (dimension != null)
-            dimension.DimensionScale = 1.0;
+        if (leader == null)
+            return null;
 
-        return dimension;
+        leader.SetOverrideDimStyle(dimensionStyle);
+
+        leader.TextHeight = UnitConverter.ToRhinoLength(cadMLeader.TextHeight);
+
+        // The multileader's overall scale, which AutoCAD applies on top of the style values,
+        // is what Rhino calls the dimension scale. Both sides therefore hold unscaled
+        // values and the scale round trips as itself.
+        leader.DimensionScale = cadMLeader.Scale;
+
+        leader.TextRotationRadians = cadMLeader.MText?.Rotation ?? 0.0;
+
+        // MaskFrame rather than the obsolete DrawTextFrame setter.
+        leader.MaskFrame = cadMLeader.EnableFrameText
+            ? DimensionStyle.MaskFrame.RectFrame
+            : DimensionStyle.MaskFrame.NoFrame;
+
+        return leader;
     }
 
     /// <summary>

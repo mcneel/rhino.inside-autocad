@@ -87,28 +87,77 @@ public static class AutocadTextExtensions
 
         rhinoText.Justification = ConvertAttachmentPoint(cadText.Attachment);
 
+        ApplyBackgroundMask(rhinoText, cadText);
+
+        var dimensionStyle = cadText.TextStyleId.ToRhinoDimensionStyle(cadText.Database);
+
+        if (dimensionStyle != null)
+            rhinoText.SetOverrideDimStyle(dimensionStyle);
+
         return rhinoText;
+    }
+
+    /// <summary>
+    /// Carries an MText's background mask onto a Rhino annotation.
+    /// </summary>
+    /// <param name="rhinoText">The Rhino annotation to write the mask onto.</param>
+    /// <param name="cadText">The MText to read the mask from.</param>
+    /// <remarks>
+    /// The fill colour is only read when the fill is switched on; AutoCAD does not
+    /// guarantee a meaningful colour otherwise.
+    /// </remarks>
+    private static void ApplyBackgroundMask(AnnotationBase rhinoText, MText cadText)
+    {
+        rhinoText.MaskEnabled = cadText.BackgroundFill;
+
+        if (cadText.BackgroundFill == false) return;
+
+        // UseBackgroundColor means "match the viewport background", which Rhino expresses as
+        // the background source rather than as a colour.
+        if (cadText.UseBackgroundColor)
+        {
+            rhinoText.MaskColorSource = DimensionStyle.MaskType.BackgroundColor;
+
+            return;
+        }
+
+        rhinoText.MaskColorSource = DimensionStyle.MaskType.MaskColor;
+
+        rhinoText.MaskColor = cadText.BackgroundFillColor.ColorValue;
     }
 
     /// <summary>
     /// Converts an AutoCAD TextStyle to a Rhino DimensionStyle.
     /// </summary>
     /// <param name="textStyleId">The ObjectId of the AutoCAD text style.</param>
-    /// <param name="autocadTransactionManager">The transaction manager for database access.</param>
+    /// <param name="database">The database the text style belongs to.</param>
     /// <returns>A Rhino DimensionStyle, or null if conversion fails.</returns>
-    public static DimensionStyle? ToRhinoDimensionStyle(this ObjectId textStyleId, IAutocadTransactionManager autocadTransactionManager)
+    /// <remarks>
+    /// Takes the database rather than a transaction manager because the annotation
+    /// converters are not given one; a short transaction is opened here instead. The style
+    /// is seeded from the document's current one so that properties an AutoCAD text style
+    /// does not describe keep sensible values.
+    /// </remarks>
+    internal static DimensionStyle? ToRhinoDimensionStyle(this ObjectId textStyleId, Database? database)
     {
-        if (textStyleId.IsNull)
+        if (textStyleId.IsNull || textStyleId.IsValid == false)
             return null;
 
-        var transaction = autocadTransactionManager.Unwrap();
+        if (database == null)
+            return null;
 
-        var textStyle = (CadTextStyleTableRecord)transaction.GetObject(textStyleId, OpenMode.ForRead);
+        using var transaction = database.TransactionManager.StartTransaction();
+
+        var textStyle = transaction.GetObject(textStyleId, OpenMode.ForRead) as CadTextStyleTableRecord;
 
         if (textStyle == null)
-            return null;
+        {
+            transaction.Commit();
 
-        var dimStyle = new DimensionStyle();
+            return null;
+        }
+
+        var dimStyle = AnnotationStyleMapping.CreateOverrideStyle();
 
         // Set the font
         var fontName = textStyle.Font.TypeFace;
@@ -128,7 +177,7 @@ public static class AutocadTextExtensions
 
         // Text height (if specified in style)
         if (textStyle.TextSize > 0)
-            dimStyle.TextHeight = textStyle.TextSize;
+            dimStyle.TextHeight = UnitConverter.ToRhinoLength(textStyle.TextSize);
 
         // Check for vertical text using bitwise operation
         // Vertical flag is bit 4 (0x04) in TextStyleTableRecord.FlagBits
@@ -137,6 +186,8 @@ public static class AutocadTextExtensions
 
         if (isVertical)
             dimStyle.TextVerticalAlignment = TextVerticalAlignment.Top;
+
+        transaction.Commit();
 
         return dimStyle;
     }
@@ -241,7 +292,7 @@ public static class AutocadTextExtensions
     /// </summary>
     /// <param name="mTextContent">The MText content string to parse.</param>
     /// <returns>A tuple containing plain text and rich text representations.</returns>
-    private static (string plainText, string richText) ConvertMTextContent(string mTextContent)
+    internal static (string plainText, string richText) ConvertMTextContent(string mTextContent)
     {
         if (string.IsNullOrEmpty(mTextContent))
             return (string.Empty, string.Empty);
@@ -416,6 +467,21 @@ public static class AutocadTextExtensions
             AttachmentPoint.BottomLeft => TextJustification.BottomLeft,
             AttachmentPoint.BottomCenter => TextJustification.BottomCenter,
             AttachmentPoint.BottomRight => TextJustification.BottomRight,
+            AttachmentPoint.BaseLeft => TextJustification.BottomLeft,
+            AttachmentPoint.BaseCenter => TextJustification.BottomCenter,
+            AttachmentPoint.BaseRight => TextJustification.BottomRight,
+            AttachmentPoint.BaseAlign => TextJustification.BottomLeft,
+            AttachmentPoint.BaseFit => TextJustification.BottomCenter,
+            AttachmentPoint.BaseMid => TextJustification.BottomCenter,
+            AttachmentPoint.BottomAlign => TextJustification.BottomLeft,
+            AttachmentPoint.BottomFit => TextJustification.BottomCenter,
+            AttachmentPoint.BottomMid => TextJustification.BottomCenter,
+            AttachmentPoint.MiddleAlign => TextJustification.MiddleLeft,
+            AttachmentPoint.MiddleFit => TextJustification.MiddleCenter,
+            AttachmentPoint.MiddleMid => TextJustification.MiddleCenter,
+            AttachmentPoint.TopAlign => TextJustification.TopLeft,
+            AttachmentPoint.TopFit => TextJustification.TopCenter,
+            AttachmentPoint.TopMid => TextJustification.TopCenter,
             _ => TextJustification.BottomLeft
         };
     }

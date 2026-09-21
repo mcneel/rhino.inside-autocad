@@ -107,8 +107,9 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadEntity, RhinoGeome
 
     /// <inheritdoc />
     /// <remarks>
-    /// Drawn as an annotation rather than as its leader curve so that the leader's text
-    /// is previewed alongside the leader line.
+    /// Drawn as an annotation so the arrowheads and the text render, not just the leader
+    /// line. The curve is drawn as well because <c>DrawAnnotation</c> ignores
+    /// <see cref="GH_PreviewWireArgs.Thickness"/>, which is what thickens a selected wire.
     /// </remarks>
     protected override void DrawViewportGeometryWires(GH_PreviewWireArgs args)
     {
@@ -116,6 +117,11 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadEntity, RhinoGeome
         if (geometry == null) return;
 
         args.Pipeline.DrawAnnotation(geometry, args.Color);
+
+        var curve = geometry.Curve;
+
+        if (curve != null)
+            args.Pipeline.DrawCurve(curve, args.Color, args.Thickness);
     }
 
     /// <inheritdoc />
@@ -140,11 +146,10 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadEntity, RhinoGeome
 
     /// <inheritdoc />
     /// <remarks>
-    /// Exploded into wires and text rather than added to
-    /// <see cref="IGrasshopperPreviewData.Leaders"/>. The AutoCAD preview draws transient
-    /// entities, and an MLeader transient does not survive that path - which is why
-    /// <see cref="GH_AutocadDimension"/> explodes too and why the Leaders and Dimensions
-    /// channels have never been used.
+    /// Exploded into its wires and text. The leader's Curve is only the leader line, so on
+    /// its own it previews without the arrowheads or the text. Exploding is also what
+    /// <see cref="GH_AutocadDimension"/> does, because the AutoCAD preview draws transients
+    /// and <see cref="IGrasshopperPreviewData.Leaders"/> has never been used by anything.
     /// </remarks>
     public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
     {
@@ -153,6 +158,8 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadEntity, RhinoGeome
         if (geometry == null) return;
 
         var geometryBases = geometry.Explode();
+
+        if (geometryBases == null) return;
 
         foreach (var geometryBase in geometryBases)
         {
