@@ -1,16 +1,40 @@
 using Grasshopper.Kernel;
+using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
+using AutocadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
+using AutocadLeader = Autodesk.AutoCAD.DatabaseServices.Leader;
 using AutocadMLeader = Autodesk.AutoCAD.DatabaseServices.MLeader;
+using RhinoCurve = Rhino.Geometry.Curve;
 using RhinoLeader = Rhino.Geometry.Leader;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
-/// Represents a Grasshopper Goo object for AutoCAD Leaders (MLeader).
+/// Represents a Grasshopper Goo object for AutoCAD Leaders, holding either a legacy
+/// Leader or an MLeader.
 /// </summary>
-public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadMLeader, RhinoGeometryAdapter<RhinoLeader>>
+/// <remarks>
+/// AutoCAD has two unrelated leader entities: the legacy <c>LEADER</c>
+/// (<see cref="AutocadLeader"/>, which derives from Curve) and <c>MLEADER</c>
+/// (<see cref="AutocadMLeader"/>, which derives from Entity). Their only common ancestor
+/// is <see cref="AutocadEntity"/>, so that is the wrapper type, and the concrete type is
+/// resolved at runtime when converting to Rhino - the same approach
+/// <see cref="GH_AutocadCurve"/> and <see cref="GH_AutocadDimension"/> take over their own
+/// abstract AutoCAD base types. Both types are held as picked and bake back as themselves.
+/// Converting the other way always produces an MLeader: Rhino has a single leader type and
+/// the legacy entity is not worth synthesising.
+/// </remarks>
+[GooEntityTypes(typeof(AutocadMLeader), typeof(AutocadLeader))]
+public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadEntity, RhinoGeometryAdapter<RhinoLeader>>
 {
+    /// <inheritdoc />
+    /// <remarks>
+    /// Overridden because the wrapper type is <see cref="AutocadEntity"/>, which the base
+    /// would render as "AutoCAD Entity".
+    /// </remarks>
+    public override string TypeName => "AutoCAD Leader";
+
     /// <summary>
     /// Initializes a new instance of the <see cref="GH_AutocadLeader"/> class with no value.
     /// </summary>
@@ -29,33 +53,54 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadMLeader, RhinoGeom
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="GH_AutocadLeader"/> class with the
+    /// specified legacy AutoCAD Leader. Internally, the leader is cloned, but the AutoCAD
+    /// reference ID is maintained.
+    /// </summary>
+    /// <param name="leader">The legacy AutoCAD Leader to wrap.</param>
+    public GH_AutocadLeader(AutocadLeader leader) : base(leader)
+    {
+    }
+
+    /// <summary>
+    /// A private constructor used when the concrete leader type is not known statically,
+    /// such as when re-wrapping a value this Goo already holds.
+    /// </summary>
+    private GH_AutocadLeader(AutocadEntity leader) : base(leader)
+    {
+    }
+
+    /// <summary>
     /// A private constructor used to create a reference Goo which is a clone of the
     /// input leader.
     /// </summary>
-    private GH_AutocadLeader(AutocadMLeader leader, IAutocadReferenceId referenceId) : base(leader, referenceId)
+    private GH_AutocadLeader(AutocadEntity leader, IAutocadReferenceId referenceId) : base(leader, referenceId)
     {
     }
 
     /// <inheritdoc />
-    protected override GH_AutocadGeometricGoo<AutocadMLeader, RhinoGeometryAdapter<RhinoLeader>> CreateClonedInstance(AutocadMLeader entity)
+    protected override GH_AutocadGeometricGoo<AutocadEntity, RhinoGeometryAdapter<RhinoLeader>> CreateClonedInstance(AutocadEntity entity)
     {
-        return new GH_AutocadLeader(entity.Clone() as AutocadMLeader, this.Reference);
+        return new GH_AutocadLeader(entity.Clone() as AutocadEntity, this.Reference);
     }
 
     /// <inheritdoc />
-    protected override GH_AutocadGeometricGoo<AutocadMLeader, RhinoGeometryAdapter<RhinoLeader>> CreateInstance(AutocadMLeader entity)
+    protected override GH_AutocadGeometricGoo<AutocadEntity, RhinoGeometryAdapter<RhinoLeader>> CreateInstance(AutocadEntity entity)
     {
         return new GH_AutocadLeader(entity);
     }
 
     /// <inheritdoc />
-    protected override AutocadMLeader? Convert(RhinoGeometryAdapter<RhinoLeader> rhinoType)
+    /// <remarks>
+    /// A Rhino leader always becomes an MLeader, never a legacy Leader.
+    /// </remarks>
+    protected override AutocadEntity? Convert(RhinoGeometryAdapter<RhinoLeader> rhinoType)
     {
         return rhinoType.Geometry?.ToAutocadMLeader();
     }
 
     /// <inheritdoc />
-    protected override RhinoGeometryAdapter<RhinoLeader>? Convert(AutocadMLeader wrapperType)
+    protected override RhinoGeometryAdapter<RhinoLeader>? Convert(AutocadEntity wrapperType)
     {
         return new RhinoGeometryAdapter<RhinoLeader>(wrapperType.ToRhinoLeader());
     }
@@ -95,9 +140,11 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadMLeader, RhinoGeom
 
     /// <inheritdoc />
     /// <remarks>
-    /// Added as a leader rather than as its curve so the AutoCAD preview shows the
-    /// leader's text. <see cref="IGrasshopperPreviewData.Leaders"/> is converted back to
-    /// an MLeader by <c>RhinoConvertibleLeader</c>.
+    /// Exploded into wires and text rather than added to
+    /// <see cref="IGrasshopperPreviewData.Leaders"/>. The AutoCAD preview draws transient
+    /// entities, and an MLeader transient does not survive that path - which is why
+    /// <see cref="GH_AutocadDimension"/> explodes too and why the Leaders and Dimensions
+    /// channels have never been used.
     /// </remarks>
     public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
     {
@@ -105,6 +152,20 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadMLeader, RhinoGeom
 
         if (geometry == null) return;
 
-        previewData.Leaders.Add(geometry);
+        var geometryBases = geometry.Explode();
+
+        foreach (var geometryBase in geometryBases)
+        {
+            if (geometryBase is RhinoCurve curve)
+            {
+                previewData.Wires.Add(curve);
+                continue;
+            }
+
+            if (geometryBase is TextEntity textEntity)
+            {
+                previewData.Texts.Add(textEntity);
+            }
+        }
     }
 }

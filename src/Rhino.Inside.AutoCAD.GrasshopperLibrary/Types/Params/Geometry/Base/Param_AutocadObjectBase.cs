@@ -193,16 +193,24 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
     }
 
     /// <summary>
-    /// Records that objects picked in AutoCAD could not be converted and forces a new
-    /// solution, so that the warning raised by <see cref="PostProcessData"/> is shown
+    /// Records that objects picked in AutoCAD could not be converted, and schedules a
+    /// solution so that the warning raised by <see cref="PostProcessData"/> is shown
     /// without the user having to touch the definition.
     /// </summary>
     /// <param name="count">The number of objects that were skipped.</param>
+    /// <remarks>
+    /// The solution is scheduled rather than expired directly. This runs inside the
+    /// prompt, between Grasshopper's PrepareForPrompt and RecoverFromPrompt and before the
+    /// menu handler has written the picked values into the persistent data, so expiring
+    /// here would re-enter a solution against data that is about to be replaced.
+    /// </remarks>
     private void ReportSkippedSelection(int count)
     {
         _skippedSelectionCount = count;
 
-        this.ExpireSolution(true);
+        var document = this.OnPingDocument();
+
+        document?.ScheduleSolution(5, _ => this.ExpireSolution(false));
     }
 
     /// <inheritdoc />
@@ -222,6 +230,10 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
             : string.Format(SkippedSelectionFormat, _skippedSelectionCount, this.TypeName);
 
         this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, message);
+
+        // Cleared once reported, so the warning describes the last pick rather than
+        // re-appearing on every later solution.
+        _skippedSelectionCount = 0;
     }
 
     /// <inheritdoc />

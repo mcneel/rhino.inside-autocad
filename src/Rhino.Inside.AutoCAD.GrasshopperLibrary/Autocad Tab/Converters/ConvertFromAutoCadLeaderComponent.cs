@@ -1,6 +1,6 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Interop;
-using AutocadMLeader = Autodesk.AutoCAD.DatabaseServices.MLeader;
+using AutocadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
@@ -42,9 +42,13 @@ public class ConvertFromAutoCadLeaderComponent : RhinoInsideAutocad_ComponentBas
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// The leader is read as an entity rather than an MLeader so that both AutoCAD leader
+    /// types are accepted; <c>ToRhinoLeader</c> resolves which one it is.
+    /// </remarks>
     protected override void SolveInstance(IGH_DataAccess DA)
     {
-        AutocadMLeader? autocadLeader = null;
+        AutocadEntity? autocadLeader = null;
 
         if (!DA.GetData(0, ref autocadLeader)
             || autocadLeader is null) return;

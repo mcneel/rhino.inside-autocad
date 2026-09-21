@@ -2,6 +2,7 @@ using Autodesk.AutoCAD.DatabaseServices;
 using CadAlignedDimension = Autodesk.AutoCAD.DatabaseServices.AlignedDimension;
 using CadArcDimension = Autodesk.AutoCAD.DatabaseServices.ArcDimension;
 using CadDiametricDimension = Autodesk.AutoCAD.DatabaseServices.DiametricDimension;
+using CadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
 using CadDimension = Autodesk.AutoCAD.DatabaseServices.Dimension;
 using CadLeader = Autodesk.AutoCAD.DatabaseServices.Leader;
 using CadLineAngularDimension2 = Autodesk.AutoCAD.DatabaseServices.LineAngularDimension2;
@@ -309,6 +310,29 @@ public static class AutocadDimensionExtensions
             dimension.DimensionScale = 1.0;
 
         return dimension;
+    }
+
+    /// <summary>
+    /// Converts either kind of AutoCAD leader entity to a <see cref="RhinoLeader"/>.
+    /// </summary>
+    /// <param name="entity">The AutoCAD leader entity to convert.</param>
+    /// <returns>
+    /// A Rhino leader, or <see langword="null"/> when the entity is neither a legacy
+    /// Leader nor an MLeader, or cannot be converted.
+    /// </returns>
+    /// <remarks>
+    /// AutoCAD's two leader entities share no common base below
+    /// <see cref="CadEntity"/>, so the concrete type is resolved here rather than by
+    /// overload resolution.
+    /// </remarks>
+    public static RhinoLeader? ToRhinoLeader(this CadEntity entity)
+    {
+        return entity switch
+        {
+            CadMLeader mLeader => mLeader.ToRhinoLeader(),
+            CadLeader leader => leader.ToRhinoLeader(),
+            _ => null,
+        };
     }
 
     /// <summary>

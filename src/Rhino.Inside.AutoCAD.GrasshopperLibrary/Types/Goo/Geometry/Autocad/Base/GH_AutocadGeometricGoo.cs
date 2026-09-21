@@ -252,8 +252,21 @@ where TRhinoType : class, IRhinoAdapter
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// The runtime value is tested before the wrapper type because the wrapper type may be
+    /// a base class covering several AutoCAD entity types. A static test against it would
+    /// refuse a cast to the concrete type the Goo actually holds.
+    /// </remarks>
     public override bool CastTo<Q>(ref Q target)
     {
+        if (this.Value == null) return false;
+
+        if (this.Value is Q valueAsTarget)
+        {
+            target = valueAsTarget;
+            return true;
+        }
+
         if (typeof(Q).IsAssignableFrom(typeof(TWrapperType)))
         {
             target = (Q)(object)this.Value;

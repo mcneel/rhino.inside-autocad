@@ -271,6 +271,12 @@ public static class RhinoDimensionExtensions
         // which the MLeader is not valid to bake or to preview.
         mleader.SetDatabaseDefaults();
 
+        // The content type is set before the leader lines are added: changing it afterwards
+        // rebuilds the MLeader's content and discards them. Database defaults make the
+        // MLeader adopt CMLEADERSTYLE, whose content type is not necessarily MText, so this
+        // assignment is a real transition rather than the no-op it was on a bare MLeader.
+        mleader.ContentType = ContentType.MTextContent;
+
         var leaderIndex = mleader.AddLeader();
         var lineIndex = mleader.AddLeaderLine(leaderIndex);
 
@@ -280,8 +286,6 @@ public static class RhinoDimensionExtensions
             var cadPt = pt3d.ToAutocadPoint3d();
             mleader.AddLastVertex(lineIndex, cadPt);
         }
-
-        mleader.ContentType = ContentType.MTextContent;
 
         var textHeight = rhinoLeader.DimensionStyle?.TextHeight ?? 2.5;
 
