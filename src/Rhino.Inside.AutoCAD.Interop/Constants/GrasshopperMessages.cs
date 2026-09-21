@@ -73,6 +73,21 @@ public class GrasshopperMessages
     public const string TrackingObjectsFormat = "Tracking {0} Objects";
 
     /// <summary>
+    /// The runtime warning shown when exactly one object picked in AutoCAD could not be
+    /// converted to a parameter's type and was left out. Argument 0 is the type name.
+    /// </summary>
+    /// <seealso cref="SkippedSelectionFormat"/>
+    public const string SkippedSelectionSingleFormat = "1 selected object could not be converted to {0} and was skipped.";
+
+    /// <summary>
+    /// The runtime warning shown when more than one object picked in AutoCAD could not be
+    /// converted to a parameter's type and was left out. Argument 0 is the count,
+    /// argument 1 is the type name.
+    /// </summary>
+    /// <seealso cref="SkippedSelectionSingleFormat"/>
+    public const string SkippedSelectionFormat = "{0} selected objects could not be converted to {1} and were skipped.";
+
+    /// <summary>
     /// Label of the Auto Update toggle menu item.
     /// </summary>
     public const string AutoUpdateMenuItem = "Auto Update";

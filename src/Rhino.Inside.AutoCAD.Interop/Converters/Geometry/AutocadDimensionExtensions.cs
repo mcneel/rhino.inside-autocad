@@ -349,6 +349,11 @@ public static class AutocadDimensionExtensions
     /// </summary>
     /// <param name="cadMLeader">The AutoCAD multileader to convert.</param>
     /// <returns>A Rhino leader with coordinates scaled to Rhino units.</returns>
+    /// <remarks>
+    /// A <see cref="RhinoLeader"/> holds a single polyline, so only the first leader line
+    /// of the first leader survives the conversion. An MLeader with several leader lines
+    /// loses all but that one.
+    /// </remarks>
     public static RhinoLeader? ToRhinoLeader(this CadMLeader cadMLeader)
     {
         if (cadMLeader.LeaderLineCount == 0)

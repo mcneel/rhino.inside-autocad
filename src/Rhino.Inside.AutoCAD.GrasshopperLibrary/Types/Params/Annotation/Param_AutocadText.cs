@@ -41,15 +41,20 @@ public class Param_AutocadText : Param_AutocadObjectBase<GH_AutocadText, CadMTex
     protected override GH_AutocadText WrapEntity(CadMText entity) => new GH_AutocadText(entity);
 
     /// <inheritdoc />
+    /// <remarks>
+    /// <see cref="TextFilter"/> lets the user pick single line TEXT entities as well as
+    /// MTEXT, so a picked <see cref="CadText"/> is converted here rather than being
+    /// dropped. The entity is the wrapper around the picked object, so it must be
+    /// unwrapped before it is tested against the AutoCAD type.
+    /// </remarks>
     protected override bool ConvertSupportObject(IEntity entity, out GH_AutocadText supportedGoo)
     {
+        supportedGoo = null!;
 
-        if (entity is CadText text)
-        {
-            supportedGoo = GH_AutocadText.CreateFromTextEntity(entity);
-            return true;
-        }
-        supportedGoo = null;
-        return false;
+        if (entity.Unwrap() is not CadText text) return false;
+
+        supportedGoo = GH_AutocadText.CreateFromTextEntity(text);
+
+        return true;
     }
 }

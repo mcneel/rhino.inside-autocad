@@ -269,13 +269,21 @@ where TRhinoType : class, IRhinoAdapter
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// The referenced object is not guaranteed to still be a <typeparamref
+    /// name="TWrapperType"/>, so the value is left as it is rather than cast unchecked.
+    /// This runs for every referenced Goo whenever the AutoCAD document changes, and an
+    /// exception here abandons the update for every other object in the solution.
+    /// </remarks>
     public void GetUpdatedObject()
     {
         var picker = new AutocadObjectPicker();
-        if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var entity))
-        {
-            this.Value = (TWrapperType?)entity.Unwrap();
-        }
+
+        if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var entity) == false) return;
+
+        if (entity?.Unwrap() is not TWrapperType updatedEntity) return;
+
+        this.Value = updatedEntity;
     }
 
     /// <inheritdoc />

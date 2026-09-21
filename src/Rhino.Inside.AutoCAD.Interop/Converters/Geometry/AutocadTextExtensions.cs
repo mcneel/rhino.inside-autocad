@@ -15,9 +15,26 @@ public static class AutocadTextExtensions
     /// <summary>
     /// Converts a DBText to an MText.
     /// </summary>
+    /// <param name="dbText">The single line text to convert.</param>
+    /// <returns>An MText carrying the same content and appearance.</returns>
+    /// <remarks>
+    /// The returned MText is not database resident. It takes its defaults from the source
+    /// text's database and then copies the layer, colour and linetype by id: assigning
+    /// <see cref="Entity.Layer"/> by name on an entity with no database throws
+    /// <c>eNoDatabase</c>.
+    /// </remarks>
     public static MText ConvertToMText(this DBText dbText)
     {
         var mText = new MText();
+
+        var database = dbText.Database;
+
+        if (database != null)
+            mText.SetDatabaseDefaults(database);
+        else
+            mText.SetDatabaseDefaults();
+
+        mText.SetPropertiesFrom(dbText);
 
         mText.Contents = dbText.TextString;
 
@@ -28,10 +45,6 @@ public static class AutocadTextExtensions
         mText.Rotation = dbText.Rotation;
 
         mText.TextStyleId = dbText.TextStyleId;
-
-        mText.Layer = dbText.Layer;
-
-        mText.Color = dbText.Color;
 
         mText.Attachment = dbText.Justify;
 

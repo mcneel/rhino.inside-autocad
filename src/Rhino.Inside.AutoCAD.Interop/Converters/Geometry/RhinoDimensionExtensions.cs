@@ -254,13 +254,22 @@ public static class RhinoDimensionExtensions
     /// Converts a <see cref="RhinoLeader"/> to a <see cref="CadMLeader"/>.
     /// </summary>
     /// <param name="rhinoLeader">The Rhino leader to convert.</param>
-    /// <returns>An AutoCAD MLeader with coordinates scaled to AutoCAD units.</returns>
-    public static CadMLeader ToAutocadMLeader(this RhinoLeader rhinoLeader)
+    /// <returns>
+    /// An AutoCAD MLeader with coordinates scaled to AutoCAD units, or <see
+    /// langword="null"/> when the leader has no points to build a leader line from.
+    /// </returns>
+    public static CadMLeader? ToAutocadMLeader(this RhinoLeader rhinoLeader)
     {
         var plane = rhinoLeader.Plane;
         var points2d = rhinoLeader.Points2D;
 
+        if (points2d == null || points2d.Length == 0) return null;
+
         var mleader = new CadMLeader();
+
+        // Database defaults populate the MLeader style, text style and linetype, without
+        // which the MLeader is not valid to bake or to preview.
+        mleader.SetDatabaseDefaults();
 
         var leaderIndex = mleader.AddLeader();
         var lineIndex = mleader.AddLeaderLine(leaderIndex);
@@ -276,9 +285,12 @@ public static class RhinoDimensionExtensions
 
         var textHeight = rhinoLeader.DimensionStyle?.TextHeight ?? 2.5;
 
+        var lastPoint2d = points2d[points2d.Length - 1];
+
         var mtext = new MText();
+        mtext.SetDatabaseDefaults();
         mtext.Contents = rhinoLeader.PlainText ?? string.Empty;
-        mtext.Location = plane.PointAt(points2d[points2d.Length - 1].X, points2d[points2d.Length - 1].Y).ToAutocadPoint3d();
+        mtext.Location = plane.PointAt(lastPoint2d.X, lastPoint2d.Y).ToAutocadPoint3d();
         mtext.TextHeight = UnitConverter.ToAutoCadLength(textHeight * rhinoLeader.DimensionScale);
         mleader.MText = mtext;
 

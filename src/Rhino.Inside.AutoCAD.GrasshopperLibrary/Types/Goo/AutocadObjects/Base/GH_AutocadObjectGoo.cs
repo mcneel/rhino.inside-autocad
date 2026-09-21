@@ -116,13 +116,21 @@ where TWrapperType : IDbObject
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// The picker always hands back an entity wrapper, which is not the wrapper type most
+    /// of these Goo types hold, so the value is left as it is rather than cast unchecked.
+    /// This runs for every referenced Goo whenever the AutoCAD document changes, and an
+    /// exception here abandons the update for every other object in the solution.
+    /// </remarks>
     public void GetUpdatedObject()
     {
         var picker = new AutocadObjectPicker();
-        if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var entity))
-        {
-            this.Value = (TWrapperType?)entity;
-        }
+
+        if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var entity) == false) return;
+
+        if (entity is not TWrapperType updatedObject) return;
+
+        this.Value = updatedObject;
     }
 
     /// <inheritdoc />

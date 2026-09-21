@@ -61,16 +61,16 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadMLeader, RhinoGeom
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// Drawn as an annotation rather than as its leader curve so that the leader's text
+    /// is previewed alongside the leader line.
+    /// </remarks>
     protected override void DrawViewportGeometryWires(GH_PreviewWireArgs args)
     {
         var geometry = this.RhinoGeometry?.Geometry;
         if (geometry == null) return;
 
-        var curve = geometry.Curve;
-        if (curve != null)
-        {
-            args.Pipeline.DrawCurve(curve, args.Color, args.Thickness);
-        }
+        args.Pipeline.DrawAnnotation(geometry, args.Color);
     }
 
     /// <inheritdoc />
@@ -94,14 +94,17 @@ public class GH_AutocadLeader : GH_AutocadGeometricGoo<AutocadMLeader, RhinoGeom
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// Added as a leader rather than as its curve so the AutoCAD preview shows the
+    /// leader's text. <see cref="IGrasshopperPreviewData.Leaders"/> is converted back to
+    /// an MLeader by <c>RhinoConvertibleLeader</c>.
+    /// </remarks>
     public override void DrawAutocadPreview(IGrasshopperPreviewData previewData)
     {
         var geometry = this.RhinoGeometry?.Geometry;
 
         if (geometry == null) return;
 
-        var curve = geometry.Curve;
-
-        previewData.Wires.Add(curve);
+        previewData.Leaders.Add(geometry);
     }
 }
