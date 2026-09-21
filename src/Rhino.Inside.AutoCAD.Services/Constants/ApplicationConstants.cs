@@ -476,6 +476,18 @@ public class ApplicationConstants
     public const string FailedToLoadRhinoDoc = "Failed to initialize Rhino Doc.";
 
     /// <summary>
+    /// Diagnostic recorded when a new Rhino document cannot be given the AutoCAD document's
+    /// units. The placeholder receives the unit system that was refused.
+    /// </summary>
+    /// <remarks>
+    /// Never shown to the user: the document is still usable in the template's units, and the
+    /// units are theirs to change.
+    /// </remarks>
+    public const string FailedToMatchAutoCadUnits =
+        "Failed to set the new Rhino document's units to the AutoCAD document's units ({0}). " +
+        "The template's units are kept.";
+
+    /// <summary>
     /// Prefix used to denote build metadata in semantic version strings.
     /// </summary>
     /// <remarks>

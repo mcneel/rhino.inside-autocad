@@ -61,7 +61,19 @@ public interface IRhinoInstance
     /// <summary>
     /// Validates that the Rhino document is created and ready to use.
     /// </summary>
-    void ValidateRhinoDoc(RhinoInsideMode mode, IStartUpLogger logger);
+    /// <param name="mode">The mode the document is created for.</param>
+    /// <param name="logger">The logger a creation failure is posted to.</param>
+    /// <param name="autoCadUnitSystem">
+    /// The unit system of the active AutoCAD document, applied to the Rhino document when it
+    /// is first created. Pass <see cref="UnitSystem.Unset"/> when there is no active document
+    /// or its units have no Rhino equivalent, and the template's units are kept.
+    /// </param>
+    /// <remarks>
+    /// The units are applied on creation only. The document belongs to the user from that
+    /// point on and is never pulled back to the AutoCAD units, however either side is changed
+    /// later.
+    /// </remarks>
+    void ValidateRhinoDoc(RhinoInsideMode mode, IStartUpLogger logger, UnitSystem autoCadUnitSystem);
 
     /// <summary>
     /// Runs a Rhino command in the active Rhino document.
