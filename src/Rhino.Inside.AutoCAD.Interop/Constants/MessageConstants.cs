@@ -54,11 +54,23 @@ public class MessageConstants
     /// The format of a single located Rhino installation.
     /// </summary>
     /// <remarks>
-    /// Placeholders receive the display name, the registry version key, and the resolved
-    /// RhinoCommon path.
+    /// Placeholders receive the display name, the registry version key, the RhinoCommon file
+    /// version, and the resolved RhinoCommon path.
     /// </remarks>
     /// <seealso cref="RhinoInstallationsFoundFormat"/>
-    public const string RhinoInstallationDescriptionFormat = "{0} [{1}] at {2}";
+    public const string RhinoInstallationDescriptionFormat = "{0} [{1}] RhinoCommon {2} at {3}";
+
+    /// <summary>
+    /// Diagnostic recording the installations passed over for being older than the minimum
+    /// RhinoCommon version.
+    /// </summary>
+    /// <remarks>
+    /// The first placeholder receives the formatted installations, the second the minimum
+    /// version. Explains why an installed Rhino is missing from the startup dialog.
+    /// </remarks>
+    /// <seealso cref="RhinoInstallationDescriptionFormat"/>
+    public const string RhinoOutdatedInstallationsSkippedFormat =
+        "Rhino installations skipped for being older than {1}: {0}";
 
     /// <summary>
     /// Stands in for the installation list when no Rhino version was found.

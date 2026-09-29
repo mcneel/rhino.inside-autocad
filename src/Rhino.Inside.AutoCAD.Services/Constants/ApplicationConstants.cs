@@ -332,6 +332,19 @@ public class ApplicationConstants
 #endif
 
     /// <summary>
+    /// The oldest RhinoCommon this build will bind to.
+    /// </summary>
+    /// <remarks>
+    /// Compared against the file version of each installation's RhinoCommon assembly, read
+    /// without loading it. An installation older than this is never offered or bound;
+    /// when it is all the machine has, the plugin declines to load and asks the user to
+    /// update Rhino. 8.32 is the first service release McNeel support in a .NET 10 host,
+    /// and one minimum is applied to every build so they all behave alike.
+    /// </remarks>
+    /// <seealso cref="RhinoUpdateRequiredMessageFormat"/>
+    public static readonly Version MinimumRhinoCommonVersion = new(8, 32);
+
+    /// <summary>
     /// Assembly name for RhinoCommon (without file extension).
     /// </summary>
     /// <remarks>
@@ -415,6 +428,26 @@ public class ApplicationConstants
     public const string RhinoVersionNotSelectedErrorMessage =
         "Rhino.Inside.AutoCAD did not start because no Rhino version was selected. " +
         "Restart AutoCAD to choose one.";
+
+    /// <summary>
+    /// Format string for the message shown when every installed Rhino is older than
+    /// <see cref="MinimumRhinoCommonVersion"/>.
+    /// </summary>
+    /// <remarks>
+    /// Value: "Rhino.Inside.AutoCAD requires Rhino {0} or later, but the newest Rhino
+    /// installed is {1}. Please update Rhino, then restart AutoCAD.". The first placeholder
+    /// receives the minimum version, the second the newest installed RhinoCommon version.
+    /// </remarks>
+    /// <seealso cref="RhinoDownloadUrl"/>
+    public const string RhinoUpdateRequiredMessageFormat =
+        "Rhino.Inside.AutoCAD requires Rhino {0} or later, but the newest Rhino installed is " +
+        "{1}. Please update Rhino, then restart AutoCAD.";
+
+    /// <summary>
+    /// URL of the page to download the latest Rhino from.
+    /// </summary>
+    /// <seealso cref="RhinoUpdateRequiredMessageFormat"/>
+    public const string RhinoDownloadUrl = "https://www.rhino3d.com/download/";
 
     /// <summary>
     /// Format string for the command line message written when the plugin declines to load.

@@ -1,5 +1,6 @@
 ﻿using Autodesk.AutoCAD.Runtime;
 using Rhino.Inside.AutoCAD.Applications;
+using Rhino.Inside.AutoCAD.Core;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Core.State;
 using Rhino.Inside.AutoCAD.Interop;
@@ -24,6 +25,10 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
     private const string _rhinoNotInstalledErrorMessage = ApplicationConstants.RhinoNotInstalledErrorMessage;
     private const string _rhinoVersionNotSelectedErrorMessage = ApplicationConstants.RhinoVersionNotSelectedErrorMessage;
     private const string _applicationLoadAbortedMessageFormat = ApplicationConstants.ApplicationLoadAbortedMessageFormat;
+    private const string _rhinoUpdateRequiredMessageFormat = ApplicationConstants.RhinoUpdateRequiredMessageFormat;
+    private const string _rhinoDownloadUrl = ApplicationConstants.RhinoDownloadUrl;
+
+    private static readonly Version _minimumRhinoCommonVersion = ApplicationConstants.MinimumRhinoCommonVersion;
 
     /// <summary>
     /// The singleton instance of the <see cref="IRhinoInsideAutoCadApplication"/>
@@ -95,11 +100,11 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
             var versionSelection = new RhinoVersionSelection(installationLocator,
                 userSettingsStore, versionDialogManager);
 
-            var installation = versionSelection.Resolve(out var anyVersionInstalled);
+            var installation = versionSelection.Resolve(out var resolution);
 
             if (installation is null)
             {
-                this.AbortLoad(editor, anyVersionInstalled);
+                this.AbortLoad(editor, resolution, versionSelection.OutdatedInstallations);
 
                 return;
             }
@@ -130,25 +135,55 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
     /// Stops the plugin loading because no Rhino version could be bound to this session.
     /// </summary>
     /// <remarks>
-    /// Reported on the command line rather than in a dialog: the usual way to get here is
-    /// the user cancelling the version selection, and answering a dialog with another
-    /// dialog helps nobody. The command methods surface
+    /// Reported on the command line, and only in a dialog when Rhino must be updated: the
+    /// other usual way to get here is the user cancelling the version selection, and
+    /// answering a dialog with another dialog helps nobody. The command methods surface
     /// <see cref="LoadFailureMessage"/> if one is then used.
     /// </remarks>
     /// <param name="editor">The editor to write the reason to, if there is one.</param>
-    /// <param name="anyVersionInstalled">
-    /// True if a supported Rhino version is installed, meaning the user cancelled rather
-    /// than there being nothing to choose from.
+    /// <param name="resolution">Why no installation was resolved.</param>
+    /// <param name="outdatedInstallations">
+    /// The installations passed over for being too old, ordered newest first.
     /// </param>
     private void AbortLoad(Autodesk.AutoCAD.EditorInput.Editor? editor,
-        bool anyVersionInstalled)
+        RhinoVersionResolution resolution,
+        IReadOnlyList<IRhinoInstallation> outdatedInstallations)
     {
-        LoadFailureMessage = anyVersionInstalled
-            ? _rhinoVersionNotSelectedErrorMessage
-            : _rhinoNotInstalledErrorMessage;
+        LoadFailureMessage = resolution switch
+        {
+            RhinoVersionResolution.UpdateRequired =>
+                this.BuildUpdateRequiredMessage(outdatedInstallations),
+            RhinoVersionResolution.Cancelled => _rhinoVersionNotSelectedErrorMessage,
+            _ => _rhinoNotInstalledErrorMessage
+        };
 
         editor?.WriteMessage(string.Format(_applicationLoadAbortedMessageFormat,
             LoadFailureMessage));
+
+        if (resolution == RhinoVersionResolution.UpdateRequired)
+        {
+            var updateDialogManager = new RhinoUpdateDialogManager();
+
+            updateDialogManager.Show(LoadFailureMessage, _rhinoDownloadUrl);
+        }
+    }
+
+    /// <summary>
+    /// Returns the message asking the user to update Rhino, naming the newest outdated
+    /// RhinoCommon installed so they can see how far behind it is.
+    /// </summary>
+    /// <param name="outdatedInstallations">
+    /// The installations passed over for being too old, ordered newest first.
+    /// </param>
+    private string BuildUpdateRequiredMessage(
+        IReadOnlyList<IRhinoInstallation> outdatedInstallations)
+    {
+        var newestInstalledVersion = outdatedInstallations
+            .Select(installation => installation.RhinoCommonVersion)
+            .Max();
+
+        return string.Format(_rhinoUpdateRequiredMessageFormat,
+            _minimumRhinoCommonVersion, newestInstalledVersion);
     }
 
     /// <summary>

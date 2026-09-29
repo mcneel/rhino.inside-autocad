@@ -14,17 +14,27 @@ namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 public interface IRhinoVersionSelection
 {
     /// <summary>
+    /// The installations passed over by the last <see cref="Resolve"/> for being older than
+    /// the minimum RhinoCommon version, ordered newest first.
+    /// </summary>
+    /// <seealso cref="IRhinoInstallation.IsOutdated"/>
+    IReadOnlyList<IRhinoInstallation> OutdatedInstallations { get; }
+
+    /// <summary>
     /// Determines the Rhino installation to bind this session to, asking the user when the
     /// machine has more than one and they have not already settled on a version.
     /// </summary>
-    /// <param name="anySupportedVersionInstalled">
-    /// True if this machine has at least one Rhino version this build can host. Tells a null
-    /// return caused by the user cancelling apart from one caused by there being nothing to
-    /// choose from, which need different messages.
+    /// <remarks>
+    /// Outdated installations are never returned or offered to the user.
+    /// </remarks>
+    /// <param name="resolution">
+    /// Why the call returned what it did. Tells apart the reasons for a null return - nothing
+    /// installed, only outdated versions installed, or the user cancelling - which need
+    /// different messages.
     /// </param>
     /// <returns>
-    /// The installation to bind to, or null when no supported version is installed or the
-    /// user declined to choose one.
+    /// The installation to bind to, or null when <paramref name="resolution"/> is anything
+    /// other than <see cref="RhinoVersionResolution.Resolved"/>.
     /// </returns>
-    IRhinoInstallation? Resolve(out bool anySupportedVersionInstalled);
+    IRhinoInstallation? Resolve(out RhinoVersionResolution resolution);
 }

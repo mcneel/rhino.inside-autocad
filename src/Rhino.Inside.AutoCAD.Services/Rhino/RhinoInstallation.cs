@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using System.Diagnostics;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Services;
@@ -21,6 +22,11 @@ public class RhinoInstallation : IRhinoInstallation
     private static readonly IReadOnlyList<int> _supportedMajorVersions =
         ApplicationConstants.SupportedRhinoMajorVersions;
 
+    private static readonly Version _minimumRhinoCommonVersion =
+        ApplicationConstants.MinimumRhinoCommonVersion;
+
+    private static readonly Version _unknownVersion = new(0, 0);
+
     /// <inheritdoc/>
     public string VersionKey { get; }
 
@@ -41,6 +47,12 @@ public class RhinoInstallation : IRhinoInstallation
 
     /// <inheritdoc/>
     public string AssemblyDirectory { get; }
+
+    /// <inheritdoc/>
+    public Version RhinoCommonVersion { get; }
+
+    /// <inheritdoc/>
+    public bool IsOutdated => this.RhinoCommonVersion < _minimumRhinoCommonVersion;
 
     /// <summary>
     /// True when this build can host the installation.
@@ -85,6 +97,8 @@ public class RhinoInstallation : IRhinoInstallation
 
         this.AssemblyDirectory = Path.GetDirectoryName(this.RhinoCommonPath) ??
                                  this.SystemDirectory;
+
+        this.RhinoCommonVersion = this.ReadRhinoCommonVersion(this.RhinoCommonPath);
 
         this.IsHostable = _supportedMajorVersions.Contains(this.MajorVersion) &&
                           !string.IsNullOrWhiteSpace(this.SystemDirectory) &&
@@ -150,6 +164,36 @@ public class RhinoInstallation : IRhinoInstallation
 #else
         return Path.Combine(systemDirectory, _rhinoCommonDllName);
 #endif
+    }
+
+    /// <summary>
+    /// Reads the file version of the RhinoCommon assembly without loading it.
+    /// </summary>
+    /// <remarks>
+    /// The file version carries the service release, for example 8.32.26160.13001, which
+    /// the major version in the registry key does not. It is read from the file rather than
+    /// the assembly so nothing is loaded before the assembly resolvers are registered.
+    /// </remarks>
+    /// <param name="rhinoCommonPath">The full path of the RhinoCommon assembly.</param>
+    /// <returns>The file version, or 0.0 when the file is missing or unreadable.</returns>
+    private Version ReadRhinoCommonVersion(string rhinoCommonPath)
+    {
+        try
+        {
+            if (!File.Exists(rhinoCommonPath))
+                return _unknownVersion;
+
+            var versionInfo = FileVersionInfo.GetVersionInfo(rhinoCommonPath);
+
+            return new Version(versionInfo.FileMajorPart, versionInfo.FileMinorPart,
+                versionInfo.FileBuildPart, versionInfo.FilePrivatePart);
+        }
+        catch (Exception e)
+        {
+            LoggerService.Instance.LogError(e);
+
+            return _unknownVersion;
+        }
     }
 
     /// <summary>
