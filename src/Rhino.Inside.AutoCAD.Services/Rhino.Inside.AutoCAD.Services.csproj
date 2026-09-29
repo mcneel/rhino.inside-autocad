@@ -33,6 +33,7 @@
 		<PackageReference Include="System.Text.Json" />
 		<PackageReference Include="NaturalSort.Extension" />
 		<PackageReference Include="MaterialDesignThemes" />
+		<PackageReference Include="System.Resources.Extensions" />
 		<PackageReference Include="AutoCAD.NET">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>

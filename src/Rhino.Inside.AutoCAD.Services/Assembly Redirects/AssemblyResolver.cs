@@ -21,6 +21,8 @@ public class AssemblyResolver : IAssemblyResolver
 
     private const string _errorLoadingMaterialDesign = MessageConstants.ErrorLoadingMaterialDesign;
 
+    private const int _firstRuntimeWithoutBinaryFormatter = ApplicationConstants.FirstRuntimeWithoutBinaryFormatter;
+
     /// <summary>
     /// Constructs a new <see cref="AssemblyResolver"/>.
     /// </summary>
@@ -32,6 +34,8 @@ public class AssemblyResolver : IAssemblyResolver
         _currentDomain = AppDomain.CurrentDomain;
 
         _currentDomain.AssemblyResolve += this.ResolveAssembly;
+
+        _currentDomain.AssemblyLoad += this.OnAssemblyLoaded;
 
         _assemblyNameRedirects = assemblyRedirectsSet;
 
@@ -91,10 +95,31 @@ public class AssemblyResolver : IAssemblyResolver
     }
 
     /// <summary>
+    /// The event handler which fires when an assembly is loaded into the app domain. On
+    /// runtimes without BinaryFormatter, gives .NET Framework assemblies - typically
+    /// Grasshopper plugins built from the classic template - a
+    /// <see cref="LegacyResourceManager"/>, so their Bitmap resources such as component
+    /// icons still load.
+    /// </summary>
+    /// <remarks>
+    /// Checks the runtime rather than compiling per leg, because the NET8 leg also runs
+    /// under .NET 10 on the 2025/2026 releases Autodesk moved to .NET 10.
+    /// </remarks>
+    private void OnAssemblyLoaded(object? sender, AssemblyLoadEventArgs args)
+    {
+        if (Environment.Version.Major < _firstRuntimeWithoutBinaryFormatter)
+            return;
+
+        LegacyResourceManager.Attach(args.LoadedAssembly);
+    }
+
+    /// <summary>
     /// Shuts down this service.
     /// </summary>
     public void Terminate()
     {
         _currentDomain.AssemblyResolve -= this.ResolveAssembly;
+
+        _currentDomain.AssemblyLoad -= this.OnAssemblyLoaded;
     }
 }

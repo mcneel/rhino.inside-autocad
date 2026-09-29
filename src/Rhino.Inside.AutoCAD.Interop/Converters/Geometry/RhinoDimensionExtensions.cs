@@ -1,4 +1,5 @@
 using Autodesk.AutoCAD.DatabaseServices;
+using DimensionStyle = Rhino.DocObjects.DimensionStyle;
 using CadAlignedDimension = Autodesk.AutoCAD.DatabaseServices.AlignedDimension;
 using CadDiametricDimension = Autodesk.AutoCAD.DatabaseServices.DiametricDimension;
 using CadDimension = Autodesk.AutoCAD.DatabaseServices.Dimension;
@@ -22,6 +23,11 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </summary>
 public static class RhinoDimensionExtensions
 {
+    /// <summary>
+    /// The text height used when a Rhino annotation has no dimension style to read one from.
+    /// </summary>
+    private const double DefaultTextHeight = 2.5;
+
     /// <summary>
     /// Converts any Rhino <see cref="RhinoDimension"/> to the appropriate AutoCAD dimension type.
     /// </summary>
@@ -254,13 +260,41 @@ public static class RhinoDimensionExtensions
     /// Converts a <see cref="RhinoLeader"/> to a <see cref="CadMLeader"/>.
     /// </summary>
     /// <param name="rhinoLeader">The Rhino leader to convert.</param>
-    /// <returns>An AutoCAD MLeader with coordinates scaled to AutoCAD units.</returns>
-    public static CadMLeader ToAutocadMLeader(this RhinoLeader rhinoLeader)
+    /// <returns>
+    /// An AutoCAD MLeader with coordinates scaled to AutoCAD units, or <see
+    /// langword="null"/> when the leader has no points to build a leader line from.
+    /// </returns>
+    public static CadMLeader? ToAutocadMLeader(this RhinoLeader rhinoLeader)
     {
         var plane = rhinoLeader.Plane;
         var points2d = rhinoLeader.Points2D;
 
+        if (points2d == null || points2d.Length == 0) return null;
+
         var mleader = new CadMLeader();
+
+        // Database defaults populate the MLeader style, text style and linetype, without
+        // which the MLeader is not valid to bake or to preview.
+        mleader.SetDatabaseDefaults();
+
+        // The content type is set before the leader lines are added: changing it afterwards
+        // rebuilds the MLeader's content and discards them. Database defaults make the
+        // MLeader adopt CMLEADERSTYLE, whose content type is not necessarily MText, so this
+        // assignment is a real transition rather than the no-op it was on a bare MLeader.
+        mleader.ContentType = ContentType.MTextContent;
+
+        // The overall scale is set first. AutoCAD recomputes its scale dependent properties
+        // when the scale changes, so any size written beforehand is rescaled out from under
+        // us - which is why a leader at scale 1 round tripped correctly and one at any other
+        // scale did not.
+        mleader.Scale = rhinoLeader.DimensionScale;
+
+        var dimensionStyle = rhinoLeader.DimensionStyle;
+
+        if (dimensionStyle != null)
+            ApplyLeaderStyle(mleader, dimensionStyle);
+
+        mleader.EnableFrameText = rhinoLeader.MaskFrame != DimensionStyle.MaskFrame.NoFrame;
 
         var leaderIndex = mleader.AddLeader();
         var lineIndex = mleader.AddLeaderLine(leaderIndex);
@@ -272,16 +306,95 @@ public static class RhinoDimensionExtensions
             mleader.AddLastVertex(lineIndex, cadPt);
         }
 
-        mleader.ContentType = ContentType.MTextContent;
+        var textHeight = rhinoLeader.TextHeight > 0.0
+            ? rhinoLeader.TextHeight
+            : dimensionStyle?.TextHeight ?? DefaultTextHeight;
 
-        var textHeight = rhinoLeader.DimensionStyle?.TextHeight ?? 2.5;
+        var lastPoint2d = points2d[points2d.Length - 1];
 
         var mtext = new MText();
+        mtext.SetDatabaseDefaults();
+
         mtext.Contents = rhinoLeader.PlainText ?? string.Empty;
-        mtext.Location = plane.PointAt(points2d[points2d.Length - 1].X, points2d[points2d.Length - 1].Y).ToAutocadPoint3d();
-        mtext.TextHeight = UnitConverter.ToAutoCadLength(textHeight * rhinoLeader.DimensionScale);
+
+        mtext.Location = plane.PointAt(lastPoint2d.X, lastPoint2d.Y).ToAutocadPoint3d();
+        mtext.Rotation = rhinoLeader.TextRotationRadians;
+        mtext.TextHeight = UnitConverter.ToAutoCadLength(textHeight);
         mleader.MText = mtext;
 
+        mleader.TextHeight = UnitConverter.ToAutoCadLength(textHeight);
+
         return mleader;
+    }
+
+    /// <summary>
+    /// Writes the leader properties Rhino keeps on a dimension style onto an AutoCAD
+    /// multileader.
+    /// </summary>
+    /// <param name="mleader">The multileader to write the properties onto.</param>
+    /// <param name="dimensionStyle">The Rhino dimension style to read them from.</param>
+    private static void ApplyLeaderStyle(CadMLeader mleader, DimensionStyle dimensionStyle)
+    {
+        mleader.LeaderLineType =
+            AnnotationStyleMapping.ToAutocadLeaderType(dimensionStyle.LeaderCurveType);
+        mleader.TextAngleType =
+            AnnotationStyleMapping.ToAutocadTextAngleType(dimensionStyle.LeaderContentAngleType);
+        // Only the left attachment is written; the right one has no Rhino counterpart and is
+        // left to the multileader style rather than being forced to match the left.
+        mleader.SetTextAttachmentType(
+            AnnotationStyleMapping.ToAutocadTextAttachmentType(dimensionStyle.LeaderTextVerticalAlignment),
+            LeaderDirectionType.LeftLeader);
+        mleader.TextAlignmentType =
+            AnnotationStyleMapping.ToAutocadTextAlignmentType(dimensionStyle.LeaderTextHorizontalAlignment);
+
+        mleader.ArrowSize = UnitConverter.ToAutoCadLength(dimensionStyle.LeaderArrowLength);
+        mleader.EnableLanding = dimensionStyle.LeaderHasLanding;
+
+        // "Landing distance" is the dogleg; "Landing gap" is the gap to the text.
+        mleader.DoglegLength = UnitConverter.ToAutoCadLength(dimensionStyle.LeaderLandingLength);
+        mleader.LandingGap = UnitConverter.ToAutoCadLength(dimensionStyle.TextGap);
+
+        var arrowBlockName = AnnotationStyleMapping.ToAutocadArrowBlockName(dimensionStyle.LeaderArrowType);
+
+        var arrowBlockId = ResolveArrowBlockId(arrowBlockName);
+
+        // Left unset when the drawing has no such arrowhead block, so the multileader style
+        // supplies its own rather than the leader ending up with no arrowhead at all.
+        if (arrowBlockId.IsNull == false)
+            mleader.ArrowSymbolId = arrowBlockId;
+    }
+
+    /// <summary>
+    /// Finds an arrowhead block by name in the working database.
+    /// </summary>
+    /// <param name="blockName">The arrowhead block's name.</param>
+    /// <returns>
+    /// The block's id, or <see cref="ObjectId.Null"/> when the name is empty or the drawing
+    /// does not contain it.
+    /// </returns>
+    /// <remarks>
+    /// The multileader being built is not database resident, so there is no database to read
+    /// through it. The working database is the one <c>SetDatabaseDefaults</c> has already
+    /// taken this multileader's defaults from.
+    /// </remarks>
+    private static ObjectId ResolveArrowBlockId(string? blockName)
+    {
+        if (string.IsNullOrEmpty(blockName)) return ObjectId.Null;
+
+        var database = HostApplicationServices.WorkingDatabase;
+
+        if (database == null) return ObjectId.Null;
+
+        using var transaction = database.TransactionManager.StartTransaction();
+
+        var blockTable = transaction.GetObject(database.BlockTableId, OpenMode.ForRead) as BlockTable;
+
+        var arrowBlockId = blockTable != null && blockTable.Has(blockName)
+            ? blockTable[blockName]
+            : ObjectId.Null;
+
+        transaction.Commit();
+
+        return arrowBlockId;
     }
 }

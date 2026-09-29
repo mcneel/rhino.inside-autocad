@@ -1,5 +1,6 @@
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
+using Autodesk.AutoCAD.Runtime;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 
 namespace Rhino.Inside.AutoCAD.Interop;
@@ -13,11 +14,16 @@ public class TextFilter : IObjectFilter
     public IAutocadSelectionFilterWrapper GetSelectionFilter()
     {
 
+        // Taken from the runtime classes rather than written out, so the filter cannot
+        // drift from AutoCAD's actual DXF names.
+        var textDxfName = RXClass.GetClass(typeof(DBText)).DxfName;
+        var mTextDxfName = RXClass.GetClass(typeof(MText)).DxfName;
+
         var filterCriteria = new[]
         {
             new TypedValue((int)DxfCode.Operator, "<OR"),
-            new TypedValue((int)DxfCode.Start, "TEXT"),
-            new TypedValue((int)DxfCode.Start, "MTEXT"),
+            new TypedValue((int)DxfCode.Start, textDxfName),
+            new TypedValue((int)DxfCode.Start, mTextDxfName),
             new TypedValue((int)DxfCode.Operator, "OR>")
         };
 

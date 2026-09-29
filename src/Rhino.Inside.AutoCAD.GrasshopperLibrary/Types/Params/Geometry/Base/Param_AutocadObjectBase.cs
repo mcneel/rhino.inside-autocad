@@ -17,6 +17,16 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
     where TGoo : class, IGH_GeometricGoo, IGH_AutocadReference
     where TEntity : CadEntity
 {
+    private const string SkippedSelectionSingleFormat = GrasshopperMessages.SkippedSelectionSingleFormat;
+    private const string SkippedSelectionFormat = GrasshopperMessages.SkippedSelectionFormat;
+
+    /// <summary>
+    /// The number of objects picked in AutoCAD during the last prompt that could not be
+    /// converted to <typeparamref name="TGoo"/>. Reported as a runtime warning when the
+    /// parameter next collects its data.
+    /// </summary>
+    private int _skippedSelectionCount;
+
     /// <inheritdoc />
     public BoundingBox ClippingBox => this.Preview_ComputeClippingBox();
 
@@ -69,15 +79,53 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
     /// Gives the opportunity to convert a support object into the desired TGoo type
     /// during selection.
     /// </summary>
+    /// <remarks>
+    /// The entity is the wrapper around the picked AutoCAD object, so an implementation
+    /// must call <see cref="InteropConverter.Unwrap(IEntity)"/> before testing it against
+    /// an AutoCAD type. Testing the wrapper directly never matches.
+    /// </remarks>
     protected virtual bool ConvertSupportObject(IEntity entity, out TGoo supportedGoo)
     {
-        supportedGoo = null;
+        supportedGoo = null!;
         return false;
+    }
+
+    /// <summary>
+    /// Resolves an entity picked in AutoCAD into this parameter's Goo type, either
+    /// directly when it is already a <typeparamref name="TEntity"/>, or through <see
+    /// cref="ConvertSupportObject"/> when it is a supported alternative type.
+    /// </summary>
+    /// <param name="entity">The picked entity, which may be <see langword="null"/>.</param>
+    /// <param name="goo">
+    /// The resolved Goo when this method returns <see langword="true"/>; otherwise
+    /// <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the entity was resolved; otherwise <see langword="false"/>.
+    /// </returns>
+    private bool TryResolveGoo(IEntity? entity, out TGoo goo)
+    {
+        goo = null!;
+
+        if (entity == null) return false;
+
+        if (entity.Unwrap() is TEntity typedEntity)
+        {
+            goo = this.WrapEntity(typedEntity);
+
+            return true;
+        }
+
+        // A misbehaving override returning true with a null Goo would put a null into
+        // the persistent data, which is the silent empty parameter all over again.
+        return this.ConvertSupportObject(entity, out goo) && goo != null;
     }
 
     /// <inheritdoc />
     protected override GH_GetterResult Prompt_Singular(ref TGoo value)
     {
+        _skippedSelectionCount = 0;
+
         var picker = new AutocadObjectPicker();
 
         var filter = this.CreateSelectionFilter();
@@ -86,19 +134,18 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
 
         var entity = picker.PickObject(selectionFilter, this.SingularPromptMessage);
 
-        if (entity?.Unwrap() is TEntity typedEntity)
+        if (this.TryResolveGoo(entity, out var goo))
         {
-            value = this.WrapEntity(typedEntity);
+            value = goo;
 
             return GH_GetterResult.success;
         }
 
-        if (this.ConvertSupportObject(entity, out var supportedGoo))
-        {
-            value = supportedGoo;
-
-            return GH_GetterResult.success;
-        }
+        // A picked object that resolves to nothing would otherwise leave the parameter
+        // silently empty, so report it. Grasshopper's menu handler does not expire the
+        // parameter when a prompt cancels, so the warning needs a solution of its own.
+        if (entity != null)
+            this.ReportSkippedSelection(1);
 
         value = default;
         return GH_GetterResult.cancel;
@@ -107,6 +154,8 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
     /// <inheritdoc />
     protected override GH_GetterResult Prompt_Plural(ref List<TGoo> values)
     {
+        _skippedSelectionCount = 0;
+
         var picker = new AutocadObjectPicker();
 
         var filter = this.CreateSelectionFilter();
@@ -116,17 +165,75 @@ public abstract class Param_AutocadObjectBase<TGoo, TEntity> : GH_PersistentGeom
         var entities = picker.PickObjects(selectionFilter, this.PluralPromptMessage);
 
         var newValues = new List<TGoo>();
+        var skipped = 0;
+
         foreach (var entity in entities)
         {
-            if (entity?.Unwrap() is TEntity typedEntity)
+            if (this.TryResolveGoo(entity, out var goo))
             {
-                newValues.Add(this.WrapEntity(typedEntity));
+                newValues.Add(goo);
+
+                continue;
             }
+
+            if (entity != null)
+                skipped++;
         }
+
+        if (skipped > 0)
+            this.ReportSkippedSelection(skipped);
+
+        // Cancelling the pick, or picking nothing convertible, must leave the existing
+        // values alone rather than clearing the parameter.
+        if (newValues.Count == 0) return GH_GetterResult.cancel;
 
         values = newValues;
 
         return GH_GetterResult.success;
+    }
+
+    /// <summary>
+    /// Records that objects picked in AutoCAD could not be converted, and schedules a
+    /// solution so that the warning raised by <see cref="PostProcessData"/> is shown
+    /// without the user having to touch the definition.
+    /// </summary>
+    /// <param name="count">The number of objects that were skipped.</param>
+    /// <remarks>
+    /// The solution is scheduled rather than expired directly. This runs inside the
+    /// prompt, between Grasshopper's PrepareForPrompt and RecoverFromPrompt and before the
+    /// menu handler has written the picked values into the persistent data, so expiring
+    /// here would re-enter a solution against data that is about to be replaced.
+    /// </remarks>
+    private void ReportSkippedSelection(int count)
+    {
+        _skippedSelectionCount = count;
+
+        var document = this.OnPingDocument();
+
+        document?.ScheduleSolution(5, _ => this.ExpireSolution(false));
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// The warning is raised here rather than in the prompts because Grasshopper clears
+    /// a parameter's runtime messages at the start of every solution, which runs after
+    /// the prompt has returned.
+    /// </remarks>
+    public override void PostProcessData()
+    {
+        base.PostProcessData();
+
+        if (_skippedSelectionCount == 0) return;
+
+        var message = _skippedSelectionCount == 1
+            ? string.Format(SkippedSelectionSingleFormat, this.TypeName)
+            : string.Format(SkippedSelectionFormat, _skippedSelectionCount, this.TypeName);
+
+        this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, message);
+
+        // Cleared once reported, so the warning describes the last pick rather than
+        // re-appearing on every later solution.
+        _skippedSelectionCount = 0;
     }
 
     /// <inheritdoc />

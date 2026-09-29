@@ -1,5 +1,7 @@
 using Autodesk.AutoCAD.DatabaseServices;
+using Rhino.DocObjects;
 using Rhino.Geometry;
+using CadColor = Autodesk.AutoCAD.Colors.Color;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -11,6 +13,12 @@ namespace Rhino.Inside.AutoCAD.Interop;
 public static class RhinoTextExtensions
 {
     /// <summary>
+    /// The background mask scale factor applied when switching a mask on. AutoCAD requires
+    /// one within its own range; this is the value its user interface defaults to.
+    /// </summary>
+    private const double DefaultBackgroundScaleFactor = 1.5;
+
+    /// <summary>
     /// Converts a Rhino <see cref="TextEntity"/> to an AutoCAD <see cref="MText"/>.
     /// </summary>
     /// <param name="rhinoText">The Rhino text entity to convert.</param>
@@ -19,6 +27,10 @@ public static class RhinoTextExtensions
     {
         var mtext = new MText();
 
+        // Deliberately no SetDatabaseDefaults here. This converter also feeds the transient
+        // preview, and adopting the working drawing's current text style lets that style's
+        // fixed height and width factor override the height and anchor set below, which
+        // previews the text at the wrong size and in the wrong place.
         var content = ConvertRichTextToMText(rhinoText);
         mtext.Contents = content;
 
@@ -36,7 +48,43 @@ public static class RhinoTextExtensions
 
         mtext.Attachment = ConvertJustification(rhinoText.Justification);
 
+        ApplyBackgroundMask(mtext, rhinoText);
+
         return mtext;
+    }
+
+    /// <summary>
+    /// Carries a Rhino annotation's background mask onto an MText.
+    /// </summary>
+    /// <param name="mtext">The MText to write the mask onto.</param>
+    /// <param name="rhinoText">The Rhino annotation to read the mask from.</param>
+    /// <remarks>
+    /// The scale factor is set before the fill is switched on: AutoCAD rejects a background
+    /// fill whose scale factor is outside its valid range, and a new MText does not
+    /// necessarily start inside it.
+    /// </remarks>
+    private static void ApplyBackgroundMask(MText mtext, AnnotationBase rhinoText)
+    {
+        if (rhinoText.MaskEnabled == false)
+        {
+            mtext.BackgroundFill = false;
+
+            return;
+        }
+
+        mtext.BackgroundScaleFactor = DefaultBackgroundScaleFactor;
+
+        if (rhinoText.MaskColorSource == DimensionStyle.MaskType.BackgroundColor)
+        {
+            mtext.UseBackgroundColor = true;
+        }
+        else
+        {
+            mtext.UseBackgroundColor = false;
+            mtext.BackgroundFillColor = CadColor.FromColor(rhinoText.MaskColor);
+        }
+
+        mtext.BackgroundFill = true;
     }
 
     /// <summary>
@@ -64,9 +112,13 @@ public static class RhinoTextExtensions
     /// <summary>
     /// Converts Rhino rich text (RTF format) to AutoCAD MText formatting codes.
     /// </summary>
-    /// <param name="rhinoText">The Rhino text entity to convert.</param>
+    /// <param name="rhinoText">The Rhino annotation whose text is converted.</param>
     /// <returns>A string containing MText-formatted content.</returns>
-    private static string ConvertRichTextToMText(TextEntity rhinoText)
+    /// <remarks>
+    /// Takes an <see cref="AnnotationBase"/> rather than a <see cref="TextEntity"/> so that
+    /// leaders share it; it only ever reads the rich text, the plain text and the font.
+    /// </remarks>
+    internal static string ConvertRichTextToMText(AnnotationBase rhinoText)
     {
         var richText = rhinoText.RichText;
 

@@ -99,6 +99,14 @@ public class AutocadDocument : AutocadWrapperBase<Document>, IAutocadDocument
 
     }
 
+    /// <inheritdoc/>
+    public UnitSystem RefreshUnitSystem()
+    {
+        this.UnitSystem = this.ExtractUnitSystem(_document.Database.Insunits);
+
+        return this.UnitSystem;
+    }
+
     /// <summary>
     /// Handles command completion to process accumulated document changes.
     /// </summary>

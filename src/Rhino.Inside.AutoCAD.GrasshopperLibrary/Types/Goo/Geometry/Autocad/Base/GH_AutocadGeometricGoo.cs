@@ -252,8 +252,21 @@ where TRhinoType : class, IRhinoAdapter
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// The runtime value is tested before the wrapper type because the wrapper type may be
+    /// a base class covering several AutoCAD entity types. A static test against it would
+    /// refuse a cast to the concrete type the Goo actually holds.
+    /// </remarks>
     public override bool CastTo<Q>(ref Q target)
     {
+        if (this.Value == null) return false;
+
+        if (this.Value is Q valueAsTarget)
+        {
+            target = valueAsTarget;
+            return true;
+        }
+
         if (typeof(Q).IsAssignableFrom(typeof(TWrapperType)))
         {
             target = (Q)(object)this.Value;
@@ -269,13 +282,21 @@ where TRhinoType : class, IRhinoAdapter
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// The referenced object is not guaranteed to still be a <typeparamref
+    /// name="TWrapperType"/>, so the value is left as it is rather than cast unchecked.
+    /// This runs for every referenced Goo whenever the AutoCAD document changes, and an
+    /// exception here abandons the update for every other object in the solution.
+    /// </remarks>
     public void GetUpdatedObject()
     {
         var picker = new AutocadObjectPicker();
-        if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var entity))
-        {
-            this.Value = (TWrapperType?)entity.Unwrap();
-        }
+
+        if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var entity) == false) return;
+
+        if (entity?.Unwrap() is not TWrapperType updatedEntity) return;
+
+        this.Value = updatedEntity;
     }
 
     /// <inheritdoc />

@@ -85,13 +85,16 @@ public class GooTypeRegistry
             var wrapperType = this.ExtractWrapperType(gooType);
             if (wrapperType == null) continue;
 
-            // Skip if already registered
-            if (_exactMatchCache.ContainsKey(wrapperType)) continue;
+            foreach (var entityType in this.GetRegistrationTypes(gooType, wrapperType))
+            {
+                // Skip if already registered
+                if (_exactMatchCache.ContainsKey(entityType)) continue;
 
-            var factory = this.CreateFactory(gooType, wrapperType);
-            if (factory == null) continue;
+                var factory = this.CreateFactory(gooType, entityType);
+                if (factory == null) continue;
 
-            this.Register(wrapperType, factory);
+                this.Register(entityType, factory);
+            }
         }
 
         // Re-sort inheritance chain (most derived first)
@@ -116,10 +119,13 @@ public class GooTypeRegistry
             var wrapperType = this.ExtractWrapperType(gooType);
             if (wrapperType == null) continue;
 
-            var factory = this.CreateFactory(gooType, wrapperType);
-            if (factory == null) continue;
+            foreach (var entityType in this.GetRegistrationTypes(gooType, wrapperType))
+            {
+                var factory = this.CreateFactory(gooType, entityType);
+                if (factory == null) continue;
 
-            this.Register(wrapperType, factory);
+                this.Register(entityType, factory);
+            }
         }
 
         Comparison<(Type BaseType, Func<Entity, IGH_GeometricGoo> Factory)> mostDerivedFirstComparison
@@ -160,6 +166,24 @@ public class GooTypeRegistry
             current = current.BaseType;
         }
         return null;
+    }
+
+    /// <summary>
+    /// Returns the AutoCAD entity types the Goo should be registered against: the types
+    /// named by its <see cref="GooEntityTypesAttribute"/> when it has one, otherwise its
+    /// wrapper type.
+    /// </summary>
+    /// <param name="gooType">The Goo type being registered.</param>
+    /// <param name="wrapperType">The Goo's wrapper type.</param>
+    /// <returns>One or more types to key the Goo's factory on.</returns>
+    private IEnumerable<Type> GetRegistrationTypes(Type gooType, Type wrapperType)
+    {
+        var attribute = gooType.GetCustomAttribute<GooEntityTypesAttribute>();
+
+        if (attribute == null || attribute.EntityTypes.Length == 0)
+            return [wrapperType];
+
+        return attribute.EntityTypes;
     }
 
     /// <summary>

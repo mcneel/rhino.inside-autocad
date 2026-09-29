@@ -59,6 +59,18 @@ public interface IAutocadDocument
     UnitSystem UnitSystem { get; }
 
     /// <summary>
+    /// Re-reads the drawing units from the document and returns them.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="UnitSystem"/> is cached and only refreshed when a command ends having made
+    /// other changes, so a drawing whose INSUNITS was changed on its own can still report the
+    /// units it was opened with. Reading the header costs nothing and needs no transaction, so
+    /// callers that must not be wrong - rather than merely up to date - ask through here. The
+    /// cached value is updated too, so every other reader agrees with the returned one.
+    /// </remarks>
+    UnitSystem RefreshUnitSystem();
+
+    /// <summary>
     /// A boolean flag indicating whether this document is read-only.
     /// </summary>
     bool IsReadOnly { get; }

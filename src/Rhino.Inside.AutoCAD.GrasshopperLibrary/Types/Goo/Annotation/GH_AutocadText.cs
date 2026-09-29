@@ -3,6 +3,7 @@ using Rhino.Geometry;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using AutocadDBText = Autodesk.AutoCAD.DatabaseServices.DBText;
+using AutocadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
 using AutocadText = Autodesk.AutoCAD.DatabaseServices.MText;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
@@ -16,7 +17,16 @@ public class GH_AutocadText : GH_AutocadGeometricGoo<AutocadText, RhinoGeometryA
     /// Creates a GH_AutocadText from an AutoCAD text entity, which can be either a DBText or an MText.
     /// If the input is a DBText, it will be converted to an MText for consistency.
     /// </summary>
-    public static GH_AutocadText CreateFromTextEntity(IEntity textEntity)
+    /// <param name="textEntity">The AutoCAD text entity to wrap.</param>
+    /// <returns>A Goo wrapping the entity as an MText.</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the entity is neither a DBText nor an MText.
+    /// </exception>
+    /// <remarks>
+    /// This takes the AutoCAD entity rather than its <see cref="IEntity"/> wrapper: the
+    /// wrapper is never an AutoCAD type, so matching it against one never succeeds.
+    /// </remarks>
+    public static GH_AutocadText CreateFromTextEntity(AutocadEntity textEntity)
     {
         switch (textEntity)
         {

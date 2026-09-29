@@ -68,16 +68,6 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
                 IsExpired = true;
             }
 
-#if DEBUG
-            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var asm in loadedAssemblies)
-            {
-
-                editor?.WriteMessage($"Already loaded: {asm.FullName}\n");
-                editor?.WriteMessage($"From: {asm.Location}\n");
-
-            }
-#endif
 
             // Bootstrap before anything Rhino related. Nothing here references a RhinoCommon
             // type, and it gives the Rhino version selection dialog below the logger, the

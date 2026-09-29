@@ -14,7 +14,7 @@ public class BlockReferenceFilter : IObjectFilter
     {
         var filterCriteria = new[]
         {
-            new TypedValue((int)DxfCode.Start, "INSERT")
+            new TypedValue((int)DxfCode.Start, DxfName.Of<BlockReference>())
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

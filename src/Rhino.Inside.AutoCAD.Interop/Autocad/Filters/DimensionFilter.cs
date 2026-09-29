@@ -14,7 +14,7 @@ public class DimensionFilter : IObjectFilter
     {
         var filterCriteria = new[]
         {
-            new TypedValue((int)DxfCode.Start, "DIMENSION")
+            new TypedValue((int)DxfCode.Start, DxfName.Of<Dimension>())
         };
 
         var selectionFilter = new SelectionFilter(filterCriteria);

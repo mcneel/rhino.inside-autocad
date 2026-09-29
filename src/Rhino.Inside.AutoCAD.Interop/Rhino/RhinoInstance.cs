@@ -13,6 +13,7 @@ public class RhinoInstance : IRhinoInstance
     private readonly IInstallationDirectories _installationDirectories;
     private const string _defaultTemplate = ApplicationConstants.DefaultTemplateFormat;
     private const string _failedToLoadRhinoDoc = ApplicationConstants.FailedToLoadRhinoDoc;
+    private const string _failedToMatchAutoCadUnits = ApplicationConstants.FailedToMatchAutoCadUnits;
 
     /// <inheritdoc />
     public event EventHandler? DocumentCreated;
@@ -71,6 +72,9 @@ public class RhinoInstance : IRhinoInstance
     /// <param name="mode">
     /// The mode determining whether to create a headless or interactive document.
     /// </param>
+    /// <param name="autoCadUnitSystem">
+    /// The unit system of the active AutoCAD document, applied to the new document.
+    /// </param>
     /// <returns>
     /// The newly created <see cref="RhinoDoc"/> instance.
     /// </returns>
@@ -79,6 +83,7 @@ public class RhinoInstance : IRhinoInstance
     /// <list type="bullet">
     ///   <item>Creates a headless or interactive document based on <paramref name="mode"/></item>
     ///   <item>Disables auto-save to prevent unwanted file operations</item>
+    ///   <item>Matches the document's units to <paramref name="autoCadUnitSystem"/></item>
     ///   <item>Raises the <see cref="DocumentCreated"/> event</item>
     ///   <item>Subscribes to Rhino document events for object tracking</item>
     /// </list>
@@ -88,7 +93,8 @@ public class RhinoInstance : IRhinoInstance
     /// </exception>
     /// <seealso cref="ValidateRhinoDoc"/>
     private RhinoDoc CreateRhinoDoc(IStartUpLogger logger,
-        RhinoInsideMode mode)
+        RhinoInsideMode mode,
+        UnitSystem autoCadUnitSystem)
     {
         var template = string.Format(_defaultTemplate, _installationDirectories.Resources);
 
@@ -101,8 +107,16 @@ public class RhinoInstance : IRhinoInstance
 
             FileSettings.AutoSaveEnabled = false;
 
+            // Assigned here rather than by ValidateRhinoDoc: handlers of DocumentCreated read
+            // ActiveDoc, and this method has not returned by the time the event is raised.
+            this.ActiveDoc = rhinoDoc;
+
+            this.MatchAutoCadUnits(rhinoDoc, autoCadUnitSystem);
+
             this.DocumentCreated?.Invoke(this, EventArgs.Empty);
 
+            // Read after the match, so the cache holds the units the document ended up with and
+            // OnDocumentPropertiesModified does not report the match itself as a user change.
             this.UnitSystem = rhinoDoc.ModelUnitSystem;
 
             RhinoDoc.DocumentPropertiesChanged += this.OnDocumentPropertiesModified;
@@ -117,9 +131,59 @@ public class RhinoInstance : IRhinoInstance
         }
         catch
         {
+            // Cleared so the next launch retries creation, rather than adopting a document that
+            // never reached its event subscriptions.
+            this.ActiveDoc = null;
+
             logger.AddError(_failedToLoadRhinoDoc);
 
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Sets the model unit system of a newly created document to the units of the AutoCAD
+    /// document that launched it.
+    /// </summary>
+    /// <param name="rhinoDoc">The document just created from the template.</param>
+    /// <param name="autoCadUnitSystem">The unit system of the active AutoCAD document.</param>
+    /// <remarks>
+    /// The template is fixed at millimeters, so without this a drawing in feet opens a Rhino
+    /// document whose numbers bear no relation to the ones the user is working in. Run once,
+    /// against a document that holds no geometry yet: nothing re-applies it, so the user is
+    /// free to change the units afterwards and they stay changed.
+    /// <para>
+    /// <see cref="RhinoDoc.AdjustModelUnitSystem"/> is used in preference to the
+    /// <see cref="RhinoDoc.ModelUnitSystem"/> setter because it states in its signature that no
+    /// geometry is scaled, and it carries the template's tolerances over to the new unit system
+    /// instead of leaving a millimeter tolerance behind as a foot one.
+    /// </para>
+    /// <para>
+    /// <see cref="UnitSystem.Unset"/> is what an AutoCAD document reports when it is unitless,
+    /// when its INSUNITS value has no Rhino equivalent, and when there is no active document at
+    /// all; the template's units are kept in each case, and the start up logger already warns
+    /// the user about the first two. A failure is contained rather than thrown: the document is
+    /// usable in the template's units, and the launch must not be lost over its unit tag.
+    /// </para>
+    /// </remarks>
+    private void MatchAutoCadUnits(RhinoDoc rhinoDoc, UnitSystem autoCadUnitSystem)
+    {
+        if (autoCadUnitSystem is UnitSystem.Unset or UnitSystem.None or UnitSystem.CustomUnits)
+            return;
+
+        try
+        {
+            rhinoDoc.AdjustModelUnitSystem(autoCadUnitSystem, scale: false);
+        }
+        catch (Exception exception)
+        {
+            // Tested rather than null-conditioned: the Instance getter itself throws before the
+            // logger is initialised, and losing the launch is the one outcome to avoid here.
+            if (LoggerService.IsInitialized)
+            {
+                LoggerService.Instance.LogError(exception,
+                    string.Format(_failedToMatchAutoCadUnits, autoCadUnitSystem));
+            }
         }
     }
 
@@ -208,11 +272,12 @@ public class RhinoInstance : IRhinoInstance
     }
 
     /// <inheritdoc />
-    public void ValidateRhinoDoc(RhinoInsideMode mode, IStartUpLogger logger)
+    public void ValidateRhinoDoc(RhinoInsideMode mode, IStartUpLogger logger,
+        UnitSystem autoCadUnitSystem)
     {
         if (this.ActiveDoc == null)
         {
-            this.ActiveDoc = this.CreateRhinoDoc(logger, mode);
+            this.ActiveDoc = this.CreateRhinoDoc(logger, mode, autoCadUnitSystem);
         }
     }
 

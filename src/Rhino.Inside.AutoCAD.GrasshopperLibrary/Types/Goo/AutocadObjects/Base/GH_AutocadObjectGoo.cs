@@ -116,13 +116,27 @@ where TWrapperType : IDbObject
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// The picker always hands back a generic entity wrapper, never this Goo's own wrapper
+    /// type, so the refreshed object is rebuilt through <see cref="CreateInstance"/> the
+    /// same way <see cref="Read"/> does. Casting it directly would either throw or, if
+    /// guarded, never match. This runs for every referenced Goo whenever the AutoCAD
+    /// document changes, and an exception here abandons the update for every other object
+    /// in the solution.
+    /// </remarks>
     public void GetUpdatedObject()
     {
         var picker = new AutocadObjectPicker();
-        if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var entity))
-        {
-            this.Value = (TWrapperType?)entity;
-        }
+
+        if (picker.TryGetUpdatedObject(this.Reference.ObjectId, out var entity) == false) return;
+
+        if (entity == null) return;
+
+        if (this.CreateInstance(entity) is not GH_AutocadObjectGoo<TWrapperType> updatedGoo) return;
+
+        if (updatedGoo.Value == null) return;
+
+        this.Value = updatedGoo.Value;
     }
 
     /// <inheritdoc />

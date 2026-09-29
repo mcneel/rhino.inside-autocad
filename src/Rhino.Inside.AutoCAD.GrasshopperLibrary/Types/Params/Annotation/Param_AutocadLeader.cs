@@ -1,15 +1,22 @@
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
+using CadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
 using CadLeader = Autodesk.AutoCAD.DatabaseServices.Leader;
 using CadMLeader = Autodesk.AutoCAD.DatabaseServices.MLeader;
 
 namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 
 /// <summary>
-/// Represents a Grasshopper parameter for AutoCAD Leaders (MLeader).
+/// Represents a Grasshopper parameter for AutoCAD Leaders, accepting both the legacy
+/// <see cref="CadLeader"/> and <see cref="CadMLeader"/>.
 /// </summary>
-public class Param_AutocadLeader : Param_AutocadObjectBase<GH_AutocadLeader, CadMLeader>
+/// <remarks>
+/// The entity type is <see cref="CadEntity"/> because those two AutoCAD types share no
+/// closer ancestor. <see cref="LeaderFilter"/> restricts what can actually be picked to
+/// LEADER and MLEADER, so the parameter never holds an unrelated entity.
+/// </remarks>
+public class Param_AutocadLeader : Param_AutocadObjectBase<GH_AutocadLeader, CadEntity>
 {
     /// <inheritdoc />
     public override GH_Exposure Exposure => GH_Exposure.tertiary;
@@ -38,40 +45,17 @@ public class Param_AutocadLeader : Param_AutocadObjectBase<GH_AutocadLeader, Cad
     protected override IObjectFilter CreateSelectionFilter() => new LeaderFilter();
 
     /// <inheritdoc />
-    protected override GH_AutocadLeader WrapEntity(CadMLeader entity) => new GH_AutocadLeader(entity);
-
-    /// <inheritdoc />
-    protected override bool ConvertSupportObject(IEntity entity, out GH_AutocadLeader supportedGoo)
+    /// <remarks>
+    /// The default branch is unreachable through a prompt, because
+    /// <see cref="LeaderFilter"/> only lets LEADER and MLEADER entities be picked.
+    /// </remarks>
+    protected override GH_AutocadLeader WrapEntity(CadEntity entity)
     {
-        if (entity is CadLeader legacyLeader)
+        return entity switch
         {
-            var mleader = this.ConvertLegacyLeaderToMLeader(legacyLeader);
-            supportedGoo = new GH_AutocadLeader(mleader);
-            return true;
-        }
-
-        supportedGoo = null!;
-        return false;
-    }
-
-    /// <summary>
-    /// Converts a legacy Leader to an MLeader.
-    /// </summary>
-    private CadMLeader ConvertLegacyLeaderToMLeader(CadLeader legacyLeader)
-    {
-        var mleader = new CadMLeader();
-
-        var leaderIndex = mleader.AddLeader();
-        var lineIndex = mleader.AddLeaderLine(leaderIndex);
-
-        for (var i = 0; i < legacyLeader.NumVertices; i++)
-        {
-            mleader.AddLastVertex(lineIndex, legacyLeader.VertexAt(i));
-        }
-
-        mleader.Layer = legacyLeader.Layer;
-        mleader.Color = legacyLeader.Color;
-
-        return mleader;
+            CadMLeader mLeader => new GH_AutocadLeader(mLeader),
+            CadLeader leader => new GH_AutocadLeader(leader),
+            _ => new GH_AutocadLeader(),
+        };
     }
 }

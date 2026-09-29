@@ -46,7 +46,16 @@ public class RhinoLauncher : IRhinoLauncher
             rhinoCoreExtension.ValidateRhinoCore();
 
             var rhinoInstance = _rhinoInsideManager.RhinoInstance;
-            rhinoInstance.ValidateRhinoDoc(mode, validationLogger);
+
+            // Only read on the first launch, where it becomes the new document's units: the
+            // guard inside ValidateRhinoDoc drops it on every launch thereafter. Unset covers
+            // both an absent active document and units Rhino cannot express, and leaves the
+            // template's units in place.
+            var autoCadUnitSystem =
+                _rhinoInsideManager.AutoCadInstance.ActiveDocument?.RefreshUnitSystem()
+                ?? UnitSystem.Unset;
+
+            rhinoInstance.ValidateRhinoDoc(mode, validationLogger, autoCadUnitSystem);
 
             var grasshopperInstance = _rhinoInsideManager.GrasshopperInstance;
             grasshopperInstance.ValidateGrasshopperLibrary(validationLogger);
