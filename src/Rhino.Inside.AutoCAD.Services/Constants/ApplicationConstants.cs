@@ -596,4 +596,57 @@ public class ApplicationConstants
     /// The family version of the System.ServiceModel assemblies for Autocad 2026.
     /// </summary>
     public const string ServiceModelFamliy8_1 = "8.1";
+
+    /// <summary>
+    /// The name of the .NET Framework core library.
+    /// </summary>
+    /// <remarks>
+    /// Value: "mscorlib". An assembly referencing it was compiled for .NET Framework, so
+    /// any Bitmap in its resources is stored as a BinaryFormatter blob.
+    /// </remarks>
+    public const string LegacyCoreLibraryName = "mscorlib";
+
+    /// <summary>
+    /// Format string for the full name of the class Visual Studio generates from
+    /// Properties/Resources.resx.
+    /// </summary>
+    /// <remarks>
+    /// Value: "{0}.Properties.Resources". Placeholder receives the assembly name, which is
+    /// the project's root namespace unless the developer changed it.
+    /// </remarks>
+    public const string PropertiesResourcesTypeNameFormat = "{0}.Properties.Resources";
+
+    /// <summary>
+    /// The namespace suffix of the class Visual Studio generates from
+    /// Properties/Resources.resx.
+    /// </summary>
+    /// <remarks>
+    /// Value: ".Properties". Used to find the generated class when the root namespace
+    /// differs from the assembly name.
+    /// </remarks>
+    public const string PropertiesNamespaceSuffix = ".Properties";
+
+    /// <summary>
+    /// The name of the class Visual Studio generates from Properties/Resources.resx.
+    /// </summary>
+    public const string PropertiesResourcesTypeName = "Resources";
+
+    /// <summary>
+    /// The name of the private static field caching the <see cref="System.Resources.ResourceManager"/>
+    /// in the class Visual Studio generates from a .resx file.
+    /// </summary>
+    /// <remarks>
+    /// Value: "resourceMan". Set once on first access, so a value placed here before then
+    /// is the one the generated properties use.
+    /// </remarks>
+    public const string ResourceManagerFieldName = "resourceMan";
+
+    /// <summary>
+    /// The first major .NET runtime version without BinaryFormatter.
+    /// </summary>
+    /// <remarks>
+    /// Value: 9. Checked at runtime rather than compile time, because the NET8 leg also
+    /// runs under .NET 10 on the 2025/2026 releases Autodesk moved to .NET 10.
+    /// </remarks>
+    public const int FirstRuntimeWithoutBinaryFormatter = 9;
 }

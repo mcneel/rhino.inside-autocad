@@ -9,6 +9,11 @@
 /// assembly loading requests and redirect them to compatible versions from the versioned
 /// assemblies directory. This is necessary because AutoCAD bundles older versions of
 /// common .NET libraries that conflict with Rhino's requirements.
+/// <para>
+/// Implementations also subscribe to <see cref="AppDomain.AssemblyLoad"/> so that, on
+/// runtimes without BinaryFormatter, .NET Framework Grasshopper plugins can still read
+/// the Bitmap resources (component icons) embedded in their Properties/Resources.resx.
+/// </para>
 /// </remarks>
 /// <seealso cref="IAssemblyRedirectsSet"/>
 /// <seealso cref="IInstallationDirectories"/>
@@ -16,7 +21,7 @@ public interface IAssemblyResolver
 {
     /// <summary>
     /// Terminates the assembly resolver service by unsubscribing from
-    /// <see cref="AppDomain.AssemblyResolve"/> events.
+    /// <see cref="AppDomain.AssemblyResolve"/> and <see cref="AppDomain.AssemblyLoad"/> events.
     /// </summary>
     /// <remarks>
     /// Called during application shutdown to properly clean up the event subscription.
