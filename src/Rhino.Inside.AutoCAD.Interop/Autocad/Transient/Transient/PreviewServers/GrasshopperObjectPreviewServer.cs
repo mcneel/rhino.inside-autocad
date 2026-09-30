@@ -21,14 +21,31 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     /// <inheritdoc/>
     public GrasshopperPreviewMode PreviewMode { get; private set; }
 
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Applied to the shaded and wireframe servers separately, so each draws up to this many.
+    /// </remarks>
+    public int MaxEntityCount
+    {
+        get => _shadedPreviewServer.MaxEntityCount;
+        set
+        {
+            _shadedPreviewServer.MaxEntityCount = value;
+            _wireframePreviewServer.MaxEntityCount = value;
+        }
+    }
+
     /// <summary>
     /// Constructs a new <see cref="IGrasshopperObjectPreviewServer"/>
     /// </summary>
     public GrasshopperObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings,
-        IGeometryPreviewSettings selectedPreviewSettings, IPreviewGeometryConverter previewGeometryConverter)
+        IGeometryPreviewSettings selectedPreviewSettings, IPreviewGeometryConverter previewGeometryConverter,
+        int maxEntityCount)
     {
-        _shadedPreviewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings, previewGeometryConverter);
-        _wireframePreviewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings, previewGeometryConverter);
+        _shadedPreviewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings,
+            previewGeometryConverter, maxEntityCount);
+        _wireframePreviewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings,
+            previewGeometryConverter, maxEntityCount);
 
         _buttonManager = new GrasshopperPreviewButtonManager();
 

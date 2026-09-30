@@ -705,6 +705,8 @@
                         <RowDefinition Height="Auto" />
                         <!-- Selected preview colour -->
                         <RowDefinition Height="Auto" />
+                        <!-- Preview entity limit -->
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <!-- Rhino Version -->
@@ -827,6 +829,27 @@
                                           HorizontalAlignment="Right"
                                           VerticalAlignment="Center"
                                           SelectedColorIndex="{Binding SelectedPreviewColorIndex}" />
+
+                    <!-- The most entities each preview server draws -->
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="10"
+                               Margin="0,14,10,0"
+                               VerticalAlignment="Center"
+                               Text="{Binding PreviewEntityLimitLabel}"
+                               ToolTip="{Binding PreviewEntityLimitToolTip}"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+                    <TextBox Grid.Column="1"
+                             Grid.Row="10"
+                             MinWidth="80"
+                             Margin="0,14,10,0"
+                             HorizontalAlignment="Right"
+                             VerticalAlignment="Center"
+                             HorizontalContentAlignment="Right"
+                             ToolTip="{Binding PreviewEntityLimitToolTip}"
+                             Foreground="{StaticResource PrimaryTextBrush}"
+                             Text="{Binding MaxPreviewEntityCount, UpdateSourceTrigger=LostFocus}" />
 
                 </Grid>
 

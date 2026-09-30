@@ -39,4 +39,12 @@ public class UserSettings : IUserSettings
     /// </remarks>
     public int SelectedPreviewColorIndex { get; set; } =
         ApplicationConstants.DefaultSelectedPreviewColorIndex;
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Initialised to the shipped default so a settings file written before the preview
+    /// limit was configurable, which has no such key, gets the default limit.
+    /// </remarks>
+    public int MaxPreviewEntityCount { get; set; } =
+        ApplicationConstants.DefaultMaxPreviewEntityCount;
 }

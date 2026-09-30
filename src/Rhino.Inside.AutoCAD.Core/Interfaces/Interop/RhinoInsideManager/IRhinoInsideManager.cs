@@ -75,6 +75,18 @@ public interface IRhinoInsideManager
         int selectedColorIndex);
 
     /// <summary>
+    /// Limits each preview server to <paramref name="maxEntityCount"/> entities from here on,
+    /// dropping the oldest previews on screen straight away if they exceed it.
+    /// </summary>
+    /// <remarks>
+    /// Called when the user changes the limit on the settings page. Persisting the choice is
+    /// the caller's job; this only applies it to the running session.
+    /// </remarks>
+    /// <param name="maxEntityCount">The most entities each preview server draws.</param>
+    /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
+    void UpdatePreviewEntityLimit(int maxEntityCount);
+
+    /// <summary>
     /// Requests the preview materials for the active document, creating any that are missing
     /// once AutoCAD is idle.
     /// </summary>

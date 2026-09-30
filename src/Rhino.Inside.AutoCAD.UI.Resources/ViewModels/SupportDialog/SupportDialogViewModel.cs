@@ -26,6 +26,10 @@ public partial class SupportDialogViewModel : ObservableObject
     private const string _rhinoPreviewColorLabel = UIConstants.RhinoPreviewColorLabel;
     private const string _grasshopperPreviewColorLabel = UIConstants.GrasshopperPreviewColorLabel;
     private const string _selectedPreviewColorLabel = UIConstants.SelectedPreviewColorLabel;
+    private const string _previewEntityLimitLabel = UIConstants.PreviewEntityLimitLabel;
+    private const string _previewEntityLimitToolTip = UIConstants.PreviewEntityLimitToolTip;
+    private const int _minPreviewEntityLimit = ApplicationConstants.MinPreviewEntityLimit;
+    private const int _maxPreviewEntityLimit = ApplicationConstants.MaxPreviewEntityLimit;
 
     /// <summary>
     /// The <see cref="Visibility"/> of the buttons in the dialog.
@@ -180,6 +184,16 @@ public partial class SupportDialogViewModel : ObservableObject
     public string SelectedPreviewColorLabel => _selectedPreviewColorLabel;
 
     /// <summary>
+    /// The label of the preview entity limit.
+    /// </summary>
+    public string PreviewEntityLimitLabel => _previewEntityLimitLabel;
+
+    /// <summary>
+    /// The tooltip explaining the preview entity limit.
+    /// </summary>
+    public string PreviewEntityLimitToolTip => _previewEntityLimitToolTip;
+
+    /// <summary>
     /// The AutoCAD Color Index unselected Rhino previews are drawn in, saved and applied as
     /// soon as it is changed.
     /// </summary>
@@ -199,6 +213,13 @@ public partial class SupportDialogViewModel : ObservableObject
     /// </summary>
     [ObservableProperty]
     private int _selectedPreviewColorIndex;
+
+    /// <summary>
+    /// The most entities each preview server draws, saved and applied as soon as it is
+    /// changed.
+    /// </summary>
+    [ObservableProperty]
+    private int _maxPreviewEntityCount;
 
     /// <summary>
     /// Constructs a new <see cref="SupportDialogViewModel"/>.
@@ -233,6 +254,8 @@ public partial class SupportDialogViewModel : ObservableObject
         _grasshopperPreviewColorIndex = settings.GrasshopperPreviewColorIndex;
 
         _selectedPreviewColorIndex = settings.SelectedPreviewColorIndex;
+
+        _maxPreviewEntityCount = settings.MaxPreviewEntityCount;
 
         _isLoadingSettings = false;
     }
@@ -278,6 +301,50 @@ public partial class SupportDialogViewModel : ObservableObject
     partial void OnSelectedPreviewColorIndexChanged(int value)
     {
         this.SavePreviewColorSettings();
+    }
+
+    /// <summary>
+    /// Persists and applies the newly chosen preview entity limit, clamped to the range the
+    /// user may choose from.
+    /// </summary>
+    partial void OnMaxPreviewEntityCountChanged(int value)
+    {
+        var clampedValue = Math.Max(_minPreviewEntityLimit, Math.Min(value, _maxPreviewEntityLimit));
+
+        // Setting the clamped value raises this handler again, which does the saving.
+        if (clampedValue != value)
+        {
+            this.MaxPreviewEntityCount = clampedValue;
+            return;
+        }
+
+        this.SavePreviewEntityLimitSettings();
+    }
+
+    /// <summary>
+    /// Writes the preview entity limit back to disk and applies it to the previews.
+    /// </summary>
+    private void SavePreviewEntityLimitSettings()
+    {
+        if (_isLoadingSettings)
+            return;
+
+        var settings = _userSettingsStore.Settings;
+
+        settings.MaxPreviewEntityCount = this.MaxPreviewEntityCount;
+
+        _userSettingsStore.Save();
+
+        // The choice is already saved, so a failure to apply it now costs the user nothing
+        // more than waiting for the next AutoCAD session to see it take effect.
+        try
+        {
+            _rhinoInsideManager.UpdatePreviewEntityLimit(this.MaxPreviewEntityCount);
+        }
+        catch (Exception e)
+        {
+            LoggerService.Instance.LogError(e);
+        }
     }
 
     /// <summary>

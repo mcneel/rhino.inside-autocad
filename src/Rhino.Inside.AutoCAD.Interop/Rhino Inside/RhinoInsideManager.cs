@@ -1,4 +1,4 @@
-using Grasshopper.Kernel;
+﻿using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Core.State;
 using UnitConverterClass = Rhino.Inside.AutoCAD.Interop.UnitConverter;
@@ -49,8 +49,9 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// <param name="grasshopperInstance">The Grasshopper instance to manage.</param>
     /// <param name="autoCadInstance">The AutoCAD instance to manage.</param>
     /// <param name="userSettings">
-    /// The user settings the preview colors are read from. Only read here: later changes
-    /// reach the previews through <see cref="UpdatePreviewColors"/>.
+    /// The user settings the preview colors and entity limit are read from. Only read here:
+    /// later changes reach the previews through <see cref="UpdatePreviewColors"/> and
+    /// <see cref="UpdatePreviewEntityLimit"/>.
     /// </param>
     public RhinoInsideManager(IRhinoInstance rhinoInstance, IGrasshopperInstance grasshopperInstance,
         IAutoCadInstance autoCadInstance, IUserSettings userSettings)
@@ -67,14 +68,16 @@ public class RhinoInsideManager : IRhinoInsideManager
             "Rhino.Inside.AutoCAD.Preview.Rhino.Material",
             userSettings.RhinoPreviewColorIndex);
 
-        this.RhinoPreviewServer = new RhinoObjectPreviewServer(rhinoPreviewSettings, selectedPreviewSettings, previewGeometryConverter);
+        this.RhinoPreviewServer = new RhinoObjectPreviewServer(rhinoPreviewSettings, selectedPreviewSettings,
+            previewGeometryConverter, userSettings.MaxPreviewEntityCount);
 
         var grasshopperPreviewSettings = new GeometryPreviewSettings(128,
             "Rhino.Inside.AutoCAD.Preview.Grasshopper.Material",
             userSettings.GrasshopperPreviewColorIndex);
 
         this.GrasshopperPreviewServer = new GrasshopperObjectPreviewServer(
-            grasshopperPreviewSettings, selectedPreviewSettings, previewGeometryConverter);
+            grasshopperPreviewSettings, selectedPreviewSettings, previewGeometryConverter,
+            userSettings.MaxPreviewEntityCount);
 
         this.AutoCadInstance = autoCadInstance;
         autoCadInstance.DocumentActivated += this.AutocadDocumentSwitched;
@@ -168,6 +171,18 @@ public class RhinoInsideManager : IRhinoInsideManager
         if (document == null) return;
 
         this.EnsurePreviewMaterials(document);
+    }
+
+    /// <inheritdoc />
+    public void UpdatePreviewEntityLimit(int maxEntityCount)
+    {
+        if (ApplicationState.IsShuttingDown) return;
+
+        this.RhinoPreviewServer.MaxEntityCount = maxEntityCount;
+
+        this.GrasshopperPreviewServer.MaxEntityCount = maxEntityCount;
+
+        this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
     }
 
     /// <inheritdoc />

@@ -21,6 +21,13 @@ public interface IGrasshopperObjectPreviewServer
     GrasshopperPreviewMode PreviewMode { get; }
 
     /// <summary>
+    /// The most entities each underlying preview server draws before the oldest previews are
+    /// dropped. Lowering it drops the oldest previews straight away.
+    /// </summary>
+    /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
+    int MaxEntityCount { get; set; }
+
+    /// <summary>
     /// Sets the preview mode to the specified <paramref name="previewMode"/>.
     /// </summary>
     void SetMode(GrasshopperPreviewMode previewMode);

@@ -16,14 +16,22 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
     /// <inheritdoc/>
     public bool Visible { get; private set; }
 
+    /// <inheritdoc/>
+    public int MaxEntityCount
+    {
+        get => _previewServer.MaxEntityCount;
+        set => _previewServer.MaxEntityCount = value;
+    }
+
     /// <summary>
     /// Constructs a new <see cref="RhinoObjectPreviewServer"/>
     /// </summary>
     public RhinoObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings,
         IGeometryPreviewSettings selectedPreviewSettings,
-        IPreviewGeometryConverter previewGeometryConverter)
+        IPreviewGeometryConverter previewGeometryConverter, int maxEntityCount)
     {
-        _previewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings, previewGeometryConverter);
+        _previewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings,
+            previewGeometryConverter, maxEntityCount);
 
         this.Visible = true;
 

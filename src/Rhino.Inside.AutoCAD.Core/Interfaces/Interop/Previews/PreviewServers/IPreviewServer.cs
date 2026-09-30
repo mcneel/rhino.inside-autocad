@@ -19,8 +19,17 @@ public interface IPreviewServer
     bool Visible { get; }
 
     /// <summary>
+    /// The most entities this <see cref="IPreviewServer"/> holds. Adding an object which
+    /// would exceed it drops the oldest objects first, and an object larger than it on its
+    /// own is truncated. Lowering it drops the oldest objects straight away.
+    /// </summary>
+    /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
+    int MaxEntityCount { get; set; }
+
+    /// <summary>
     /// Adds the provided <paramref name="rhinoConvertibleSet"/> into this <see cref=
-    /// "IPreviewServer"/>.
+    /// "IPreviewServer"/>, dropping the oldest objects if needed to stay within
+    /// <see cref="MaxEntityCount"/>.
     /// </summary>
     void AddObject(Guid rhinoObjectId, IRhinoConvertibleSet rhinoConvertibleSet, bool selected);
 

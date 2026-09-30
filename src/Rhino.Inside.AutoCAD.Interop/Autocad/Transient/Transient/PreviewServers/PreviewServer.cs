@@ -16,6 +16,7 @@ public class PreviewServer : IPreviewServer
     private readonly int _subDrawingMode = 0;
     private readonly IntegerCollection _emptyInterCollection = [];
     private readonly TransientDrawingMode _transientDrawingMode = TransientDrawingMode.Main;
+    private int _maxEntityCount;
 
     /// <inheritdoc/>
     public IObjectRegister ObjectRegister { get; }
@@ -23,16 +24,55 @@ public class PreviewServer : IPreviewServer
     /// <inheritdoc/>
     public bool Visible { get; private set; } = true;
 
+    /// <inheritdoc/>
+    public int MaxEntityCount
+    {
+        get => _maxEntityCount;
+        set
+        {
+            _maxEntityCount = value;
+
+            this.EvictOldestObjects(0);
+        }
+    }
+
     /// <summary>
     /// Constructs a new <see cref="IPreviewServer"/>
     /// </summary>
     public PreviewServer(IGeometryPreviewSettings previewSettings, IGeometryPreviewSettings selectedPreviewSettings,
-        IPreviewGeometryConverter previewGeometryConverter)
+        IPreviewGeometryConverter previewGeometryConverter, int maxEntityCount)
     {
         _previewSettings = previewSettings;
         _selectedPreviewSettings = selectedPreviewSettings;
         _previewGeometryConverter = previewGeometryConverter;
+        _maxEntityCount = maxEntityCount;
         this.ObjectRegister = new ObjectRegister();
+    }
+
+    /// <summary>
+    /// Removes and disposes the oldest registered objects until
+    /// <paramref name="incomingEntityCount"/> more entities fit within
+    /// <see cref="MaxEntityCount"/>.
+    /// </summary>
+    private void EvictOldestObjects(int incomingEntityCount)
+    {
+        var evictedCount = 0;
+
+        while (this.ObjectRegister.EntityCount + incomingEntityCount > _maxEntityCount &&
+               this.ObjectRegister.TryGetOldest(out var oldestId, out var oldestEntities))
+        {
+            this.ObjectRegister.RemoveObject(oldestId);
+
+            this.RemoveTransientEntities(oldestEntities, disposeEntities: true);
+
+            evictedCount++;
+        }
+
+        if (evictedCount > 0)
+        {
+            LoggerService.Instance.LogMessage(
+                $"Preview limit of {_maxEntityCount} entities reached: removed the {evictedCount} oldest preview(s).");
+        }
     }
 
     /// <summary>
@@ -156,7 +196,19 @@ public class PreviewServer : IPreviewServer
         {
             var settings = selected ? _selectedPreviewSettings : _previewSettings;
 
-            var entities = _previewGeometryConverter.Convert(rhinoConvertibleSet, settings);
+            // Anything already registered under this id is replaced, so it must not count
+            // against the room the new entities need.
+            this.RemoveObject(rhinoObjectId);
+
+            var entities = _previewGeometryConverter.Convert(rhinoConvertibleSet, settings, _maxEntityCount);
+
+            if (entities.Count == _maxEntityCount)
+            {
+                LoggerService.Instance.LogMessage(
+                    $"Preview limit of {_maxEntityCount} entities reached: preview may be incomplete.");
+            }
+
+            this.EvictOldestObjects(entities.Count);
 
             this.ObjectRegister.RegisterObject(rhinoObjectId, entities);
 

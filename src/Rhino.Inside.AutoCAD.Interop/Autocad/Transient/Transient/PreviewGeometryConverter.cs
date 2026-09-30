@@ -38,8 +38,14 @@ public class PreviewGeometryConverter : IPreviewGeometryConverter
     /// read: converting a hatch appends its boundary curves to model space to evaluate the
     /// hatch, then erases them again.
     /// </para>
+    /// <para>
+    /// Conversion stops once <paramref name="maxEntities"/> is reached so an oversized
+    /// preview is never built in full. A single geometry can convert to many entities, so the
+    /// ones which overshoot the limit are disposed rather than returned.
+    /// </para>
     /// </remarks>
-    public List<IEntity> Convert(IRhinoConvertibleSet rhinoGeometries, IGeometryPreviewSettings previewSettings)
+    public List<IEntity> Convert(IRhinoConvertibleSet rhinoGeometries, IGeometryPreviewSettings previewSettings,
+        int maxEntities)
     {
         if (this.TryGetActiveDocument(out var activeDocument) == false) return new List<IEntity>();
 
@@ -50,6 +56,8 @@ public class PreviewGeometryConverter : IPreviewGeometryConverter
             var entities = new List<IEntity>();
             foreach (var rhinoGeometry in rhinoGeometries)
             {
+                if (entities.Count >= maxEntities) break;
+
                 var convertedEntities =
                     rhinoGeometry.Convert(transactionManagerWrapper, previewSettings);
 
@@ -62,6 +70,18 @@ public class PreviewGeometryConverter : IPreviewGeometryConverter
                 var validEntities = _entityValidator.ValidateEntitiesForTransientManager(convertedEntities, silent);
 
                 entities.AddRange(validEntities);
+            }
+
+            if (entities.Count > maxEntities)
+            {
+                var surplusCount = entities.Count - maxEntities;
+
+                foreach (var surplusEntity in entities.GetRange(maxEntities, surplusCount))
+                {
+                    surplusEntity.Unwrap().Dispose();
+                }
+
+                entities.RemoveRange(maxEntities, surplusCount);
             }
 
             return entities;

@@ -52,4 +52,14 @@ public interface IUserSettings
     /// <seealso cref="RhinoPreviewColorIndex"/>
     /// <seealso cref="GrasshopperPreviewColorIndex"/>
     int SelectedPreviewColorIndex { get; set; }
+
+    /// <summary>
+    /// The most AutoCAD entities each preview server draws. When a new preview would exceed
+    /// it, the oldest previews are dropped, and a single preview larger than it is truncated.
+    /// </summary>
+    /// <remarks>
+    /// Applied per preview server: the Rhino preview, and the Grasshopper shaded and
+    /// wireframe previews, each draw up to this many entities.
+    /// </remarks>
+    int MaxPreviewEntityCount { get; set; }
 }

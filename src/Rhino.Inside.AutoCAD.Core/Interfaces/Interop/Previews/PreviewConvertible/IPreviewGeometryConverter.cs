@@ -6,7 +6,9 @@
 public interface IPreviewGeometryConverter
 {
     /// <summary>
-    /// Converts a set of Rhino geometries into AutoCAD preview-able entities.
+    /// Converts a set of Rhino geometries into AutoCAD preview-able entities, stopping once
+    /// <paramref name="maxEntities"/> entities have been converted.
     /// </summary>
-    List<IEntity> Convert(IRhinoConvertibleSet rhinoGeometries, IGeometryPreviewSettings previewSettings);
+    List<IEntity> Convert(IRhinoConvertibleSet rhinoGeometries, IGeometryPreviewSettings previewSettings,
+        int maxEntities);
 }

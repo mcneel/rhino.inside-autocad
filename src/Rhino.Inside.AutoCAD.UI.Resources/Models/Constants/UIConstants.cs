@@ -94,4 +94,17 @@ public class UIConstants
     /// The label of the color used for selected previews of either kind.
     /// </summary>
     public const string SelectedPreviewColorLabel = "Selected previews";
+
+    /// <summary>
+    /// The label of the most entities each preview server draws.
+    /// </summary>
+    public const string PreviewEntityLimitLabel = "Preview entity limit";
+
+    /// <summary>
+    /// The tooltip explaining the preview entity limit.
+    /// </summary>
+    public const string PreviewEntityLimitToolTip =
+        "The most AutoCAD entities drawn for the Rhino preview, and for each of the " +
+        "Grasshopper shaded and wireframe previews. When a new preview exceeds it, the " +
+        "oldest previews are removed. Large values can make AutoCAD unresponsive.";
 }

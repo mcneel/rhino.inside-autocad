@@ -21,6 +21,13 @@ public interface IRhinoObjectPreviewServer
     bool Visible { get; }
 
     /// <summary>
+    /// The most entities each underlying preview server draws before the oldest previews are
+    /// dropped. Lowering it drops the oldest previews straight away.
+    /// </summary>
+    /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
+    int MaxEntityCount { get; set; }
+
+    /// <summary>
     /// Toggles the visibility of all transient entities managed by the <see cref
     /// ="IRhinoObjectPreviewServer"/> which are registered in the <see cref="IObjectRegister"/>.
     /// This will clear the transient entities if they are currently visible, or redraw
