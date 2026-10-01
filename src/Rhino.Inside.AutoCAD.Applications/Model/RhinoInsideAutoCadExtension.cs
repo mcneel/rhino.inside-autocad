@@ -92,6 +92,7 @@ public class RhinoInsideAutoCadExtension : IExtensionApplication
             // shared instance, so the version chosen here is the one the settings page
             // later reads and writes.
             var installationLocator = new RhinoInstallationLocator();
+     
 
             var userSettingsStore = UserSettingsStore.Instance;
 
