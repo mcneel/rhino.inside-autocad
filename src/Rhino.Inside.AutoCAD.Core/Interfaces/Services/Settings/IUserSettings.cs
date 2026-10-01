@@ -62,4 +62,19 @@ public interface IUserSettings
     /// wireframe previews, each draw up to this many entities.
     /// </remarks>
     int MaxPreviewEntityCount { get; set; }
+
+    /// <summary>
+    /// True to hide the Rhino preview while the Rhino window is minimised or hidden, which
+    /// includes after the user closes it, otherwise false to keep it on screen throughout.
+    /// </summary>
+    /// <seealso cref="HideGrasshopperPreviewWhenEditorHidden"/>
+    bool HideRhinoPreviewWhenWindowHidden { get; set; }
+
+    /// <summary>
+    /// True to hide the Grasshopper preview while the Grasshopper editor is minimised or
+    /// hidden, which includes after the user closes it, otherwise false to keep it on screen
+    /// throughout.
+    /// </summary>
+    /// <seealso cref="HideRhinoPreviewWhenWindowHidden"/>
+    bool HideGrasshopperPreviewWhenEditorHidden { get; set; }
 }

@@ -41,6 +41,12 @@ public class GrasshopperInstance : IGrasshopperInstance
     private IGrasshopperSelectionTracker? _selectionTracker;
     private GH_Canvas? _activeCanvas;
 
+    /// <summary>
+    /// Watches the Grasshopper editor for being minimised, restored, hidden or shown.
+    /// Created with this instance, and attached to the editor once it exists.
+    /// </summary>
+    private readonly GrasshopperWindowManager _windowManager;
+
     /// <inheritdoc />
     public event EventHandler<IGrasshopperObjectModifiedEventArgs>? PreviewExpired;
 
@@ -51,6 +57,12 @@ public class GrasshopperInstance : IGrasshopperInstance
     public event EventHandler<IGrasshopperSelectionEventArgs>? ComponentSelectionChanged;
 
     /// <inheritdoc />
+    public event EventHandler? ActiveDocumentChanged;
+
+    /// <inheritdoc />
+    public event EventHandler? EditorDisplayStateChanged;
+
+    /// <inheritdoc />
     public GH_Document? ActiveDoc { get; private set; }
 
     /// <inheritdoc />
@@ -58,6 +70,15 @@ public class GrasshopperInstance : IGrasshopperInstance
 
     /// <inheritdoc />
     public bool IsEnabled => Grasshopper.Kernel.GH_Document.EnableSolutions;
+
+    /// <inheritdoc />
+    public IGrasshopperWindowManager WindowManager => _windowManager;
+
+    /// <inheritdoc />
+    public bool IsEditorMinimised => _windowManager.IsMinimised;
+
+    /// <inheritdoc />
+    public bool IsEditorHidden => _windowManager.IsHidden;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GrasshopperInstance"/> class.
@@ -73,6 +94,12 @@ public class GrasshopperInstance : IGrasshopperInstance
     {
         _installationDirectories = installationDirectories;
         _loadCivil = loadCivil;
+
+        var windowManager = new GrasshopperWindowManager();
+
+        windowManager.DisplayStateChanged += this.OnEditorDisplayStateChanged;
+
+        _windowManager = windowManager;
     }
 
     /// <summary>
@@ -382,7 +409,13 @@ public class GrasshopperInstance : IGrasshopperInstance
 
             GooTypeRegistry.Initialize();
 
+            // Removed first, as this runs on every launch and the handler is only wanted once.
+            Grasshopper.Instances.CanvasCreated -= this.OnCanvasCreated;
             Grasshopper.Instances.CanvasCreated += this.OnCanvasCreated;
+
+            // Picks up an editor which already exists, such as on a relaunch.
+            _windowManager.TryAttach();
+
             this.ApplicationVersion = new Version(Grasshopper.Versioning.Version.ToString());
         }
         catch
@@ -419,6 +452,19 @@ public class GrasshopperInstance : IGrasshopperInstance
 
         _activeCanvas = Grasshopper.Instances.ActiveCanvas;
         _activeCanvas.DocumentChanged += this.OnDocumentChanged;
+
+        // The editor holding the canvas is not assigned to Instances.DocumentEditor until
+        // after the canvas is created, so it is looked for once AutoCAD is next idle.
+        _windowManager.ScheduleAttach();
+    }
+
+    /// <summary>
+    /// Handles the Grasshopper editor being minimised, restored, hidden or shown by raising
+    /// <see cref="EditorDisplayStateChanged"/>.
+    /// </summary>
+    private void OnEditorDisplayStateChanged(object? sender, EventArgs e)
+    {
+        this.EditorDisplayStateChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -567,7 +613,16 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// </summary>
     private void OnSolutionEnd(object sender, GH_SolutionEventArgs e)
     {
-        foreach (var ghDocumentObject in e.Document.Objects)
+        this.RaisePreviewExpired(e.Document);
+    }
+
+    /// <summary>
+    /// Raises <see cref="PreviewExpired"/> for every object in <paramref name="document"/>
+    /// whose preview is shown.
+    /// </summary>
+    private void RaisePreviewExpired(GH_Document document)
+    {
+        foreach (var ghDocumentObject in document.Objects)
         {
             if (ghDocumentObject is not IGH_PreviewObject { Hidden: false })
                 continue;
@@ -586,15 +641,29 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <param name="e">
     /// The event data.
     /// </param>
+    /// <remarks>
+    /// Grasshopper raises no <c>ObjectsDeleted</c> event for the objects of a document it
+    /// closes or switches away from, so <see cref="ActiveDocumentChanged"/> is raised for
+    /// their previews to be cleared. The new document's previews are then requested
+    /// straight away, as a document which has already been solved, such as one switched
+    /// back to, raises no <c>SolutionEnd</c> to request them.
+    /// </remarks>
     private void OnDocumentChanged(GH_Canvas sender, GH_CanvasDocumentChangedEventArgs e)
     {
         this.RemoveDocumentSubscriptions();
 
         this.ActiveDoc = e.NewDocument;
 
+        // The editor exists by the time it shows a document.
+        _windowManager.TryAttach();
+
+        this.ActiveDocumentChanged?.Invoke(this, EventArgs.Empty);
+
         if (this.ActiveDoc != null)
         {
             this.AddDocumentSubscriptions(this.ActiveDoc);
+
+            this.RaisePreviewExpired(this.ActiveDoc);
         }
     }
 
@@ -660,6 +729,10 @@ public class GrasshopperInstance : IGrasshopperInstance
         System.Diagnostics.Debug.WriteLine("=== GrasshopperInstance.Shutdown() START ===");
 
         this.RemoveDocumentSubscriptions();
+
+        _windowManager.DisplayStateChanged -= this.OnEditorDisplayStateChanged;
+
+        _windowManager.Dispose();
 
         if (_activeCanvas != null)
         {

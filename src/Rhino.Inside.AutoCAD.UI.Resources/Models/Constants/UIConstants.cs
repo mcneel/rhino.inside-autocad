@@ -107,4 +107,35 @@ public class UIConstants
         "The most AutoCAD entities drawn for the Rhino preview, and for each of the " +
         "Grasshopper shaded and wireframe previews. When a new preview exceeds it, the " +
         "oldest previews are removed. Large values can make AutoCAD unresponsive.";
+
+    /// <summary>
+    /// The label of the choice to hide the Rhino preview while the Rhino window is hidden.
+    /// </summary>
+    public const string HideRhinoPreviewWhenWindowHiddenLabel =
+        "Hide the Rhino preview while the Rhino window is minimised or closed";
+
+    /// <summary>
+    /// The tooltip explaining the choice to hide the Rhino preview while the Rhino window is
+    /// hidden.
+    /// </summary>
+    public const string HideRhinoPreviewWhenWindowHiddenToolTip =
+        "When ticked, the Rhino preview disappears from AutoCAD while the Rhino window is " +
+        "minimised or closed and returns when the window is shown again. When unticked, " +
+        "the preview stays on screen throughout.";
+
+    /// <summary>
+    /// The label of the choice to hide the Grasshopper preview while the Grasshopper editor
+    /// is hidden.
+    /// </summary>
+    public const string HideGrasshopperPreviewWhenEditorHiddenLabel =
+        "Hide the Grasshopper preview while the Grasshopper editor is minimised or closed";
+
+    /// <summary>
+    /// The tooltip explaining the choice to hide the Grasshopper preview while the
+    /// Grasshopper editor is hidden.
+    /// </summary>
+    public const string HideGrasshopperPreviewWhenEditorHiddenToolTip =
+        "When ticked, the Grasshopper preview disappears from AutoCAD while the Grasshopper " +
+        "editor is minimised or closed and returns when the editor is shown again. When " +
+        "unticked, the preview stays on screen throughout.";
 }

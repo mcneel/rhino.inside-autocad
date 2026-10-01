@@ -24,6 +24,31 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// </remarks>
     private readonly IAutocadGuard _autocadGuard = new AutocadGuard();
 
+    /// <summary>
+    /// The runtime serial number of the Rhino document each Rhino preview was drawn from,
+    /// keyed by the previewed object's id.
+    /// </summary>
+    /// <remarks>
+    /// Lets the previews of a closed document be removed without touching those of the
+    /// document that replaced it, whichever order Rhino raises its document events in. An
+    /// id seen again from another document, as when the same file is reopened, moves to
+    /// that document, as its preview has been replaced too.
+    /// </remarks>
+    private readonly Dictionary<Guid, uint> _rhinoPreviewDocuments = new();
+
+    /// <summary>
+    /// True when the Rhino preview is hidden while the Rhino window is minimised or hidden.
+    /// </summary>
+    /// <seealso cref="IUserSettings.HideRhinoPreviewWhenWindowHidden"/>
+    private bool _hideRhinoPreviewWhenWindowHidden;
+
+    /// <summary>
+    /// True when the Grasshopper preview is hidden while the Grasshopper editor is minimised
+    /// or hidden.
+    /// </summary>
+    /// <seealso cref="IUserSettings.HideGrasshopperPreviewWhenEditorHidden"/>
+    private bool _hideGrasshopperPreviewWhenEditorHidden;
+
     /// <inheritdoc />
     public IRhinoInstance RhinoInstance { get; }
 
@@ -49,16 +74,21 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// <param name="grasshopperInstance">The Grasshopper instance to manage.</param>
     /// <param name="autoCadInstance">The AutoCAD instance to manage.</param>
     /// <param name="userSettings">
-    /// The user settings the preview colors and entity limit are read from. Only read here:
-    /// later changes reach the previews through <see cref="UpdatePreviewColors"/> and
-    /// <see cref="UpdatePreviewEntityLimit"/>.
+    /// The user settings the preview colors, entity limit and hiding behaviour are read from.
+    /// Only read here: later changes reach the previews through
+    /// <see cref="UpdatePreviewColors"/>, <see cref="UpdatePreviewEntityLimit"/> and
+    /// <see cref="UpdatePreviewHiding"/>.
     /// </param>
     public RhinoInsideManager(IRhinoInstance rhinoInstance, IGrasshopperInstance grasshopperInstance,
         IAutoCadInstance autoCadInstance, IUserSettings userSettings)
     {
-        var previewGeometryConverter = new PreviewGeometryConverter(autoCadInstance);
+        var previewDrawableBuilder = new PreviewDrawableBuilder(autoCadInstance);
 
         _rhinoConvertibleFactory = new RhinoConvertibleFactory();
+
+        _hideRhinoPreviewWhenWindowHidden = userSettings.HideRhinoPreviewWhenWindowHidden;
+
+        _hideGrasshopperPreviewWhenEditorHidden = userSettings.HideGrasshopperPreviewWhenEditorHidden;
 
         var selectedPreviewSettings = new GeometryPreviewSettings(128,
             "Rhino.Inside.AutoCAD.Preview.Selected.Material",
@@ -69,14 +99,14 @@ public class RhinoInsideManager : IRhinoInsideManager
             userSettings.RhinoPreviewColorIndex);
 
         this.RhinoPreviewServer = new RhinoObjectPreviewServer(rhinoPreviewSettings, selectedPreviewSettings,
-            previewGeometryConverter, userSettings.MaxPreviewEntityCount);
+            previewDrawableBuilder, userSettings.MaxPreviewEntityCount);
 
         var grasshopperPreviewSettings = new GeometryPreviewSettings(128,
             "Rhino.Inside.AutoCAD.Preview.Grasshopper.Material",
             userSettings.GrasshopperPreviewColorIndex);
 
         this.GrasshopperPreviewServer = new GrasshopperObjectPreviewServer(
-            grasshopperPreviewSettings, selectedPreviewSettings, previewGeometryConverter,
+            grasshopperPreviewSettings, selectedPreviewSettings, previewDrawableBuilder,
             userSettings.MaxPreviewEntityCount);
 
         this.AutoCadInstance = autoCadInstance;
@@ -90,12 +120,16 @@ public class RhinoInsideManager : IRhinoInsideManager
         rhinoInstance.ObjectModifiedOrAppended += this.RhinoObjectModifiedOrAppended;
         rhinoInstance.ObjectRemoved += this.RhinoObjectRemoved;
         rhinoInstance.DeselectAll += this.DeselectAllRhinoPreview;
+        rhinoInstance.DocumentClosed += this.OnRhinoDocumentClosed;
+        rhinoInstance.WindowDisplayStateChanged += this.OnRhinoWindowDisplayStateChanged;
 
         this.GrasshopperInstance = grasshopperInstance;
         grasshopperInstance.PreviewExpired += this.OnUpdateGrasshopperPreview;
         grasshopperInstance.ObjectRemoved += this.OnGrasshopperObjectRemoved;
         grasshopperInstance.ComponentSelectionChanged +=
             this.OnGrasshopperSelectionChanged;
+        grasshopperInstance.ActiveDocumentChanged += this.OnGrasshopperDocumentChanged;
+        grasshopperInstance.EditorDisplayStateChanged += this.OnGrasshopperEditorDisplayStateChanged;
 
         UnitConverterClass.Initialize(_defaultUnitSystem, _defaultUnitSystem);
 
@@ -103,6 +137,12 @@ public class RhinoInsideManager : IRhinoInsideManager
         _grasshopperGeometryExtractor = new GrasshopperGeometryExtractor(_rhinoConvertibleFactory);
         _grasshopperChangeResponder = new GrasshopperChangeResponder();
         _previewMaterialScheduler = new PreviewMaterialScheduler(this.RefreshPreviewAppearance);
+
+        // The window's state may have been read before this subscribed, as it is when the
+        // core already exists, so it is applied once here rather than left to the next change.
+        this.ApplyRhinoWindowDisplayState();
+
+        this.ApplyGrasshopperEditorDisplayState();
     }
 
     /// <summary>
@@ -186,6 +226,25 @@ public class RhinoInsideManager : IRhinoInsideManager
     }
 
     /// <inheritdoc />
+    public void UpdatePreviewHiding(bool hideRhinoPreviewWhenWindowHidden,
+        bool hideGrasshopperPreviewWhenEditorHidden)
+    {
+        if (ApplicationState.IsShuttingDown) return;
+
+        _hideRhinoPreviewWhenWindowHidden = hideRhinoPreviewWhenWindowHidden;
+
+        _hideGrasshopperPreviewWhenEditorHidden = hideGrasshopperPreviewWhenEditorHidden;
+
+        // Applied against the windows' current states so a preview hidden behind a minimised
+        // or closed window appears, or disappears, straight away rather than on its next change.
+        this.ApplyRhinoWindowDisplayState();
+
+        this.ApplyGrasshopperEditorDisplayState();
+
+        this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+    }
+
+    /// <inheritdoc />
     public void UpdatePreviewColors(int rhinoColorIndex, int grasshopperColorIndex,
         int selectedColorIndex)
     {
@@ -260,6 +319,11 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// <summary>
     /// Updates the AutoCAD transient preview when a Grasshopper object's selection state changes.
     /// </summary>
+    /// <remarks>
+    /// A registered preview is only restyled and redrawn, so a selection click does not
+    /// re-extract or rebuild its geometry. Only an object with no registered preview is
+    /// extracted and added.
+    /// </remarks>
     private void OnGrasshopperSelectionChanged(object? sender, IGrasshopperSelectionEventArgs e)
     {
         _autocadGuard.Run(() =>
@@ -268,6 +332,14 @@ public class RhinoInsideManager : IRhinoInsideManager
 
             foreach (var ghDocumentObject in e.Objects)
             {
+                var attributes = ghDocumentObject.Attributes;
+
+                if (attributes != null &&
+                    this.GrasshopperPreviewServer.SetSelected(ghDocumentObject.InstanceGuid, attributes.Selected))
+                {
+                    continue;
+                }
+
                 this.UpdateGrasshopperPreview(ghDocumentObject);
             }
 
@@ -309,6 +381,8 @@ public class RhinoInsideManager : IRhinoInsideManager
 
             this.RhinoPreviewServer.RemoveObject(rhinoObject.Id);
 
+            _rhinoPreviewDocuments.Remove(rhinoObject.Id);
+
             this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
         }, nameof(this.RhinoObjectRemoved));
     }
@@ -326,11 +400,15 @@ public class RhinoInsideManager : IRhinoInsideManager
 
             this.RhinoPreviewServer.RemoveObject(rhinoObject.Id);
 
+            _rhinoPreviewDocuments.Remove(rhinoObject.Id);
+
             if (_rhinoConvertibleFactory.MakeConvertible(rhinoObject.Geometry, out var rhinoConvertible))
             {
                 var newSet = new RhinoConvertibleSet { rhinoConvertible };
 
                 this.RhinoPreviewServer.AddObject(rhinoObject.Id, newSet, rhinoObject.IsSelected(false) > 0);
+
+                _rhinoPreviewDocuments[rhinoObject.Id] = e.DocumentSerialNumber;
             }
 
             this.EnsurePreviewMaterials();
@@ -352,6 +430,151 @@ public class RhinoInsideManager : IRhinoInsideManager
 
             this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
         }, nameof(this.DeselectAllRhinoPreview));
+    }
+
+    /// <summary>
+    /// Removes the Rhino previews drawn from a Rhino document when it is closed or a file is
+    /// opened into it in place of its contents.
+    /// </summary>
+    /// <remarks>
+    /// Only the previews of the named document are removed, so the outcome does not depend
+    /// on whether Rhino raises this before or after it starts adding the next document's
+    /// objects. Those are previewed as Rhino adds them, through
+    /// <see cref="RhinoObjectModifiedOrAppended"/>.
+    /// </remarks>
+    private void OnRhinoDocumentClosed(object? sender, IRhinoDocumentClosedEventArgs e)
+    {
+        _autocadGuard.Run(() =>
+        {
+            if (ApplicationState.IsShuttingDown) return;
+
+            var documentSerialNumber = e.DocumentSerialNumber;
+
+            var staleIds = new List<Guid>();
+
+            foreach (var previewDocument in _rhinoPreviewDocuments)
+            {
+                if (previewDocument.Value == documentSerialNumber)
+                {
+                    staleIds.Add(previewDocument.Key);
+                }
+            }
+
+            foreach (var staleId in staleIds)
+            {
+                this.RhinoPreviewServer.RemoveObject(staleId);
+
+                _rhinoPreviewDocuments.Remove(staleId);
+            }
+
+            System.Diagnostics.Debug.WriteLine(
+                $"RhinoInsideManager.OnRhinoDocumentClosed: serial={documentSerialNumber}, " +
+                $"removed={staleIds.Count}, remaining={_rhinoPreviewDocuments.Count}");
+
+            this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+        }, nameof(this.OnRhinoDocumentClosed));
+    }
+
+    /// <summary>
+    /// Removes every Grasshopper preview when the document on the Grasshopper canvas
+    /// changes or is closed.
+    /// </summary>
+    /// <remarks>
+    /// The new document's previews are requested afterwards through
+    /// <see cref="IGrasshopperInstance.PreviewExpired"/>.
+    /// </remarks>
+    private void OnGrasshopperDocumentChanged(object? sender, EventArgs e)
+    {
+        _autocadGuard.Run(() =>
+        {
+            if (ApplicationState.IsShuttingDown) return;
+
+            this.GrasshopperPreviewServer.ClearAll();
+
+            this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+        }, nameof(this.OnGrasshopperDocumentChanged));
+    }
+
+    /// <summary>
+    /// Suppresses the Rhino preview to match whether the Rhino window is minimised or
+    /// hidden, when the user has chosen to hide it then.
+    /// </summary>
+    private void ApplyRhinoWindowDisplayState()
+    {
+        var isMinimised = this.RhinoInstance.IsWindowMinimised;
+
+        var isHidden = this.RhinoInstance.IsWindowHidden;
+
+        var isSuppressed = _hideRhinoPreviewWhenWindowHidden && (isMinimised || isHidden);
+
+        this.RhinoPreviewServer.SetSuppressed(isSuppressed);
+
+        System.Diagnostics.Debug.WriteLine(
+            $"RhinoInsideManager: Rhino preview suppressed={isSuppressed} " +
+            $"(isMinimised={isMinimised}, isHidden={isHidden}), " +
+            $"visible={this.RhinoPreviewServer.Visible}");
+    }
+
+    /// <summary>
+    /// Hides the Rhino preview while the Rhino window is minimised or hidden, including
+    /// after the user closes it, and shows it again when the window is restored or shown,
+    /// if the user has it on.
+    /// </summary>
+    /// <remarks>
+    /// The preview is left on screen throughout when the user has turned off
+    /// <see cref="IUserSettings.HideRhinoPreviewWhenWindowHidden"/>.
+    /// </remarks>
+    private void OnRhinoWindowDisplayStateChanged(object? sender, EventArgs e)
+    {
+        _autocadGuard.Run(() =>
+        {
+            if (ApplicationState.IsShuttingDown) return;
+
+            this.ApplyRhinoWindowDisplayState();
+
+            this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+        }, nameof(this.OnRhinoWindowDisplayStateChanged));
+    }
+
+    /// <summary>
+    /// Suppresses the Grasshopper preview to match whether the Grasshopper editor is
+    /// minimised or hidden, when the user has chosen to hide it then.
+    /// </summary>
+    private void ApplyGrasshopperEditorDisplayState()
+    {
+        var isMinimised = this.GrasshopperInstance.IsEditorMinimised;
+
+        var isHidden = this.GrasshopperInstance.IsEditorHidden;
+
+        var isSuppressed = _hideGrasshopperPreviewWhenEditorHidden && (isMinimised || isHidden);
+
+        this.GrasshopperPreviewServer.SetSuppressed(isSuppressed);
+
+        System.Diagnostics.Debug.WriteLine(
+            $"RhinoInsideManager: Grasshopper preview suppressed={isSuppressed} " +
+            $"(isMinimised={isMinimised}, isHidden={isHidden}), " +
+            $"mode={this.GrasshopperPreviewServer.PreviewMode}");
+    }
+
+    /// <summary>
+    /// Hides the Grasshopper preview while the Grasshopper editor is minimised or hidden,
+    /// including after the user closes it, and draws it in the user's preview mode again
+    /// when the editor is restored or shown.
+    /// </summary>
+    /// <remarks>
+    /// The preview is left on screen throughout when the user has turned off
+    /// <see cref="IUserSettings.HideGrasshopperPreviewWhenEditorHidden"/>.
+    /// </remarks>
+    private void OnGrasshopperEditorDisplayStateChanged(object? sender, EventArgs e)
+    {
+        _autocadGuard.Run(() =>
+        {
+            if (ApplicationState.IsShuttingDown) return;
+
+            this.ApplyGrasshopperEditorDisplayState();
+
+            this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
+        }, nameof(this.OnGrasshopperEditorDisplayStateChanged));
     }
 
     private void UpdateUnitSystem(object sender, EventArgs e)
@@ -381,12 +604,16 @@ public class RhinoInsideManager : IRhinoInsideManager
         this.GrasshopperInstance.ObjectRemoved -= this.OnGrasshopperObjectRemoved;
         this.GrasshopperInstance.ComponentSelectionChanged -=
             this.OnGrasshopperSelectionChanged;
+        this.GrasshopperInstance.ActiveDocumentChanged -= this.OnGrasshopperDocumentChanged;
+        this.GrasshopperInstance.EditorDisplayStateChanged -= this.OnGrasshopperEditorDisplayStateChanged;
 
         this.RhinoInstance.DocumentCreated -= this.UpdateUnitSystem;
         this.RhinoInstance.UnitsChanged -= this.UpdateUnitSystem;
         this.RhinoInstance.ObjectModifiedOrAppended -= this.RhinoObjectModifiedOrAppended;
         this.RhinoInstance.ObjectRemoved -= this.RhinoObjectRemoved;
         this.RhinoInstance.DeselectAll -= this.DeselectAllRhinoPreview;
+        this.RhinoInstance.DocumentClosed -= this.OnRhinoDocumentClosed;
+        this.RhinoInstance.WindowDisplayStateChanged -= this.OnRhinoWindowDisplayStateChanged;
 
         this.AutoCadInstance.DocumentActivated -= this.AutocadDocumentSwitched;
         this.AutoCadInstance.UnitsChanged -= this.UpdateUnitSystem;
@@ -397,7 +624,7 @@ public class RhinoInsideManager : IRhinoInsideManager
         // Clear preview servers with isolated exception handling
         try
         {
-            (this.GrasshopperPreviewServer as GrasshopperObjectPreviewServer)?.ClearAll();
+            this.GrasshopperPreviewServer.ClearAll();
         }
         catch (Exception ex)
         {
@@ -406,7 +633,9 @@ public class RhinoInsideManager : IRhinoInsideManager
 
         try
         {
-            (this.RhinoPreviewServer as RhinoObjectPreviewServer)?.ClearAll();
+            this.RhinoPreviewServer.ClearAll();
+
+            _rhinoPreviewDocuments.Clear();
         }
         catch (Exception ex)
         {

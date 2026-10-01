@@ -5,9 +5,13 @@ using Rhino.Inside.AutoCAD.Core.Interfaces;
 using CadColor = Autodesk.AutoCAD.Colors.Color;
 using CadDbObject = Autodesk.AutoCAD.DatabaseServices.DBObject;
 using CadEntity = Autodesk.AutoCAD.DatabaseServices.Entity;
+using CadIntegerCollection = Autodesk.AutoCAD.Geometry.IntegerCollection;
+using CadIntPtrCollection = Autodesk.AutoCAD.Geometry.IntPtrCollection;
 using CadLayer = Autodesk.AutoCAD.DatabaseServices.LayerTableRecord;
 using CadObjectId = Autodesk.AutoCAD.DatabaseServices.ObjectId;
+using CadPoint3dCollection = Autodesk.AutoCAD.Geometry.Point3dCollection;
 using TransactionManager = Autodesk.AutoCAD.DatabaseServices.TransactionManager;
+using CadVector3dCollection = Autodesk.AutoCAD.Geometry.Vector3dCollection;
 
 namespace Rhino.Inside.AutoCAD.Interop;
 
@@ -262,6 +266,70 @@ public static class InteropConverter
     public static CadColor Unwrap(this IAutocadColor color)
     {
         var wrapper = (AutocadWrapperBase<CadColor>)color;
+
+        return wrapper.AutocadObject;
+    }
+
+    /// <summary>
+    /// Unwraps an <see cref="IPoint3dCollection"/> to its underlying AutoCAD <see cref="CadPoint3dCollection"/>.
+    /// </summary>
+    /// <param name="collection">
+    /// The collection wrapper to unwrap.
+    /// </param>
+    /// <returns>
+    /// The native AutoCAD <see cref="CadPoint3dCollection"/> instance, not a copy.
+    /// </returns>
+    public static CadPoint3dCollection Unwrap(this IPoint3dCollection collection)
+    {
+        var wrapper = (AutocadWrapperBase<CadPoint3dCollection>)collection;
+
+        return wrapper.AutocadObject;
+    }
+
+    /// <summary>
+    /// Unwraps an <see cref="IVector3dCollection"/> to its underlying AutoCAD <see cref="CadVector3dCollection"/>.
+    /// </summary>
+    /// <param name="collection">
+    /// The collection wrapper to unwrap.
+    /// </param>
+    /// <returns>
+    /// The native AutoCAD <see cref="CadVector3dCollection"/> instance, not a copy.
+    /// </returns>
+    public static CadVector3dCollection Unwrap(this IVector3dCollection collection)
+    {
+        var wrapper = (AutocadWrapperBase<CadVector3dCollection>)collection;
+
+        return wrapper.AutocadObject;
+    }
+
+    /// <summary>
+    /// Unwraps an <see cref="IIntegerCollection"/> to its underlying AutoCAD <see cref="CadIntegerCollection"/>.
+    /// </summary>
+    /// <param name="collection">
+    /// The collection wrapper to unwrap.
+    /// </param>
+    /// <returns>
+    /// The native AutoCAD <see cref="CadIntegerCollection"/> instance, not a copy.
+    /// </returns>
+    public static CadIntegerCollection Unwrap(this IIntegerCollection collection)
+    {
+        var wrapper = (AutocadWrapperBase<CadIntegerCollection>)collection;
+
+        return wrapper.AutocadObject;
+    }
+
+    /// <summary>
+    /// Unwraps an <see cref="IIntPtrCollection"/> to its underlying AutoCAD <see cref="CadIntPtrCollection"/>.
+    /// </summary>
+    /// <param name="collection">
+    /// The collection wrapper to unwrap.
+    /// </param>
+    /// <returns>
+    /// The native AutoCAD <see cref="CadIntPtrCollection"/> instance, not a copy.
+    /// </returns>
+    public static CadIntPtrCollection Unwrap(this IIntPtrCollection collection)
+    {
+        var wrapper = (AutocadWrapperBase<CadIntPtrCollection>)collection;
 
         return wrapper.AutocadObject;
     }

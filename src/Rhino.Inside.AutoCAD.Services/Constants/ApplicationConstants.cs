@@ -150,6 +150,26 @@ public class ApplicationConstants
     public const int MaxPreviewEntityLimit = 1000000;
 
     /// <summary>
+    /// Whether the Rhino preview is hidden while the Rhino window is minimised or closed
+    /// until the user chooses otherwise.
+    /// </summary>
+    /// <remarks>
+    /// Value: true.
+    /// </remarks>
+    /// <seealso cref="IUserSettings.HideRhinoPreviewWhenWindowHidden"/>
+    public const bool DefaultHideRhinoPreviewWhenWindowHidden = true;
+
+    /// <summary>
+    /// Whether the Grasshopper preview is hidden while the Grasshopper editor is minimised or
+    /// closed until the user chooses otherwise.
+    /// </summary>
+    /// <remarks>
+    /// Value: true.
+    /// </remarks>
+    /// <seealso cref="IUserSettings.HideGrasshopperPreviewWhenEditorHidden"/>
+    public const bool DefaultHideGrasshopperPreviewWhenEditorHidden = true;
+
+    /// <summary>
     /// Assembly filenames for Material Design WPF dependencies.
     /// </summary>
     /// <remarks>

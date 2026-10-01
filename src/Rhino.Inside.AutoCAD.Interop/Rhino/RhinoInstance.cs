@@ -31,6 +31,12 @@ public class RhinoInstance : IRhinoInstance
     public event EventHandler? DeselectAll;
 
     /// <inheritdoc />
+    public event EventHandler<IRhinoDocumentClosedEventArgs>? DocumentClosed;
+
+    /// <inheritdoc />
+    public event EventHandler? WindowDisplayStateChanged;
+
+    /// <inheritdoc />
     public IRhinoCoreExtension RhinoCore { get; }
 
     /// <inheritdoc />
@@ -41,6 +47,12 @@ public class RhinoInstance : IRhinoInstance
 
     /// <inheritdoc />
     public UnitSystem UnitSystem { get; private set; }
+
+    /// <inheritdoc />
+    public bool IsWindowMinimised => this.RhinoCore.WindowManager.IsMinimised;
+
+    /// <inheritdoc />
+    public bool IsWindowHidden => this.RhinoCore.WindowManager.IsHidden;
 
     /// <summary>
     /// Constructs a new <see cref="RhinoInstance"/> for managing the Rhino Inside lifecycle.
@@ -61,6 +73,9 @@ public class RhinoInstance : IRhinoInstance
         this.RhinoCore = RhinoCoreExtension.Instance;
         this.ApplicationVersion = Rhino.RhinoApp.Version;
 
+        // The window manager watches the main window for being minimised or hidden through
+        // the activation hook it installs when the core is created.
+        this.RhinoCore.WindowManager.DisplayStateChanged += this.OnWindowDisplayStateChanged;
     }
 
     /// <summary>
@@ -126,6 +141,11 @@ public class RhinoInstance : IRhinoInstance
             RhinoDoc.SelectObjects += this.OnSelectedObject;
             RhinoDoc.DeselectObjects += this.OnSelectedObject;
             RhinoDoc.DeselectAllObjects += this.OnDeselectObjects;
+            RhinoDoc.CloseDocument += this.OnCloseDocument;
+            RhinoDoc.BeginOpenDocument += this.OnBeginOpenDocument;
+            RhinoDoc.EndOpenDocument += this.OnEndOpenDocument;
+            RhinoDoc.NewDocument += this.OnNewDocument;
+            RhinoDoc.ActiveDocumentChanged += this.OnActiveDocumentChanged;
 
             return rhinoDoc;
         }
@@ -188,12 +208,198 @@ public class RhinoInstance : IRhinoInstance
     }
 
     /// <summary>
+    /// Returns true when <paramref name="document"/> is a headless document other than
+    /// <see cref="ActiveDoc"/>, such as the one the Brep converter imports into and disposes.
+    /// </summary>
+    /// <remarks>
+    /// Rhino raises its object events for every document, so without this the objects of a
+    /// temporary document are previewed in AutoCAD and, as disposing the document removes
+    /// nothing, never cleared. Only headless documents are excluded: the user's own
+    /// documents are never headless, and a document Rhino did not report is let through, as
+    /// it was before.
+    /// </remarks>
+    /// <param name="document">The document an event was raised for.</param>
+    private bool IsTemporaryDocument(RhinoDoc? document)
+    {
+        if (document == null || document.IsHeadless == false) return false;
+
+        return document.RuntimeSerialNumber != this.ActiveDoc?.RuntimeSerialNumber;
+    }
+
+    /// <summary>
+    /// Writes a Rhino document event to the debug output, for diagnosing how Rhino orders
+    /// its document events when a file is opened or created.
+    /// </summary>
+    /// <param name="eventName">The name of the Rhino event.</param>
+    /// <param name="documentSerialNumber">The serial number the event was raised for.</param>
+    /// <param name="document">The document the event was raised for, if Rhino reported one.</param>
+    /// <param name="detail">Any further detail specific to the event.</param>
+    private void TraceDocumentEvent(string eventName, uint documentSerialNumber,
+        RhinoDoc? document, string detail = "")
+    {
+        var isHeadless = document?.IsHeadless.ToString() ?? "unknown";
+
+        var activeSerialNumber = this.ActiveDoc?.RuntimeSerialNumber.ToString() ?? "none";
+
+        System.Diagnostics.Debug.WriteLine(
+            $"RhinoInstance.{eventName}: serial={documentSerialNumber}, isHeadless={isHeadless}, " +
+            $"activeDocSerial={activeSerialNumber}{detail}");
+    }
+
+    /// <summary>
+    /// Raises <see cref="DocumentClosed"/> for the document with the given serial number.
+    /// </summary>
+    /// <param name="documentSerialNumber">The serial number of the document that went away.</param>
+    private void RaiseDocumentClosed(uint documentSerialNumber)
+    {
+        var eventArgs = new RhinoDocumentClosedEventArgs(documentSerialNumber);
+
+        this.DocumentClosed?.Invoke(this, eventArgs);
+    }
+
+    /// <summary>
+    /// Handles the <see cref="RhinoDoc.CloseDocument"/> event by raising
+    /// <see cref="DocumentClosed"/> for the closed document.
+    /// </summary>
+    /// <param name="sender">The event source.</param>
+    /// <param name="e">The event arguments containing the closed document.</param>
+    /// <remarks>
+    /// Rhino raises no <see cref="RhinoDoc.DeleteRhinoObject"/> event for the objects a
+    /// closed document held, so their previews would otherwise outlive the document. The
+    /// event is raised whether or not the document is <see cref="ActiveDoc"/>: Rhino may
+    /// already have made the next document active by the time the previous one closes.
+    /// The temporary headless documents created and disposed by this plugin are ignored.
+    /// </remarks>
+    private void OnCloseDocument(object sender, DocumentEventArgs e)
+    {
+        var document = e.Document;
+
+        this.TraceDocumentEvent(nameof(RhinoDoc.CloseDocument), e.DocumentSerialNumber, document);
+
+        if (this.IsTemporaryDocument(document)) return;
+
+        this.RaiseDocumentClosed(e.DocumentSerialNumber);
+    }
+
+    /// <summary>
+    /// Handles the <see cref="RhinoDoc.BeginOpenDocument"/> event by raising
+    /// <see cref="DocumentClosed"/> when the file replaces the document's contents.
+    /// </summary>
+    /// <param name="sender">The event source.</param>
+    /// <param name="e">The event arguments containing the document being opened into.</param>
+    /// <remarks>
+    /// Rhino can open a file into the document it already has rather than closing it, in
+    /// which case no <see cref="RhinoDoc.CloseDocument"/> event is raised for the objects it
+    /// is about to discard. Imports and reference (worksession) opens add to the document
+    /// instead of replacing it, so they are ignored, as are temporary headless documents.
+    /// </remarks>
+    private void OnBeginOpenDocument(object sender, DocumentOpenEventArgs e)
+    {
+        var document = e.Document;
+
+        var detail = $", merge={e.Merge}, reference={e.Reference}, file={e.FileName}";
+
+        this.TraceDocumentEvent(nameof(RhinoDoc.BeginOpenDocument), e.DocumentSerialNumber,
+            document, detail);
+
+        if (e.Merge || e.Reference || this.IsTemporaryDocument(document)) return;
+
+        this.RaiseDocumentClosed(e.DocumentSerialNumber);
+    }
+
+    /// <summary>
+    /// Handles the <see cref="RhinoDoc.EndOpenDocument"/> event by writing it to the debug
+    /// output.
+    /// </summary>
+    /// <param name="sender">The event source.</param>
+    /// <param name="e">The event arguments containing the opened document.</param>
+    /// <remarks>
+    /// The opened file's objects are previewed as Rhino adds them, through
+    /// <see cref="RhinoDoc.AddRhinoObject"/>, so nothing is done here.
+    /// </remarks>
+    private void OnEndOpenDocument(object sender, DocumentOpenEventArgs e)
+    {
+        var detail = $", merge={e.Merge}, reference={e.Reference}, file={e.FileName}";
+
+        this.TraceDocumentEvent(nameof(RhinoDoc.EndOpenDocument), e.DocumentSerialNumber,
+            e.Document, detail);
+    }
+
+    /// <summary>
+    /// Handles the <see cref="RhinoDoc.NewDocument"/> event by writing it to the debug output.
+    /// </summary>
+    /// <param name="sender">The event source.</param>
+    /// <param name="e">The event arguments containing the new document.</param>
+    private void OnNewDocument(object sender, DocumentEventArgs e)
+    {
+        this.TraceDocumentEvent(nameof(RhinoDoc.NewDocument), e.DocumentSerialNumber, e.Document);
+    }
+
+    /// <summary>
+    /// Handles the <see cref="RhinoDoc.ActiveDocumentChanged"/> event by adopting the newly
+    /// active document as <see cref="ActiveDoc"/>.
+    /// </summary>
+    /// <param name="sender">The event source.</param>
+    /// <param name="e">The event arguments containing the newly active document.</param>
+    /// <remarks>
+    /// Opening or creating a document in Rhino replaces the one this instance created, and
+    /// commands, scripts and units follow the document the user is working in. Previews do
+    /// not depend on it: <see cref="DocumentClosed"/> names the document it is raised for.
+    /// Headless documents never become the user's document, and a headless
+    /// <see cref="ActiveDoc"/> belongs to a headless session which has no other document
+    /// to follow. Raises <see cref="UnitsChanged"/> when the new document's units differ.
+    /// </remarks>
+    private void OnActiveDocumentChanged(object sender, DocumentEventArgs e)
+    {
+        var document = e.Document;
+
+        this.TraceDocumentEvent(nameof(RhinoDoc.ActiveDocumentChanged), e.DocumentSerialNumber,
+            document);
+
+        if (document == null || document.IsHeadless) return;
+
+        var activeDoc = this.ActiveDoc;
+
+        if (activeDoc == null || activeDoc.IsHeadless ||
+            activeDoc.RuntimeSerialNumber == document.RuntimeSerialNumber)
+            return;
+
+        this.ActiveDoc = document;
+
+        var currentUnits = document.ModelUnitSystem;
+
+        if (currentUnits == this.UnitSystem)
+            return;
+
+        this.UnitSystem = currentUnits;
+
+        this.UnitsChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Handles the main window being minimised, restored, hidden or shown by raising
+    /// <see cref="WindowDisplayStateChanged"/>.
+    /// </summary>
+    /// <param name="sender">The event source.</param>
+    /// <param name="e">The event arguments.</param>
+    private void OnWindowDisplayStateChanged(object? sender, EventArgs e)
+    {
+        System.Diagnostics.Debug.WriteLine(
+            $"RhinoInstance.WindowDisplayStateChanged: isMinimised={this.IsWindowMinimised}, " +
+            $"isHidden={this.IsWindowHidden}");
+
+        this.WindowDisplayStateChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
     /// Handles the <see cref="RhinoDoc.DeselectAllObjects"/> event by raising <see cref="DeselectAll"/>.
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="e">The event arguments containing deselection details.</param>
     private void OnDeselectObjects(object? sender, RhinoDeselectAllObjectsEventArgs e)
     {
+        if (this.IsTemporaryDocument(e.Document)) return;
+
         this.DeselectAll?.Invoke(this, EventArgs.Empty);
     }
 
@@ -210,12 +416,15 @@ public class RhinoInstance : IRhinoInstance
     /// </remarks>
     private void OnSelectedObject(object? sender, RhinoObjectSelectionEventArgs e)
     {
+        if (this.IsTemporaryDocument(e.Document)) return;
+
         for (var index = 0; index < e.RhinoObjects.Length; index++)
         {
             var rhinoObject = e.RhinoObjects[index];
 
-            this.ObjectModifiedOrAppended?.Invoke(this,
-                new RhinoObjectModifiedEventArgs(rhinoObject));
+            var eventArgs = new RhinoObjectModifiedEventArgs(rhinoObject, e.Document);
+
+            this.ObjectModifiedOrAppended?.Invoke(this, eventArgs);
         }
     }
 
@@ -226,7 +435,13 @@ public class RhinoInstance : IRhinoInstance
     /// <param name="e">The event arguments containing the removed object.</param>
     private void OnRemoveRhinoObject(object sender, RhinoObjectEventArgs e)
     {
-        this.ObjectRemoved?.Invoke(this, new RhinoObjectModifiedEventArgs(e.TheObject));
+        var document = e.TheObject.Document;
+
+        if (this.IsTemporaryDocument(document)) return;
+
+        var eventArgs = new RhinoObjectModifiedEventArgs(e.TheObject, document);
+
+        this.ObjectRemoved?.Invoke(this, eventArgs);
     }
 
     /// <summary>
@@ -236,7 +451,11 @@ public class RhinoInstance : IRhinoInstance
     /// <param name="e">The event arguments containing the modified object.</param>
     private void OnModifyRhinoObject(object sender, RhinoModifyObjectAttributesEventArgs e)
     {
-        this.ObjectModifiedOrAppended?.Invoke(this, new RhinoObjectModifiedEventArgs(e.RhinoObject));
+        if (this.IsTemporaryDocument(e.Document)) return;
+
+        var eventArgs = new RhinoObjectModifiedEventArgs(e.RhinoObject, e.Document);
+
+        this.ObjectModifiedOrAppended?.Invoke(this, eventArgs);
     }
 
     /// <summary>
@@ -246,7 +465,13 @@ public class RhinoInstance : IRhinoInstance
     /// <param name="e">The event arguments containing the added object.</param>
     private void OnAddRhinoObject(object sender, RhinoObjectEventArgs e)
     {
-        this.ObjectModifiedOrAppended?.Invoke(this, new RhinoObjectModifiedEventArgs(e.TheObject));
+        var document = e.TheObject.Document;
+
+        if (this.IsTemporaryDocument(document)) return;
+
+        var eventArgs = new RhinoObjectModifiedEventArgs(e.TheObject, document);
+
+        this.ObjectModifiedOrAppended?.Invoke(this, eventArgs);
     }
 
     /// <summary>
@@ -312,6 +537,19 @@ public class RhinoInstance : IRhinoInstance
         RhinoDoc.DeselectObjects -= this.OnSelectedObject;
 
         RhinoDoc.DeselectAllObjects -= this.OnDeselectObjects;
+
+        RhinoDoc.CloseDocument -= this.OnCloseDocument;
+
+        RhinoDoc.BeginOpenDocument -= this.OnBeginOpenDocument;
+
+        RhinoDoc.EndOpenDocument -= this.OnEndOpenDocument;
+
+        RhinoDoc.NewDocument -= this.OnNewDocument;
+
+        RhinoDoc.ActiveDocumentChanged -= this.OnActiveDocumentChanged;
+
+        // Before the core shuts down, which restores the window and then destroys it.
+        this.RhinoCore.WindowManager.DisplayStateChanged -= this.OnWindowDisplayStateChanged;
 
         this.RhinoCore.Shutdown();
     }

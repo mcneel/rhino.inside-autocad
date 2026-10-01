@@ -47,4 +47,20 @@ public class UserSettings : IUserSettings
     /// </remarks>
     public int MaxPreviewEntityCount { get; set; } =
         ApplicationConstants.DefaultMaxPreviewEntityCount;
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Initialised to the shipped default so a settings file written before preview hiding
+    /// was configurable, which has no such key, keeps hiding the preview.
+    /// </remarks>
+    public bool HideRhinoPreviewWhenWindowHidden { get; set; } =
+        ApplicationConstants.DefaultHideRhinoPreviewWhenWindowHidden;
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Initialised to the shipped default so a settings file written before preview hiding
+    /// was configurable, which has no such key, keeps hiding the preview.
+    /// </remarks>
+    public bool HideGrasshopperPreviewWhenEditorHidden { get; set; } =
+        ApplicationConstants.DefaultHideGrasshopperPreviewWhenEditorHidden;
 }

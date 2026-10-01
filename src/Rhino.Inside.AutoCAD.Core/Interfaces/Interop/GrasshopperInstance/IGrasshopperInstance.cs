@@ -30,6 +30,22 @@ public interface IGrasshopperInstance
     event EventHandler<IGrasshopperSelectionEventArgs>? ComponentSelectionChanged;
 
     /// <summary>
+    /// Event raised when the document shown on the Grasshopper canvas changes, including
+    /// when the last document is closed. Raised before the new document's previews are
+    /// requested through <see cref="PreviewExpired"/>, so the previous document's previews
+    /// can be cleared first.
+    /// </summary>
+    event EventHandler? ActiveDocumentChanged;
+
+    /// <summary>
+    /// Event raised when the Grasshopper editor window is minimised, restored, hidden or
+    /// shown.
+    /// </summary>
+    /// <seealso cref="IsEditorMinimised"/>
+    /// <seealso cref="IsEditorHidden"/>
+    event EventHandler? EditorDisplayStateChanged;
+
+    /// <summary>
     /// The current active Rhino document.
     /// </summary>
     GH_Document? ActiveDoc { get; }
@@ -43,6 +59,25 @@ public interface IGrasshopperInstance
     /// A value indicating whether the Grasshopper solver is enabled.
     /// </summary>
     bool IsEnabled { get; }
+
+    /// <summary>
+    /// Access to the Grasshopper editor window manager, which watches the editor for being
+    /// minimised, restored, hidden or shown.
+    /// </summary>
+    IGrasshopperWindowManager WindowManager { get; }
+
+    /// <summary>
+    /// True while the Grasshopper editor window is minimised. False before the editor has
+    /// been opened.
+    /// </summary>
+    bool IsEditorMinimised { get; }
+
+    /// <summary>
+    /// True while the Grasshopper editor window exists but is hidden, as it is after the
+    /// user closes it, which hides the editor in place of destroying it. False before the
+    /// editor has been opened.
+    /// </summary>
+    bool IsEditorHidden { get; }
 
     /// <summary>
     /// Validates that the Grasshopper library is loaded into the Grasshopper

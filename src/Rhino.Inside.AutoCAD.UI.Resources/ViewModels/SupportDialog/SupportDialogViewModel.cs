@@ -28,6 +28,10 @@ public partial class SupportDialogViewModel : ObservableObject
     private const string _selectedPreviewColorLabel = UIConstants.SelectedPreviewColorLabel;
     private const string _previewEntityLimitLabel = UIConstants.PreviewEntityLimitLabel;
     private const string _previewEntityLimitToolTip = UIConstants.PreviewEntityLimitToolTip;
+    private const string _hideRhinoPreviewWhenWindowHiddenLabel = UIConstants.HideRhinoPreviewWhenWindowHiddenLabel;
+    private const string _hideRhinoPreviewWhenWindowHiddenToolTip = UIConstants.HideRhinoPreviewWhenWindowHiddenToolTip;
+    private const string _hideGrasshopperPreviewWhenEditorHiddenLabel = UIConstants.HideGrasshopperPreviewWhenEditorHiddenLabel;
+    private const string _hideGrasshopperPreviewWhenEditorHiddenToolTip = UIConstants.HideGrasshopperPreviewWhenEditorHiddenToolTip;
     private const int _minPreviewEntityLimit = ApplicationConstants.MinPreviewEntityLimit;
     private const int _maxPreviewEntityLimit = ApplicationConstants.MaxPreviewEntityLimit;
 
@@ -194,6 +198,29 @@ public partial class SupportDialogViewModel : ObservableObject
     public string PreviewEntityLimitToolTip => _previewEntityLimitToolTip;
 
     /// <summary>
+    /// The label of the choice to hide the Rhino preview while the Rhino window is hidden.
+    /// </summary>
+    public string HideRhinoPreviewWhenWindowHiddenLabel => _hideRhinoPreviewWhenWindowHiddenLabel;
+
+    /// <summary>
+    /// The tooltip explaining the choice to hide the Rhino preview while the Rhino window is
+    /// hidden.
+    /// </summary>
+    public string HideRhinoPreviewWhenWindowHiddenToolTip => _hideRhinoPreviewWhenWindowHiddenToolTip;
+
+    /// <summary>
+    /// The label of the choice to hide the Grasshopper preview while the Grasshopper editor
+    /// is hidden.
+    /// </summary>
+    public string HideGrasshopperPreviewWhenEditorHiddenLabel => _hideGrasshopperPreviewWhenEditorHiddenLabel;
+
+    /// <summary>
+    /// The tooltip explaining the choice to hide the Grasshopper preview while the
+    /// Grasshopper editor is hidden.
+    /// </summary>
+    public string HideGrasshopperPreviewWhenEditorHiddenToolTip => _hideGrasshopperPreviewWhenEditorHiddenToolTip;
+
+    /// <summary>
     /// The AutoCAD Color Index unselected Rhino previews are drawn in, saved and applied as
     /// soon as it is changed.
     /// </summary>
@@ -220,6 +247,20 @@ public partial class SupportDialogViewModel : ObservableObject
     /// </summary>
     [ObservableProperty]
     private int _maxPreviewEntityCount;
+
+    /// <summary>
+    /// True when the Rhino preview is hidden while the Rhino window is minimised or closed,
+    /// saved and applied as soon as it is changed.
+    /// </summary>
+    [ObservableProperty]
+    private bool _hideRhinoPreviewWhenWindowHidden;
+
+    /// <summary>
+    /// True when the Grasshopper preview is hidden while the Grasshopper editor is minimised
+    /// or closed, saved and applied as soon as it is changed.
+    /// </summary>
+    [ObservableProperty]
+    private bool _hideGrasshopperPreviewWhenEditorHidden;
 
     /// <summary>
     /// Constructs a new <see cref="SupportDialogViewModel"/>.
@@ -256,6 +297,10 @@ public partial class SupportDialogViewModel : ObservableObject
         _selectedPreviewColorIndex = settings.SelectedPreviewColorIndex;
 
         _maxPreviewEntityCount = settings.MaxPreviewEntityCount;
+
+        _hideRhinoPreviewWhenWindowHidden = settings.HideRhinoPreviewWhenWindowHidden;
+
+        _hideGrasshopperPreviewWhenEditorHidden = settings.HideGrasshopperPreviewWhenEditorHidden;
 
         _isLoadingSettings = false;
     }
@@ -319,6 +364,51 @@ public partial class SupportDialogViewModel : ObservableObject
         }
 
         this.SavePreviewEntityLimitSettings();
+    }
+
+    /// <summary>
+    /// Persists and applies the newly chosen Rhino preview hiding behaviour.
+    /// </summary>
+    partial void OnHideRhinoPreviewWhenWindowHiddenChanged(bool value)
+    {
+        this.SavePreviewHidingSettings();
+    }
+
+    /// <summary>
+    /// Persists and applies the newly chosen Grasshopper preview hiding behaviour.
+    /// </summary>
+    partial void OnHideGrasshopperPreviewWhenEditorHiddenChanged(bool value)
+    {
+        this.SavePreviewHidingSettings();
+    }
+
+    /// <summary>
+    /// Writes the preview hiding choices back to disk and applies them to the previews.
+    /// </summary>
+    private void SavePreviewHidingSettings()
+    {
+        if (_isLoadingSettings)
+            return;
+
+        var settings = _userSettingsStore.Settings;
+
+        settings.HideRhinoPreviewWhenWindowHidden = this.HideRhinoPreviewWhenWindowHidden;
+
+        settings.HideGrasshopperPreviewWhenEditorHidden = this.HideGrasshopperPreviewWhenEditorHidden;
+
+        _userSettingsStore.Save();
+
+        // The choice is already saved, so a failure to apply it now costs the user nothing
+        // more than waiting for the next AutoCAD session to see it take effect.
+        try
+        {
+            _rhinoInsideManager.UpdatePreviewHiding(this.HideRhinoPreviewWhenWindowHidden,
+                this.HideGrasshopperPreviewWhenEditorHidden);
+        }
+        catch (Exception e)
+        {
+            LoggerService.Instance.LogError(e);
+        }
     }
 
     /// <summary>

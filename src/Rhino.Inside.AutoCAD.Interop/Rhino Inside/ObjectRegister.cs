@@ -10,52 +10,52 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </remarks>
 public class ObjectRegister : IObjectRegister
 {
-    private readonly Dictionary<Guid, List<IEntity>> _objects = [];
+    private readonly Dictionary<Guid, IPreviewDrawable> _objects = [];
     private readonly LinkedList<Guid> _registrationOrder = [];
     private readonly Dictionary<Guid, LinkedListNode<Guid>> _registrationNodes = [];
 
     /// <inheritdoc/>
-    public int EntityCount { get; private set; }
+    public int ItemCount { get; private set; }
 
     /// <inheritdoc/>
-    public bool TryGetObject(Guid rhinoObjectId, out List<IEntity> entities)
+    public bool TryGetObject(Guid rhinoObjectId, out IPreviewDrawable? drawable)
     {
-        return _objects.TryGetValue(rhinoObjectId, out entities);
+        return _objects.TryGetValue(rhinoObjectId, out drawable);
     }
 
     /// <inheritdoc/>
-    public bool TryGetOldest(out Guid rhinoObjectId, out List<IEntity> entities)
+    public bool TryGetOldest(out Guid rhinoObjectId, out IPreviewDrawable? drawable)
     {
         var oldestNode = _registrationOrder.First;
 
         if (oldestNode == null)
         {
             rhinoObjectId = Guid.Empty;
-            entities = [];
+            drawable = null;
             return false;
         }
 
         rhinoObjectId = oldestNode.Value;
-        entities = _objects[rhinoObjectId];
+        drawable = _objects[rhinoObjectId];
         return true;
     }
 
     /// <inheritdoc/>
-    public void RegisterObject(Guid rhinoObjectId, List<IEntity> entities)
+    public void RegisterObject(Guid rhinoObjectId, IPreviewDrawable drawable)
     {
         this.RemoveObject(rhinoObjectId);
 
-        _objects[rhinoObjectId] = entities;
+        _objects[rhinoObjectId] = drawable;
         _registrationNodes[rhinoObjectId] = _registrationOrder.AddLast(rhinoObjectId);
-        this.EntityCount += entities.Count;
+        this.ItemCount += drawable.ItemCount;
     }
 
     /// <inheritdoc/>
     public void RemoveObject(Guid rhinoObjectId)
     {
-        if (_objects.TryGetValue(rhinoObjectId, out var entities))
+        if (_objects.TryGetValue(rhinoObjectId, out var drawable))
         {
-            this.EntityCount -= entities.Count;
+            this.ItemCount -= drawable.ItemCount;
             _objects.Remove(rhinoObjectId);
         }
 
@@ -64,6 +64,15 @@ public class ObjectRegister : IObjectRegister
             _registrationOrder.Remove(node);
             _registrationNodes.Remove(rhinoObjectId);
         }
+    }
+
+    /// <inheritdoc/>
+    public void Clear()
+    {
+        _objects.Clear();
+        _registrationOrder.Clear();
+        _registrationNodes.Clear();
+        this.ItemCount = 0;
     }
 
     /// <inheritdoc/>
@@ -90,7 +99,7 @@ public class ObjectRegister : IObjectRegister
     /// <remarks>
     /// Enumerates from the oldest registration to the newest.
     /// </remarks>
-    public IEnumerator<List<IEntity>> GetEnumerator() =>
+    public IEnumerator<IPreviewDrawable> GetEnumerator() =>
         _registrationOrder.Select(rhinoObjectId => _objects[rhinoObjectId]).GetEnumerator();
 
     /// <inheritdoc/>

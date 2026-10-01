@@ -707,6 +707,10 @@
                         <RowDefinition Height="Auto" />
                         <!-- Preview entity limit -->
                         <RowDefinition Height="Auto" />
+                        <!-- Hide Rhino preview checkbox -->
+                        <RowDefinition Height="Auto" />
+                        <!-- Hide Grasshopper preview checkbox -->
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <!-- Rhino Version -->
@@ -850,6 +854,26 @@
                              ToolTip="{Binding PreviewEntityLimitToolTip}"
                              Foreground="{StaticResource PrimaryTextBrush}"
                              Text="{Binding MaxPreviewEntityCount, UpdateSourceTrigger=LostFocus}" />
+
+                    <!-- Hide the Rhino preview while its window is minimised or closed -->
+                    <CheckBox Grid.Column="0"
+                              Grid.Row="11"
+                              Grid.ColumnSpan="2"
+                              Margin="0,14,10,0"
+                              Content="{Binding HideRhinoPreviewWhenWindowHiddenLabel}"
+                              ToolTip="{Binding HideRhinoPreviewWhenWindowHiddenToolTip}"
+                              Foreground="{StaticResource PrimaryTextBrush}"
+                              IsChecked="{Binding HideRhinoPreviewWhenWindowHidden}" />
+
+                    <!-- Hide the Grasshopper preview while its editor is minimised or closed -->
+                    <CheckBox Grid.Column="0"
+                              Grid.Row="12"
+                              Grid.ColumnSpan="2"
+                              Margin="0,10,10,0"
+                              Content="{Binding HideGrasshopperPreviewWhenEditorHiddenLabel}"
+                              ToolTip="{Binding HideGrasshopperPreviewWhenEditorHiddenToolTip}"
+                              Foreground="{StaticResource PrimaryTextBrush}"
+                              IsChecked="{Binding HideGrasshopperPreviewWhenEditorHidden}" />
 
                 </Grid>
 
