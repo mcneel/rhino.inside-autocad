@@ -23,7 +23,7 @@ Each previewed object (a Grasshopper component or a Rhino object) is registered 
 - Text, dimensions, leaders and hatches are still converted to entities by the existing `IRhinoConvertible` converters, and are drawn inside the transient with `Geometry.Draw`. These are the fallback entities.
 - `PreviewDrawableBuilder` builds the buffers and replaces `PreviewGeometryConverter`.
 - A selection or colour change redraws the existing transient with `TransientManager.UpdateTransient` instead of rebuilding it.
-- Each server caps the number of preview items with the `MaxPreviewEntityCount` user setting (default 50,000). When adding an object would exceed the cap, the oldest registered objects are evicted first, so the newest win. This bounds the cost of pathological definitions.
+- Each server caps the number of preview items (each polyline, point, shell and fallback entity a drawable draws, not AutoCAD entities) with the "Preview item limit" user setting (default 50,000). The Rhino preview and the Grasshopper shaded and wireframe previews each have their own cap. When adding an object would exceed the cap, the oldest registered objects are evicted first, so the newest win. This bounds the cost of pathological definitions. The setting is persisted as `MaxPreviewEntityCount`, a name kept from before items were counted so existing settings files keep their value.
 
 ### Implementation notes
 

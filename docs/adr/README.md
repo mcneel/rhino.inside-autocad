@@ -5,3 +5,4 @@ Each record captures one significant design decision: the context that forced it
 | ADR | Title | Status |
 | --- | --- | --- |
 | [0001](0001-preview-drawables.md) | Preview geometry drawn by one custom transient per object | Accepted |
+| [0002](0002-preview-visibility-follows-host-windows.md) | Preview visibility follows the Rhino and Grasshopper windows and documents | Accepted |
