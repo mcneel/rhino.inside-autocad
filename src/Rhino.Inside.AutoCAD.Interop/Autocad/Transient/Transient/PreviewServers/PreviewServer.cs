@@ -20,7 +20,7 @@ public class PreviewServer : IPreviewServer
     private readonly int _subDrawingMode = 0;
     private readonly IntegerCollection _emptyIntegerCollection = [];
     private readonly TransientDrawingMode _transientDrawingMode = TransientDrawingMode.Main;
-    private int _maxEntityCount;
+    private int _maxItemCount;
 
     /// <inheritdoc/>
     public IObjectRegister ObjectRegister { get; }
@@ -29,12 +29,12 @@ public class PreviewServer : IPreviewServer
     public bool Visible { get; private set; } = true;
 
     /// <inheritdoc/>
-    public int MaxEntityCount
+    public int MaxItemCount
     {
-        get => _maxEntityCount;
+        get => _maxItemCount;
         set
         {
-            _maxEntityCount = value;
+            _maxItemCount = value;
 
             this.EvictOldestObjects(0);
         }
@@ -44,25 +44,25 @@ public class PreviewServer : IPreviewServer
     /// Constructs a new <see cref="IPreviewServer"/>
     /// </summary>
     public PreviewServer(IGeometryPreviewSettings previewSettings, IGeometryPreviewSettings selectedPreviewSettings,
-        IPreviewDrawableBuilder previewDrawableBuilder, int maxEntityCount)
+        IPreviewDrawableBuilder previewDrawableBuilder, int maxItemCount)
     {
         _previewSettings = previewSettings;
         _selectedPreviewSettings = selectedPreviewSettings;
         _previewDrawableBuilder = previewDrawableBuilder;
-        _maxEntityCount = maxEntityCount;
+        _maxItemCount = maxItemCount;
         this.ObjectRegister = new ObjectRegister();
     }
 
     /// <summary>
     /// Removes and disposes the oldest registered objects until
     /// <paramref name="incomingItemCount"/> more preview items fit within
-    /// <see cref="MaxEntityCount"/>.
+    /// <see cref="MaxItemCount"/>.
     /// </summary>
     private void EvictOldestObjects(int incomingItemCount)
     {
         var evictedCount = 0;
 
-        while (this.ObjectRegister.ItemCount + incomingItemCount > _maxEntityCount &&
+        while (this.ObjectRegister.ItemCount + incomingItemCount > _maxItemCount &&
                this.ObjectRegister.TryGetOldest(out var oldestId, out var oldestDrawable))
         {
             this.ObjectRegister.RemoveObject(oldestId);
@@ -80,7 +80,7 @@ public class PreviewServer : IPreviewServer
         if (evictedCount > 0)
         {
             LoggerService.Instance.LogMessage(
-                $"Preview limit of {_maxEntityCount} entities reached: removed the {evictedCount} oldest preview(s).");
+                $"Preview limit of {_maxItemCount} items reached: removed the {evictedCount} oldest preview(s).");
         }
     }
 
@@ -214,12 +214,12 @@ public class PreviewServer : IPreviewServer
             this.RemoveObject(rhinoObjectId);
 
             var drawable = _previewDrawableBuilder.Build(rhinoConvertibleSet, _previewSettings,
-                _selectedPreviewSettings, selected, _maxEntityCount);
+                _selectedPreviewSettings, selected, _maxItemCount);
 
-            if (drawable.ItemCount >= _maxEntityCount)
+            if (drawable.ItemCount >= _maxItemCount)
             {
                 LoggerService.Instance.LogMessage(
-                    $"Preview limit of {_maxEntityCount} entities reached: preview may be incomplete.");
+                    $"Preview limit of {_maxItemCount} items reached: preview may be incomplete.");
             }
 
             this.EvictOldestObjects(drawable.ItemCount);

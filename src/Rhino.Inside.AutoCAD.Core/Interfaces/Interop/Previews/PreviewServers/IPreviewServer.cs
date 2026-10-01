@@ -25,13 +25,13 @@ public interface IPreviewServer
     /// own is truncated. Lowering it drops the oldest objects straight away.
     /// </summary>
     /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
-    int MaxEntityCount { get; set; }
+    int MaxItemCount { get; set; }
 
     /// <summary>
     /// Adds the provided <paramref name="rhinoConvertibleSet"/> into this <see cref=
     /// "IPreviewServer"/> as a single drawable, replacing any already registered under
     /// <paramref name="rhinoObjectId"/> and dropping the oldest objects if needed to stay
-    /// within <see cref="MaxEntityCount"/>.
+    /// within <see cref="MaxItemCount"/>.
     /// </summary>
     void AddObject(Guid rhinoObjectId, IRhinoConvertibleSet rhinoConvertibleSet, bool selected);
 

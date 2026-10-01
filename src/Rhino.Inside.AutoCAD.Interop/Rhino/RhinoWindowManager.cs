@@ -39,9 +39,6 @@ public class RhinoWindowManager : IRhinoWindowManager
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool IsIconic(IntPtr hWnd);
 
-    [DllImport("user32.dll")]
-    private static extern IntPtr GetActiveWindow();
-
     private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 
     private const int WH_CBT = 5;
@@ -99,7 +96,7 @@ public class RhinoWindowManager : IRhinoWindowManager
     {
         _mainWindow = mainWindow;
 
-        this.UpdateDisplayState(nameof(this.SetWindow));
+        this.UpdateDisplayState();
     }
 
     /// <summary>
@@ -108,14 +105,9 @@ public class RhinoWindowManager : IRhinoWindowManager
     /// </summary>
     /// <param name="isMinimised">Whether the main window is minimised.</param>
     /// <param name="isHidden">Whether the main window is hidden.</param>
-    /// <param name="source">What led to the state being set, for the debug output.</param>
-    private void SetDisplayState(bool isMinimised, bool isHidden, string source)
+    private void SetDisplayState(bool isMinimised, bool isHidden)
     {
         if (this.IsMinimised == isMinimised && this.IsHidden == isHidden) return;
-
-        System.Diagnostics.Debug.WriteLine(
-            $"RhinoWindowManager.DisplayStateChanged ({source}): " +
-            $"isMinimised {this.IsMinimised} -> {isMinimised}, isHidden {this.IsHidden} -> {isHidden}");
 
         this.IsMinimised = isMinimised;
 
@@ -128,15 +120,14 @@ public class RhinoWindowManager : IRhinoWindowManager
     /// <summary>
     /// Reads whether the main window is minimised or hidden from the window itself.
     /// </summary>
-    /// <param name="source">What led to the read, for the debug output.</param>
     /// <remarks>
     /// Without a window nothing is known, and neither state is reported.
     /// </remarks>
-    private void UpdateDisplayState(string source)
+    private void UpdateDisplayState()
     {
         if (_mainWindow == IntPtr.Zero)
         {
-            this.SetDisplayState(false, false, source);
+            this.SetDisplayState(false, false);
 
             return;
         }
@@ -145,7 +136,7 @@ public class RhinoWindowManager : IRhinoWindowManager
 
         var isHidden = IsWindowVisible(_mainWindow) == false;
 
-        this.SetDisplayState(isMinimised, isHidden, source);
+        this.SetDisplayState(isMinimised, isHidden);
     }
 
     /// <summary>
@@ -174,7 +165,7 @@ public class RhinoWindowManager : IRhinoWindowManager
 
         _displayStateCheckPending = false;
 
-        _autocadGuard.Run(() => this.UpdateDisplayState("idle"), nameof(this.OnIdle));
+        _autocadGuard.Run(() => this.UpdateDisplayState(), nameof(this.OnIdle));
     }
 
     /// <inheritdoc />
@@ -185,7 +176,7 @@ public class RhinoWindowManager : IRhinoWindowManager
 
         ShowWindow(_mainWindow, (int)WindowShowStyle.Hide);
 
-        this.UpdateDisplayState(nameof(this.HideWindow));
+        this.UpdateDisplayState();
     }
 
     /// <inheritdoc />
@@ -198,7 +189,7 @@ public class RhinoWindowManager : IRhinoWindowManager
         BringWindowToTop(_mainWindow);
         SetForegroundWindow(_mainWindow);
 
-        this.UpdateDisplayState(nameof(this.BringToFront));
+        this.UpdateDisplayState();
     }
 
     /// <inheritdoc />
@@ -209,7 +200,7 @@ public class RhinoWindowManager : IRhinoWindowManager
 
         ShowWindow(_mainWindow, (int)WindowShowStyle.Show);
 
-        this.UpdateDisplayState(nameof(this.ShowWindow));
+        this.UpdateDisplayState();
     }
 
     /// <inheritdoc />
@@ -220,7 +211,7 @@ public class RhinoWindowManager : IRhinoWindowManager
 
         ShowWindow(_mainWindow, (int)WindowShowStyle.ShowNA);
 
-        this.UpdateDisplayState(nameof(this.ShowWindowNoActivate));
+        this.UpdateDisplayState();
     }
 
     /// <inheritdoc />
@@ -293,17 +284,10 @@ public class RhinoWindowManager : IRhinoWindowManager
                 isMinimised = false;
                 break;
             default:
-                System.Diagnostics.Debug.WriteLine(
-                    $"RhinoWindowManager.HCBT_MINMAX: showCommand={showCommand} ignored, " +
-                    $"isMinimised={this.IsMinimised}, isHidden={this.IsHidden}");
                 return;
         }
 
-        System.Diagnostics.Debug.WriteLine(
-            $"RhinoWindowManager.HCBT_MINMAX: showCommand={showCommand}, " +
-            $"isMinimised {this.IsMinimised} -> {isMinimised}, isHidden={this.IsHidden}");
-
-        this.SetDisplayState(isMinimised, this.IsHidden, nameof(HCBT_MINMAX));
+        this.SetDisplayState(isMinimised, this.IsHidden);
     }
 
     /// <summary>
@@ -322,11 +306,6 @@ public class RhinoWindowManager : IRhinoWindowManager
         var command = (int)(wParam.ToInt64() & SC_MASK);
 
         if (command != SC_CLOSE) return;
-
-        System.Diagnostics.Debug.WriteLine(
-            $"RhinoWindowManager.HCBT_SYSCOMMAND: SC_CLOSE, " +
-            $"activeWindowIsMain={GetActiveWindow() == _mainWindow}, " +
-            $"isMinimised={this.IsMinimised}, isHidden={this.IsHidden}");
 
         this.ScheduleDisplayStateCheck();
     }

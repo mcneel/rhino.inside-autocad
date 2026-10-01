@@ -46,14 +46,6 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
     public bool IsHidden { get; private set; }
 
     /// <summary>
-    /// Writes a message to the debug output under the manager's name.
-    /// </summary>
-    private static void Trace(string message)
-    {
-        System.Diagnostics.Debug.WriteLine($"GrasshopperWindowManager: {message}");
-    }
-
-    /// <summary>
     /// Looks for the editor once AutoCAD is next idle, unless a look is already pending.
     /// </summary>
     /// <remarks>
@@ -96,16 +88,11 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
 
         Form? editor = Grasshopper.Instances.DocumentEditor;
 
-        if (editor == null || editor.IsDisposed)
-        {
-            Trace("attach: editor not created yet");
-
-            return false;
-        }
+        if (editor == null || editor.IsDisposed) return false;
 
         if (ReferenceEquals(editor, _editor)) return true;
 
-        this.Detach("replaced");
+        this.Detach();
 
         editor.VisibleChanged += this.OnEditorVisibleChanged;
         editor.Resize += this.OnEditorResize;
@@ -114,9 +101,7 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
 
         _editor = editor;
 
-        Trace($"attach: editor found (Visible {editor.Visible}, WindowState {editor.WindowState})");
-
-        this.UpdateDisplayState("attach");
+        this.UpdateDisplayState();
 
         return true;
     }
@@ -125,8 +110,7 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
     /// Unsubscribes from the editor's events, if one is attached, and reports neither
     /// state, as there is no editor to be out of sight.
     /// </summary>
-    /// <param name="reason">Why the editor is let go, for the debug output.</param>
-    private void Detach(string reason)
+    private void Detach()
     {
         var editor = _editor;
 
@@ -139,22 +123,19 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
 
         _editor = null;
 
-        Trace($"detach: {reason}");
-
-        this.SetDisplayState(false, false, "detach");
+        this.SetDisplayState(false, false);
     }
 
     /// <summary>
     /// Reads whether the attached editor is minimised or hidden from the editor itself.
     /// </summary>
-    /// <param name="source">What led to the read, for the debug output.</param>
-    private void UpdateDisplayState(string source)
+    private void UpdateDisplayState()
     {
         var editor = _editor;
 
         if (editor == null || editor.IsDisposed)
         {
-            this.SetDisplayState(false, false, source);
+            this.SetDisplayState(false, false);
 
             return;
         }
@@ -163,7 +144,7 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
 
         var isHidden = editor.Visible == false;
 
-        this.SetDisplayState(isMinimised, isHidden, source);
+        this.SetDisplayState(isMinimised, isHidden);
     }
 
     /// <summary>
@@ -172,13 +153,9 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
     /// </summary>
     /// <param name="isMinimised">Whether the editor is minimised.</param>
     /// <param name="isHidden">Whether the editor is hidden.</param>
-    /// <param name="source">What led to the state being set, for the debug output.</param>
-    private void SetDisplayState(bool isMinimised, bool isHidden, string source)
+    private void SetDisplayState(bool isMinimised, bool isHidden)
     {
         if (this.IsMinimised == isMinimised && this.IsHidden == isHidden) return;
-
-        Trace($"DisplayStateChanged ({source}): " +
-              $"isMinimised {this.IsMinimised} -> {isMinimised}, isHidden {this.IsHidden} -> {isHidden}");
 
         this.IsMinimised = isMinimised;
 
@@ -193,9 +170,7 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
     /// </summary>
     private void OnEditorVisibleChanged(object? sender, EventArgs e)
     {
-        Trace($"VisibleChanged: Visible {_editor?.Visible}");
-
-        this.UpdateDisplayState("VisibleChanged");
+        this.UpdateDisplayState();
     }
 
     /// <summary>
@@ -203,9 +178,7 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
     /// </summary>
     private void OnEditorResize(object? sender, EventArgs e)
     {
-        Trace($"Resize: WindowState {_editor?.WindowState}");
-
-        this.UpdateDisplayState("Resize");
+        this.UpdateDisplayState();
     }
 
     /// <summary>
@@ -213,7 +186,7 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
     /// </summary>
     private void OnEditorFormClosed(object? sender, FormClosedEventArgs e)
     {
-        this.Detach("FormClosed");
+        this.Detach();
     }
 
     /// <summary>
@@ -221,7 +194,7 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
     /// </summary>
     private void OnEditorDisposed(object? sender, EventArgs e)
     {
-        this.Detach("Disposed");
+        this.Detach();
     }
 
     /// <inheritdoc />
@@ -238,7 +211,7 @@ public class GrasshopperWindowManager : IGrasshopperWindowManager
 
         this.DisplayStateChanged = null;
 
-        this.Detach("disposed");
+        this.Detach();
 
         _disposed = true;
     }

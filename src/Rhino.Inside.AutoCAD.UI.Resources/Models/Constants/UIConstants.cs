@@ -96,17 +96,18 @@ public class UIConstants
     public const string SelectedPreviewColorLabel = "Selected previews";
 
     /// <summary>
-    /// The label of the most entities each preview server draws.
+    /// The label of the most preview items each preview server draws.
     /// </summary>
-    public const string PreviewEntityLimitLabel = "Preview entity limit";
+    public const string PreviewItemLimitLabel = "Preview item limit";
 
     /// <summary>
-    /// The tooltip explaining the preview entity limit.
+    /// The tooltip explaining the preview item limit.
     /// </summary>
-    public const string PreviewEntityLimitToolTip =
-        "The most AutoCAD entities drawn for the Rhino preview, and for each of the " +
-        "Grasshopper shaded and wireframe previews. When a new preview exceeds it, the " +
-        "oldest previews are removed. Large values can make AutoCAD unresponsive.";
+    public const string PreviewItemLimitToolTip =
+        "The most items (curves, points, meshes and annotations) drawn per preview: the Rhino " +
+        "preview and the Grasshopper shaded and wireframe previews each draw up to this " +
+        "many. When a new preview exceeds it, the oldest previews are removed first. " +
+        "Large values can make AutoCAD unresponsive.";
 
     /// <summary>
     /// The label of the choice to hide the Rhino preview while the Rhino window is hidden.

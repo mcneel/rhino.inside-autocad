@@ -54,12 +54,17 @@ public interface IUserSettings
     int SelectedPreviewColorIndex { get; set; }
 
     /// <summary>
-    /// The most AutoCAD entities each preview server draws. When a new preview would exceed
+    /// The most preview items each preview server draws. When a new preview would exceed
     /// it, the oldest previews are dropped, and a single preview larger than it is truncated.
     /// </summary>
     /// <remarks>
-    /// Applied per preview server: the Rhino preview, and the Grasshopper shaded and
-    /// wireframe previews, each draw up to this many entities.
+    /// A preview item is one curve, point, mesh or fallback entity drawn by a preview, not an
+    /// AutoCAD entity in the drawing. Applied per preview server: the Rhino preview, and the
+    /// Grasshopper shaded and wireframe previews, each draw up to this many items.
+    /// <para>
+    /// The name predates counting preview items and is kept because it is the key persisted
+    /// in users' settings files: renaming it would reset their chosen limit to the default.
+    /// </para>
     /// </remarks>
     int MaxPreviewEntityCount { get; set; }
 

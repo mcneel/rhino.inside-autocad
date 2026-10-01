@@ -46,7 +46,7 @@ public class UserSettings : IUserSettings
     /// limit was configurable, which has no such key, gets the default limit.
     /// </remarks>
     public int MaxPreviewEntityCount { get; set; } =
-        ApplicationConstants.DefaultMaxPreviewEntityCount;
+        ApplicationConstants.DefaultMaxPreviewItemCount;
 
     /// <inheritdoc/>
     /// <remarks>

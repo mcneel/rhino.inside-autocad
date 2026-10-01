@@ -74,9 +74,9 @@ public class RhinoInsideManager : IRhinoInsideManager
     /// <param name="grasshopperInstance">The Grasshopper instance to manage.</param>
     /// <param name="autoCadInstance">The AutoCAD instance to manage.</param>
     /// <param name="userSettings">
-    /// The user settings the preview colors, entity limit and hiding behaviour are read from.
+    /// The user settings the preview colors, item limit and hiding behaviour are read from.
     /// Only read here: later changes reach the previews through
-    /// <see cref="UpdatePreviewColors"/>, <see cref="UpdatePreviewEntityLimit"/> and
+    /// <see cref="UpdatePreviewColors"/>, <see cref="UpdatePreviewItemLimit"/> and
     /// <see cref="UpdatePreviewHiding"/>.
     /// </param>
     public RhinoInsideManager(IRhinoInstance rhinoInstance, IGrasshopperInstance grasshopperInstance,
@@ -214,13 +214,13 @@ public class RhinoInsideManager : IRhinoInsideManager
     }
 
     /// <inheritdoc />
-    public void UpdatePreviewEntityLimit(int maxEntityCount)
+    public void UpdatePreviewItemLimit(int maxItemCount)
     {
         if (ApplicationState.IsShuttingDown) return;
 
-        this.RhinoPreviewServer.MaxEntityCount = maxEntityCount;
+        this.RhinoPreviewServer.MaxItemCount = maxItemCount;
 
-        this.GrasshopperPreviewServer.MaxEntityCount = maxEntityCount;
+        this.GrasshopperPreviewServer.MaxItemCount = maxItemCount;
 
         this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
     }
@@ -467,10 +467,6 @@ public class RhinoInsideManager : IRhinoInsideManager
                 _rhinoPreviewDocuments.Remove(staleId);
             }
 
-            System.Diagnostics.Debug.WriteLine(
-                $"RhinoInsideManager.OnRhinoDocumentClosed: serial={documentSerialNumber}, " +
-                $"removed={staleIds.Count}, remaining={_rhinoPreviewDocuments.Count}");
-
             this.AutoCadInstance.ActiveDocument?.UpdateEditorScreen();
         }, nameof(this.OnRhinoDocumentClosed));
     }
@@ -508,11 +504,6 @@ public class RhinoInsideManager : IRhinoInsideManager
         var isSuppressed = _hideRhinoPreviewWhenWindowHidden && (isMinimised || isHidden);
 
         this.RhinoPreviewServer.SetSuppressed(isSuppressed);
-
-        System.Diagnostics.Debug.WriteLine(
-            $"RhinoInsideManager: Rhino preview suppressed={isSuppressed} " +
-            $"(isMinimised={isMinimised}, isHidden={isHidden}), " +
-            $"visible={this.RhinoPreviewServer.Visible}");
     }
 
     /// <summary>
@@ -549,11 +540,6 @@ public class RhinoInsideManager : IRhinoInsideManager
         var isSuppressed = _hideGrasshopperPreviewWhenEditorHidden && (isMinimised || isHidden);
 
         this.GrasshopperPreviewServer.SetSuppressed(isSuppressed);
-
-        System.Diagnostics.Debug.WriteLine(
-            $"RhinoInsideManager: Grasshopper preview suppressed={isSuppressed} " +
-            $"(isMinimised={isMinimised}, isHidden={isHidden}), " +
-            $"mode={this.GrasshopperPreviewServer.PreviewMode}");
     }
 
     /// <summary>

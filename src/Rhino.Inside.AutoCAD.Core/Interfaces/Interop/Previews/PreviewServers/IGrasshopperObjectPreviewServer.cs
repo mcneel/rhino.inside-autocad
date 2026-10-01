@@ -36,7 +36,7 @@ public interface IGrasshopperObjectPreviewServer
     /// dropped. Lowering it drops the oldest previews straight away.
     /// </summary>
     /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
-    int MaxEntityCount { get; set; }
+    int MaxItemCount { get; set; }
 
     /// <summary>
     /// Sets the preview mode to the specified <paramref name="previewMode"/>.

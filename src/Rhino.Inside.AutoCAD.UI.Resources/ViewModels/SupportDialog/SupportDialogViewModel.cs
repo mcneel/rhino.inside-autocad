@@ -26,14 +26,14 @@ public partial class SupportDialogViewModel : ObservableObject
     private const string _rhinoPreviewColorLabel = UIConstants.RhinoPreviewColorLabel;
     private const string _grasshopperPreviewColorLabel = UIConstants.GrasshopperPreviewColorLabel;
     private const string _selectedPreviewColorLabel = UIConstants.SelectedPreviewColorLabel;
-    private const string _previewEntityLimitLabel = UIConstants.PreviewEntityLimitLabel;
-    private const string _previewEntityLimitToolTip = UIConstants.PreviewEntityLimitToolTip;
+    private const string _previewItemLimitLabel = UIConstants.PreviewItemLimitLabel;
+    private const string _previewItemLimitToolTip = UIConstants.PreviewItemLimitToolTip;
     private const string _hideRhinoPreviewWhenWindowHiddenLabel = UIConstants.HideRhinoPreviewWhenWindowHiddenLabel;
     private const string _hideRhinoPreviewWhenWindowHiddenToolTip = UIConstants.HideRhinoPreviewWhenWindowHiddenToolTip;
     private const string _hideGrasshopperPreviewWhenEditorHiddenLabel = UIConstants.HideGrasshopperPreviewWhenEditorHiddenLabel;
     private const string _hideGrasshopperPreviewWhenEditorHiddenToolTip = UIConstants.HideGrasshopperPreviewWhenEditorHiddenToolTip;
-    private const int _minPreviewEntityLimit = ApplicationConstants.MinPreviewEntityLimit;
-    private const int _maxPreviewEntityLimit = ApplicationConstants.MaxPreviewEntityLimit;
+    private const int _minPreviewItemLimit = ApplicationConstants.MinPreviewItemLimit;
+    private const int _maxPreviewItemLimit = ApplicationConstants.MaxPreviewItemLimit;
 
     /// <summary>
     /// The <see cref="Visibility"/> of the buttons in the dialog.
@@ -188,14 +188,14 @@ public partial class SupportDialogViewModel : ObservableObject
     public string SelectedPreviewColorLabel => _selectedPreviewColorLabel;
 
     /// <summary>
-    /// The label of the preview entity limit.
+    /// The label of the preview item limit.
     /// </summary>
-    public string PreviewEntityLimitLabel => _previewEntityLimitLabel;
+    public string PreviewItemLimitLabel => _previewItemLimitLabel;
 
     /// <summary>
-    /// The tooltip explaining the preview entity limit.
+    /// The tooltip explaining the preview item limit.
     /// </summary>
-    public string PreviewEntityLimitToolTip => _previewEntityLimitToolTip;
+    public string PreviewItemLimitToolTip => _previewItemLimitToolTip;
 
     /// <summary>
     /// The label of the choice to hide the Rhino preview while the Rhino window is hidden.
@@ -242,11 +242,11 @@ public partial class SupportDialogViewModel : ObservableObject
     private int _selectedPreviewColorIndex;
 
     /// <summary>
-    /// The most entities each preview server draws, saved and applied as soon as it is
+    /// The most preview items each preview server draws, saved and applied as soon as it is
     /// changed.
     /// </summary>
     [ObservableProperty]
-    private int _maxPreviewEntityCount;
+    private int _maxPreviewItemCount;
 
     /// <summary>
     /// True when the Rhino preview is hidden while the Rhino window is minimised or closed,
@@ -296,7 +296,7 @@ public partial class SupportDialogViewModel : ObservableObject
 
         _selectedPreviewColorIndex = settings.SelectedPreviewColorIndex;
 
-        _maxPreviewEntityCount = settings.MaxPreviewEntityCount;
+        _maxPreviewItemCount = settings.MaxPreviewEntityCount;
 
         _hideRhinoPreviewWhenWindowHidden = settings.HideRhinoPreviewWhenWindowHidden;
 
@@ -349,21 +349,21 @@ public partial class SupportDialogViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Persists and applies the newly chosen preview entity limit, clamped to the range the
+    /// Persists and applies the newly chosen preview item limit, clamped to the range the
     /// user may choose from.
     /// </summary>
-    partial void OnMaxPreviewEntityCountChanged(int value)
+    partial void OnMaxPreviewItemCountChanged(int value)
     {
-        var clampedValue = Math.Max(_minPreviewEntityLimit, Math.Min(value, _maxPreviewEntityLimit));
+        var clampedValue = Math.Max(_minPreviewItemLimit, Math.Min(value, _maxPreviewItemLimit));
 
         // Setting the clamped value raises this handler again, which does the saving.
         if (clampedValue != value)
         {
-            this.MaxPreviewEntityCount = clampedValue;
+            this.MaxPreviewItemCount = clampedValue;
             return;
         }
 
-        this.SavePreviewEntityLimitSettings();
+        this.SavePreviewItemLimitSettings();
     }
 
     /// <summary>
@@ -412,16 +412,16 @@ public partial class SupportDialogViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Writes the preview entity limit back to disk and applies it to the previews.
+    /// Writes the preview item limit back to disk and applies it to the previews.
     /// </summary>
-    private void SavePreviewEntityLimitSettings()
+    private void SavePreviewItemLimitSettings()
     {
         if (_isLoadingSettings)
             return;
 
         var settings = _userSettingsStore.Settings;
 
-        settings.MaxPreviewEntityCount = this.MaxPreviewEntityCount;
+        settings.MaxPreviewEntityCount = this.MaxPreviewItemCount;
 
         _userSettingsStore.Save();
 
@@ -429,7 +429,7 @@ public partial class SupportDialogViewModel : ObservableObject
         // more than waiting for the next AutoCAD session to see it take effect.
         try
         {
-            _rhinoInsideManager.UpdatePreviewEntityLimit(this.MaxPreviewEntityCount);
+            _rhinoInsideManager.UpdatePreviewItemLimit(this.MaxPreviewItemCount);
         }
         catch (Exception e)
         {

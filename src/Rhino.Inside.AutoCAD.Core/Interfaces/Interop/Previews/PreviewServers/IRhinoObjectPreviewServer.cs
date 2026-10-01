@@ -36,7 +36,7 @@ public interface IRhinoObjectPreviewServer
     /// dropped. Lowering it drops the oldest previews straight away.
     /// </summary>
     /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
-    int MaxEntityCount { get; set; }
+    int MaxItemCount { get; set; }
 
     /// <summary>
     /// Toggles the visibility of all transients managed by the <see cref

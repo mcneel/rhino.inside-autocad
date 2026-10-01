@@ -143,8 +143,6 @@ public class RhinoInstance : IRhinoInstance
             RhinoDoc.DeselectAllObjects += this.OnDeselectObjects;
             RhinoDoc.CloseDocument += this.OnCloseDocument;
             RhinoDoc.BeginOpenDocument += this.OnBeginOpenDocument;
-            RhinoDoc.EndOpenDocument += this.OnEndOpenDocument;
-            RhinoDoc.NewDocument += this.OnNewDocument;
             RhinoDoc.ActiveDocumentChanged += this.OnActiveDocumentChanged;
 
             return rhinoDoc;
@@ -227,26 +225,6 @@ public class RhinoInstance : IRhinoInstance
     }
 
     /// <summary>
-    /// Writes a Rhino document event to the debug output, for diagnosing how Rhino orders
-    /// its document events when a file is opened or created.
-    /// </summary>
-    /// <param name="eventName">The name of the Rhino event.</param>
-    /// <param name="documentSerialNumber">The serial number the event was raised for.</param>
-    /// <param name="document">The document the event was raised for, if Rhino reported one.</param>
-    /// <param name="detail">Any further detail specific to the event.</param>
-    private void TraceDocumentEvent(string eventName, uint documentSerialNumber,
-        RhinoDoc? document, string detail = "")
-    {
-        var isHeadless = document?.IsHeadless.ToString() ?? "unknown";
-
-        var activeSerialNumber = this.ActiveDoc?.RuntimeSerialNumber.ToString() ?? "none";
-
-        System.Diagnostics.Debug.WriteLine(
-            $"RhinoInstance.{eventName}: serial={documentSerialNumber}, isHeadless={isHeadless}, " +
-            $"activeDocSerial={activeSerialNumber}{detail}");
-    }
-
-    /// <summary>
     /// Raises <see cref="DocumentClosed"/> for the document with the given serial number.
     /// </summary>
     /// <param name="documentSerialNumber">The serial number of the document that went away.</param>
@@ -274,8 +252,6 @@ public class RhinoInstance : IRhinoInstance
     {
         var document = e.Document;
 
-        this.TraceDocumentEvent(nameof(RhinoDoc.CloseDocument), e.DocumentSerialNumber, document);
-
         if (this.IsTemporaryDocument(document)) return;
 
         this.RaiseDocumentClosed(e.DocumentSerialNumber);
@@ -297,42 +273,9 @@ public class RhinoInstance : IRhinoInstance
     {
         var document = e.Document;
 
-        var detail = $", merge={e.Merge}, reference={e.Reference}, file={e.FileName}";
-
-        this.TraceDocumentEvent(nameof(RhinoDoc.BeginOpenDocument), e.DocumentSerialNumber,
-            document, detail);
-
         if (e.Merge || e.Reference || this.IsTemporaryDocument(document)) return;
 
         this.RaiseDocumentClosed(e.DocumentSerialNumber);
-    }
-
-    /// <summary>
-    /// Handles the <see cref="RhinoDoc.EndOpenDocument"/> event by writing it to the debug
-    /// output.
-    /// </summary>
-    /// <param name="sender">The event source.</param>
-    /// <param name="e">The event arguments containing the opened document.</param>
-    /// <remarks>
-    /// The opened file's objects are previewed as Rhino adds them, through
-    /// <see cref="RhinoDoc.AddRhinoObject"/>, so nothing is done here.
-    /// </remarks>
-    private void OnEndOpenDocument(object sender, DocumentOpenEventArgs e)
-    {
-        var detail = $", merge={e.Merge}, reference={e.Reference}, file={e.FileName}";
-
-        this.TraceDocumentEvent(nameof(RhinoDoc.EndOpenDocument), e.DocumentSerialNumber,
-            e.Document, detail);
-    }
-
-    /// <summary>
-    /// Handles the <see cref="RhinoDoc.NewDocument"/> event by writing it to the debug output.
-    /// </summary>
-    /// <param name="sender">The event source.</param>
-    /// <param name="e">The event arguments containing the new document.</param>
-    private void OnNewDocument(object sender, DocumentEventArgs e)
-    {
-        this.TraceDocumentEvent(nameof(RhinoDoc.NewDocument), e.DocumentSerialNumber, e.Document);
     }
 
     /// <summary>
@@ -352,9 +295,6 @@ public class RhinoInstance : IRhinoInstance
     private void OnActiveDocumentChanged(object sender, DocumentEventArgs e)
     {
         var document = e.Document;
-
-        this.TraceDocumentEvent(nameof(RhinoDoc.ActiveDocumentChanged), e.DocumentSerialNumber,
-            document);
 
         if (document == null || document.IsHeadless) return;
 
@@ -384,10 +324,6 @@ public class RhinoInstance : IRhinoInstance
     /// <param name="e">The event arguments.</param>
     private void OnWindowDisplayStateChanged(object? sender, EventArgs e)
     {
-        System.Diagnostics.Debug.WriteLine(
-            $"RhinoInstance.WindowDisplayStateChanged: isMinimised={this.IsWindowMinimised}, " +
-            $"isHidden={this.IsWindowHidden}");
-
         this.WindowDisplayStateChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -541,10 +477,6 @@ public class RhinoInstance : IRhinoInstance
         RhinoDoc.CloseDocument -= this.OnCloseDocument;
 
         RhinoDoc.BeginOpenDocument -= this.OnBeginOpenDocument;
-
-        RhinoDoc.EndOpenDocument -= this.OnEndOpenDocument;
-
-        RhinoDoc.NewDocument -= this.OnNewDocument;
 
         RhinoDoc.ActiveDocumentChanged -= this.OnActiveDocumentChanged;
 

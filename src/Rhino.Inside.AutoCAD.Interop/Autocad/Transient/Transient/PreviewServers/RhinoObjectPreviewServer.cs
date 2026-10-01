@@ -20,10 +20,10 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
     public bool IsSuppressed { get; private set; }
 
     /// <inheritdoc/>
-    public int MaxEntityCount
+    public int MaxItemCount
     {
-        get => _previewServer.MaxEntityCount;
-        set => _previewServer.MaxEntityCount = value;
+        get => _previewServer.MaxItemCount;
+        set => _previewServer.MaxItemCount = value;
     }
 
     /// <summary>
@@ -31,10 +31,10 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
     /// </summary>
     public RhinoObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings,
         IGeometryPreviewSettings selectedPreviewSettings,
-        IPreviewDrawableBuilder previewDrawableBuilder, int maxEntityCount)
+        IPreviewDrawableBuilder previewDrawableBuilder, int maxItemCount)
     {
         _previewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings,
-            previewDrawableBuilder, maxEntityCount);
+            previewDrawableBuilder, maxItemCount);
 
         this.Visible = true;
 

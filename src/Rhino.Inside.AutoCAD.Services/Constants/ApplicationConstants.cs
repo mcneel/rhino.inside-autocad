@@ -121,33 +121,33 @@ public class ApplicationConstants
     public const int DefaultSelectedPreviewColorIndex = 2;
 
     /// <summary>
-    /// The number of AutoCAD entities a single preview server draws until the user chooses
+    /// The number of preview items a single preview server draws until the user chooses
     /// otherwise. Beyond it the oldest previews are dropped to make room for the newest.
     /// </summary>
     /// <remarks>
-    /// Value: 50000. AutoCAD adds and erases transients one entity at a time, so an
-    /// unbounded preview of millions of entities stalls the application.
+    /// Value: 50000. Every preview item is drawn again on each regeneration, such as each
+    /// orbit frame, so an unbounded preview of millions of items stalls the application.
     /// </remarks>
     /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
-    public const int DefaultMaxPreviewEntityCount = 50000;
+    public const int DefaultMaxPreviewItemCount = 50000;
 
     /// <summary>
-    /// The lowest preview entity limit the user can choose.
+    /// The lowest preview item limit the user can choose.
     /// </summary>
     /// <remarks>
     /// Value: 1000.
     /// </remarks>
     /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
-    public const int MinPreviewEntityLimit = 1000;
+    public const int MinPreviewItemLimit = 1000;
 
     /// <summary>
-    /// The highest preview entity limit the user can choose.
+    /// The highest preview item limit the user can choose.
     /// </summary>
     /// <remarks>
     /// Value: 1000000.
     /// </remarks>
     /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
-    public const int MaxPreviewEntityLimit = 1000000;
+    public const int MaxPreviewItemLimit = 1000000;
 
     /// <summary>
     /// Whether the Rhino preview is hidden while the Rhino window is minimised or closed

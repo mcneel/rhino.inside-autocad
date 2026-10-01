@@ -705,7 +705,7 @@
                         <RowDefinition Height="Auto" />
                         <!-- Selected preview colour -->
                         <RowDefinition Height="Auto" />
-                        <!-- Preview entity limit -->
+                        <!-- Preview item limit -->
                         <RowDefinition Height="Auto" />
                         <!-- Hide Rhino preview checkbox -->
                         <RowDefinition Height="Auto" />
@@ -834,13 +834,13 @@
                                           VerticalAlignment="Center"
                                           SelectedColorIndex="{Binding SelectedPreviewColorIndex}" />
 
-                    <!-- The most entities each preview server draws -->
+                    <!-- The most preview items each preview server draws -->
                     <TextBlock Grid.Column="0"
                                Grid.Row="10"
                                Margin="0,14,10,0"
                                VerticalAlignment="Center"
-                               Text="{Binding PreviewEntityLimitLabel}"
-                               ToolTip="{Binding PreviewEntityLimitToolTip}"
+                               Text="{Binding PreviewItemLimitLabel}"
+                               ToolTip="{Binding PreviewItemLimitToolTip}"
                                Foreground="{StaticResource PrimaryTextBrush}"
                                Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
 
@@ -851,9 +851,9 @@
                              HorizontalAlignment="Right"
                              VerticalAlignment="Center"
                              HorizontalContentAlignment="Right"
-                             ToolTip="{Binding PreviewEntityLimitToolTip}"
+                             ToolTip="{Binding PreviewItemLimitToolTip}"
                              Foreground="{StaticResource PrimaryTextBrush}"
-                             Text="{Binding MaxPreviewEntityCount, UpdateSourceTrigger=LostFocus}" />
+                             Text="{Binding MaxPreviewItemCount, UpdateSourceTrigger=LostFocus}" />
 
                     <!-- Hide the Rhino preview while its window is minimised or closed -->
                     <CheckBox Grid.Column="0"
