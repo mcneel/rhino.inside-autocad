@@ -56,4 +56,21 @@ public interface IRhinoInstallation
     /// rather than from <see cref="SystemDirectory"/>.
     /// </remarks>
     string AssemblyDirectory { get; }
+
+    /// <summary>
+    /// The file version of the assembly at <see cref="RhinoCommonPath"/>, for example
+    /// 8.32.26160.13001, or 0.0 when it could not be read.
+    /// </summary>
+    /// <remarks>
+    /// Read from the file rather than the loaded assembly, so it is known before anything
+    /// binds to the installation.
+    /// </remarks>
+    Version RhinoCommonVersion { get; }
+
+    /// <summary>
+    /// True when <see cref="RhinoCommonVersion"/> is older than the minimum this build
+    /// supports. An outdated installation is never offered or bound; the user is asked to
+    /// update Rhino instead.
+    /// </summary>
+    bool IsOutdated { get; }
 }

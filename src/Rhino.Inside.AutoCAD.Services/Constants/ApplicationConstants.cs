@@ -121,6 +121,55 @@ public class ApplicationConstants
     public const int DefaultSelectedPreviewColorIndex = 2;
 
     /// <summary>
+    /// The number of preview items a single preview server draws until the user chooses
+    /// otherwise. Beyond it the oldest previews are dropped to make room for the newest.
+    /// </summary>
+    /// <remarks>
+    /// Value: 50000. Every preview item is drawn again on each regeneration, such as each
+    /// orbit frame, so an unbounded preview of millions of items stalls the application.
+    /// </remarks>
+    /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
+    public const int DefaultMaxPreviewItemCount = 50000;
+
+    /// <summary>
+    /// The lowest preview item limit the user can choose.
+    /// </summary>
+    /// <remarks>
+    /// Value: 1000.
+    /// </remarks>
+    /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
+    public const int MinPreviewItemLimit = 1000;
+
+    /// <summary>
+    /// The highest preview item limit the user can choose.
+    /// </summary>
+    /// <remarks>
+    /// Value: 1000000.
+    /// </remarks>
+    /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
+    public const int MaxPreviewItemLimit = 1000000;
+
+    /// <summary>
+    /// Whether the Rhino preview is hidden while the Rhino window is minimised or closed
+    /// until the user chooses otherwise.
+    /// </summary>
+    /// <remarks>
+    /// Value: true.
+    /// </remarks>
+    /// <seealso cref="IUserSettings.HideRhinoPreviewWhenWindowHidden"/>
+    public const bool DefaultHideRhinoPreviewWhenWindowHidden = true;
+
+    /// <summary>
+    /// Whether the Grasshopper preview is hidden while the Grasshopper editor is minimised or
+    /// closed until the user chooses otherwise.
+    /// </summary>
+    /// <remarks>
+    /// Value: true.
+    /// </remarks>
+    /// <seealso cref="IUserSettings.HideGrasshopperPreviewWhenEditorHidden"/>
+    public const bool DefaultHideGrasshopperPreviewWhenEditorHidden = true;
+
+    /// <summary>
     /// Assembly filenames for Material Design WPF dependencies.
     /// </summary>
     /// <remarks>
@@ -332,6 +381,19 @@ public class ApplicationConstants
 #endif
 
     /// <summary>
+    /// The oldest RhinoCommon this build will bind to.
+    /// </summary>
+    /// <remarks>
+    /// Compared against the file version of each installation's RhinoCommon assembly, read
+    /// without loading it. An installation older than this is never offered or bound;
+    /// when it is all the machine has, the plugin declines to load and asks the user to
+    /// update Rhino. 8.32 is the first service release McNeel support in a .NET 10 host,
+    /// and one minimum is applied to every build so they all behave alike.
+    /// </remarks>
+    /// <seealso cref="RhinoUpdateRequiredMessageFormat"/>
+    public static readonly Version MinimumRhinoCommonVersion = new(8, 32);
+
+    /// <summary>
     /// Assembly name for RhinoCommon (without file extension).
     /// </summary>
     /// <remarks>
@@ -415,6 +477,26 @@ public class ApplicationConstants
     public const string RhinoVersionNotSelectedErrorMessage =
         "Rhino.Inside.AutoCAD did not start because no Rhino version was selected. " +
         "Restart AutoCAD to choose one.";
+
+    /// <summary>
+    /// Format string for the message shown when every installed Rhino is older than
+    /// <see cref="MinimumRhinoCommonVersion"/>.
+    /// </summary>
+    /// <remarks>
+    /// Value: "Rhino.Inside.AutoCAD requires Rhino {0} or later, but the newest Rhino
+    /// installed is {1}. Please update Rhino, then restart AutoCAD.". The first placeholder
+    /// receives the minimum version, the second the newest installed RhinoCommon version.
+    /// </remarks>
+    /// <seealso cref="RhinoDownloadUrl"/>
+    public const string RhinoUpdateRequiredMessageFormat =
+        "Rhino.Inside.AutoCAD requires Rhino {0} or later, but the newest Rhino installed is " +
+        "{1}. Please update Rhino, then restart AutoCAD.";
+
+    /// <summary>
+    /// URL of the page to download the latest Rhino from.
+    /// </summary>
+    /// <seealso cref="RhinoUpdateRequiredMessageFormat"/>
+    public const string RhinoDownloadUrl = "https://www.rhino3d.com/download/";
 
     /// <summary>
     /// Format string for the command line message written when the plugin declines to load.
@@ -607,31 +689,6 @@ public class ApplicationConstants
     public const string LegacyCoreLibraryName = "mscorlib";
 
     /// <summary>
-    /// Format string for the full name of the class Visual Studio generates from
-    /// Properties/Resources.resx.
-    /// </summary>
-    /// <remarks>
-    /// Value: "{0}.Properties.Resources". Placeholder receives the assembly name, which is
-    /// the project's root namespace unless the developer changed it.
-    /// </remarks>
-    public const string PropertiesResourcesTypeNameFormat = "{0}.Properties.Resources";
-
-    /// <summary>
-    /// The namespace suffix of the class Visual Studio generates from
-    /// Properties/Resources.resx.
-    /// </summary>
-    /// <remarks>
-    /// Value: ".Properties". Used to find the generated class when the root namespace
-    /// differs from the assembly name.
-    /// </remarks>
-    public const string PropertiesNamespaceSuffix = ".Properties";
-
-    /// <summary>
-    /// The name of the class Visual Studio generates from Properties/Resources.resx.
-    /// </summary>
-    public const string PropertiesResourcesTypeName = "Resources";
-
-    /// <summary>
     /// The name of the private static field caching the <see cref="System.Resources.ResourceManager"/>
     /// in the class Visual Studio generates from a .resx file.
     /// </summary>
@@ -640,6 +697,17 @@ public class ApplicationConstants
     /// is the one the generated properties use.
     /// </remarks>
     public const string ResourceManagerFieldName = "resourceMan";
+
+    /// <summary>
+    /// The name of the static property exposing the <see cref="System.Resources.ResourceManager"/>
+    /// in the class Visual Studio generates from a .resx file.
+    /// </summary>
+    /// <remarks>
+    /// Value: "ResourceManager". Both the C# and the VB.NET (My.Resources) generators emit it.
+    /// Its getter constructs the manager with the base name the resources were embedded
+    /// under, which can differ from the class's full name.
+    /// </remarks>
+    public const string ResourceManagerPropertyName = "ResourceManager";
 
     /// <summary>
     /// The first major .NET runtime version without BinaryFormatter.

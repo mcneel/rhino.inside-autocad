@@ -47,6 +47,13 @@
 	</ItemGroup>
 
 
+	<PropertyGroup Condition="'$(Configuration)' == 'DebugNET8' Or '$(Configuration)' == 'DebugNET10'">
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<Optimize>false</Optimize>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.pdb&quot; &quot;$(AppRootDirAssemblies)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.*&quot; &quot;$(AppRootResources)&quot;&#xD;&#xA;&#xD;&#xA;xcopy /y /i &quot;$(OutDir)*.dll&quot; &quot;$(DeploymentPackage_Win64)&quot;&#xD;&#xA;xcopy /y /i &quot;$(ProjDir)Resources\*.*&quot; &quot;$(DeploymentPackage)Resources\&quot;" />
 	</Target>

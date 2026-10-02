@@ -26,6 +26,14 @@ public partial class SupportDialogViewModel : ObservableObject
     private const string _rhinoPreviewColorLabel = UIConstants.RhinoPreviewColorLabel;
     private const string _grasshopperPreviewColorLabel = UIConstants.GrasshopperPreviewColorLabel;
     private const string _selectedPreviewColorLabel = UIConstants.SelectedPreviewColorLabel;
+    private const string _previewItemLimitLabel = UIConstants.PreviewItemLimitLabel;
+    private const string _previewItemLimitToolTip = UIConstants.PreviewItemLimitToolTip;
+    private const string _hideRhinoPreviewWhenWindowHiddenLabel = UIConstants.HideRhinoPreviewWhenWindowHiddenLabel;
+    private const string _hideRhinoPreviewWhenWindowHiddenToolTip = UIConstants.HideRhinoPreviewWhenWindowHiddenToolTip;
+    private const string _hideGrasshopperPreviewWhenEditorHiddenLabel = UIConstants.HideGrasshopperPreviewWhenEditorHiddenLabel;
+    private const string _hideGrasshopperPreviewWhenEditorHiddenToolTip = UIConstants.HideGrasshopperPreviewWhenEditorHiddenToolTip;
+    private const int _minPreviewItemLimit = ApplicationConstants.MinPreviewItemLimit;
+    private const int _maxPreviewItemLimit = ApplicationConstants.MaxPreviewItemLimit;
 
     /// <summary>
     /// The <see cref="Visibility"/> of the buttons in the dialog.
@@ -180,6 +188,39 @@ public partial class SupportDialogViewModel : ObservableObject
     public string SelectedPreviewColorLabel => _selectedPreviewColorLabel;
 
     /// <summary>
+    /// The label of the preview item limit.
+    /// </summary>
+    public string PreviewItemLimitLabel => _previewItemLimitLabel;
+
+    /// <summary>
+    /// The tooltip explaining the preview item limit.
+    /// </summary>
+    public string PreviewItemLimitToolTip => _previewItemLimitToolTip;
+
+    /// <summary>
+    /// The label of the choice to hide the Rhino preview while the Rhino window is hidden.
+    /// </summary>
+    public string HideRhinoPreviewWhenWindowHiddenLabel => _hideRhinoPreviewWhenWindowHiddenLabel;
+
+    /// <summary>
+    /// The tooltip explaining the choice to hide the Rhino preview while the Rhino window is
+    /// hidden.
+    /// </summary>
+    public string HideRhinoPreviewWhenWindowHiddenToolTip => _hideRhinoPreviewWhenWindowHiddenToolTip;
+
+    /// <summary>
+    /// The label of the choice to hide the Grasshopper preview while the Grasshopper editor
+    /// is hidden.
+    /// </summary>
+    public string HideGrasshopperPreviewWhenEditorHiddenLabel => _hideGrasshopperPreviewWhenEditorHiddenLabel;
+
+    /// <summary>
+    /// The tooltip explaining the choice to hide the Grasshopper preview while the
+    /// Grasshopper editor is hidden.
+    /// </summary>
+    public string HideGrasshopperPreviewWhenEditorHiddenToolTip => _hideGrasshopperPreviewWhenEditorHiddenToolTip;
+
+    /// <summary>
     /// The AutoCAD Color Index unselected Rhino previews are drawn in, saved and applied as
     /// soon as it is changed.
     /// </summary>
@@ -199,6 +240,27 @@ public partial class SupportDialogViewModel : ObservableObject
     /// </summary>
     [ObservableProperty]
     private int _selectedPreviewColorIndex;
+
+    /// <summary>
+    /// The most preview items each preview server draws, saved and applied as soon as it is
+    /// changed.
+    /// </summary>
+    [ObservableProperty]
+    private int _maxPreviewItemCount;
+
+    /// <summary>
+    /// True when the Rhino preview is hidden while the Rhino window is minimised or closed,
+    /// saved and applied as soon as it is changed.
+    /// </summary>
+    [ObservableProperty]
+    private bool _hideRhinoPreviewWhenWindowHidden;
+
+    /// <summary>
+    /// True when the Grasshopper preview is hidden while the Grasshopper editor is minimised
+    /// or closed, saved and applied as soon as it is changed.
+    /// </summary>
+    [ObservableProperty]
+    private bool _hideGrasshopperPreviewWhenEditorHidden;
 
     /// <summary>
     /// Constructs a new <see cref="SupportDialogViewModel"/>.
@@ -233,6 +295,12 @@ public partial class SupportDialogViewModel : ObservableObject
         _grasshopperPreviewColorIndex = settings.GrasshopperPreviewColorIndex;
 
         _selectedPreviewColorIndex = settings.SelectedPreviewColorIndex;
+
+        _maxPreviewItemCount = settings.MaxPreviewEntityCount;
+
+        _hideRhinoPreviewWhenWindowHidden = settings.HideRhinoPreviewWhenWindowHidden;
+
+        _hideGrasshopperPreviewWhenEditorHidden = settings.HideGrasshopperPreviewWhenEditorHidden;
 
         _isLoadingSettings = false;
     }
@@ -278,6 +346,95 @@ public partial class SupportDialogViewModel : ObservableObject
     partial void OnSelectedPreviewColorIndexChanged(int value)
     {
         this.SavePreviewColorSettings();
+    }
+
+    /// <summary>
+    /// Persists and applies the newly chosen preview item limit, clamped to the range the
+    /// user may choose from.
+    /// </summary>
+    partial void OnMaxPreviewItemCountChanged(int value)
+    {
+        var clampedValue = Math.Max(_minPreviewItemLimit, Math.Min(value, _maxPreviewItemLimit));
+
+        // Setting the clamped value raises this handler again, which does the saving.
+        if (clampedValue != value)
+        {
+            this.MaxPreviewItemCount = clampedValue;
+            return;
+        }
+
+        this.SavePreviewItemLimitSettings();
+    }
+
+    /// <summary>
+    /// Persists and applies the newly chosen Rhino preview hiding behaviour.
+    /// </summary>
+    partial void OnHideRhinoPreviewWhenWindowHiddenChanged(bool value)
+    {
+        this.SavePreviewHidingSettings();
+    }
+
+    /// <summary>
+    /// Persists and applies the newly chosen Grasshopper preview hiding behaviour.
+    /// </summary>
+    partial void OnHideGrasshopperPreviewWhenEditorHiddenChanged(bool value)
+    {
+        this.SavePreviewHidingSettings();
+    }
+
+    /// <summary>
+    /// Writes the preview hiding choices back to disk and applies them to the previews.
+    /// </summary>
+    private void SavePreviewHidingSettings()
+    {
+        if (_isLoadingSettings)
+            return;
+
+        var settings = _userSettingsStore.Settings;
+
+        settings.HideRhinoPreviewWhenWindowHidden = this.HideRhinoPreviewWhenWindowHidden;
+
+        settings.HideGrasshopperPreviewWhenEditorHidden = this.HideGrasshopperPreviewWhenEditorHidden;
+
+        _userSettingsStore.Save();
+
+        // The choice is already saved, so a failure to apply it now costs the user nothing
+        // more than waiting for the next AutoCAD session to see it take effect.
+        try
+        {
+            _rhinoInsideManager.UpdatePreviewHiding(this.HideRhinoPreviewWhenWindowHidden,
+                this.HideGrasshopperPreviewWhenEditorHidden);
+        }
+        catch (Exception e)
+        {
+            LoggerService.Instance.LogError(e);
+        }
+    }
+
+    /// <summary>
+    /// Writes the preview item limit back to disk and applies it to the previews.
+    /// </summary>
+    private void SavePreviewItemLimitSettings()
+    {
+        if (_isLoadingSettings)
+            return;
+
+        var settings = _userSettingsStore.Settings;
+
+        settings.MaxPreviewEntityCount = this.MaxPreviewItemCount;
+
+        _userSettingsStore.Save();
+
+        // The choice is already saved, so a failure to apply it now costs the user nothing
+        // more than waiting for the next AutoCAD session to see it take effect.
+        try
+        {
+            _rhinoInsideManager.UpdatePreviewItemLimit(this.MaxPreviewItemCount);
+        }
+        catch (Exception e)
+        {
+            LoggerService.Instance.LogError(e);
+        }
     }
 
     /// <summary>

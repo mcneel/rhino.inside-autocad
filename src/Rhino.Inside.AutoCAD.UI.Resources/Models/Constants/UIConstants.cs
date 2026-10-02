@@ -94,4 +94,49 @@ public class UIConstants
     /// The label of the color used for selected previews of either kind.
     /// </summary>
     public const string SelectedPreviewColorLabel = "Selected previews";
+
+    /// <summary>
+    /// The label of the most preview items each preview server draws.
+    /// </summary>
+    public const string PreviewItemLimitLabel = "Preview item limit";
+
+    /// <summary>
+    /// The tooltip explaining the preview item limit.
+    /// </summary>
+    public const string PreviewItemLimitToolTip =
+        "The most items (curves, points, meshes and annotations) drawn per preview: the Rhino " +
+        "preview and the Grasshopper shaded and wireframe previews each draw up to this " +
+        "many. When a new preview exceeds it, the oldest previews are removed first. " +
+        "Large values can make AutoCAD unresponsive.";
+
+    /// <summary>
+    /// The label of the choice to hide the Rhino preview while the Rhino window is hidden.
+    /// </summary>
+    public const string HideRhinoPreviewWhenWindowHiddenLabel =
+        "Hide the Rhino preview while the Rhino window is minimised or closed";
+
+    /// <summary>
+    /// The tooltip explaining the choice to hide the Rhino preview while the Rhino window is
+    /// hidden.
+    /// </summary>
+    public const string HideRhinoPreviewWhenWindowHiddenToolTip =
+        "When ticked, the Rhino preview disappears from AutoCAD while the Rhino window is " +
+        "minimised or closed and returns when the window is shown again. When unticked, " +
+        "the preview stays on screen throughout.";
+
+    /// <summary>
+    /// The label of the choice to hide the Grasshopper preview while the Grasshopper editor
+    /// is hidden.
+    /// </summary>
+    public const string HideGrasshopperPreviewWhenEditorHiddenLabel =
+        "Hide the Grasshopper preview while the Grasshopper editor is minimised or closed";
+
+    /// <summary>
+    /// The tooltip explaining the choice to hide the Grasshopper preview while the
+    /// Grasshopper editor is hidden.
+    /// </summary>
+    public const string HideGrasshopperPreviewWhenEditorHiddenToolTip =
+        "When ticked, the Grasshopper preview disappears from AutoCAD while the Grasshopper " +
+        "editor is minimised or closed and returns when the editor is shown again. When " +
+        "unticked, the preview stays on screen throughout.";
 }

@@ -75,6 +75,39 @@ public interface IRhinoInsideManager
         int selectedColorIndex);
 
     /// <summary>
+    /// Limits each preview server to <paramref name="maxItemCount"/> preview items from here on,
+    /// dropping the oldest previews on screen straight away if they exceed it.
+    /// </summary>
+    /// <remarks>
+    /// Called when the user changes the limit on the settings page. Persisting the choice is
+    /// the caller's job; this only applies it to the running session.
+    /// </remarks>
+    /// <param name="maxItemCount">The most preview items each preview server draws.</param>
+    /// <seealso cref="IUserSettings.MaxPreviewEntityCount"/>
+    void UpdatePreviewItemLimit(int maxItemCount);
+
+    /// <summary>
+    /// Sets whether each preview is hidden while its window is minimised or closed, and
+    /// shows or hides the previews on screen straight away to match the windows' current
+    /// states.
+    /// </summary>
+    /// <remarks>
+    /// Called when the user changes the choice on the settings page. Persisting the choice is
+    /// the caller's job; this only applies it to the running session.
+    /// </remarks>
+    /// <param name="hideRhinoPreviewWhenWindowHidden">
+    /// True to hide the Rhino preview while the Rhino window is minimised or closed.
+    /// </param>
+    /// <param name="hideGrasshopperPreviewWhenEditorHidden">
+    /// True to hide the Grasshopper preview while the Grasshopper editor is minimised or
+    /// closed.
+    /// </param>
+    /// <seealso cref="IUserSettings.HideRhinoPreviewWhenWindowHidden"/>
+    /// <seealso cref="IUserSettings.HideGrasshopperPreviewWhenEditorHidden"/>
+    void UpdatePreviewHiding(bool hideRhinoPreviewWhenWindowHidden,
+        bool hideGrasshopperPreviewWhenEditorHidden);
+
+    /// <summary>
     /// Requests the preview materials for the active document, creating any that are missing
     /// once AutoCAD is idle.
     /// </summary>

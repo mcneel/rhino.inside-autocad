@@ -1,0 +1,135 @@
+<Window x:Class="Rhino.Inside.AutoCAD.UI.Resources.Views.RhinoUpdateDialogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Rhino Update Required"
+        SizeToContent="Height"
+        Width="500"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        FontFamily="Maison Neue"
+        MouseDown="Window_MouseDown"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Views/Styles/ColorStyles.xaml" />
+
+                <materialDesign:CustomColorTheme BaseTheme="Light"
+                                                 PrimaryColor="{StaticResource BrandBlue}"
+                                                 SecondaryColor="{StaticResource BrandGrey}" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/materialdesign3.defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Background="{StaticResource BackgroundCardBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Heading with the alert icon -->
+        <StackPanel Grid.Row="0"
+                    Grid.Column="0"
+                    Orientation="Horizontal"
+                    Margin="20,20,10,0"
+                    VerticalAlignment="Top">
+            <materialDesign:PackIcon Kind="Alert"
+                                     Foreground="{StaticResource WarningColorBrush}"
+                                     VerticalAlignment="Center" />
+
+            <TextBlock Text="Rhino update required"
+                       Margin="8,0,0,0"
+                       FontSize="14"
+                       FontWeight="Medium"
+                       Foreground="{StaticResource WarningColorBrush}"
+                       VerticalAlignment="Center" />
+        </StackPanel>
+
+        <!-- The Rhino Inside Logo -->
+        <Image Grid.Row="0"
+               Grid.Column="1"
+               Grid.RowSpan="2"
+               Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Resources/RhinoInsideLogo.png"
+               Margin="20"
+               Width="92"
+               VerticalAlignment="Top"
+               HorizontalAlignment="Right" />
+
+        <!-- The update message -->
+        <TextBlock Grid.Row="1"
+                   Grid.Column="0"
+                   VerticalAlignment="Top"
+                   Text="{Binding Message}"
+                   Margin="20,15,20,5"
+                   TextAlignment="Left"
+                   TextWrapping="Wrap"
+                   FontSize="12"
+                   Foreground="{StaticResource SecondaryTextBrush}" />
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="2"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Margin="0,20,0,15">
+
+            <!-- Update Rhino Button -->
+            <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Content="Update Rhino"
+                    BorderThickness="2"
+                    Margin="0,0,15,0"
+                    Padding="15,5"
+                    BorderBrush="{StaticResource PrimaryColorBrush}"
+                    Foreground="{StaticResource PrimaryColorBrush}"
+                    Click="UpdateButton_Click" />
+
+            <!-- Close Button -->
+            <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Content="Close"
+                    BorderThickness="2"
+                    Padding="15,5"
+                    BorderBrush="{StaticResource WarningColorBrush}"
+                    Foreground="{StaticResource WarningColorBrush}"
+                    Click="CloseButton_Click" />
+        </StackPanel>
+
+        <!-- Brought to you Label -->
+        <StackPanel Grid.Row="3"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Margin="0,8,0,8">
+            <TextBlock Text="Developed in collaboration with"
+                       FontStyle="Italic"
+                       HorizontalAlignment="Center"
+                       FontSize="10"
+                       Foreground="{StaticResource SecondaryTextBrush}"
+                       VerticalAlignment="Center" />
+
+            <Image Source="pack://application:,,,/Rhino.Inside.AutoCAD.UI.Resources;component/Resources/BimorphLogo.png"
+                   Width="70"
+                   Margin="8 0 0 0"
+                   VerticalAlignment="Center" />
+        </StackPanel>
+    </Grid>
+</Window>

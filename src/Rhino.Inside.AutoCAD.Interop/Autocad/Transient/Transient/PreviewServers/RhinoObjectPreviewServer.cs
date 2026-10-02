@@ -16,14 +16,25 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
     /// <inheritdoc/>
     public bool Visible { get; private set; }
 
+    /// <inheritdoc/>
+    public bool IsSuppressed { get; private set; }
+
+    /// <inheritdoc/>
+    public int MaxItemCount
+    {
+        get => _previewServer.MaxItemCount;
+        set => _previewServer.MaxItemCount = value;
+    }
+
     /// <summary>
     /// Constructs a new <see cref="RhinoObjectPreviewServer"/>
     /// </summary>
     public RhinoObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings,
         IGeometryPreviewSettings selectedPreviewSettings,
-        IPreviewGeometryConverter previewGeometryConverter)
+        IPreviewDrawableBuilder previewDrawableBuilder, int maxItemCount)
     {
-        _previewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings, previewGeometryConverter);
+        _previewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings,
+            previewDrawableBuilder, maxItemCount);
 
         this.Visible = true;
 
@@ -35,9 +46,12 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
     /// <summary>
     /// Updates the transient elements visibility based on the current state.
     /// </summary>
+    /// <remarks>
+    /// Drawn only while the user has the preview on and it is not suppressed.
+    /// </remarks>
     private void UpdateTransientElements()
     {
-        if (this.Visible)
+        if (this.Visible && this.IsSuppressed == false)
         {
             _previewServer.PopulateServer();
         }
@@ -61,6 +75,12 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
     }
 
     /// <inheritdoc />
+    public bool SetSelected(Guid rhinoObjectId, bool selected)
+    {
+        return _previewServer.SetSelected(rhinoObjectId, selected);
+    }
+
+    /// <inheritdoc />
     public void DeselectAll()
     {
         _previewServer.DeselectAll();
@@ -70,10 +90,6 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
     public void RefreshAppearance()
     {
         _previewServer.RefreshAppearance();
-
-        // Refreshing adds the transients back, which would show previews the user has
-        // toggled off, so the visibility state is reapplied.
-        this.UpdateTransientElements();
     }
 
     /// <inheritdoc />
@@ -84,10 +100,18 @@ public class RhinoObjectPreviewServer : IRhinoObjectPreviewServer
         this.UpdateTransientElements();
     }
 
-    /// <summary>
-    /// Clears all preview objects from the server and disposes entities.
-    /// Used during application shutdown to ensure clean disposal.
-    /// </summary>
+    /// <inheritdoc />
+    public void SetSuppressed(bool suppressed)
+    {
+        this.IsSuppressed = suppressed;
+
+        this.UpdateTransientElements();
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Used when the Rhino document is closed and during application shutdown.
+    /// </remarks>
     public void ClearAll()
     {
         _previewServer.ClearAndDisposeAll();

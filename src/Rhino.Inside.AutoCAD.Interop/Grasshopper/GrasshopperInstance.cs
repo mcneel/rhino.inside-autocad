@@ -3,6 +3,7 @@ using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Services;
+using System.Collections;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 
@@ -41,6 +42,32 @@ public class GrasshopperInstance : IGrasshopperInstance
     private IGrasshopperSelectionTracker? _selectionTracker;
     private GH_Canvas? _activeCanvas;
 
+    /// <summary>
+    /// Watches the Grasshopper editor for being minimised, restored, hidden or shown.
+    /// Created with this instance, and attached to the editor once it exists.
+    /// </summary>
+    private readonly GrasshopperWindowManager _windowManager;
+
+    /// <summary>
+    /// The objects whose previews are to be rebuilt when the running solution ends: those
+    /// which were not computed when it started, and those whose preview was switched on or
+    /// off while it ran. Filled on <c>SolutionStart</c> and emptied on <c>SolutionEnd</c>.
+    /// </summary>
+    private readonly HashSet<IGH_DocumentObject> _pendingPreviews = new();
+
+    /// <summary>
+    /// The first output branch of every output parameter of each object which was already
+    /// computed when the running solution started, keyed by object. Compared on
+    /// <c>SolutionEnd</c> to find the objects a full recompute solved again.
+    /// </summary>
+    private readonly Dictionary<IGH_DocumentObject, IList?[]> _computedOutputBranches = new();
+
+    /// <summary>
+    /// True between a <c>SolutionStart</c> and its <c>SolutionEnd</c>, while a preview
+    /// toggle is deferred to the end of the solution rather than rebuilt straight away.
+    /// </summary>
+    private bool _isSolving;
+
     /// <inheritdoc />
     public event EventHandler<IGrasshopperObjectModifiedEventArgs>? PreviewExpired;
 
@@ -51,6 +78,12 @@ public class GrasshopperInstance : IGrasshopperInstance
     public event EventHandler<IGrasshopperSelectionEventArgs>? ComponentSelectionChanged;
 
     /// <inheritdoc />
+    public event EventHandler? ActiveDocumentChanged;
+
+    /// <inheritdoc />
+    public event EventHandler? EditorDisplayStateChanged;
+
+    /// <inheritdoc />
     public GH_Document? ActiveDoc { get; private set; }
 
     /// <inheritdoc />
@@ -58,6 +91,15 @@ public class GrasshopperInstance : IGrasshopperInstance
 
     /// <inheritdoc />
     public bool IsEnabled => Grasshopper.Kernel.GH_Document.EnableSolutions;
+
+    /// <inheritdoc />
+    public IGrasshopperWindowManager WindowManager => _windowManager;
+
+    /// <inheritdoc />
+    public bool IsEditorMinimised => _windowManager.IsMinimised;
+
+    /// <inheritdoc />
+    public bool IsEditorHidden => _windowManager.IsHidden;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GrasshopperInstance"/> class.
@@ -73,6 +115,12 @@ public class GrasshopperInstance : IGrasshopperInstance
     {
         _installationDirectories = installationDirectories;
         _loadCivil = loadCivil;
+
+        var windowManager = new GrasshopperWindowManager();
+
+        windowManager.DisplayStateChanged += this.OnEditorDisplayStateChanged;
+
+        _windowManager = windowManager;
     }
 
     /// <summary>
@@ -382,7 +430,13 @@ public class GrasshopperInstance : IGrasshopperInstance
 
             GooTypeRegistry.Initialize();
 
+            // Removed first, as this runs on every launch and the handler is only wanted once.
+            Grasshopper.Instances.CanvasCreated -= this.OnCanvasCreated;
             Grasshopper.Instances.CanvasCreated += this.OnCanvasCreated;
+
+            // Picks up an editor which already exists, such as on a relaunch.
+            _windowManager.TryAttach();
+
             this.ApplicationVersion = new Version(Grasshopper.Versioning.Version.ToString());
         }
         catch
@@ -419,6 +473,19 @@ public class GrasshopperInstance : IGrasshopperInstance
 
         _activeCanvas = Grasshopper.Instances.ActiveCanvas;
         _activeCanvas.DocumentChanged += this.OnDocumentChanged;
+
+        // The editor holding the canvas is not assigned to Instances.DocumentEditor until
+        // after the canvas is created, so it is looked for once AutoCAD is next idle.
+        _windowManager.ScheduleAttach();
+    }
+
+    /// <summary>
+    /// Handles the Grasshopper editor being minimised, restored, hidden or shown by raising
+    /// <see cref="EditorDisplayStateChanged"/>.
+    /// </summary>
+    private void OnEditorDisplayStateChanged(object? sender, EventArgs e)
+    {
+        this.EditorDisplayStateChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -483,13 +550,26 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <summary>
     /// Handles the ObjectChanged event for a Grasshopper document object.
     /// </summary>
+    /// <remarks>
+    /// A preview switched on or off is rebuilt whether or not its object was recomputed,
+    /// which is what draws a component whose preview is switched back on. Outside a
+    /// solution it is rebuilt straight away. During one it is deferred to
+    /// <see cref="OnSolutionEnd"/>, so an object both toggled and recomputed in the same
+    /// solution is rebuilt once, from its final data.
+    /// </remarks>
     private void OnGrasshopperObjectChanged(IGH_DocumentObject sender, GH_ObjectChangedEventArgs e)
     {
-        if (e.Type == GH_ObjectEventType.Preview)
+        if (e.Type != GH_ObjectEventType.Preview) return;
+
+        if (_isSolving)
         {
-            this.PreviewExpired?.Invoke(this,
-                new GrasshopperObjectModifiedEventArgs(sender));
+            _pendingPreviews.Add(sender);
+
+            return;
         }
+
+        this.PreviewExpired?.Invoke(this,
+            new GrasshopperObjectModifiedEventArgs(sender));
     }
 
     /// <summary>
@@ -502,6 +582,7 @@ public class GrasshopperInstance : IGrasshopperInstance
     {
         document.ObjectsAdded += this.OnObjectsAdded;
         document.ObjectsDeleted += this.OnObjectsDeleted;
+        document.SolutionStart += this.OnSolutionStart;
         document.SolutionEnd += this.OnSolutionEnd;
 
         foreach (var ghDocumentObject in document.Objects)
@@ -523,7 +604,10 @@ public class GrasshopperInstance : IGrasshopperInstance
 
         this.ActiveDoc.ObjectsAdded -= this.OnObjectsAdded;
         this.ActiveDoc.ObjectsDeleted -= this.OnObjectsDeleted;
+        this.ActiveDoc.SolutionStart -= this.OnSolutionStart;
         this.ActiveDoc.SolutionEnd -= this.OnSolutionEnd;
+
+        this.ResetSolutionTracking();
 
         foreach (var obj in this.ActiveDoc.Objects)
         {
@@ -562,12 +646,180 @@ public class GrasshopperInstance : IGrasshopperInstance
     }
 
     /// <summary>
-    /// Handles the event when a Grasshopper solution ends, this triggers the recalculation
-    /// of the autocad previews.
+    /// Handles the event when a Grasshopper solution starts by recording which shown
+    /// previews the solution may recompute, so that only those are rebuilt when it ends.
     /// </summary>
+    /// <remarks>
+    /// <c>GH_Document.SolveAllObjects</c> skips every object whose
+    /// <see cref="IGH_ActiveObject.Phase"/> is <see cref="GH_SolutionPhase.Computed"/> and
+    /// solves the rest, so an object which is not computed when the solution starts is the
+    /// one whose data it replaces. That covers a changed slider and everything downstream of
+    /// it, which <c>ExpireSolution</c> blanks before the solution is requested; an object
+    /// disabled or re-enabled, as setting <see cref="IGH_ActiveObject.Locked"/> blanks it,
+    /// and the cleared outputs then clear its preview; a failed object, which is solved
+    /// again; and every object of a newly opened document.
+    /// <para>
+    /// <c>GH_Document.NewSolution(true)</c>, a full recompute, raises <c>SolutionStart</c>
+    /// before it blanks every object, so the phase alone cannot see those. Their first
+    /// output branches are recorded instead: blanking an object clears its output
+    /// structures, which discards their branch lists, and solving it again fills new ones,
+    /// so a branch which is not the same list when the solution ends was recomputed.
+    /// </para>
+    /// <para>
+    /// Anything left from a solution which never reached <c>SolutionEnd</c> is dropped
+    /// here, so it cannot leak into this one.
+    /// </para>
+    /// </remarks>
+    private void OnSolutionStart(object sender, GH_SolutionEventArgs e)
+    {
+        this.ResetSolutionTracking();
+
+        _isSolving = true;
+
+        var document = e.Document;
+
+        if (document == null) return;
+
+        foreach (var ghDocumentObject in document.Objects)
+        {
+            if (ghDocumentObject is not IGH_PreviewObject { Hidden: false })
+                continue;
+
+            if (ghDocumentObject is IGH_ActiveObject { Phase: GH_SolutionPhase.Computed })
+            {
+                _computedOutputBranches[ghDocumentObject] = GetOutputBranches(ghDocumentObject);
+
+                continue;
+            }
+
+            _pendingPreviews.Add(ghDocumentObject);
+        }
+    }
+
+    /// <summary>
+    /// Handles the event when a Grasshopper solution ends by raising
+    /// <see cref="PreviewExpired"/> for the objects it recomputed and those whose preview
+    /// was switched on or off while it ran.
+    /// </summary>
+    /// <remarks>
+    /// Rebuilding a preview means extracting and converting all of its geometry again, so
+    /// rebuilding only what changed keeps a small edit to a large definition cheap. The
+    /// objects are taken in document order, from the document itself, so an object deleted
+    /// during the solution is not given back a preview. An aborted solution still raises
+    /// <c>SolutionEnd</c>, so the objects it blanked are cleared here and, still not
+    /// computed, are rebuilt at the end of the next solution.
+    /// </remarks>
     private void OnSolutionEnd(object sender, GH_SolutionEventArgs e)
     {
-        foreach (var ghDocumentObject in e.Document.Objects)
+        var document = e.Document;
+
+        var expiredObjects = new List<IGH_DocumentObject>();
+
+        if (document != null)
+        {
+            foreach (var ghDocumentObject in document.Objects)
+            {
+                if (_pendingPreviews.Contains(ghDocumentObject) ||
+                    this.WasRecomputed(ghDocumentObject))
+                {
+                    expiredObjects.Add(ghDocumentObject);
+                }
+            }
+        }
+
+        // Emptied before raising, so a handler which starts a solution starts afresh.
+        this.ResetSolutionTracking();
+
+        foreach (var ghDocumentObject in expiredObjects)
+        {
+            this.PreviewExpired?.Invoke(this,
+                new GrasshopperObjectModifiedEventArgs(ghDocumentObject));
+        }
+    }
+
+    /// <summary>
+    /// Returns true when an object which was computed when the solution started has had its
+    /// outputs replaced since, which only a full recompute does.
+    /// </summary>
+    /// <param name="ghDocumentObject">The object to test.</param>
+    private bool WasRecomputed(IGH_DocumentObject ghDocumentObject)
+    {
+        if (_computedOutputBranches.TryGetValue(ghDocumentObject, out var startBranches) == false)
+            return false;
+
+        var endBranches = GetOutputBranches(ghDocumentObject);
+
+        if (endBranches.Length != startBranches.Length)
+            return true;
+
+        for (var i = 0; i < endBranches.Length; i++)
+        {
+            if (ReferenceEquals(endBranches[i], startBranches[i]) == false)
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Returns the first branch list of each output parameter of an object, or null for an
+    /// output holding no data. A standalone parameter is its own output.
+    /// </summary>
+    /// <param name="ghDocumentObject">The component, cluster or parameter.</param>
+    private static IList?[] GetOutputBranches(IGH_DocumentObject ghDocumentObject)
+    {
+        switch (ghDocumentObject)
+        {
+            case IGH_Component component:
+            {
+                var outputs = component.Params.Output;
+
+                var branches = new IList?[outputs.Count];
+
+                for (var i = 0; i < outputs.Count; i++)
+                {
+                    branches[i] = GetFirstBranch(outputs[i]);
+                }
+
+                return branches;
+            }
+            case IGH_Param param:
+                return [GetFirstBranch(param)];
+            default:
+                return [];
+        }
+    }
+
+    /// <summary>
+    /// Returns the first branch list of a parameter's data, or null when it holds none.
+    /// </summary>
+    /// <param name="param">The parameter.</param>
+    private static IList? GetFirstBranch(IGH_Param param)
+    {
+        var volatileData = param.VolatileData;
+
+        return volatileData.PathCount > 0 ? volatileData.get_Branch(0) : null;
+    }
+
+    /// <summary>
+    /// Forgets which previews the current solution is to rebuild.
+    /// </summary>
+    private void ResetSolutionTracking()
+    {
+        _isSolving = false;
+
+        _pendingPreviews.Clear();
+
+        _computedOutputBranches.Clear();
+    }
+
+    /// <summary>
+    /// Raises <see cref="PreviewExpired"/> for every object in <paramref name="document"/>
+    /// whose preview is shown.
+    /// </summary>
+    private void RaisePreviewExpired(GH_Document document)
+    {
+        foreach (var ghDocumentObject in document.Objects)
         {
             if (ghDocumentObject is not IGH_PreviewObject { Hidden: false })
                 continue;
@@ -586,15 +838,29 @@ public class GrasshopperInstance : IGrasshopperInstance
     /// <param name="e">
     /// The event data.
     /// </param>
+    /// <remarks>
+    /// Grasshopper raises no <c>ObjectsDeleted</c> event for the objects of a document it
+    /// closes or switches away from, so <see cref="ActiveDocumentChanged"/> is raised for
+    /// their previews to be cleared. The new document's previews are then requested
+    /// straight away, as a document which has already been solved, such as one switched
+    /// back to, raises no <c>SolutionEnd</c> to request them.
+    /// </remarks>
     private void OnDocumentChanged(GH_Canvas sender, GH_CanvasDocumentChangedEventArgs e)
     {
         this.RemoveDocumentSubscriptions();
 
         this.ActiveDoc = e.NewDocument;
 
+        // The editor exists by the time it shows a document.
+        _windowManager.TryAttach();
+
+        this.ActiveDocumentChanged?.Invoke(this, EventArgs.Empty);
+
         if (this.ActiveDoc != null)
         {
             this.AddDocumentSubscriptions(this.ActiveDoc);
+
+            this.RaisePreviewExpired(this.ActiveDoc);
         }
     }
 
@@ -660,6 +926,10 @@ public class GrasshopperInstance : IGrasshopperInstance
         System.Diagnostics.Debug.WriteLine("=== GrasshopperInstance.Shutdown() START ===");
 
         this.RemoveDocumentSubscriptions();
+
+        _windowManager.DisplayStateChanged -= this.OnEditorDisplayStateChanged;
+
+        _windowManager.Dispose();
 
         if (_activeCanvas != null)
         {

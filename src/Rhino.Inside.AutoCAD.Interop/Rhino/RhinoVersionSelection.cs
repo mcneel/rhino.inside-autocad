@@ -19,12 +19,19 @@ public class RhinoVersionSelection : IRhinoVersionSelection
     private const string _rhinoInstallationsFoundFormat = MessageConstants.RhinoInstallationsFoundFormat;
     private const string _rhinoInstallationDescriptionFormat = MessageConstants.RhinoInstallationDescriptionFormat;
     private const string _noRhinoInstallationsFound = MessageConstants.NoRhinoInstallationsFound;
+    private const string _rhinoOutdatedInstallationsSkippedFormat = MessageConstants.RhinoOutdatedInstallationsSkippedFormat;
+
+    private static readonly Version _minimumRhinoCommonVersion =
+        ApplicationConstants.MinimumRhinoCommonVersion;
 
     private readonly IRhinoInstallationLocator _installationLocator;
 
     private readonly IUserSettingsStore _userSettingsStore;
 
     private readonly IRhinoVersionDialogManager _dialogManager;
+
+    /// <inheritdoc />
+    public IReadOnlyList<IRhinoInstallation> OutdatedInstallations { get; private set; } = [];
 
     /// <summary>
     /// Constructs a new <see cref="RhinoVersionSelection"/>.
@@ -62,6 +69,7 @@ public class RhinoVersionSelection : IRhinoVersionSelection
             string.Format(_rhinoInstallationDescriptionFormat,
                 installation.DisplayName,
                 installation.VersionKey,
+                installation.RhinoCommonVersion,
                 installation.RhinoCommonPath)));
     }
 
@@ -82,19 +90,40 @@ public class RhinoVersionSelection : IRhinoVersionSelection
     }
 
     /// <inheritdoc />
-    public IRhinoInstallation? Resolve(out bool anySupportedVersionInstalled)
+    public IRhinoInstallation? Resolve(out RhinoVersionResolution resolution)
     {
         var logger = LoggerService.Instance;
 
-        var installations = _installationLocator.Locate();
+        var located = _installationLocator.Locate();
 
         logger.LogMessage(string.Format(_rhinoInstallationsFoundFormat,
-            this.DescribeInstallations(installations)));
+            this.DescribeInstallations(located)));
 
-        anySupportedVersionInstalled = installations.Count > 0;
+        // An outdated install is left out entirely rather than offered with a warning, so
+        // the user can never bind to a Rhino this build does not support.
+        var installations = located
+            .Where(installation => !installation.IsOutdated)
+            .ToList();
+
+        this.OutdatedInstallations = located
+            .Where(installation => installation.IsOutdated)
+            .ToList();
+
+        if (this.OutdatedInstallations.Count > 0)
+            logger.LogMessage(string.Format(_rhinoOutdatedInstallationsSkippedFormat,
+                this.DescribeInstallations(this.OutdatedInstallations),
+                _minimumRhinoCommonVersion));
 
         if (installations.Count == 0)
+        {
+            resolution = this.OutdatedInstallations.Count > 0
+                ? RhinoVersionResolution.UpdateRequired
+                : RhinoVersionResolution.NotInstalled;
+
             return null;
+        }
+
+        resolution = RhinoVersionResolution.Resolved;
 
         if (installations.Count == 1)
             return installations[0];
@@ -111,7 +140,11 @@ public class RhinoVersionSelection : IRhinoVersionSelection
         var result = _dialogManager.Show(installations, preferred);
 
         if (result.Choice == RhinoVersionChoice.Cancel || result.Installation == null)
+        {
+            resolution = RhinoVersionResolution.Cancelled;
+
             return null;
+        }
 
         settings.PreferredRhinoVersion = result.Installation.VersionKey;
 

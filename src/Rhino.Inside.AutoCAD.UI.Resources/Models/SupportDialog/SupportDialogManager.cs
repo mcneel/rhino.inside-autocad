@@ -97,8 +97,13 @@ public class SupportDialogManager : ISupportDialogManager
         if (_dialog == null || !_dialog.IsVisible)
         {
             // Rescanned each time the dialog opens so a Rhino installed or removed since
-            // AutoCAD started is reflected on the settings page.
-            var installations = new RhinoInstallationLocator().Locate();
+            // AutoCAD started is reflected on the settings page. Outdated installs are left
+            // out, as they are at startup, since choosing one could never take effect.
+            var installationLocator = new RhinoInstallationLocator();
+
+            var installations = installationLocator.Locate()
+                .Where(installation => !installation.IsOutdated)
+                .ToList();
 
             var viewModel = new SupportDialogViewModel(_application.SettingsManager.User,
                 _application.RhinoInsideManager, installations);

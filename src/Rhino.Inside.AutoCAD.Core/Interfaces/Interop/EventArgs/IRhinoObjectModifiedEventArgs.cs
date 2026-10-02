@@ -11,4 +11,10 @@ public interface IRhinoObjectModifiedEventArgs
     /// The Rhino object that was modified or appended.
     /// </summary>
     RhinoObject RhinoObject { get; }
+
+    /// <summary>
+    /// The <see cref="RhinoDoc.RuntimeSerialNumber"/> of the document the object belongs to,
+    /// or zero when Rhino did not report one.
+    /// </summary>
+    uint DocumentSerialNumber { get; }
 }

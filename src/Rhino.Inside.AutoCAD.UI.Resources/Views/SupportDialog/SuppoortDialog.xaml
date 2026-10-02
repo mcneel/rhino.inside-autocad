@@ -705,6 +705,12 @@
                         <RowDefinition Height="Auto" />
                         <!-- Selected preview colour -->
                         <RowDefinition Height="Auto" />
+                        <!-- Preview item limit -->
+                        <RowDefinition Height="Auto" />
+                        <!-- Hide Rhino preview checkbox -->
+                        <RowDefinition Height="Auto" />
+                        <!-- Hide Grasshopper preview checkbox -->
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <!-- Rhino Version -->
@@ -827,6 +833,47 @@
                                           HorizontalAlignment="Right"
                                           VerticalAlignment="Center"
                                           SelectedColorIndex="{Binding SelectedPreviewColorIndex}" />
+
+                    <!-- The most preview items each preview server draws -->
+                    <TextBlock Grid.Column="0"
+                               Grid.Row="10"
+                               Margin="0,14,10,0"
+                               VerticalAlignment="Center"
+                               Text="{Binding PreviewItemLimitLabel}"
+                               ToolTip="{Binding PreviewItemLimitToolTip}"
+                               Foreground="{StaticResource PrimaryTextBrush}"
+                               Style="{StaticResource MaterialDesignBodyMediumTextBlock}" />
+
+                    <TextBox Grid.Column="1"
+                             Grid.Row="10"
+                             MinWidth="80"
+                             Margin="0,14,10,0"
+                             HorizontalAlignment="Right"
+                             VerticalAlignment="Center"
+                             HorizontalContentAlignment="Right"
+                             ToolTip="{Binding PreviewItemLimitToolTip}"
+                             Foreground="{StaticResource PrimaryTextBrush}"
+                             Text="{Binding MaxPreviewItemCount, UpdateSourceTrigger=LostFocus}" />
+
+                    <!-- Hide the Rhino preview while its window is minimised or closed -->
+                    <CheckBox Grid.Column="0"
+                              Grid.Row="11"
+                              Grid.ColumnSpan="2"
+                              Margin="0,14,10,0"
+                              Content="{Binding HideRhinoPreviewWhenWindowHiddenLabel}"
+                              ToolTip="{Binding HideRhinoPreviewWhenWindowHiddenToolTip}"
+                              Foreground="{StaticResource PrimaryTextBrush}"
+                              IsChecked="{Binding HideRhinoPreviewWhenWindowHidden}" />
+
+                    <!-- Hide the Grasshopper preview while its editor is minimised or closed -->
+                    <CheckBox Grid.Column="0"
+                              Grid.Row="12"
+                              Grid.ColumnSpan="2"
+                              Margin="0,10,10,0"
+                              Content="{Binding HideGrasshopperPreviewWhenEditorHiddenLabel}"
+                              ToolTip="{Binding HideGrasshopperPreviewWhenEditorHiddenToolTip}"
+                              Foreground="{StaticResource PrimaryTextBrush}"
+                              IsChecked="{Binding HideGrasshopperPreviewWhenEditorHidden}" />
 
                 </Grid>
 

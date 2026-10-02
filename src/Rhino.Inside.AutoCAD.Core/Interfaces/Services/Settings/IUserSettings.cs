@@ -52,4 +52,34 @@ public interface IUserSettings
     /// <seealso cref="RhinoPreviewColorIndex"/>
     /// <seealso cref="GrasshopperPreviewColorIndex"/>
     int SelectedPreviewColorIndex { get; set; }
+
+    /// <summary>
+    /// The most preview items each preview server draws. When a new preview would exceed
+    /// it, the oldest previews are dropped, and a single preview larger than it is truncated.
+    /// </summary>
+    /// <remarks>
+    /// A preview item is one curve, point, mesh or fallback entity drawn by a preview, not an
+    /// AutoCAD entity in the drawing. Applied per preview server: the Rhino preview, and the
+    /// Grasshopper shaded and wireframe previews, each draw up to this many items.
+    /// <para>
+    /// The name predates counting preview items and is kept because it is the key persisted
+    /// in users' settings files: renaming it would reset their chosen limit to the default.
+    /// </para>
+    /// </remarks>
+    int MaxPreviewEntityCount { get; set; }
+
+    /// <summary>
+    /// True to hide the Rhino preview while the Rhino window is minimised or hidden, which
+    /// includes after the user closes it, otherwise false to keep it on screen throughout.
+    /// </summary>
+    /// <seealso cref="HideGrasshopperPreviewWhenEditorHidden"/>
+    bool HideRhinoPreviewWhenWindowHidden { get; set; }
+
+    /// <summary>
+    /// True to hide the Grasshopper preview while the Grasshopper editor is minimised or
+    /// hidden, which includes after the user closes it, otherwise false to keep it on screen
+    /// throughout.
+    /// </summary>
+    /// <seealso cref="HideRhinoPreviewWhenWindowHidden"/>
+    bool HideGrasshopperPreviewWhenEditorHidden { get; set; }
 }

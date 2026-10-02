@@ -33,4 +33,19 @@ public class MessageConstants
     /// with the specific error details.
     /// </summary>
     public const string WcfErrorMessage = "WCF preload failed: {0}";
+
+    /// <summary>
+    /// The error message format when a legacy plugin's resources cannot be found. The
+    /// placeholder {0} is replaced with the base name and {1} with the assembly name.
+    /// </summary>
+    public const string LegacyResourcesNotFound =
+        "Legacy resources '{0}' were not found in assembly '{1}'; its icons will be blank.";
+
+    /// <summary>
+    /// The error message format when a legacy plugin's resources class cannot be given a
+    /// <c>LegacyResourceManager</c>. The placeholder {0} is replaced with the class or
+    /// assembly name.
+    /// </summary>
+    public const string LegacyResourcesAttachFailed =
+        "Could not read the legacy resources of '{0}' without BinaryFormatter; its icons may be blank.";
 }

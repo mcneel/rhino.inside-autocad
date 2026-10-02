@@ -59,6 +59,37 @@ namespace Rhino.Inside.AutoCAD.Core.Interfaces;
 public interface IRhinoWindowManager : IDisposable
 {
     /// <summary>
+    /// Raised when <see cref="IsMinimised"/> or <see cref="IsHidden"/> changes.
+    /// </summary>
+    /// <remarks>
+    /// Raised on the thread that owns the main window: when the window is set, after this
+    /// manager shows, hides or restores it, from the activation hook installed by
+    /// <see cref="InstallActivationHook"/> just before a minimise or restore, and once
+    /// AutoCAD is idle after the hook sees a close request or an activation, which is how a
+    /// window Rhino hides in place of closing is noticed.
+    /// </remarks>
+    event EventHandler? DisplayStateChanged;
+
+    /// <summary>
+    /// True while the Rhino main window is minimised.
+    /// </summary>
+    /// <remarks>
+    /// Tracked from the minimise and restore requests the activation hook sees and from the
+    /// window's own state, so it is only kept up to date while the hook is installed.
+    /// </remarks>
+    bool IsMinimised { get; }
+
+    /// <summary>
+    /// True while the Rhino main window is hidden, as it is when Rhino is created and after
+    /// the user closes it, which Rhino.Inside answers by hiding the window.
+    /// </summary>
+    /// <remarks>
+    /// Read from the window when it is set and on the same occasions as
+    /// <see cref="IsMinimised"/>. False while no window has been set.
+    /// </remarks>
+    bool IsHidden { get; }
+
+    /// <summary>
     /// Sets the Rhino main window handle that this manager will control.
     /// </summary>
     /// <param name="mainWindow">

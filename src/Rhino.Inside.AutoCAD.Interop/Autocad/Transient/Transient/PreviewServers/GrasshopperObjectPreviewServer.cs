@@ -21,14 +21,34 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     /// <inheritdoc/>
     public GrasshopperPreviewMode PreviewMode { get; private set; }
 
+    /// <inheritdoc/>
+    public bool IsSuppressed { get; private set; }
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Applied to the shaded and wireframe servers separately, so each draws up to this many.
+    /// </remarks>
+    public int MaxItemCount
+    {
+        get => _shadedPreviewServer.MaxItemCount;
+        set
+        {
+            _shadedPreviewServer.MaxItemCount = value;
+            _wireframePreviewServer.MaxItemCount = value;
+        }
+    }
+
     /// <summary>
     /// Constructs a new <see cref="IGrasshopperObjectPreviewServer"/>
     /// </summary>
     public GrasshopperObjectPreviewServer(IGeometryPreviewSettings geometryPreviewSettings,
-        IGeometryPreviewSettings selectedPreviewSettings, IPreviewGeometryConverter previewGeometryConverter)
+        IGeometryPreviewSettings selectedPreviewSettings, IPreviewDrawableBuilder previewDrawableBuilder,
+        int maxItemCount)
     {
-        _shadedPreviewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings, previewGeometryConverter);
-        _wireframePreviewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings, previewGeometryConverter);
+        _shadedPreviewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings,
+            previewDrawableBuilder, maxItemCount);
+        _wireframePreviewServer = new PreviewServer(geometryPreviewSettings, selectedPreviewSettings,
+            previewDrawableBuilder, maxItemCount);
 
         _buttonManager = new GrasshopperPreviewButtonManager();
 
@@ -40,9 +60,17 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     /// <summary>
     /// Updates the transient elements visibility based on the current state.
     /// </summary>
+    /// <remarks>
+    /// A suppressed preview is drawn as if <see cref="PreviewMode"/> were
+    /// <see cref="GrasshopperPreviewMode.Off"/>.
+    /// </remarks>
     private void UpdateTransientElements()
     {
-        switch (this.PreviewMode)
+        var effectiveMode = this.IsSuppressed
+            ? GrasshopperPreviewMode.Off
+            : this.PreviewMode;
+
+        switch (effectiveMode)
         {
             case GrasshopperPreviewMode.Off:
                 _wireframePreviewServer.ClearServer();
@@ -70,6 +98,14 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     }
 
     /// <inheritdoc />
+    public void SetSuppressed(bool suppressed)
+    {
+        this.IsSuppressed = suppressed;
+
+        this.UpdateTransientElements();
+    }
+
+    /// <inheritdoc />
     public void AddObject(Guid rhinoObjectId, IGrasshopperPreviewData grasshopperPreviewData)
     {
         var shadedSet = grasshopperPreviewData.GetShadedObjects();
@@ -90,20 +126,26 @@ public class GrasshopperObjectPreviewServer : IGrasshopperObjectPreviewServer
     }
 
     /// <inheritdoc />
+    public bool SetSelected(Guid rhinoObjectId, bool selected)
+    {
+        var shadedFound = _shadedPreviewServer.SetSelected(rhinoObjectId, selected);
+
+        var wireframeFound = _wireframePreviewServer.SetSelected(rhinoObjectId, selected);
+
+        return shadedFound || wireframeFound;
+    }
+
+    /// <inheritdoc />
     public void RefreshAppearance()
     {
         _shadedPreviewServer.RefreshAppearance();
         _wireframePreviewServer.RefreshAppearance();
-
-        // Refreshing adds the transients back, which would show previews the current preview
-        // mode hides, so the mode is reapplied.
-        this.UpdateTransientElements();
     }
 
-    /// <summary>
-    /// Clears all preview objects from both shaded and wireframe servers and disposes entities.
-    /// Used during application shutdown to ensure clean disposal.
-    /// </summary>
+    /// <inheritdoc />
+    /// <remarks>
+    /// Used when the active Grasshopper document changes and during application shutdown.
+    /// </remarks>
     public void ClearAll()
     {
         _shadedPreviewServer.ClearAndDisposeAll();

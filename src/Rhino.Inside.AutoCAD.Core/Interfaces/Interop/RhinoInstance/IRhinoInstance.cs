@@ -39,6 +39,25 @@ public interface IRhinoInstance
     event EventHandler? DeselectAll;
 
     /// <summary>
+    /// Event raised when a Rhino document is closed, or a file is about to be opened into it
+    /// in place of its contents. Rhino does not report the document's objects as removed, so
+    /// this is the only signal that their previews are stale.
+    /// </summary>
+    /// <remarks>
+    /// Raised for any of the user's documents, not only <see cref="ActiveDoc"/>: Rhino may
+    /// make the next document active before it closes the previous one, so the arguments
+    /// name the document that went away and only its objects should be considered stale.
+    /// </remarks>
+    event EventHandler<IRhinoDocumentClosedEventArgs>? DocumentClosed;
+
+    /// <summary>
+    /// Event raised when the Rhino main window is minimised, restored, hidden or shown.
+    /// </summary>
+    /// <seealso cref="IsWindowMinimised"/>
+    /// <seealso cref="IsWindowHidden"/>
+    event EventHandler? WindowDisplayStateChanged;
+
+    /// <summary>
     /// The instance of the Rhino core extension.
     /// </summary>
     IRhinoCoreExtension RhinoCore { get; }
@@ -57,6 +76,17 @@ public interface IRhinoInstance
     /// The unit system of the active Rhino document.
     /// </summary>
     UnitSystem UnitSystem { get; }
+
+    /// <summary>
+    /// True while the Rhino main window is minimised. A hidden window is not minimised.
+    /// </summary>
+    bool IsWindowMinimised { get; }
+
+    /// <summary>
+    /// True while the Rhino main window is hidden, as it is until it is first shown and
+    /// after the user closes it.
+    /// </summary>
+    bool IsWindowHidden { get; }
 
     /// <summary>
     /// Validates that the Rhino document is created and ready to use.
