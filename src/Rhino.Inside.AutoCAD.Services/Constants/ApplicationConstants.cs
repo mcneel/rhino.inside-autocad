@@ -689,31 +689,6 @@ public class ApplicationConstants
     public const string LegacyCoreLibraryName = "mscorlib";
 
     /// <summary>
-    /// Format string for the full name of the class Visual Studio generates from
-    /// Properties/Resources.resx.
-    /// </summary>
-    /// <remarks>
-    /// Value: "{0}.Properties.Resources". Placeholder receives the assembly name, which is
-    /// the project's root namespace unless the developer changed it.
-    /// </remarks>
-    public const string PropertiesResourcesTypeNameFormat = "{0}.Properties.Resources";
-
-    /// <summary>
-    /// The namespace suffix of the class Visual Studio generates from
-    /// Properties/Resources.resx.
-    /// </summary>
-    /// <remarks>
-    /// Value: ".Properties". Used to find the generated class when the root namespace
-    /// differs from the assembly name.
-    /// </remarks>
-    public const string PropertiesNamespaceSuffix = ".Properties";
-
-    /// <summary>
-    /// The name of the class Visual Studio generates from Properties/Resources.resx.
-    /// </summary>
-    public const string PropertiesResourcesTypeName = "Resources";
-
-    /// <summary>
     /// The name of the private static field caching the <see cref="System.Resources.ResourceManager"/>
     /// in the class Visual Studio generates from a .resx file.
     /// </summary>
@@ -722,6 +697,17 @@ public class ApplicationConstants
     /// is the one the generated properties use.
     /// </remarks>
     public const string ResourceManagerFieldName = "resourceMan";
+
+    /// <summary>
+    /// The name of the static property exposing the <see cref="System.Resources.ResourceManager"/>
+    /// in the class Visual Studio generates from a .resx file.
+    /// </summary>
+    /// <remarks>
+    /// Value: "ResourceManager". Both the C# and the VB.NET (My.Resources) generators emit it.
+    /// Its getter constructs the manager with the base name the resources were embedded
+    /// under, which can differ from the class's full name.
+    /// </remarks>
+    public const string ResourceManagerPropertyName = "ResourceManager";
 
     /// <summary>
     /// The first major .NET runtime version without BinaryFormatter.

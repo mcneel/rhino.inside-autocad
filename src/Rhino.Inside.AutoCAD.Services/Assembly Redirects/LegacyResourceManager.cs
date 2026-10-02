@@ -10,29 +10,40 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// </summary>
 /// <remarks>
 /// Grasshopper plugins built from the classic .NET Framework template embed their icons
-/// in Properties/Resources.resx as Bitmaps, which the compiler stores as BinaryFormatter
-/// blobs. The generated Resources class reads them through a stock
-/// <see cref="ResourceManager"/>, which needs BinaryFormatter and so fails from .NET 9 on.
-/// <see cref="Attach"/> places this manager in the generated class's cache before its first
-/// use, so every lookup goes through <see cref="LegacyResourceSet"/> instead. Ported from
-/// Rhino.Inside.Revit (mcneel/rhino.inside-revit@d8e0edc).
+/// in .resx files as Bitmaps, which the compiler stores as BinaryFormatter blobs. The
+/// class generated from each .resx reads them through a stock <see cref="ResourceManager"/>,
+/// which needs BinaryFormatter and so fails from .NET 9 on. <see cref="Attach"/> replaces
+/// the manager cached in every such generated class - C# Properties.Resources, extra .resx
+/// files and VB.NET My.Resources alike - so every lookup goes through
+/// <see cref="LegacyResourceSet"/> instead. Ported from Rhino.Inside.Revit
+/// (mcneel/rhino.inside-revit@d8e0edc).
+/// <para>
+/// Grasshopper swallows exceptions thrown by component icon getters, so a failure here
+/// shows only as a blank icon. Debug builds therefore throw on failure; release builds log
+/// it and leave the assembly as it was.
+/// </para>
 /// </remarks>
 /// <seealso cref="LegacyResourceSet"/>
 public sealed class LegacyResourceManager : ResourceManager
 {
     private const string _legacyCoreLibraryName = ApplicationConstants.LegacyCoreLibraryName;
 
-    private const string _propertiesResourcesTypeNameFormat = ApplicationConstants.PropertiesResourcesTypeNameFormat;
-
-    private const string _propertiesNamespaceSuffix = ApplicationConstants.PropertiesNamespaceSuffix;
-
-    private const string _propertiesResourcesTypeName = ApplicationConstants.PropertiesResourcesTypeName;
-
     private const string _resourceManagerFieldName = ApplicationConstants.ResourceManagerFieldName;
+
+    private const string _resourceManagerPropertyName = ApplicationConstants.ResourceManagerPropertyName;
+
+    private const string _legacyResourcesNotFound = MessageConstants.LegacyResourcesNotFound;
+
+    private const string _legacyResourcesAttachFailed = MessageConstants.LegacyResourcesAttachFailed;
 
     private const BindingFlags _resourceManagerFieldFlags = BindingFlags.Static | BindingFlags.NonPublic;
 
+    private const BindingFlags _resourceManagerPropertyFlags =
+        BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+
     private readonly Dictionary<string, ResourceSet> _resourceSets = [];
+
+    private bool _missingResourcesReported;
 
     /// <summary>
     /// Constructs a new <see cref="LegacyResourceManager"/>.
@@ -42,18 +53,21 @@ public sealed class LegacyResourceManager : ResourceManager
     }
 
     /// <summary>
-    /// Places a <see cref="LegacyResourceManager"/> in the generated Properties.Resources
-    /// class of the assembly, if it was built for .NET Framework and the class has not yet
-    /// created its own manager. Otherwise does nothing.
+    /// Places a <see cref="LegacyResourceManager"/> in every class generated from a .resx
+    /// file in the assembly, if it was built for .NET Framework. Classes which have already
+    /// created their own manager are left alone.
     /// </summary>
     /// <remarks>
-    /// Called from an <see cref="AppDomain.AssemblyLoad"/> handler, so it never throws: an
-    /// assembly this cannot patch is left exactly as it was loaded.
+    /// Called from an <see cref="AppDomain.AssemblyLoad"/> handler. In release builds it
+    /// never throws: a class this cannot patch is logged and left exactly as it was loaded.
+    /// In debug builds the failure is rethrown so it surfaces at the plugin load.
     /// </remarks>
     public static void Attach(Assembly assembly)
     {
         if (assembly.ReflectionOnly || assembly.IsDynamic)
             return;
+
+        Type[] types;
 
         try
         {
@@ -63,62 +77,79 @@ public sealed class LegacyResourceManager : ResourceManager
             if (isLegacyAssembly == false)
                 return;
 
-            var resourcesType = FindResourcesType(assembly);
+            types = GetLoadableTypes(assembly);
+        }
+        catch (Exception e)
+        {
+            ReportAttachFailed(assembly.FullName, e);
 
-            var resourceManagerField = resourcesType?.GetField(_resourceManagerFieldName, _resourceManagerFieldFlags);
+            return;
+        }
 
-            if (resourcesType?.FullName is not string baseName || resourceManagerField is null)
-                return;
+        foreach (var type in types)
+        {
+            AttachToType(assembly, type);
+        }
+    }
 
-            if (resourceManagerField.FieldType != typeof(ResourceManager) ||
+    /// <summary>
+    /// Places a <see cref="LegacyResourceManager"/> in the type if it is a class generated
+    /// from a .resx file which has not yet created its own manager. Otherwise does nothing.
+    /// </summary>
+    /// <remarks>
+    /// The base name is read from the manager the generated class creates itself, since it
+    /// is the name the resources were embedded under. It differs from the class's full name
+    /// when the class was moved to another namespace after generation, and for VB.NET
+    /// My.Resources, whose class is &lt;RootNamespace&gt;.My.Resources.Resources but whose
+    /// resources are &lt;RootNamespace&gt;.Resources. Constructing that manager reads no
+    /// resources, so it does not need BinaryFormatter.
+    /// </remarks>
+    private static void AttachToType(Assembly assembly, Type type)
+    {
+        try
+        {
+            var resourceManagerField = type.GetField(_resourceManagerFieldName, _resourceManagerFieldFlags);
+
+            if (resourceManagerField is null ||
+                resourceManagerField.FieldType != typeof(ResourceManager) ||
                 resourceManagerField.GetValue(null) is not null)
                 return;
 
-            var resourceManager = new LegacyResourceManager(baseName, assembly);
+            var resourceManagerProperty = type.GetProperty(_resourceManagerPropertyName, _resourceManagerPropertyFlags);
+
+            if (resourceManagerProperty?.GetValue(null) is not ResourceManager generatedResourceManager)
+                return;
+
+            var resourceManager = new LegacyResourceManager(generatedResourceManager.BaseName, assembly);
 
             resourceManagerField.SetValue(null, resourceManager);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            // Left unpatched, the assembly behaves exactly as it would without this class.
+            ReportAttachFailed(type.FullName, e);
         }
     }
 
     /// <summary>
-    /// Returns the class Visual Studio generated from Properties/Resources.resx, or null if
-    /// the assembly has none.
+    /// Logs that a type or assembly could not be patched. Rethrows in debug builds.
     /// </summary>
-    /// <remarks>
-    /// Tries the assembly name as the root namespace first, then scans for the class, since
-    /// older plugins often renamed one without the other.
-    /// </remarks>
-    private static Type? FindResourcesType(Assembly assembly)
+    private static void ReportAttachFailed(string? name, Exception exception)
     {
-        var resourcesTypeName = string.Format(_propertiesResourcesTypeNameFormat, assembly.GetName().Name);
+        var message = string.Format(_legacyResourcesAttachFailed, name);
 
-        var resourcesType = assembly.GetType(resourcesTypeName);
+        if (LoggerService.IsInitialized)
+            LoggerService.Instance.LogError(exception, message);
 
-        if (resourcesType is not null)
-            return resourcesType;
-
-        return GetLoadableTypes(assembly).FirstOrDefault(IsResourcesType);
-    }
-
-    /// <summary>
-    /// Returns true if the type looks like a generated Properties.Resources class.
-    /// </summary>
-    private static bool IsResourcesType(Type type)
-    {
-        return type.Name == _propertiesResourcesTypeName &&
-               type.Namespace?.EndsWith(_propertiesNamespaceSuffix, StringComparison.Ordinal) == true &&
-               type.GetField(_resourceManagerFieldName, _resourceManagerFieldFlags) is not null;
+#if DEBUG
+        throw new InvalidOperationException(message, exception);
+#endif
     }
 
     /// <summary>
     /// Returns the types of the assembly which load, skipping those whose dependencies are
     /// missing from this process.
     /// </summary>
-    private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
+    private static Type[] GetLoadableTypes(Assembly assembly)
     {
         try
         {
@@ -126,7 +157,7 @@ public sealed class LegacyResourceManager : ResourceManager
         }
         catch (ReflectionTypeLoadException e)
         {
-            return e.Types.OfType<Type>();
+            return e.Types.OfType<Type>().ToArray();
         }
     }
 
@@ -163,7 +194,30 @@ public sealed class LegacyResourceManager : ResourceManager
             return this.CacheResourceSet(culture, resourceSet);
         }
 
+        this.ReportResourcesNotFound();
+
         return null;
+    }
+
+    /// <summary>
+    /// Logs, once per manager, that the assembly holds no resources under the base name.
+    /// Throws in debug builds.
+    /// </summary>
+    private void ReportResourcesNotFound()
+    {
+        var message = string.Format(_legacyResourcesNotFound, this.BaseName, this.MainAssembly?.FullName);
+
+        lock (_resourceSets)
+        {
+            if (_missingResourcesReported == false && LoggerService.IsInitialized)
+                LoggerService.Instance.LogError(message);
+
+            _missingResourcesReported = true;
+        }
+
+#if DEBUG
+        throw new MissingManifestResourceException(message);
+#endif
     }
 
     /// <summary>
