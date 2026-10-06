@@ -710,6 +710,28 @@ public class ApplicationConstants
     public const string ResourceManagerPropertyName = "ResourceManager";
 
     /// <summary>
+    /// The tool named in the <see cref="System.CodeDom.Compiler.GeneratedCodeAttribute"/> on
+    /// every class Visual Studio generates from a .resx file.
+    /// </summary>
+    /// <remarks>
+    /// Value: "System.Resources.Tools.StronglyTypedResourceBuilder". Identifies a generated
+    /// class whose members an obfuscator has renamed, such as Weaverbird's, where
+    /// <see cref="ResourceManagerFieldName"/> and <see cref="ResourceManagerPropertyName"/>
+    /// no longer match.
+    /// </remarks>
+    public const string StronglyTypedResourceBuilderToolName = "System.Resources.Tools.StronglyTypedResourceBuilder";
+
+    /// <summary>
+    /// The extension of a compiled .resx file embedded in an assembly.
+    /// </summary>
+    /// <remarks>
+    /// Value: ".resources". A class whose full name plus this extension names a manifest
+    /// resource was generated from that .resx, even if an obfuscator has stripped its
+    /// <see cref="System.CodeDom.Compiler.GeneratedCodeAttribute"/>.
+    /// </remarks>
+    public const string ResourcesFileExtension = ".resources";
+
+    /// <summary>
     /// The first major .NET runtime version without BinaryFormatter.
     /// </summary>
     /// <remarks>
