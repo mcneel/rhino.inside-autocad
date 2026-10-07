@@ -13,6 +13,13 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// BinaryFormatter itself has been removed. At runtime the reader is the copy in the
 /// Microsoft.WindowsDesktop.App shared framework, not the NuGet package this project
 /// compiles against; from .NET 9 that copy decodes the blobs with System.Formats.Nrbf.
+/// <para>
+/// A <see cref="ResourceSet"/> reads every value once and hands out that same instance on
+/// each lookup, whereas the stock reader deserializes a new Bitmap per lookup. Callers rely
+/// on that: Grasshopper's own GH_FilePanel disposes the Bitmap it gets from Res_FileIcons,
+/// which would leave GH_FileEntry's static copy of it invalid and crash the recent files
+/// menu with "Parameter is not valid". Cloneable values are therefore returned as copies.
+/// </para>
 /// </remarks>
 /// <seealso cref="LegacyResourceManager"/>
 public sealed class LegacyResourceSet : ResourceSet
@@ -33,6 +40,25 @@ public sealed class LegacyResourceSet : ResourceSet
 
         return reader;
     }
+
+    /// <summary>
+    /// Returns a copy of the value if it is cloneable, such as a Bitmap, so that a caller
+    /// disposing it does not invalidate the cached instance. Strings are returned as they are.
+    /// </summary>
+    private static object? CopyValue(object? value)
+    {
+        if (value is ICloneable cloneable and not string)
+            return cloneable.Clone();
+
+        return value;
+    }
+
+    /// <inheritdoc />
+    public override object? GetObject(string name) => CopyValue(base.GetObject(name));
+
+    /// <inheritdoc />
+    public override object? GetObject(string name, bool ignoreCase) =>
+        CopyValue(base.GetObject(name, ignoreCase));
 
     /// <inheritdoc />
     public override Type GetDefaultReader() => typeof(DeserializingResourceReader);
