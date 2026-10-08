@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.CodeDom.Compiler;
+using System.Globalization;
 using System.Reflection;
 using System.Resources;
 
@@ -15,8 +16,11 @@ namespace Rhino.Inside.AutoCAD.Services;
 /// which needs BinaryFormatter and so fails from .NET 9 on. <see cref="Attach"/> replaces
 /// the manager cached in every such generated class - C# Properties.Resources, extra .resx
 /// files and VB.NET My.Resources alike - so every lookup goes through
-/// <see cref="LegacyResourceSet"/> instead. Ported from Rhino.Inside.Revit
-/// (mcneel/rhino.inside-revit@d8e0edc).
+/// <see cref="LegacyResourceSet"/> instead, including classes an obfuscator has renamed
+/// the members of. Ported from Rhino.Inside.Revit (mcneel/rhino.inside-revit@d8e0edc,
+/// updated to @df4e28c, which finds the field by type). Unlike Revit, the base name is
+/// taken from the class's own generated getter where there is one, so classes moved to
+/// another namespace and VB.NET My.Resources are patched too.
 /// <para>
 /// Grasshopper swallows exceptions thrown by component icon getters, so a failure here
 /// shows only as a blank icon. Debug builds therefore throw on failure; release builds log
@@ -31,6 +35,10 @@ public sealed class LegacyResourceManager : ResourceManager
     private const string _resourceManagerFieldName = ApplicationConstants.ResourceManagerFieldName;
 
     private const string _resourceManagerPropertyName = ApplicationConstants.ResourceManagerPropertyName;
+
+    private const string _stronglyTypedResourceBuilderToolName = ApplicationConstants.StronglyTypedResourceBuilderToolName;
+
+    private const string _resourcesFileExtension = ApplicationConstants.ResourcesFileExtension;
 
     private const string _legacyResourcesNotFound = MessageConstants.LegacyResourcesNotFound;
 
@@ -69,6 +77,8 @@ public sealed class LegacyResourceManager : ResourceManager
 
         Type[] types;
 
+        HashSet<string> resourceNames;
+
         try
         {
             var isLegacyAssembly = assembly.GetReferencedAssemblies()
@@ -78,6 +88,8 @@ public sealed class LegacyResourceManager : ResourceManager
                 return;
 
             types = GetLoadableTypes(assembly);
+
+            resourceNames = [.. assembly.GetManifestResourceNames()];
         }
         catch (Exception e)
         {
@@ -88,7 +100,7 @@ public sealed class LegacyResourceManager : ResourceManager
 
         foreach (var type in types)
         {
-            AttachToType(assembly, type);
+            AttachToType(assembly, type, resourceNames);
         }
     }
 
@@ -103,24 +115,32 @@ public sealed class LegacyResourceManager : ResourceManager
     /// My.Resources, whose class is &lt;RootNamespace&gt;.My.Resources.Resources but whose
     /// resources are &lt;RootNamespace&gt;.Resources. Constructing that manager reads no
     /// resources, so it does not need BinaryFormatter.
+    /// <para>
+    /// The field and property are found by name or, in a generated class whose members an
+    /// obfuscator has renamed, by type. A class with no such property but whose full name
+    /// matches its embedded resources uses its full name as the base name, as Revit does.
+    /// </para>
     /// </remarks>
-    private static void AttachToType(Assembly assembly, Type type)
+    private static void AttachToType(Assembly assembly, Type type, HashSet<string> resourceNames)
     {
         try
         {
-            var resourceManagerField = type.GetField(_resourceManagerFieldName, _resourceManagerFieldFlags);
+            var hasMatchingResources = resourceNames.Contains(type.FullName + _resourcesFileExtension);
+
+            var isGeneratedClass = hasMatchingResources || IsGeneratedResourcesClass(type);
+
+            var resourceManagerField = GetResourceManagerField(type, isGeneratedClass);
 
             if (resourceManagerField is null ||
-                resourceManagerField.FieldType != typeof(ResourceManager) ||
                 resourceManagerField.GetValue(null) is not null)
                 return;
 
-            var resourceManagerProperty = type.GetProperty(_resourceManagerPropertyName, _resourceManagerPropertyFlags);
+            var baseName = GetBaseName(type, isGeneratedClass, hasMatchingResources);
 
-            if (resourceManagerProperty?.GetValue(null) is not ResourceManager generatedResourceManager)
+            if (baseName is null)
                 return;
 
-            var resourceManager = new LegacyResourceManager(generatedResourceManager.BaseName, assembly);
+            var resourceManager = new LegacyResourceManager(baseName, assembly);
 
             resourceManagerField.SetValue(null, resourceManager);
         }
@@ -128,6 +148,79 @@ public sealed class LegacyResourceManager : ResourceManager
         {
             ReportAttachFailed(type.FullName, e);
         }
+    }
+
+    /// <summary>
+    /// Returns the name the type's resources were embedded under: the base name of the
+    /// manager its generated property creates or, if it has none and its full name matches
+    /// its resources, its full name. Returns null otherwise.
+    /// </summary>
+    private static string? GetBaseName(Type type, bool isGeneratedClass, bool hasMatchingResources)
+    {
+        var resourceManagerProperty = GetResourceManagerProperty(type, isGeneratedClass);
+
+        if (resourceManagerProperty?.GetValue(null) is ResourceManager generatedResourceManager)
+            return generatedResourceManager.BaseName;
+
+        return hasMatchingResources ? type.FullName : null;
+    }
+
+    /// <summary>
+    /// Returns true if the type carries the <see cref="GeneratedCodeAttribute"/> the .resx
+    /// code generator emits.
+    /// </summary>
+    private static bool IsGeneratedResourcesClass(Type type)
+    {
+        var generatedCodeAttribute = type.GetCustomAttribute<GeneratedCodeAttribute>();
+
+        return generatedCodeAttribute?.Tool == _stronglyTypedResourceBuilderToolName;
+    }
+
+    /// <summary>
+    /// Returns the static field caching the type's <see cref="ResourceManager"/>: the one
+    /// with the generated name or, in a generated class, the only static field of that type.
+    /// Returns null if there is none.
+    /// </summary>
+    private static FieldInfo? GetResourceManagerField(Type type, bool isGeneratedClass)
+    {
+        var resourceManagerFields = type.GetFields(_resourceManagerFieldFlags)
+            .Where(field => field.FieldType == typeof(ResourceManager))
+            .ToArray();
+
+        var namedField = resourceManagerFields
+            .FirstOrDefault(field => field.Name == _resourceManagerFieldName);
+
+        if (namedField is not null)
+            return namedField;
+
+        if (isGeneratedClass && resourceManagerFields.Length == 1)
+            return resourceManagerFields[0];
+
+        return null;
+    }
+
+    /// <summary>
+    /// Returns the static property exposing the type's <see cref="ResourceManager"/>: the
+    /// one with the generated name or, in a generated class, the only static readable
+    /// property of that type. Returns null if there is none.
+    /// </summary>
+    private static PropertyInfo? GetResourceManagerProperty(Type type, bool isGeneratedClass)
+    {
+        var resourceManagerProperties = type.GetProperties(_resourceManagerPropertyFlags)
+            .Where(property => property.PropertyType == typeof(ResourceManager) &&
+                               property.GetMethod is not null)
+            .ToArray();
+
+        var namedProperty = resourceManagerProperties
+            .FirstOrDefault(property => property.Name == _resourceManagerPropertyName);
+
+        if (namedProperty is not null)
+            return namedProperty;
+
+        if (isGeneratedClass && resourceManagerProperties.Length == 1)
+            return resourceManagerProperties[0];
+
+        return null;
     }
 
     /// <summary>
