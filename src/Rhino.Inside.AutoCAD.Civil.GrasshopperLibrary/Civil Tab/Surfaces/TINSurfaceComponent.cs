@@ -105,7 +105,7 @@ public class TINSurfaceComponent : RhinoInsideAutocad_ComponentBase
             var mesh = tinSurface.ToRhinoMesh(transactionManager);
 
             return new TINSurfaceGooResult(propertiesGoo, boundariesGoo, contoursGoo, breaklinesGoo, mesh);
-        });
+        }, abort: true);
 
         if (result.IsSuccess == false)
         {

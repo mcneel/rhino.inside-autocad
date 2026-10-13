@@ -103,7 +103,7 @@ public record CivilAlignmentProperties : ICivilAlignmentProperties
     /// <inheritdoc />
     public ICivilCantInfo GetCantInfo(IAutocadTransactionManager transactionManager)
     {
-        var alignment = transactionManager.Unwrap().GetObject(_alignment.Id, OpenMode.ForWrite)
+        var alignment = transactionManager.Unwrap().GetObject(_alignment.Id, OpenMode.ForRead)
             as Alignment;
 
         return new CivilCantInfo(alignment);

@@ -127,7 +127,7 @@ public class CivilAlignmentPropertiesComponent : RhinoInsideAutocad_ComponentBas
                 alignmentProperties.Update(transactionManager, newName, newDescription));
         }
 
-        var cantInfo = transactionManager.PerformTask(() => alignmentProperties.GetCantInfo(transactionManager));
+        var cantInfo = transactionManager.PerformTask(() => alignmentProperties.GetCantInfo(transactionManager), true);
 
         // Basic properties
         DA.SetData(0, alignmentProperties.Name);
