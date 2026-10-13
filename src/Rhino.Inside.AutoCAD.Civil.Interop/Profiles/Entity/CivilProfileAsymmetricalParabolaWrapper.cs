@@ -2,6 +2,8 @@ using Autodesk.Civil.DatabaseServices;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
 using Rhino.Inside.AutoCAD.Interop;
 using RhinoCurve = Rhino.Geometry.Curve;
+using RhinoLine = Rhino.Geometry.Line;
+using RhinoLineCurve = Rhino.Geometry.LineCurve;
 using RhinoNurbsCurve = Rhino.Geometry.NurbsCurve;
 using RhinoPoint3d = Rhino.Geometry.Point3d;
 
@@ -63,27 +65,56 @@ public class CivilProfileAsymmetricalParabolaWrapper : CivilProfileEntityWrapper
     }
 
     /// <summary>
-    /// Calculates the elevation at a given station along a parabolic vertical curve.
+    /// Calculates the elevation at a given station along the asymmetric parabolic
+    /// vertical curve.
     /// </summary>
-    public double CalculateElevation(double station, double kValue)
+    /// <remarks>
+    /// An asymmetric vertical curve is two parabolas joined tangentially at the CVC,
+    /// which lies at the PVI station. With A = BVC, P = PVI and E = EVC, the CVC is
+    /// C = B + L1/(L1 + L2)*(D - B), where B and D are the midpoints of A-P and P-E,
+    /// L1 is the BVC-to-PVI length and L2 is the PVI-to-EVC length. The slope at C is
+    /// the slope of B-D. Each half is evaluated as
+    /// elevation = yStart + gStart*x + (gEnd - gStart)*x^2 / (2*Lhalf), where x is
+    /// measured from the start of that half. Grades are derived from the BVC, PVI and
+    /// EVC geometry, so sag and crest curves are both handled.
+    /// </remarks>
+    /// <param name="station">The station at which to evaluate the elevation.</param>
+    /// <returns>The elevation of the curve at <paramref name="station"/>.</returns>
+    public double CalculateElevation(double station)
     {
-        var gradeIn = _parabola.GradeIn;
+        var startStation = this.Start.Station;
+        var startElevation = this.Start.Elevation;
 
-        // Distance from PVI
-        var x = station - this.PVIStation;
+        var length1 = this.PVIStation - startStation;
+        var length2 = this.End.Station - this.PVIStation;
+        var length = this.End.Station - startStation;
 
-        // Tangent elevation at this station
-        var tangentElevation = this.PVIElevation + gradeIn * x;
+        if (length1 <= 0.0 || length2 <= 0.0)
+        {
+            // Degenerate curve: interpolate linearly between the end points.
+            return length > 0.0
+                ? startElevation + (this.End.Elevation - startElevation) * (station - startStation) / length
+                : startElevation;
+        }
 
-        // Parabolic correction
-        // y = gradeIn * x + (gradeOut - gradeIn) * x^2 / (2 * L)
-        // where L = K * |gradeOut - gradeIn|
-        // Simplified: correction = x^2 / (2 * K * 100)
-        var correction = x * x / (2.0 * kValue * 100.0);
+        var gradeIn = (this.PVIElevation - startElevation) / length1;
+        var gradeOut = (this.End.Elevation - this.PVIElevation) / length2;
 
-        // For sag curves, add correction; for crest curves, subtract
-        // The sign depends on the relationship between gradeIn and gradeOut
-        return tangentElevation - correction;
+        // Slope at the CVC is the slope of the chord between the tangent midpoints,
+        // which spans half the total curve length.
+        var midpointInElevation = 0.5 * (startElevation + this.PVIElevation);
+        var midpointOutElevation = 0.5 * (this.PVIElevation + this.End.Elevation);
+        var gradeCvc = (midpointOutElevation - midpointInElevation) / (0.5 * length);
+
+        if (station <= this.PVIStation)
+        {
+            var x1 = station - startStation;
+            return startElevation + gradeIn * x1 + (gradeCvc - gradeIn) * x1 * x1 / (2.0 * length1);
+        }
+
+        var cvcElevation = startElevation + 0.5 * length1 * (gradeIn + gradeCvc);
+        var x2 = station - this.PVIStation;
+        return cvcElevation + gradeCvc * x2 + (gradeOut - gradeCvc) * x2 * x2 / (2.0 * length2);
     }
 
     /// <summary>
@@ -96,47 +127,67 @@ public class CivilProfileAsymmetricalParabolaWrapper : CivilProfileEntityWrapper
     }
 
     /// <summary>
-    /// Converts a ProfileParabolaSymmetric to a wrapper.
+    /// Converts this asymmetric parabola to an exact Rhino curve in the
+    /// (station, elevation) plane.
     /// </summary>
+    /// <remarks>
+    /// The curve is two quadratic Beziers, [A, B, C] and [C, D, E], joined at the CVC.
+    /// A = BVC, P = PVI, E = EVC, B and D are the midpoints of A-P and P-E, and
+    /// C = B + L1/(L1 + L2)*(D - B) lies at the PVI station. The halves are built as a
+    /// single degree-2 NURBS curve with control points A, B, C, D, E and a double
+    /// interior knot at L1, making it tangent-continuous at C. It passes exactly through
+    /// the entity's start and end points with tangents along the incoming and outgoing
+    /// grades. No sampling is involved. A degenerate curve, where the PVI is not strictly
+    /// between the end stations, is returned as a straight line.
+    /// </remarks>
     public override RhinoCurve ToRhinoCurve()
     {
-        var points = new List<RhinoPoint3d>();
-        var numSamples = Math.Max(20, (int)(this.Length / 2.0));
-
-        // For asymmetric parabolas, calculate K values for each half
-        // K = L / |A| where A = grade change in percent
-        var gradeChangePercent = Math.Abs(this.GradeOut - this.GradeIn) * 100.0;
-
-        // Get the asymmetric lengths for each half
-        var length1 = this.AsymmetricLength1;
-        var length2 = this.AsymmetricLength2;
-
-        // Calculate K for each half based on their respective lengths
-        var k1 = gradeChangePercent > 0.0001 ? length1 / (gradeChangePercent * length1 / this.Length) : this.Length;
-        var k2 = gradeChangePercent > 0.0001 ? length2 / (gradeChangePercent * length2 / this.Length) : this.Length;
-
         var startStation = this.Start.Station;
         var endStation = this.End.Station;
 
-        // Sample points along the parabola
-        for (var i = 0; i <= numSamples; i++)
-        {
-            var t = (double)i / numSamples;
-            var station = startStation + (endStation - startStation) * t;
+        var length1 = this.PVIStation - startStation;
+        var length2 = endStation - this.PVIStation;
 
-            // Use appropriate K value based on position relative to PVI
-            var k = station < this.PVIStation ? k1 : k2;
+        var a = CreatePoint(startStation, this.Start.Elevation);
+        var e = CreatePoint(endStation, this.End.Elevation);
 
-            // Calculate elevation using parabola equation
-            var elevation = this.CalculateElevation(station, k);
+        if (length1 <= 0.0 || length2 <= 0.0)
+            return new RhinoLineCurve(new RhinoLine(a, e));
 
-            points.Add(new RhinoPoint3d(
-                UnitConverter.ToRhinoLength(station),
-                UnitConverter.ToRhinoLength(elevation),
-                0));
-        }
+        var p = CreatePoint(this.PVIStation, this.PVIElevation);
+        var b = 0.5 * (a + p);
+        var d = 0.5 * (p + e);
+        var c = b + length1 / (length1 + length2) * (d - b);
 
-        return RhinoNurbsCurve.Create(false, 3, points);
+        const int degree = 2;
+        var curve = new RhinoNurbsCurve(3, false, degree + 1, 5);
+
+        curve.Points.SetPoint(0, a);
+        curve.Points.SetPoint(1, b);
+        curve.Points.SetPoint(2, c);
+        curve.Points.SetPoint(3, d);
+        curve.Points.SetPoint(4, e);
+
+        var totalLength = length1 + length2;
+        curve.Knots[0] = 0.0;
+        curve.Knots[1] = 0.0;
+        curve.Knots[2] = length1;
+        curve.Knots[3] = length1;
+        curve.Knots[4] = totalLength;
+        curve.Knots[5] = totalLength;
+
+        return curve;
+    }
+
+    /// <summary>
+    /// Creates a Rhino point from a station and elevation, converted to Rhino units.
+    /// </summary>
+    private static RhinoPoint3d CreatePoint(double station, double elevation)
+    {
+        return new RhinoPoint3d(
+            UnitConverter.ToRhinoLength(station),
+            UnitConverter.ToRhinoLength(elevation),
+            0);
     }
 
     /// <inheritdoc />

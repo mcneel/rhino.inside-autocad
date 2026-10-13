@@ -21,6 +21,11 @@ public static class CivilAlignmentExtensions
     /// <summary>
     /// Converts a Civil 3D Alignment to a Rhino Curve (PolyCurve), applying unit conversion.
     /// </summary>
+    /// <remarks>
+    /// Entities are joined in station order (via <see cref="AlignmentEntityCollection.GetEntityByOrder(int)"/>),
+    /// not collection order, which reflects creation order and can differ from the
+    /// alignment's geometric sequence.
+    /// </remarks>
     /// <param name="alignment">The Civil 3D Alignment to convert.</param>
     /// <returns>A Rhino Curve representing the alignment centerline.</returns>
     public static RhinoCurve? ToRhinoCurve(this Alignment alignment)
@@ -33,13 +38,15 @@ public static class CivilAlignmentExtensions
         if (entities.Count == 1)
             return entities[0].ToRhinoCurve();
 
-        // Join multiple entities into a PolyCurve
+        // Join multiple entities into a PolyCurve in station order
         var polyCurve = new RhinoPolyCurve();
-        foreach (var entity in entities)
+        for (var i = 0; i < entities.Count; i++)
         {
-            if (entity.ToRhinoCurve() != null)
+            var curve = entities.GetEntityByOrder(i).ToRhinoCurve();
+
+            if (curve != null)
             {
-                polyCurve.Append(entity.ToRhinoCurve());
+                polyCurve.Append(curve);
             }
         }
 
