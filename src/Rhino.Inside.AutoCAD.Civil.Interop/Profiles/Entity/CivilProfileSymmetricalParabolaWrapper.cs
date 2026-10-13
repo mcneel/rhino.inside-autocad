@@ -51,28 +51,42 @@ public class CivilProfileSymmetricalParabolaWrapper : CivilProfileEntityWrapper,
     }
 
     /// <summary>
-    /// Calculates the elevation at a given station along a parabolic vertical curve.
+    /// Calculates the elevation at a given station along the symmetric parabolic
+    /// vertical curve.
     /// </summary>
+    /// <remarks>
+    /// Uses the standard vertical curve equation measured from the BVC:
+    /// elevation = e0 + g1*x + (g2 - g1)*x^2 / (2L), where x is the distance from the
+    /// BVC station, g1 is the grade from the BVC to the PVI, g2 is the grade from the
+    /// PVI to the EVC, and L is the curve length. Grades are derived from the BVC, PVI
+    /// and EVC geometry, so sag and crest curves are both handled. Stations outside the
+    /// curve are extrapolated along the same parabola.
+    /// </remarks>
+    /// <param name="station">The station at which to evaluate the elevation.</param>
+    /// <returns>The elevation of the curve at <paramref name="station"/>.</returns>
     public double CalculateElevation(double station)
     {
+        var startStation = this.Start.Station;
+        var startElevation = this.Start.Elevation;
 
-        var gradeIn = _parabola.GradeIn;
+        var length1 = this.PVIStation - startStation;
+        var length2 = this.End.Station - this.PVIStation;
+        var length = this.End.Station - startStation;
 
-        // Distance from PVI
-        var x = station - this.PVIStation;
+        if (length1 <= 0.0 || length2 <= 0.0)
+        {
+            // Degenerate curve: interpolate linearly between the end points.
+            return length > 0.0
+                ? startElevation + (this.End.Elevation - startElevation) * (station - startStation) / length
+                : startElevation;
+        }
 
-        // Tangent elevation at this station
-        var tangentElevation = this.PVIElevation + gradeIn * x;
+        var gradeIn = (this.PVIElevation - startElevation) / length1;
+        var gradeOut = (this.End.Elevation - this.PVIElevation) / length2;
 
-        // Parabolic correction
-        // y = gradeIn * x + (gradeOut - gradeIn) * x^2 / (2 * L)
-        // where L = K * |gradeOut - gradeIn|
-        // Simplified: correction = x^2 / (2 * K * 100)
-        var correction = x * x / (2.0 * this.KValue * 100.0);
+        var x = station - startStation;
 
-        // For sag curves, add correction; for crest curves, subtract
-        // The sign depends on the relationship between gradeIn and gradeOut
-        return tangentElevation - correction;
+        return startElevation + gradeIn * x + (gradeOut - gradeIn) * x * x / (2.0 * length);
     }
 
     /// <summary>
@@ -85,32 +99,37 @@ public class CivilProfileSymmetricalParabolaWrapper : CivilProfileEntityWrapper,
     }
 
     /// <summary>
-    /// Converts a ProfileParabolaSymmetric to a wrapper.
+    /// Converts this symmetric parabola to an exact Rhino curve in the
+    /// (station, elevation) plane.
     /// </summary>
+    /// <remarks>
+    /// A parabolic vertical curve is exactly a quadratic Bezier whose control points
+    /// are the BVC, the PVI (the tangent intersection) and the EVC, so the result is a
+    /// degree-2 NURBS curve with those three control points. It passes exactly through
+    /// the entity's start and end points with tangents along the incoming and outgoing
+    /// grades. No sampling is involved.
+    /// </remarks>
     public override RhinoCurve ToRhinoCurve()
     {
-        var points = new List<RhinoPoint3d>();
-        var numSamples = Math.Max(20, (int)(this.Length / 2.0));
-
-        var startStation = this.Start.Station;
-        var endStation = this.End.Station;
-
-        // Sample points along the parabola
-        for (var i = 0; i <= numSamples; i++)
+        var points = new List<RhinoPoint3d>
         {
-            var t = (double)i / numSamples;
-            var station = startStation + (endStation - startStation) * t;
+            CreatePoint(this.Start.Station, this.Start.Elevation),
+            CreatePoint(this.PVIStation, this.PVIElevation),
+            CreatePoint(this.End.Station, this.End.Elevation)
+        };
 
-            // Calculate elevation using parabola equation
-            var elevation = this.CalculateElevation(station);
+        return RhinoNurbsCurve.Create(false, 2, points);
+    }
 
-            points.Add(new RhinoPoint3d(
-                UnitConverter.ToRhinoLength(station),
-                UnitConverter.ToRhinoLength(elevation),
-                0));
-        }
-
-        return RhinoNurbsCurve.Create(false, 3, points);
+    /// <summary>
+    /// Creates a Rhino point from a station and elevation, converted to Rhino units.
+    /// </summary>
+    private static RhinoPoint3d CreatePoint(double station, double elevation)
+    {
+        return new RhinoPoint3d(
+            UnitConverter.ToRhinoLength(station),
+            UnitConverter.ToRhinoLength(elevation),
+            0);
     }
 
     /// <inheritdoc />
