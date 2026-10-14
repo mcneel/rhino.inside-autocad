@@ -39,10 +39,10 @@
 		<DeploymentPackageVersioned>$(DeploymentPackage)$(AssemblyVersion)\</DeploymentPackageVersioned>
 		<DeploymentPackage_Win64>$(DeploymentPackageVersioned)Win64\$(RuntimeName)\</DeploymentPackage_Win64>
 
-		<BimorphCompany>Bimorph Digital Engineering LTD</BimorphCompany>
+		<BimorphCompany>Bimorph Consultancy LTD</BimorphCompany>
 		<BimorphProduct>Rhino.Inside.AutoCAD</BimorphProduct>
 		<BimorphCopyright>Copyright © Bimorph LTD. 2026</BimorphCopyright>
-		<CompanyName>Bimorph Digital Engineering LTD</CompanyName>
+		<CompanyName>Bimorph Consultancy LTD</CompanyName>
 		<AppName>Rhino.Inside.AutoCAD</AppName>
 	</PropertyGroup>
 </Project>

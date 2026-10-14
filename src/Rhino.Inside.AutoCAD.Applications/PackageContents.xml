@@ -6,7 +6,7 @@
                     Name="Rhino.Inside.AutoCAD"
                     Description="Rhino Inside for AutoCAD Applications"
                     Icon="./Icons/Rhino-logo-icon.ico"
-                    Author="Bimorph Digital Engineering"
+                    Author="Bimorph Consultancy"
                     ProductCode="{bfd2ab20-da91-4c7a-a93f-65d10e9270b4}">
 	<CompanyDetails Name="Bimorph Consultancy LTD"
 					  Url="https://bimorph.com"
