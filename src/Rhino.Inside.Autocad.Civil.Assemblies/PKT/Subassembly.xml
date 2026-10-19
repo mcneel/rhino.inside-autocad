@@ -4,7 +4,7 @@
              Name="ImportedPolylineSubassemblies"
              Description="Imports polyline geometry from a CSV file"
              Version="1.0.0"
-             Author="Bimorph Digital Engineering"
+             Author="Bimorph Consultancy"
              ClassName="Subassembly.ImportedPolylineSubassemblies"
              AssemblyName="ImportedPolylineSubassemblies.dll">
   <Parameters>

@@ -4,8 +4,8 @@
     <id>Rhino.Inside.AutoCAD.NET48</id>
     <version>0.0.0</version>
     <title>Rhino.Inside.AutoCAD (.NET Framework 4.8)</title>
-    <authors>Bimorph Digital Engineering LTD</authors>
-    <owners>Bimorph Digital Engineering LTD</owners>
+    <authors>Bimorph Consultancy LTD</authors>
+    <owners>Bimorph Consultancy LTD</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="file">LICENSE.txt</license>
     <readme>README.md</readme>

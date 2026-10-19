@@ -99,9 +99,10 @@ public class CivilProfileWrapper : AutocadEntityWrapper, ICivilProfile
         if (entities.Count == 1)
             return entities[0].ToRhinoCurve();
 
-        // Join multiple entities into a PolyCurve
+        // Join multiple entities into a PolyCurve in station order, as the
+        // entity collection is ordered by creation, not by station.
         var polyCurve = new RhinoPolyCurve();
-        foreach (var entity in entities)
+        foreach (var entity in entities.OrderBy(e => e.Start.Station))
         {
             var rhinoCurve = entity.ToRhinoCurve();
             if (rhinoCurve != null)
