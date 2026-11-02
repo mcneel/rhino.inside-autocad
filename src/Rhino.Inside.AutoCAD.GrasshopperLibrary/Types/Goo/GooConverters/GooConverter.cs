@@ -103,7 +103,9 @@ public class GooConverter
 
                     var geometricGoo = GooTypeRegistry.Instance?.CreateGeometryGoo(wrapper);
 
-                    if (geometricGoo != null)
+                    // A solid which could not be converted gives an invalid Goo. It falls
+                    // through to the generic object so that the object is not lost.
+                    if (geometricGoo is { IsValid: true })
                     {
                         return geometricGoo;
                     }

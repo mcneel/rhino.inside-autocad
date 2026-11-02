@@ -23,6 +23,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// called <see cref="AutocadBrepProxy "/> and it represents the Brep as a collection of
 /// Autocad Nurbs Surfaces and can be used to represent the Brep in Autocad.
 /// </summary>
+[GooEntityTypes(typeof(Solid3d))]
 public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadReferenceDatabaseObject,
     IGH_PreviewData, IGH_AutocadGeometryPreview, IAutocadBakeable
 {
@@ -32,14 +33,7 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
     /// Creates a new <see cref="GH_AutocadBrepProxy"/> instance from the specified
     /// Autocad <see cref="Solid3d"/>.
     /// </summary>
-    public static GH_AutocadBrepProxy CreateFromSolid(Solid3d solid)
-    {
-        var rhinoBrep = solid.ToRhinoBrep();
-
-        return rhinoBrep == null
-            ? new GH_AutocadBrepProxy()
-            : new GH_AutocadBrepProxy(rhinoBrep, new AutocadReferenceId(solid));
-    }
+    public static GH_AutocadBrepProxy CreateFromSolid(Solid3d solid) => new(solid);
 
     /// <inheritdoc />
     public IAutocadReferenceId Reference { get; private set; }
@@ -48,7 +42,7 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
     public IDbObject ObjectValue => this.Convert(this.Value);
 
     /// <inheritdoc />
-    public override BoundingBox Boundingbox => this.Value.GetBoundingBox(false);
+    public override BoundingBox Boundingbox => this.Value?.GetBoundingBox(false) ?? BoundingBox.Empty;
 
     /// <inheritdoc />
     public BoundingBox ClippingBox => this.Boundingbox;
@@ -91,6 +85,17 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
     {
         this.Reference = AutocadReferenceId.NoReference;
 
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GH_AutocadBrepProxy"/> class from an
+    /// AutoCAD <see cref="Solid3d"/>, referencing the solid when it is in a database. The
+    /// value is empty if the solid cannot be converted to a Brep, which leaves the Goo
+    /// invalid. <see cref="GooTypeRegistry"/> uses this constructor as the Goo's factory.
+    /// </summary>
+    public GH_AutocadBrepProxy(Solid3d solid) : base(solid.ToRhinoBrep())
+    {
+        this.Reference = new AutocadReferenceId(solid);
     }
 
     /// <summary>
@@ -204,7 +209,7 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
     /// </summary>
     private GH_AutocadBrepProxy CreateClonedInstance(RhinoBrep brep)
     {
-        return new GH_AutocadBrepProxy(brep.DuplicateBrep(), this.Reference);
+        return new GH_AutocadBrepProxy(brep?.DuplicateBrep(), this.Reference);
     }
 
     /// <inheritdoc />
@@ -278,6 +283,7 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
         if (source is GH_AutocadBrepProxy goo)
         {
             this.Value = goo.Value;
+            this.Reference = goo.Reference;
             return true;
         }
 
@@ -287,7 +293,33 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
             return true;
         }
 
-        return false;
+        var solid = GetSolid(source);
+
+        var solidBrep = solid?.ToRhinoBrep();
+
+        if (solidBrep == null) return false;
+
+        this.Value = solidBrep;
+        this.Reference = new AutocadReferenceId(solid!);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Gets the AutoCAD <see cref="Solid3d"/> held by the source, which may be the solid
+    /// itself, a wrapper around it, or a Goo holding either of those.
+    /// </summary>
+    /// <returns>The solid, or <see langword="null"/> if the source does not hold one.</returns>
+    private static Solid3d? GetSolid(object? source)
+    {
+        return source switch
+        {
+            Solid3d solid => solid,
+            AutocadDbObjectWrapper wrapper => wrapper.AutocadObject as Solid3d,
+            GH_AutocadObject objectGoo => GetSolid(objectGoo.Value),
+            GH_ObjectWrapper objectWrapper => GetSolid(objectWrapper.Value),
+            _ => null
+        };
     }
 
     /// <inheritdoc />
@@ -301,7 +333,7 @@ public class GH_AutocadBrepProxy : GH_GeometricGoo<RhinoBrep>, IGH_AutocadRefere
 
         if (typeof(Q).IsAssignableFrom(typeof(GH_AutocadBrepProxy)))
         {
-            target = (Q)(object)new GH_AutocadBrepProxy(this.Value);
+            target = (Q)(object)this.CreateClonedInstance(this.Value);
             return true;
         }
         return false;
