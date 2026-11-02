@@ -10,7 +10,7 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <summary>
 /// A registry that discovers and caches Goo type factories for AutoCAD entity conversion.
 /// Uses convention-based reflection to automatically register all types inheriting from
-/// GH_AutocadGeometricGoo.
+/// GH_AutocadGeometricGoo, and any other Goo marked with <see cref="GooEntityTypesAttribute"/>.
 /// </summary>
 public class GooTypeRegistry
 {
@@ -75,17 +75,11 @@ public class GooTypeRegistry
     {
         if (assembly == null) return;
 
-        var gooTypes = assembly.GetTypes()
-            .Where(t => !t.IsAbstract &&
-                        !t.IsGenericTypeDefinition &&
-                        this.IsSubclassOfGenericType(t, _gooBaseType));
+        var gooTypes = assembly.GetTypes().Where(this.IsRegistrableGoo);
 
         foreach (var gooType in gooTypes)
         {
-            var wrapperType = this.ExtractWrapperType(gooType);
-            if (wrapperType == null) continue;
-
-            foreach (var entityType in this.GetRegistrationTypes(gooType, wrapperType))
+            foreach (var entityType in this.GetRegistrationTypes(gooType))
             {
                 // Skip if already registered
                 if (_exactMatchCache.ContainsKey(entityType)) continue;
@@ -109,17 +103,11 @@ public class GooTypeRegistry
     {
         var assembly = _gooBaseType.Assembly;
 
-        var gooTypes = assembly.GetTypes()
-            .Where(t => !t.IsAbstract &&
-                        !t.IsGenericTypeDefinition &&
-                        this.IsSubclassOfGenericType(t, _gooBaseType));
+        var gooTypes = assembly.GetTypes().Where(this.IsRegistrableGoo);
 
         foreach (var gooType in gooTypes)
         {
-            var wrapperType = this.ExtractWrapperType(gooType);
-            if (wrapperType == null) continue;
-
-            foreach (var entityType in this.GetRegistrationTypes(gooType, wrapperType))
+            foreach (var entityType in this.GetRegistrationTypes(gooType))
             {
                 var factory = this.CreateFactory(gooType, entityType);
                 if (factory == null) continue;
@@ -132,6 +120,19 @@ public class GooTypeRegistry
             = (a, b) => this.GetInheritanceDepth(b.BaseType) - this.GetInheritanceDepth(a.BaseType);
 
         _inheritanceChain.Sort(mostDerivedFirstComparison);
+    }
+
+    /// <summary>
+    /// Checks if a type is a concrete Goo the registry should create factories for: either
+    /// a subclass of the geometric Goo base, or a Goo which names its entity types with a
+    /// <see cref="GooEntityTypesAttribute"/> because its value is not an AutoCAD entity.
+    /// </summary>
+    private bool IsRegistrableGoo(Type type)
+    {
+        if (type.IsAbstract || type.IsGenericTypeDefinition) return false;
+
+        return this.IsSubclassOfGenericType(type, _gooBaseType)
+               || type.GetCustomAttribute<GooEntityTypesAttribute>() != null;
     }
 
     /// <summary>
@@ -174,16 +175,17 @@ public class GooTypeRegistry
     /// wrapper type.
     /// </summary>
     /// <param name="gooType">The Goo type being registered.</param>
-    /// <param name="wrapperType">The Goo's wrapper type.</param>
-    /// <returns>One or more types to key the Goo's factory on.</returns>
-    private IEnumerable<Type> GetRegistrationTypes(Type gooType, Type wrapperType)
+    /// <returns>The types to key the Goo's factory on, which may be empty.</returns>
+    private IEnumerable<Type> GetRegistrationTypes(Type gooType)
     {
         var attribute = gooType.GetCustomAttribute<GooEntityTypesAttribute>();
 
-        if (attribute == null || attribute.EntityTypes.Length == 0)
-            return [wrapperType];
+        if (attribute != null && attribute.EntityTypes.Length > 0)
+            return attribute.EntityTypes;
 
-        return attribute.EntityTypes;
+        var wrapperType = this.ExtractWrapperType(gooType);
+
+        return wrapperType == null ? Array.Empty<Type>() : new[] { wrapperType };
     }
 
     /// <summary>

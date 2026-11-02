@@ -7,7 +7,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that extracts information from an AutoCAD DBObject.
 /// </summary>
-[ComponentVersion(introduced: "1.0.16", updated: "1.3.2")]
+[ComponentVersion(introduced: "1.0.16", updated: "1.3.9")]
 public class AutocadDbObjectComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
@@ -93,16 +93,47 @@ public class AutocadDbObjectComponent : RhinoInsideAutocad_ComponentBase
         // Type name
         var typeName = dbObject.Type.Name;
 
-        // ExtensionDictionary
-        var extDictId = new AutocadObjectIdWrapper(dbObject.AutocadObject.ExtensionDictionary);
-
         DA.SetData(0, id);
         DA.SetData(1, handle);
         DA.SetData(2, typeName);
-        DA.SetData(3, extDictId);
+
+        var objectId = id.Unwrap();
+
+        // A clone of unreferenced geometry is not in the database, so there is nothing to open.
+        if (objectId.IsNull)
+        {
+            this.SetObjectOutputs(DA, dbObject.AutocadObject);
+            return;
+        }
+
+        if (objectId.IsValid == false || objectId.IsErased)
+        {
+            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                "The AutoCAD object no longer exists in the drawing");
+            return;
+        }
+
+        // The wrapped object is closed once the transaction that fetched it has ended, so it
+        // is opened again to read it. Nothing is changed, so the transaction is aborted.
+        using var transaction = objectId.Database.TransactionManager.StartTransaction();
+
+        this.SetObjectOutputs(DA, transaction.GetObject(objectId, OpenMode.ForRead));
+
+        transaction.Abort();
+    }
+
+    /// <summary>
+    /// Sets the outputs which are read from the AutoCAD object itself.
+    /// </summary>
+    /// <param name="DA">The data access of the current solution.</param>
+    /// <param name="cadObject">The object to read, which must be readable for this call.</param>
+    private void SetObjectOutputs(IGH_DataAccess DA, DBObject cadObject)
+    {
+        // ExtensionDictionary
+        DA.SetData(3, new AutocadObjectIdWrapper(cadObject.ExtensionDictionary));
 
         // Check if DBObject is an Entity and extract entity-specific properties
-        if (dbObject.AutocadObject is Entity entity)
+        if (cadObject is Entity entity)
         {
             // Layer
             DA.SetData(4, entity.Layer);

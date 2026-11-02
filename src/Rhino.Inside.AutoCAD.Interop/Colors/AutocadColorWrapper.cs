@@ -16,7 +16,12 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// </remarks>
 public class AutocadColorWrapper : AutocadWrapperBase<CadColor>, IAutocadColor
 {
-    private readonly Entity? _associatedObject;
+    /// <summary>
+    /// The layer of the entity this color came from, used to resolve ByLayer. Read when
+    /// the wrapper is constructed because the entity may be closed by the time the color
+    /// is resolved.
+    /// </summary>
+    private readonly ObjectId? _associatedLayerId;
 
     /// <summary>
     /// Creates a ByLayer color.
@@ -75,7 +80,7 @@ public class AutocadColorWrapper : AutocadWrapperBase<CadColor>, IAutocadColor
     /// </summary>
     public AutocadColorWrapper(Entity associatedObject) : base(associatedObject.Color)
     {
-        _associatedObject = associatedObject;
+        _associatedLayerId = associatedObject.LayerId;
 
         this.ColorIndex = associatedObject.Color.ColorIndex;
     }
@@ -85,20 +90,20 @@ public class AutocadColorWrapper : AutocadWrapperBase<CadColor>, IAutocadColor
     /// </summary>
     public AutocadColorWrapper(CadColor color) : base(color)
     {
-        _associatedObject = null;
+        _associatedLayerId = null;
 
         this.ColorIndex = color.ColorIndex;
     }
 
     public IColor ResolveColor(IAutocadTransactionManager transactionManager)
     {
-        if (_associatedObject == null)
+        if (_associatedLayerId == null)
             return new InternalColor(this.AutocadObject);
 
         if (this.IsByLayer)
         {
             var layer =
-                transactionManager.Unwrap().GetObject(_associatedObject.LayerId,
+                transactionManager.Unwrap().GetObject(_associatedLayerId.Value,
                     OpenMode.ForRead, false) as LayerTableRecord;
             if (layer != null)
             {

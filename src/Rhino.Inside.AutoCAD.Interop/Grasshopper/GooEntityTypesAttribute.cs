@@ -11,6 +11,10 @@ namespace Rhino.Inside.AutoCAD.Interop;
 /// <see cref="Autodesk.AutoCAD.DatabaseServices.Entity"/> would otherwise become the
 /// fallback for every entity type no other Goo claims. Applying this attribute registers
 /// the Goo against the listed types instead, and leaves every Goo without it unaffected.
+/// <para>
+/// It also registers a Goo which does not derive from the geometric Goo base at all, such
+/// as one holding Rhino geometry in place of the AutoCAD entity it represents.
+/// </para>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class GooEntityTypesAttribute : Attribute

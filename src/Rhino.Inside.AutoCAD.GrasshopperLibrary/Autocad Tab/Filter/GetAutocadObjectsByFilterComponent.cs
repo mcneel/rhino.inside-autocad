@@ -11,7 +11,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that returns AutoCAD elements matching a selection filter.
 /// </summary>
-[ComponentVersion(introduced: "1.0.9", updated: "1.2.24")]
+[ComponentVersion(introduced: "1.0.9", updated: "1.3.9")]
 public class GetAutocadObjectsByFilterComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     private const string AutoUpdateEnabledKey = GrasshopperKeys.AutoUpdateEnabled;

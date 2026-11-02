@@ -72,6 +72,13 @@ public class GetByAutocadIdComponent : RhinoInsideAutocad_ComponentBase, IRefere
 
         var dbObject = document.GetObjectById(id);
 
+        // An object with no extension dictionary outputs a null id, which resolves to nothing.
+        if (dbObject is null)
+        {
+            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No object found for the supplied Id");
+            return;
+        }
+
         var gooObject = _gooConverter.CreateGoo(dbObject);
 
         DA.SetData(0, gooObject);
