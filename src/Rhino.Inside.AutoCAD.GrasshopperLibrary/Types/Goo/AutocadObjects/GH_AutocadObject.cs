@@ -51,6 +51,31 @@ public class GH_AutocadObject : GH_AutocadObjectGoo<AutocadDbObjectWrapper>
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// Geometry Goo does not hold the database object. Its value is a clone, or a Rhino
+    /// Brep for a solid, so it has no ObjectId or extension dictionary of its own and only
+    /// its reference identifies the object in the drawing. A referenced Goo is therefore
+    /// resolved through that reference. Geometry with no reference, or whose referenced
+    /// object can no longer be opened, falls back to the base conversion.
+    /// </remarks>
+    public override bool CastFrom(object source)
+    {
+        if (source is IGH_GeometricGoo and IGH_AutocadReference { Reference.IsValid: true } referenceGoo)
+        {
+            var picker = new AutocadObjectPicker();
+
+            if (picker.TryGetUpdatedObject(referenceGoo.Reference.ObjectId, out var entity)
+                && entity is AutocadDbObjectWrapper databaseObject)
+            {
+                this.Value = databaseObject;
+                return true;
+            }
+        }
+
+        return base.CastFrom(source);
+    }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         if (this.Value == null)
