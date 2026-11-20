@@ -418,6 +418,11 @@ public static class RhinoCurveExtensions
             case RhinoPolyLineCurve polyLineCurve:
                 return [polyLineCurve.ToAutocadPolylineCurve()];
 
+            // A PolyCurve made only of line segments (e.g. from Join Curves) is
+            // converted to a single polyline rather than a list of lines.
+            case RhinoPolyCurve polyCurve when polyCurve.TryGetPolyline(out var polyline):
+                return [new RhinoPolyLineCurve(polyline).ToAutocadPolylineCurve()];
+
             case RhinoPolyCurve polyCurve:
                 return polyCurve.ToAutocadCurveList();
 
@@ -452,6 +457,9 @@ public static class RhinoCurveExtensions
 
             case RhinoPolyLineCurve polyLineCurve:
                 return [polyLineCurve.ToAutocadPolylineCurve2d()];
+
+            case RhinoPolyCurve polyCurve when polyCurve.TryGetPolyline(out var polyline):
+                return [new RhinoPolyLineCurve(polyline).ToAutocadPolylineCurve2d()];
 
             case RhinoPolyCurve polyCurve:
                 return polyCurve.ToAutocadCurves2dList();
