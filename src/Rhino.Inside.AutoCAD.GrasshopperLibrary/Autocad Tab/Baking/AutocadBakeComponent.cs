@@ -15,12 +15,13 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// "Driven Button" context menu toggle is enabled (the default), or by the "Bake"
 /// boolean input that takes the button's place when the toggle is disabled.
 /// </summary>
-[ComponentVersion(introduced: "1.0.0", updated: "1.3.0")]
+[ComponentVersion(introduced: "1.0.0", updated: "1.3.11")]
 public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingComponent
 {
     private const string DrivenButtonEnabledKey = GrasshopperKeys.DrivenButtonEnabled;
     private const string DrivenButtonMenuItemText = GrasshopperMessages.DrivenButtonMenuItem;
     private const string DrivenButtonTooltipText = GrasshopperMessages.DrivenButtonTooltip;
+    private const int SettingsParamIndex = 2;
     private const int BakeParamIndex = 3;
 
     private bool _drivenButtonEnabled = true;
@@ -82,8 +83,8 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
             "The objects to bake to AutoCAD (curves, points, meshes, solids)",
             GH_ParamAccess.list);
 
-        pManager.AddParameter(new Param_BakeSettings(GH_ParamAccess.item), "Settings",
-            "S", "Optional bake settings (layer, linetype, color)", GH_ParamAccess.item);
+        pManager.AddParameter(new Param_BakeSettings(GH_ParamAccess.list), "Settings",
+            "S", BakeSettingsMatcher.SettingsDescription, GH_ParamAccess.list);
         pManager[2].Optional = true;
 
         // Registered only when the button is not shown: the field initialiser has already
@@ -154,8 +155,9 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
     {
         // The Bake button triggers a bake on the solve it requested; the Bake input,
         // which is only registered when the button is hidden, drives every other solve.
+        // The request is cleared in AfterSolveInstance, not here, so a click bakes every
+        // iteration of the solve (one per branch of the Objects and Settings trees).
         var run = _manualRunRequested;
-        _manualRunRequested = false;
 
         if (this.HasBakeInput)
         {
@@ -185,21 +187,31 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
         if (!DA.GetDataList(1, objects) || objects.Count == 0)
             return;
 
-        GH_BakeSettings? settingsGoo = null;
-        DA.GetData(2, ref settingsGoo);
+        var settingsGoos = new List<GH_BakeSettings?>();
+        DA.GetDataList(2, settingsGoos);
 
-        var settings = settingsGoo?.Value;
+        var settings = settingsGoos.Select(goo => goo?.Value).ToList();
+
+        if (BakeSettingsMatcher.IsMismatched(objects.Count, settings))
+        {
+            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                BakeSettingsMatcher.MismatchMessage(objects.Count, settings));
+        }
 
         var converterFactory = new RhinoConvertibleFactory();
         var bakeableExtractor = new BakeableExtractor(converterFactory);
 
-        var bakeables = new List<IAutocadBakeable>();
-        foreach (var obj in objects)
+        // Settings are paired by the object's original index, so an unbakeable object
+        // does not shift the settings of the objects after it.
+        var bakeables = new List<(IAutocadBakeable Bakeable, IBakeSettings? Settings)>();
+        for (var i = 0; i < objects.Count; i++)
         {
+            var obj = objects[i];
             var bakeable = bakeableExtractor.ExtractBakeable(obj);
             if (bakeable != null)
             {
-                bakeables.Add(bakeable);
+                var objectSettings = BakeSettingsMatcher.ForIndex(settings, i);
+                bakeables.Add((bakeable, objectSettings));
             }
             else
             {
@@ -220,11 +232,11 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
 
         _ = transactionManagerWrapper.PerformTask(() =>
          {
-             foreach (var bakeable in bakeables)
+             foreach (var (bakeable, objectSettings) in bakeables)
              {
                  try
                  {
-                     var objectIds = bakeable.BakeToAutocad(transactionManagerWrapper, this, settings);
+                     var objectIds = bakeable.BakeToAutocad(transactionManagerWrapper, this, objectSettings);
 
                      foreach (var objectId in objectIds)
                      {
@@ -283,6 +295,15 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
         Grasshopper.Instances.ActiveCanvas?.Invalidate();
     }
 
+    /// <inheritdoc />
+    protected override void AfterSolveInstance()
+    {
+        base.AfterSolveInstance();
+
+        // The Bake button's request covers every iteration of the solve it triggered.
+        _manualRunRequested = false;
+    }
+
     /// <summary>
     /// Triggers a manual bake of the component.
     /// Called by the custom attributes when the Bake button is clicked.
@@ -301,6 +322,9 @@ public class AutocadBakeComponent : RhinoInsideAutocad_ComponentBase, IBakingCom
 
         _drivenButtonEnabled = true;
         reader.TryGetBoolean(DrivenButtonEnabledKey, ref _drivenButtonEnabled);
+
+        // Files written before 1.3.11 store Settings as item access.
+        BakeSettingsMatcher.UpgradeSettingsParam(this.Params.Input[SettingsParamIndex]);
 
         this.ReconcileBakeInputWithButton();
 

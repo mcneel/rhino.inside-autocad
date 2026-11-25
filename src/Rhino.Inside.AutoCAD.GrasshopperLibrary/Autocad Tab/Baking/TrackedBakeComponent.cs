@@ -1,3 +1,4 @@
+using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
 using Rhino.Inside.AutoCAD.Core.Interfaces;
@@ -13,7 +14,7 @@ namespace Rhino.Inside.AutoCAD.GrasshopperLibrary;
 /// deletes previously baked objects when Replace mode is enabled, and persists the
 /// connection to baked objects across sessions.
 /// </summary>
-[ComponentVersion(introduced: "1.3.0", updated: "1.3.2")]
+[ComponentVersion(introduced: "1.3.0", updated: "1.3.11")]
 public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBakingComponent
 {
     /// <inheritdoc />
@@ -24,6 +25,8 @@ public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBak
 
     /// <inheritdoc />
     public int OutputParamTargetIndex => 0;
+
+    private const int SettingsParamIndex = 2;
 
     // Number of asynchronous brep conversions still in flight from the last bake.
     // Used to suppress re-bakes while ids have not yet arrived via AppendDataList
@@ -53,8 +56,8 @@ public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBak
             "The objects to bake to AutoCAD (curves, points, meshes, solids)",
             GH_ParamAccess.list);
 
-        pManager.AddParameter(new Param_BakeSettings(GH_ParamAccess.item), "Settings",
-            "S", "Optional bake settings (layer, linetype, color)", GH_ParamAccess.item);
+        pManager.AddParameter(new Param_BakeSettings(GH_ParamAccess.list), "Settings",
+            "S", BakeSettingsMatcher.SettingsDescription, GH_ParamAccess.list);
         pManager[2].Optional = true;
     }
 
@@ -87,21 +90,31 @@ public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBak
         if (!DA.GetDataList(1, objects) || objects.Count == 0)
             return;
 
-        GH_BakeSettings? settingsGoo = null;
-        DA.GetData(2, ref settingsGoo);
+        var settingsGoos = new List<GH_BakeSettings?>();
+        DA.GetDataList(SettingsParamIndex, settingsGoos);
 
-        var settings = settingsGoo?.Value;
+        var settings = settingsGoos.Select(goo => goo?.Value).ToList();
+
+        if (BakeSettingsMatcher.IsMismatched(objects.Count, settings))
+        {
+            this.AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                BakeSettingsMatcher.MismatchMessage(objects.Count, settings));
+        }
 
         var converterFactory = new RhinoConvertibleFactory();
         var bakeableExtractor = new BakeableExtractor(converterFactory);
 
-        var bakeables = new List<IAutocadBakeable>();
-        foreach (var obj in objects)
+        // Settings are paired by the object's original index, so an unbakeable object
+        // does not shift the settings of the objects after it.
+        var bakeables = new List<(IAutocadBakeable Bakeable, IBakeSettings? Settings)>();
+        for (var i = 0; i < objects.Count; i++)
         {
+            var obj = objects[i];
             var bakeable = bakeableExtractor.ExtractBakeable(obj);
             if (bakeable != null)
             {
-                bakeables.Add(bakeable);
+                var objectSettings = BakeSettingsMatcher.ForIndex(settings, i);
+                bakeables.Add((bakeable, objectSettings));
             }
             else
             {
@@ -117,7 +130,7 @@ public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBak
         }
 
         // Build input signature for change detection
-        var signature = this.BuildInputSignature(bakeables, settings, document);
+        var signature = this.BuildInputSignature(bakeables, document);
 
         // Check for reuse to prevent infinite loops (bake -> AutoCAD change events ->
         // downstream Get components expire -> this component expires again)
@@ -137,7 +150,7 @@ public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBak
         this.DeleteTrackedObjectsIfReplaceEnabled();
 
         _lastBakedSignature = signature;
-        _pendingAsyncBakeCount = bakeables.Count(bakeable => bakeable is GH_AutocadBrepProxy);
+        _pendingAsyncBakeCount = bakeables.Count(pair => pair.Bakeable is GH_AutocadBrepProxy);
 
         var bakedIds = new List<GH_AutocadObjectId>();
 
@@ -145,11 +158,11 @@ public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBak
 
         _ = transactionManagerWrapper.PerformTask(() =>
          {
-             foreach (var bakeable in bakeables)
+             foreach (var (bakeable, objectSettings) in bakeables)
              {
                  try
                  {
-                     var objectIds = bakeable.BakeToAutocad(transactionManagerWrapper, this, settings);
+                     var objectIds = bakeable.BakeToAutocad(transactionManagerWrapper, this, objectSettings);
 
                      foreach (var objectId in objectIds)
                      {
@@ -173,30 +186,44 @@ public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBak
     }
 
     /// <summary>
-    /// Builds a signature from the bakeables, bake settings and target document, used
-    /// to detect input changes between solves. Each bakeable fingerprints the same
-    /// geometry it bakes, so anything affecting the baked output contributes to the
-    /// signature.
+    /// Builds a signature from the bakeables, the bake settings matched to each of them
+    /// and the target document, used to detect input changes between solves. Each
+    /// bakeable fingerprints the same geometry it bakes, so anything affecting the baked
+    /// output contributes to the signature.
     /// </summary>
-    private string BuildInputSignature(List<IAutocadBakeable> bakeables, IBakeSettings? settings, IAutocadDocument document)
+    private string BuildInputSignature(List<(IAutocadBakeable Bakeable, IBakeSettings? Settings)> bakeables,
+        IAutocadDocument document)
     {
         var builder = new InputSignatureBuilder();
 
-        foreach (var bakeable in bakeables)
+        foreach (var (bakeable, settings) in bakeables)
         {
             bakeable.AppendInputSignature(builder);
+
+            builder.Add(settings?.Layer?.Id);
+            builder.Add(settings?.LineType?.Id);
+            builder.AddColor(settings?.Color);
+
+            var linetypeScaleText = settings?.LinetypeScale?.ToString("F6");
+
+            builder.Add(linetypeScaleText);
         }
 
-        builder.Add(settings?.Layer?.Id);
-        builder.Add(settings?.LineType?.Id);
-        builder.AddColor(settings?.Color);
-
-        var linetypeScaleText = settings?.LinetypeScale?.ToString("F6");
-
-        builder.Add(linetypeScaleText);
         builder.Add(document.FileMetadata.FileName);
 
         return builder.Build();
+    }
+
+    /// <inheritdoc />
+    public override bool Read(GH_IReader reader)
+    {
+        if (!base.Read(reader))
+            return false;
+
+        // Files written before 1.3.11 store Settings as item access.
+        BakeSettingsMatcher.UpgradeSettingsParam(this.Params.Input[SettingsParamIndex]);
+
+        return true;
     }
 
     /// <inheritdoc />
