@@ -113,7 +113,7 @@ public class TrackedBakeComponent : RhinoInsideAutocad_CreateComponentBase, IBak
             var bakeable = bakeableExtractor.ExtractBakeable(obj);
             if (bakeable != null)
             {
-                var objectSettings = BakeSettingsMatcher.ForIndex(objects.Count, settings, i);
+                var objectSettings = BakeSettingsMatcher.ForIndex(settings, i);
                 bakeables.Add((bakeable, objectSettings));
             }
             else
