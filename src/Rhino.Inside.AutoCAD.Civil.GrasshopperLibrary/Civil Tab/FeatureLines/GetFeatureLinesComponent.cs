@@ -13,7 +13,7 @@ namespace Rhino.Inside.AutoCAD.Civil.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that gets standalone Feature Lines from the current Civil 3D document.
 /// </summary>
-[ComponentVersion(introduced: "1.3.10")]
+[ComponentVersion(introduced: "1.3.12")]
 public class GetFeatureLinesComponent : RhinoInsideAutocad_ComponentBase, IReferenceComponent
 {
     /// <inheritdoc />

@@ -1180,5 +1180,15 @@ namespace Rhino.Inside.AutoCAD.Civil.GrasshopperLibrary.Properties {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap CivilFeatureLineElevationsFromSurfaceComponent {
+            get {
+                object obj = ResourceManager.GetObject("CivilFeatureLineElevationsFromSurfaceComponent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
     }
 }

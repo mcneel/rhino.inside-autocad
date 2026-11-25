@@ -15,7 +15,7 @@ namespace Rhino.Inside.AutoCAD.Civil.GrasshopperLibrary;
 /// <summary>
 /// A Grasshopper component that creates a standalone Civil 3D Feature Line from a Rhino curve.
 /// </summary>
-[ComponentVersion(introduced: "1.3.10")]
+[ComponentVersion(introduced: "1.3.12")]
 public class CreateCivilFeatureLineComponent : RhinoInsideAutocad_CreateComponentBase
 {
     private string _errorMessage = string.Empty;

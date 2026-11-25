@@ -8,7 +8,7 @@ namespace Rhino.Inside.AutoCAD.Civil.GrasshopperLibrary;
 /// A Grasshopper component that extracts individual values from Civil 3D Feature Line Properties,
 /// and optionally updates the feature line.
 /// </summary>
-[ComponentVersion(introduced: "1.3.10")]
+[ComponentVersion(introduced: "1.3.12")]
 public class CivilFeatureLinePropertiesComponent : RhinoInsideAutocad_ComponentBase
 {
     /// <inheritdoc />
