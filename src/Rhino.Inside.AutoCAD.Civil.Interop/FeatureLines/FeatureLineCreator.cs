@@ -9,7 +9,11 @@ using CadPolyline = Autodesk.AutoCAD.DatabaseServices.Polyline;
 using Plane = Rhino.Geometry.Plane;
 using Point2d = Autodesk.AutoCAD.Geometry.Point2d;
 using Point3d = Rhino.Geometry.Point3d;
+using RhinoArc = Rhino.Geometry.Arc;
+using RhinoArcCurve = Rhino.Geometry.ArcCurve;
 using RhinoCurve = Rhino.Geometry.Curve;
+using RhinoLineCurve = Rhino.Geometry.LineCurve;
+using RhinoPolyCurve = Rhino.Geometry.PolyCurve;
 
 namespace Rhino.Inside.AutoCAD.Civil.Interop;
 
@@ -122,13 +126,8 @@ public static class FeatureLineCreator
         if (projected == null)
             return vertices;
 
-        var arcsAndLines = projected.ToArcsAndLines(_vertexTolerance, _angleTolerance * 10.0,
-            _shortCurveTolerance, 0.0);
-
-        if (arcsAndLines == null)
-            return vertices;
-
-        var segments = arcsAndLines.Explode();
+        var segments = new List<RhinoCurve>();
+        AddPlanSegments(projected, segments);
 
         foreach (var segment in segments)
         {
@@ -136,13 +135,145 @@ public static class FeatureLineCreator
             vertices.Add(new PlanVertex(start, GetBulge(segment), ElevationAt(curve, projected, start)));
         }
 
-        if (!curve.IsClosed && segments.Length > 0)
+        if (!curve.IsClosed && segments.Count > 0)
         {
-            var end = segments[segments.Length - 1].PointAtEnd;
+            var end = segments[segments.Count - 1].PointAtEnd;
             vertices.Add(new PlanVertex(end, 0.0, ElevationAt(curve, projected, end)));
         }
 
         return vertices;
+    }
+
+    /// <summary>
+    /// Breaks a plan curve into line and arc segments. Lines, polylines and arcs are kept
+    /// exactly (every polyline vertex becomes a PI), polycurves are handled segment by
+    /// segment, closed free-form curves such as ellipses are opened into two halves, and
+    /// anything else is fitted with arcs and lines.
+    /// </summary>
+    private static void AddPlanSegments(RhinoCurve curve, List<RhinoCurve> segments)
+    {
+        if (TryAddExactSegments(curve, segments))
+            return;
+
+        if (curve is RhinoPolyCurve polyCurve)
+        {
+            for (var i = 0; i < polyCurve.SegmentCount; i++)
+                AddPlanSegments(polyCurve.SegmentCurve(i), segments);
+
+            return;
+        }
+
+        if (curve.IsClosed)
+        {
+            // A closed curve has no start or end to anchor the fit, so open it into two
+            // halves (each an elliptical or free-form arc) and fit those instead.
+            var domain = curve.Domain;
+
+            if (!curve.NormalizedLengthParameter(0.5, out var mid))
+                mid = domain.Mid;
+
+            var first = curve.Trim(domain.T0, mid);
+            var second = curve.Trim(mid, domain.T1);
+
+            if (first != null && second != null && !first.IsClosed && !second.IsClosed)
+            {
+                AddPlanSegments(first, segments);
+                AddPlanSegments(second, segments);
+                return;
+            }
+        }
+
+        var arcsAndLines = curve.ToArcsAndLines(_vertexTolerance, _angleTolerance * 10.0,
+            _shortCurveTolerance, 0.0);
+
+        if (arcsAndLines == null)
+        {
+            AddApproximateSegments(curve, segments);
+            return;
+        }
+
+        foreach (var segment in arcsAndLines.Explode())
+        {
+            if (!TryAddExactSegments(segment, segments))
+                AddApproximateSegments(segment, segments);
+        }
+    }
+
+    /// <summary>
+    /// Adds a curve that is already a line, polyline or arc, without approximation.
+    /// </summary>
+    private static bool TryAddExactSegments(RhinoCurve curve, List<RhinoCurve> segments)
+    {
+        switch (curve)
+        {
+            case RhinoLineCurve line:
+                if (line.GetLength() > _shortCurveTolerance)
+                    segments.Add(line);
+                return true;
+
+            case RhinoArcCurve arcCurve:
+                AddArcSegments(arcCurve.Arc, segments);
+                return true;
+        }
+
+        if (curve.TryGetPolyline(out var polyline))
+        {
+            foreach (var line in polyline.GetSegments())
+            {
+                if (line.Length > _shortCurveTolerance)
+                    segments.Add(new RhinoLineCurve(line));
+            }
+
+            return true;
+        }
+
+        if (curve is not RhinoPolyCurve && curve.TryGetArc(out var arc, _vertexTolerance))
+        {
+            AddArcSegments(arc, segments);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Adds an arc, splitting it into equal pieces of at most 180 degrees. A polyline bulge
+    /// cannot describe a full circle, and arcs past a semicircle are split so the bulge stays
+    /// at or below one.
+    /// </summary>
+    private static void AddArcSegments(RhinoArc arc, List<RhinoCurve> segments)
+    {
+        var arcCurve = new RhinoArcCurve(arc);
+        var pieces = (int)Math.Ceiling(arc.Angle / Math.PI - _angleTolerance);
+
+        if (pieces <= 1)
+        {
+            segments.Add(arcCurve);
+            return;
+        }
+
+        var domain = arcCurve.Domain;
+
+        for (var i = 0; i < pieces; i++)
+        {
+            var piece = arcCurve.Trim(domain.ParameterAt((double)i / pieces),
+                domain.ParameterAt((double)(i + 1) / pieces));
+
+            if (piece != null)
+                segments.Add(piece);
+        }
+    }
+
+    /// <summary>
+    /// Last resort for a curve that cannot be fitted with arcs: a polyline approximation.
+    /// </summary>
+    private static void AddApproximateSegments(RhinoCurve curve, List<RhinoCurve> segments)
+    {
+        var approximation = curve.ToPolyline(_vertexTolerance, _angleTolerance * 10.0,
+            _shortCurveTolerance, 0.0);
+
+        if (approximation != null)
+            TryAddExactSegments(approximation, segments);
     }
 
     /// <summary>
