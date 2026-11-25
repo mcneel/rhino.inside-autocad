@@ -1180,35 +1180,5 @@ namespace Rhino.Inside.AutoCAD.Civil.GrasshopperLibrary.Properties {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Param_CivilGrading {
-            get {
-                object obj = ResourceManager.GetObject("Param_CivilGrading", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap GetGradingsComponent {
-            get {
-                object obj = ResourceManager.GetObject("GetGradingsComponent", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap CivilGradingComponent {
-            get {
-                object obj = ResourceManager.GetObject("CivilGradingComponent", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
     }
 }
