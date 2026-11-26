@@ -109,6 +109,65 @@ public static class AutoNamer
     }
 
     /// <summary>
+    /// Generates a unique feature line name by checking all sited and siteless feature lines.
+    /// </summary>
+    /// <param name="transactionManager">The transaction manager for database access.</param>
+    /// <param name="prefix">The prefix to use for the feature line name.</param>
+    /// <returns>A unique feature line name in the format "{prefix}FeatureLine_NNN".</returns>
+    public static string GenerateUniqueFeatureLineName(IAutocadTransactionManager transactionManager, string prefix)
+    {
+        var existingNames = GetAllFeatureLineNames(transactionManager);
+
+        var baseName = $"{prefix}FeatureLine";
+        var counter = 1;
+        string candidateName;
+
+        do
+        {
+            candidateName = $"{baseName}_{counter:D3}";
+            counter++;
+        } while (existingNames.Contains(candidateName));
+
+        return candidateName;
+    }
+
+    /// <summary>
+    /// Gets all existing feature line names, sited and siteless, from the database.
+    /// </summary>
+    private static HashSet<string> GetAllFeatureLineNames(IAutocadTransactionManager transactionManager)
+    {
+        var existingNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        if (ApplicationState.IsShuttingDown)
+            return existingNames;
+
+        var database = transactionManager.AutocadDatabase.Unwrap();
+        var civilDoc = CivilDocument.GetCivilDocument(database);
+
+        if (civilDoc == null)
+            return existingNames;
+
+        try
+        {
+            var transaction = transactionManager.Unwrap();
+
+            foreach (var featureLineId in CivilFeatureLineCollector.GetAllFeatureLineIds(civilDoc, transaction))
+            {
+                if (transaction.GetObject(featureLineId, OpenMode.ForRead) is FeatureLine featureLine)
+                {
+                    existingNames.Add(featureLine.Name);
+                }
+            }
+        }
+        catch (System.Exception)
+        {
+            // Return whatever names were collected
+        }
+
+        return existingNames;
+    }
+
+    /// <summary>
     /// Gets all existing surface names (TIN and Volume) from the database.
     /// </summary>
     /// <param name="autocadDatabaseWrapper">The database to check.</param>
