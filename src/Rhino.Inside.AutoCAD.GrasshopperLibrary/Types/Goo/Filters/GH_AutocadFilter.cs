@@ -100,6 +100,7 @@ public class GH_AutocadFilter : GH_Goo<IObjectFilter>
             "alignment" => new CivilAlignmentFilter(),
             "assembly" => new CivilAssemblyFilter(),
             "corridor" => new CivilCorridorFilter(),
+            "featureline" => new CivilFeatureLineFilter(),
             "parcel" => new CivilParcelFilter(),
             "profile" => new CivilProfileFilter(),
             "profileview" => new CivilProfileViewFilter(),

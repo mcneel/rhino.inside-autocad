@@ -33,6 +33,7 @@ public class FilterValueList : GH_ValueList
         this.ListItems.Add(new GH_ValueListItem("Alignment", "\"alignment\""));
         this.ListItems.Add(new GH_ValueListItem("Assembly", "\"assembly\""));
         this.ListItems.Add(new GH_ValueListItem("Corridor", "\"corridor\""));
+        this.ListItems.Add(new GH_ValueListItem("Feature Line", "\"featureline\""));
         this.ListItems.Add(new GH_ValueListItem("Parcel", "\"parcel\""));
         this.ListItems.Add(new GH_ValueListItem("Profile", "\"profile\""));
         this.ListItems.Add(new GH_ValueListItem("Profile View", "\"profileview\""));
